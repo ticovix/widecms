@@ -1,0 +1,250 @@
+<a class="btn btn-mini btn-default input-group-addon" href="#Modal-${realname}" role="button" data-toggle="modal">Configurar upload</a>
+
+<div id="Modal-${realname}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h2>Configurar upload do campo ${label}</h2>
+            </div>
+            <div class="modal-body">
+                <h3 class="text-center">Redimensionamento</h3>
+                <div class="row form-group">
+                    <div class="col-sm-12">
+                        <label title="Deseja definir um tamanho de redimensionamento para a imagem">Redimensionar imagem ?</label>
+                        <select class="input-large input_image_resize form-control">
+                            <option value="">Não</option>
+                            <option value="true" ${input_image_resize}>Sim</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-6">
+                        <label title="Difinir a largura da imagem">Largura</label>
+                        <input type="text" class="input-large form-control input_image_x" value="${image_x}" ${if_resize}>
+
+                    </div>
+                    <div class="col-sm-6">
+                        <label title="Definir a altura da imagem">Altura</label>
+                        <input type="text" class="input-large form-control input_image_y" value="${image_y}" ${if_resize}>
+
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-6">
+                        <label title="Redimensionar largura e altura da imagem proporcionalmente">Redim. proporcional</label>
+                        <select class="input-large input_image_ratio form-control" ${if_resize}>
+                            <option value="">Não</option>
+                            <option value="true" ${input_image_ratio}>Sim</option>
+                        </select>
+
+                    </div>
+                    <div class="col-sm-6">
+                        <label title="Redimensionar largura da imagem proporcionalmente">Redim. proporcional (Largura)</label>
+                        <select class="input-large input_image_ratio_x form-control" ${if_resize}>
+                            <option value="">Não</option>
+                            <option value="true" ${input_image_ratio_x}>Sim</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-6">
+                        <label title="Redimensionar altura da imagem proporcionalmente">Redim. proporcional (Altura)</label>
+                        <select class="input-large input_image_ratio_y form-control" ${if_resize}>
+                            <option value="">Não</option>
+                            <option value="true" ${input_image_ratio_y}>Sim</option>
+                        </select>
+
+                    </div>
+                    <div class="col-sm-6">
+                        <label title="Cortar imagem por tamanho definido">Cortar imagem</label>
+                        <select class="input-large input_image_ratio_crop form-control" ${if_resize}>
+                            <option value="">Não</option>
+                            <option value="true" ${input_image_ratio_crop_corte_centro}>Sim, alinhar corte no centro</option>
+                            <option value="L" ${input_image_ratio_crop_corte_esquerda}>Sim, alinhar corte na esquerda</option>
+                            <option value="R" ${input_image_ratio_crop_corte_direita}>Sim, alinhar corte na direita</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-6">
+                        <label title="Preencher imagem com tamanho fixo">Preencher imagem</label>
+                        <select class="input-large input_image_ratio_fill form-control" ${if_resize}>
+                            <option value="">Não</option>
+                            <option value="true" ${input_image_ratio_fill_alinhando_centro}>Sim, preencher alinhando imagem no centro</option>
+                            <option value="L" ${input_image_ratio_fill_alinhando_esquerda}>Sim, preencher alinhando imagem na esquerda</option>
+                            <option value="R" ${input_image_ratio_fill_alinhando_direita}>Sim, preencher alinhando imagem na direita</option>
+                        </select>
+
+                    </div>
+                    <div class="col-sm-6">
+                        <label title="Definir a cor de fundo do preenchimento da imagem">Cor de fundo</label>
+                        <input type="text" value="${image_background_color}" class="input-large form-control input_image_background_color">
+
+                    </div>
+                </div>
+                <hr>
+                <h3 class="text-center">Conversão</h3>
+                <div class="row form-group">
+                    <div class="col-sm-12">
+                        <label title="Coverter imagens">Converter imagem</label>
+                        <select class="input-large input_image_convert form-control">
+                            <option value="">Não</option>
+                            <option value="jpg" ${input_image_convert_jpg}>JPG/JPEG</option>
+                            <option value="png" ${input_image_convert_png}>PNG</option>
+                            <option value="gif" ${input_image_convert_gif}>GIF</option>
+                        </select>
+                    </div>
+                </div>
+                <hr>
+                <h3 class="text-center">Marca d'agua</h3>
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label title="">Texto</label>
+                        <input type="text" value="${input_image_text}" class="input-large form-control input_image_text">
+                    </div>
+                    <div class="col-sm-3">
+                        <label>Cor do texto</label>
+                        <input type="color" value="${input_image_text_color}" class="input-large form-control input_image_text_color">
+                    </div>
+                    <div class="col-sm-3">
+                        <label>Cor de fundo do texto</label>
+                        <input type="color" value="${input_image_text_background}" class="input-large form-control input_image_text_background">
+                    </div>
+                    <div class="col-sm-3">
+                        <label>Opacidade do texto (0/100)</label>
+                        <input type="text" value="${input_image_text_opacity}" class="input-large form-control input_image_text_opacity">
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label>Opacidade do fundo(0/100)</label>
+                        <input type="text" value="${input_image_text_background_opacity}" class="input-large form-control input_image_text_background_opacity">
+                    </div>
+                    <div class="col-sm-3">
+                        <label >Espaço interno (px)</label>
+                        <input type="text" value="${input_image_text_padding}" class="input-large form-control input_image_text_padding">
+                    </div>
+                    <div class="col-sm-3">
+                        <label>Posição</label>
+                        <select class="input-large input_image_text_position form-control">
+                            <option value="">Não</option>
+                            <option value="TL" ${input_image_text_position_tl}>Topo, Esquerda</option>
+                            <option value="TR" ${input_image_text_position_tr}>Topo, Direita</option>
+                            <option value="L" ${input_image_text_position_l}>Centro, Esquerda</option>
+                            <option value="R" ${input_image_text_position_r}>Centro, Direita</option>
+                            <option value="BL" ${input_image_text_position_bl}>Rodapé, Esquerda</option>
+                            <option value="BR" ${input_image_text_position_br}>Rodapé, Direita</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label>Orientação</label>
+                        <select class="input-large input_image_text_direction form-control">
+                            <option value="">Horizontal (-)</option>
+                            <option value="v" ${input_image_text_direction_v}>Vertical (|)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-6">
+                        <label>Posição - X (px)</label>
+                        <input type="text" value="${input_image_text_x}" class="input-large form-control input_image_text_x">
+                    </div>
+                    <div class="col-sm-6">
+                        <label>Posição - Y (px)</label>
+                        <input type="text" value="${input_image_text_y}" class="input-large form-control input_image_text_y">
+                    </div>
+                </div>
+                <hr>
+                <h3 class="text-center">Outros efeitos</h3>
+                <div class="row form-group">
+                    <div class="col-sm-6">
+                        <label title="Difinir altura do efeito reflexo">Altura do efeito reflexo (px)</label>
+                        <input type="text" value="${input_reflection_height}" class="input-large form-control input_reflection_height">
+
+                    </div>
+                    <div class="col-sm-6">
+                        <label title="Adicionar opacidade de 0 a 100 no reflexo">Opacidade do reflexo</label>
+                        <input type="text" value="${input_reflection_opacity}" class="input-large form-control input_reflection_opacity">
+
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-6">
+                        <label title="Adicionar espaço entre a imagem e reflexo">Espaço entre imagem e reflexo</label>
+                        <input type="text" value="${input_reflection_space}" class="input-large form-control input_reflection_space">
+
+                    </div>
+                    <div class="col-sm-6">
+                        <label title="Definir opacidade da imagem">Opacidade</label>
+                        <input type="text" value="${input_image_opacity}" class="input-large form-control input_image_opacity">
+
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-6">
+                        <label title="Definir tamanho em pixels da borda transparente">Borda transparente</label>
+                        <input type="text" value="${input_border_transparent}" class="input-large form-control input_border_transparent">
+
+                    </div>
+                    <div class="col-sm-6">
+                        <label title="Definir opacidade da imagem">Efeito preto e branco</label>
+                        <select class="input-large input_image_greyscale form-control">
+                            <option value="">Não</option>
+                            <option value="true" ${input_image_greyscale}>Sim</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-6">
+                        <label title="Definir tamanho de borda">Borda</label>
+                        <input type="text" value="${image_border}" class="input-large input_image_border form-control">
+
+                    </div>
+                    <div class="col-sm-6">
+                        <label title="Definir cor da borda">Cor da borda</label>
+                        <input type="color" value="${image_border_color}" class="input-large form-control input_image_border_color">
+
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-6">
+                        <label title="Definir opacidade da borda">Opacidade da borda</label>
+                        <input type="text" value="${image_border_opacity}" class="input-large form-control input_image_border_opacity">
+
+                    </div>	
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-12">
+                        <label title="Criar miniatura de 300px de largura"><input type="checkbox" value="true" ${thumbnail_300px} class="input-large thumbnail_300px"> Criar miniatura de 300px de largura (ex:thumbnail_300_nome_da_imagem.jpg)
+                        </label>
+                    </div>	
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-12">
+                        <label title="Criar miniatura de 200px de largura"><input type="checkbox" value="true" ${thumbnail_200px} class="input-large thumbnail_200px"> Criar miniatura de 200px de largura (ex:thumbnail_200_nome_da_imagem.jpg)
+                        </label>
+                    </div>	
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-12">
+                        <label title="Criar miniatura de 100px de largura"><input type="checkbox" value="true" ${thumbnail_100px} class="input-large thumbnail_100px"> Criar miniatura de 100px de largura (ex:thumbnail_100_nome_da_imagem.jpg)
+                        </label>
+                    </div>	
+                </div>
+                <a class="btn btn-default refresh-${realname}">Atualizar visualização</a><br>
+                <br><br>
+                <strong>Pré-visualização</strong><br>
+                <img class="image-${realname}" src="${image}" style="background-image: url('${url}/template/images/transp.gif') !important;">
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Fechar</button>
+                <button class="btn btn-primary btn-${realname}">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,18 @@
+<IfModule mod_rewrite.c> 
+    RewriteEngine On 
+    #RewriteBase /   
+    #Remove o acesso a pasta system 
+    #se o arquivo não existir (um css ou javascript por exemplo) 
+    #ele redireciona para o index.php 
+    RewriteCond %{REQUEST_FILENAME} !-f 
+    RewriteCond %{REQUEST_FILENAME} !-d 
+    RewriteRule ^(.*)$ index.php/$1 [L]   
+    #aqui fazemos o redirecionamento 301 de uma url.com.br para www.url.com.br 
+    #RewriteCond %{HTTP_HOST} ^(seusite\.com\.br)(:80)? [NC] 
+    #RewriteRule ^(.*) http://www.seusite.com.br/$1 [R=301,L] 
+</IfModule> 
+<IfModule !mod_rewrite.c> 
+    #caso o mod_rewrite não esteja habilitado ele redireciona todo erro 404 
+    #para o index.php ainda funcionando 
+    ErrorDocument 404 /index.php 
+</IfModule>
