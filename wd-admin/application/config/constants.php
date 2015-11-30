@@ -95,3 +95,4 @@ define('EXIT__AUTO_MAX', 125); // highest automatically-assigned error code
 */ 
 define ( 'PHPASS_HASH_STRENGTH' ,  8 ); 
 define ( 'PHPASS_HASH_PORTABLE' , FALSE );
+define('DIR_ADMIN_DEFAULT', 'wd-admin/');

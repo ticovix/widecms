@@ -1,0 +1,48 @@
+/*Standard Elements*/
+body {
+    background: #eee;
+    background-position: initial initial;
+    background-repeat: initial initial;
+    background-position: initial initial;
+    background-repeat: initial initial;
+    margin: 0px;
+    padding: 0px;
+}
+a{
+    color: #000;
+}
+a:hover{
+    color: #F12938;
+}
+
+a:hover {
+    text-decoration: none;
+}
+h1 {
+    margin-top: 0px;
+    color: #eee;
+}
+h2 {
+    font-size: 1.75em;
+}
+h3 {
+    font-size: 1.25em;
+}
+hr {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #fff;
+}
+.logo{
+    padding: 60px 0 30px 0; 
+}
+.btn-primary{
+    background: #F12938;
+    border:none;
+}
+.btn-primary:hover{
+    background: #000;
+}
+.block-body{
+    width: 250px;
+    margin: 0 auto;
+}

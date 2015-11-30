@@ -22,6 +22,7 @@ class Login extends CI_Controller {
         $header = [
             'title'=>'Login'
         ];
+        add_css('view/login/css/style.css');
         $this->load->view('login/inc/header', $header);
         $this->load->view('login/index');
         $this->load->view('login/inc/footer');
@@ -43,7 +44,6 @@ class Login extends CI_Controller {
         $account = $this->users_model->userExists($user);
         $pass = $account['password'];
         $id = $account['id'];
-        
         if (!$account) {
             $this->form_validation->set_message('authAccount', 'E-mail ou senha incorreto.');
             return false;

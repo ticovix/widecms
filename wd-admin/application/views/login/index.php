@@ -1,10 +1,14 @@
-<div class="row-fluid">
+<?php
+if (!defined('BASEPATH')){
+    exit('No direct script access allowed');
+}
+?>
+<div class="row">
     <div class="dialog">
-        <div class="block">
-            <p class="block-heading">
-                <img src="<?php echo base_url() ?>assets/images/widedevelop.png" class="logo"> Sistema de gerenciamento
-            </p>
             <div class="block-body">
+                <div align="center">
+                    <img src="<?php echo base_url() ?>assets/images/cms_wide.png" class="logo img-responsive">
+                </div>
                 <?php
                 echo form_open();
                 ?>
@@ -16,13 +20,6 @@
                     <label for="password">Senha:</label>
                     <input type="password" id="password" name="password" class="form-control">
                 </div>
-                <?php
-                /* if($persistence_login_error>3){?>
-                  <img src="<?php echo base_url()?>assets/lib/captcha/imgGera.php">
-                  <label>O que você vê na imagem ?</label>
-                  <input type="text" name="captcha" class="form-control"><br>
-                 */
-                ?>
                 <div class="panel-bottom form-group">
                     <a href="<?php echo base_url() ?>login/reset-pass">Esqueci minha senha</a>
                     <input value="Acessar" name="access" class="btn btn-primary pull-right" type="submit">
@@ -33,7 +30,6 @@
                 echo validation_errors('<p class="alert alert-danger">', '</p>');
                 ?>
             </div>
-        </div>
     </div>
 </div>
 

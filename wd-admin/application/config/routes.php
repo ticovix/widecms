@@ -51,14 +51,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 $route['default_controller'] = 'Home';
 $route['404_override'] = '';
-$route['translate_uri_dashes'] = FALSE;
-//$route[':any'] = 'login'; redireciona qualquer caracter para login
-//$route[':num'] = 'login'; redireciona somente numero para login
-/*
- $route[(:any)/(:any)] = 'login/test/$1/$2';
- function test()
-    {
-        echo $this->uri->segment(1); // retorna o código da categoria
-        echo $this->uri->segment(2); // retorna o código do produto
-    }
- */
+$route['translate_uri_dashes'] = TRUE;
+$route['logout'] = 'home/logout';
+$route['project/(:any)/create-page'] = 'project/create-page/$1';
+$route['project/(:any)/edit-page/(:any)'] = 'project/edit-page/$1/$2';
+$route['project/(:any)/delete-page/(:any)'] = 'project/delete-page/$1/$2';
+$route['project/(:any)/(:any)/(:any)'] = 'project/$3/$1/$2';
+$route['project/(:any)/(.*)'] = 'project/sections/$1/$2/$3';
+$route['project/(:any)'] = 'project/index/$1';

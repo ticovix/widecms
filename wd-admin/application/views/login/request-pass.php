@@ -1,4 +1,8 @@
-
+<?php
+if (!defined('BASEPATH')){
+    exit('No direct script access allowed');
+}
+?>
 <div class="row-fluid">
     <div class="dialog">
         <div class="block">
