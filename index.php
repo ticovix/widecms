@@ -86,7 +86,7 @@ switch (ENVIRONMENT)
  *
  * NO TRAILING SLASH!
  */
-	$application_folder = 'site-principal';
+	$application_folder = 'application';
 
 /*
  *---------------------------------------------------------------
