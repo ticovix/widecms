@@ -156,7 +156,7 @@ CREATE TABLE `wd_projects` (
 
 LOCK TABLES `wd_projects` WRITE;
 /*!40000 ALTER TABLE `wd_projects` DISABLE KEYS */;
-INSERT INTO `wd_projects` VALUES (11,'Site principal','application',1,'site-principal',1,'',1);
+INSERT INTO `wd_projects` VALUES (11,'Site principal','site',1,'site',1,'',1);
 /*!40000 ALTER TABLE `wd_projects` ENABLE KEYS */;
 UNLOCK TABLES;
 
