@@ -226,7 +226,7 @@ if (!function_exists('projects')) {
         $CI = & get_instance();
         $CI->load->model('projects_model');
         $id_user = $CI->session->userdata('id');
-        return $CI->projects_model->search($CI->dataUser['dev_mode']);
+        return $CI->projects_model->search($CI->data_user['dev_mode']);
     }
 
 }
