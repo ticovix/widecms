@@ -91,20 +91,23 @@ if (!function_exists('slug')) {
 if (!function_exists('forceRemoveDir')) {
 
     function forceRemoveDir($dir) {
-        if ($dd = opendir($dir)) {
-            while (false !== ($file = readdir($dd))) {
-                if ($file != '.' && $file != '..') {
-                    $path = $dir . '/' . $file;
-                    if (is_dir($path)) {
-                        forceRemoveDir($path);
-                    } elseif (is_file($path)) {
-                        unlink($path);
+        $opendir = \opendir($dir);
+        if ($opendir) {
+            if ($dd = $opendir) {
+                while (false !== ($file = readdir($dd))) {
+                    if ($file != '.' && $file != '..') {
+                        $path = $dir . '/' . $file;
+                        if (is_dir($path)) {
+                            forceRemoveDir($path);
+                        } elseif (is_file($path)) {
+                            \unlink($path);
+                        }
                     }
                 }
+                closedir($dd);
             }
-            closedir($dd);
+            \rmdir($dir);
         }
-        rmdir($dir);
     }
 
 }
@@ -140,17 +143,15 @@ if (!function_exists('generateXML') && !function_exists('arrayToXML')) {
         foreach ($array_in as $k => $v):
             if ($k[0] == "@") {
                 $attributes[str_replace("@", "", $k)] = $v;
+            } elseif (is_array($v)) {
+                $return .= generateXML($k, arrayToXML($v, $cdata, false), $attributes, false);
+                $attributes = array();
+            } else if (is_bool($v)) {
+                $return .= generateXML($k, (($v == true) ? "true" : "false"), $attributes, false);
+                $attributes = array();
             } else {
-                if (is_array($v)) {
-                    $return .= generateXML($k, arrayToXML($v, $cdata, false), $attributes, false);
-                    $attributes = array();
-                } else if (is_bool($v)) {
-                    $return .= generateXML($k, (($v == true) ? "true" : "false"), $attributes, false);
-                    $attributes = array();
-                } else {
-                    $return .= generateXML($k, htmlspecialchars($v, ENT_NOQUOTES), $attributes, $cdata);
-                    $attributes = array();
-                }
+                $return .= generateXML($k, htmlspecialchars($v, ENT_NOQUOTES), $attributes, $cdata);
+                $attributes = array();
             }
         endforeach;
         return $return;
@@ -177,6 +178,44 @@ if (!function_exists('setError') && !function_exists('getErrors')) {
         } else {
             return false;
         }
+    }
+
+}
+if (!function_exists('FileSizeConvert')) {
+
+    function FileSizeConvert($bytes) {
+        $bytes = floatval($bytes);
+        $arBytes = array(
+            0 => array(
+                "UNIT" => "TB",
+                "VALUE" => pow(1024, 4)
+            ),
+            1 => array(
+                "UNIT" => "GB",
+                "VALUE" => pow(1024, 3)
+            ),
+            2 => array(
+                "UNIT" => "MB",
+                "VALUE" => pow(1024, 2)
+            ),
+            3 => array(
+                "UNIT" => "KB",
+                "VALUE" => 1024
+            ),
+            4 => array(
+                "UNIT" => "B",
+                "VALUE" => 1
+            ),
+        );
+
+        foreach ($arBytes as $arItem) {
+            if ($bytes >= $arItem["VALUE"]) {
+                $result = $bytes / $arItem["VALUE"];
+                $result = str_replace(".", ",", strval(round($result, 2))) . " " . $arItem["UNIT"];
+                break;
+            }
+        }
+        return $result;
     }
 
 }

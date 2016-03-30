@@ -66,6 +66,7 @@ if (!function_exists('put_css')) {
         $path_asset = $ci->config->item('path_asset');
         
         if ($header_css) {
+            $header_css = array_unique($header_css);
             foreach ($header_css AS $item) {
                 if(strpos($item, '//')){
                     $href = $item;
@@ -89,6 +90,7 @@ if (!function_exists('put_js')) {
         $footer_js = $ci->config->item('add_js');
         $path_asset = $ci->config->item('path_asset');
         if($footer_js){
+            $footer_js = array_unique($footer_js);
             foreach ($footer_js AS $item) {
                 if(strpos($item, '//')){
                     $src = $item;

@@ -12,7 +12,7 @@ class Users_model extends CI_Model {
 
     public function userExists($user) {
         $this->db->select('password, id');
-        $stmt = $this->db->get_where('wd_users', ['login' => $user]);
+        $stmt = $this->db->get_where('wd_users', ['login' => $user, 'status' => '1']);
         if ($stmt->num_rows() > 0) {
             return $stmt->row_array();
         } else {
@@ -21,7 +21,7 @@ class Users_model extends CI_Model {
     }
 
     public function getUser($id) {
-        return $this->db->get_where('wd_users', ['id' => $id])->row_array();
+        return $this->db->get_where('wd_users', ['id' => $id, 'status' => '1'])->row_array();
     }
     
     public function getUserEdit($login) {
@@ -51,7 +51,9 @@ class Users_model extends CI_Model {
             'login' => $data['login'],
             'email' => $data['email'],
             'password' => $data['password'],
-            'status' => $data['status']
+            'status' => $data['status'],
+            'allow_dev' => $data['allow_dev'],
+            'root' => $data['root']
         ];
         return $this->db->insert('wd_users', $data);
     }
@@ -61,7 +63,9 @@ class Users_model extends CI_Model {
             'name' => $data['name'],
             'last_name' => $data['lastname'],
             'password' => $data['password'],
-            'status' => $data['status']
+            'status' => $data['status'],
+            'allow_dev' => $data['allow_dev'],
+            'root' => $data['root']
         ];
         $where = ['login' => $data['login']];
         return $this->db->update('wd_users', $set, $where);

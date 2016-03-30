@@ -45,6 +45,7 @@ class Users extends MY_Controller {
 
         $data = [
             'title' => 'Usuários',
+            'user_logged' => $this->data_user,
             'users' => $users,
             'pagination' => $pagination,
             'total' => $total_rows
@@ -70,7 +71,9 @@ class Users extends MY_Controller {
                 'login' => $this->input->post('login'),
                 'password' => $PasswordHash->HashPassword($this->input->post('password')),
                 'lastname' => $this->input->post('lastname'),
-                'status' => $this->input->post('status')
+                'status' => $this->input->post('status'),
+                'root' => $this->input->post('root'),
+                'allow_dev' => $this->input->post('allow_dev')
             ];
             $this->users_model->create($data);
             redirect('users');
@@ -81,11 +84,14 @@ class Users extends MY_Controller {
         ]);
         $vars = [
             'title' => 'Novo usuário',
+            'user_logged' => $this->data_user,
             'name' => null,
             'last_name' => null,
             'email' => null,
             'login' => null,
-            'status' => null
+            'status' => null,
+            'root' => null,
+            'allow_dev' => null,
         ];
         $this->load->template('users/form', $vars);
     }
@@ -97,14 +103,15 @@ class Users extends MY_Controller {
         }
 
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-        $this->form_validation->set_rules('password', 'Senha', 'trim|required');
 
         if ($this->form_validation->run()) {
             $data = [
                 'login' => $user['login'],
                 'name' => $this->input->post('name'),
                 'lastname' => $this->input->post('lastname'),
-                'status' => $this->input->post('status')
+                'status' => $this->input->post('status'),
+                'root' => $this->input->post('root'),
+                'allow_dev' => $this->input->post('allow_dev')
             ];
             if (!empty($this->input->post('password'))) {
                 $this->load->helper('passwordhash');
@@ -122,11 +129,14 @@ class Users extends MY_Controller {
         ]);
         $vars = [
             'title' => 'Editar usuário',
+            'user_logged' => $this->data_user,
             'name' => $user['name'],
             'last_name' => $user['last_name'],
             'email' => $user['email'],
             'login' => $user['login'],
-            'status' => $user['status']
+            'status' => $user['status'],
+            'root' => $user['root'],
+            'allow_dev' => $user['allow_dev'],
         ];
         $this->load->template('users/form', $vars);
     }
@@ -141,7 +151,7 @@ class Users extends MY_Controller {
         $this->form_validation->set_rules('dev', 'Dev', 'required');
         if($this->form_validation->run()){
             $dev = $this->input->post('dev');
-            $this->users_model->change_mode(['dev'=>$dev,'id_user'=>$this->dataUser['id']]);
+            $this->users_model->change_mode(['dev'=>$dev,'id_user'=>$this->data_user['id']]);
         }
     }
 

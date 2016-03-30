@@ -28,7 +28,6 @@ if (!defined('BASEPATH')) {
         <p><strong>Atenção:</strong> A remoção será permanente, sem possibilidade de restaurar o projeto.</p>
     </div>
     <input type="checkbox" value="1" name="delete_all" <?php echo set_checkbox('main') ?>> Remover todos os arquivos do projeto do diretório <strong>/<?php echo $project['directory']; ?></strong>.<br>
-    <input type="checkbox" value="1" name="delete_db" <?php echo set_checkbox('main') ?>> Remover tabela <strong><?php echo $project['database']; ?></strong>.
     <div class="form-group text-right">
         <input class="btn btn-danger" value="Remover" name="send" type="submit">
     </div>

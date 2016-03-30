@@ -12,15 +12,17 @@ class Projects extends MY_Controller {
     }
 
     public function index() {
+        /* Form search */
         $this->form_validation->set_rules('search', 'Pesquisa', 'trim|required');
         $keyword = $this->input->get('search');
         $perPage = $this->input->get('per_page');
-        $limit = 10;
         $this->form_validation->run();
-        $projects = $this->projects_model->search($this->dataUser['dev_mode'], $keyword, $limit, $perPage);
-        $total_rows = $this->projects_model->searchTotalRows($this->dataUser['dev_mode'], $keyword);
+        $limit = 10;
+        $projects = $this->projects_model->search($this->data_user['dev_mode'], $keyword, $limit, $perPage);
+        $total_rows = $this->projects_model->searchTotalRows($this->data_user['dev_mode'], $keyword);
+        /* Form search */
 
-        // paginação
+        /* Pagination */
         $this->load->library('pagination');
         $config['total_rows'] = $total_rows;
         $config['per_page'] = $limit;
@@ -42,6 +44,7 @@ class Projects extends MY_Controller {
 
         $this->pagination->initialize($config);
         $pagination = $this->pagination->create_links();
+        /* End pagination */
 
         $vars = [
             'title' => 'Projetos',
@@ -49,7 +52,7 @@ class Projects extends MY_Controller {
             'pagination' => $pagination,
             'total' => $total_rows
         ];
-        if ($this->dataUser['dev_mode']) {
+        if ($this->data_user['dev_mode']) {
             $this->load->template('dev-projects/index', $vars);
         } else {
             $this->load->template('projects/index', $vars);
@@ -57,48 +60,34 @@ class Projects extends MY_Controller {
     }
 
     public function create() {
-        if (!$this->dataUser['dev_mode']) {
-            header('HTTP/1.1 403 Forbidden');
-            die();
-        }
-
+        $this->func_only_dev();
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-        $this->form_validation->set_rules('database', 'Banco de dados', 'trim|required');
-        $this->form_validation->set_rules('dir', 'Diretório', 'trim|required|callback_verifyDir');
+        $this->form_validation->set_rules('suffix', 'Sufixo', 'trim|required|max_length[6]');
+        $this->form_validation->set_rules('dir', 'Diretório', 'trim|required|callback_verify_dir');
         if ($this->form_validation->run()) {
             $name = $this->input->post('name');
             $slug = $this->slug($name);
             $dir = slug($this->input->post('dir'));
             $main = $this->input->post('main');
-            $database = $this->input->post('database');
+            $suffix = str_replace('_', '', $this->input->post('suffix')) . '_';
             $status = $this->input->post('status');
             $create_db = false;
-            if ($main) {
-                $database = $this->db->database;
-                $create_db = true;
-            } else {
-                $create_db = $this->projects_model->createDB($database);
-            }
 
-            if (!$create_db) {
-                setError('errorDB', 'Não foi possível criar o banco de dados ' . $database . ', já existe ou você não tem permissões suficientes.');
-            } else {
-                $user = $this->dataUser;
-                $data = [
-                    'name' => $name,
-                    'dir' => $dir,
-                    'slug' => $slug,
-                    'id_user' => $user['id'],
-                    'main' => $main,
-                    'database' => $database,
-                    'status' => $status
-                ];
-                $create = $this->projects_model->create($data);
-                if ($create) {
-                    $this->extractProject($data);
-                }
-                redirect('projects');
+            $user = $this->data_user;
+            $data = [
+                'name' => $name,
+                'dir' => $dir,
+                'slug' => $slug,
+                'id_user' => $user['id'],
+                'suffix' => $suffix,
+                'main' => $main,
+                'status' => $status
+            ];
+            $create = $this->projects_model->create($data);
+            if ($create) {
+                $this->extractProject($data);
             }
+            redirect('projects');
         } else {
             setError('errors_create', validation_errors());
         }
@@ -112,18 +101,15 @@ class Projects extends MY_Controller {
             'directory' => '',
             'database' => '',
             'main' => '',
-            'status' => ''
+            'status' => '',
+            'suffix' => ''
         ];
         $this->load->template('dev-projects/form', $vars);
     }
 
-    public function edit($slug) {
-        if (!$this->dataUser['dev_mode']) {
-            header('HTTP/1.1 403 Forbidden');
-            die();
-        }
-
-        $project = $this->projects_model->getProject($slug);
+    public function edit($slug_project) {
+        $this->func_only_dev();
+        $project = $this->projects_model->getProject($slug_project);
         if (!$project) {
             redirect('projects');
         }
@@ -133,7 +119,7 @@ class Projects extends MY_Controller {
             $name = $this->input->post('name');
             $slug = $this->slug($name, $project['id']);
             $status = $this->input->post('status');
-            $user = $this->dataUser;
+            $user = $this->data_user;
             $data = [
                 'name' => $name,
                 'slug' => $slug,
@@ -149,32 +135,33 @@ class Projects extends MY_Controller {
         add_js([
             'view/projects/js/form.js'
         ]);
+        $suffix = $project['suffix'];
         $vars = [
             'title' => 'Editar projeto',
             'name' => $project['name'],
             'directory' => $project['directory'],
-            'database' => $project['database'],
+            'suffix' => $suffix,
             'status' => $project['status'],
             'main' => $project['main']
         ];
         $this->load->template('dev-projects/form', $vars);
     }
 
-    public function verifyDir($dir) {
+    public function verify_dir($dir) {
         $main = $this->input->post('main');
         if ($main) {
             $mainExists = $this->projects_model->mainExists();
             if ($mainExists && is_dir('../' . $mainExists['directory'])) {
-                $this->form_validation->set_message('verifyDir', 'Já existe um diretório principal.');
+                $this->form_validation->set_message('verify_dir', 'Já existe um diretório principal.');
                 return false;
             }
         }
 
         if (is_dir('../' . $dir)) {
-            $this->form_validation->set_message('verifyDir', 'Esse diretório já existe.');
+            $this->form_validation->set_message('verify_dir', 'Esse diretório já existe.');
             return false;
         } elseif (!$this->createDir($dir, $main)) {
-            $this->form_validation->set_message('verifyDir', 'Não foi possível criar o diretório.');
+            $this->form_validation->set_message('verify_dir', 'Não foi possível criar o diretório.');
             return false;
         } else {
             return true;
@@ -289,39 +276,33 @@ class Projects extends MY_Controller {
         return $slug;
     }
 
-    public function delete($project) {
-        if (!$this->dataUser['dev_mode']) {
-            header('HTTP/1.1 403 Forbidden');
-            die();
-        }
-
-        $project = $this->projects_model->getProject($project);
+    public function delete($slug_project) {
+        $this->func_only_dev();
+        $project = $this->projects_model->getProject($slug_project);
         if (!$project) {
             redirect('projects');
-        } else {
-            $this->form_validation->set_rules('project', 'Projeto', 'trim|required|integer');
-            if ($this->form_validation->run()) {
-                if ($project['id'] == $this->input->post('project')) {
-                    $delete_all = $this->input->post('delete_all');
-                    $delete_db = $this->input->post('delete_db');
-                    $this->projects_model->delete($project['id']);
-
-                    if ($project['database'] != $this->db->database && $delete_db) {
-                        $this->projects_model->deleteDB($project['database']);
-                    }
-                    forceRemoveDir(getcwd() . '/application/views/project/' . $project['directory']);
-                    if ($delete_all) {
-                        forceRemoveDir('../' . $project['directory']);
-                        redirect('projects');
-                    }
+        }
+        $this->form_validation->set_rules('project', 'Projeto', 'trim|required|integer');
+        if ($this->form_validation->run()) {
+            if ($project['id'] == $this->input->post('project')) {
+                $delete_all = $this->input->post('delete_all');
+                $this->projects_model->delete($project['id']);
+                $dir_project = $project['directory'];
+                forceRemoveDir(getcwd() . '/application/controllers/Project/' . $dir_project);
+                forceRemoveDir(getcwd() . '/application/models/Project/' . $dir_project);
+                forceRemoveDir(getcwd() . '/assets/project/' . $dir_project);
+                forceRemoveDir(getcwd() . '/application/views/project/' . $dir_project);
+                if ($delete_all) {
+                    forceRemoveDir('../' . $dir_project);
+                    redirect('projects');
                 }
             }
-            $vars = [
-                'title' => 'Remover projeto',
-                'project' => $project
-            ];
-            $this->load->template('dev-projects/delete', $vars);
         }
+        $vars = [
+            'title' => 'Remover projeto',
+            'project' => $project
+        ];
+        $this->load->template('dev-projects/delete', $vars);
     }
 
 }

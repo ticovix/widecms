@@ -575,6 +575,7 @@ table.table.list tr:first-child td {
     text-align: center;
     padding:15px;
     color: #333;
+    margin-top:15px;
 }
 .apps-home .app:hover{
     background: #eee;
@@ -710,9 +711,7 @@ table.table.list tr:first-child td {
 .text-right{
     text-align: right !important;
 }
-select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input{
-    margin-bottom: 0;
-}
+
 .colorn{
     background:#eee;
 }

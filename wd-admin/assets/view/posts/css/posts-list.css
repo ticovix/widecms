@@ -1,0 +1,10 @@
+.files-list{
+    width: 100px;
+    float: left;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.content-files{
+    clear: both;
+}

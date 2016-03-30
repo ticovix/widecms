@@ -30,7 +30,6 @@ if (!defined('BASEPATH')) {
             <tr>
                 <th>Projeto</th>
                 <th>Diretório</th>
-                <th>Database</th>
                 <th>Status</th>
                 <th style="width: 50px;">Ação</th>
             </tr>
@@ -47,7 +46,6 @@ if ($projects) {
                             </a>
                         </td>
                         <td><?php echo $arr["directory"] ?></td>
-                        <td><?php echo $arr["database"] ?></td>
                         <td><i class="fa fa-lg <?php if ($arr['status'] === '1') {
             echo 'fa-check';
         } elseif ($arr['status'] === '0') {

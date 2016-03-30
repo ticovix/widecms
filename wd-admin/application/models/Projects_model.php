@@ -13,18 +13,18 @@ class Projects_model extends CI_Model {
             'fk_user' => $data['id_user'],
             'slug' => $data['slug'],
             'main' => $data['main'],
-            'database' => $data['database']
+            'suffix' => $data['suffix']
         ];
         return $this->db->insert('wd_projects', $set);
     }
-    
-    public function edit($data){
+
+    public function edit($data) {
         $set = [
             'name' => $data['name'],
             'slug' => $data['slug'],
             'status' => $data['status']
         ];
-        return $this->db->update('wd_projects', $set, ['id'=>$data['project']]);
+        return $this->db->update('wd_projects', $set, ['id' => $data['project']]);
     }
 
     public function verifySlug($slug, $id = NULL) {
@@ -41,8 +41,8 @@ class Projects_model extends CI_Model {
         $this->db->group_end();
         $this->db->limit($total, $offset);
         $this->db->order_by('main DESC, name');
-        if($dev_mode=='0'){
-            $this->db->where('status','1');
+        if ($dev_mode == '0') {
+            $this->db->where('status', '1');
         }
         return $this->db->get('wd_projects')->result_array();
     }
@@ -53,8 +53,8 @@ class Projects_model extends CI_Model {
         $this->db->like('name', $keyword);
         $this->db->or_like('directory', $keyword);
         $this->db->group_end();
-        if($dev_mode=='0'){
-            $this->db->where('status','1');
+        if ($dev_mode == '0') {
+            $this->db->where('status', '1');
         }
         return $this->db->get('wd_projects')->row()->total;
     }
@@ -68,17 +68,18 @@ class Projects_model extends CI_Model {
     }
 
     public function delete($id) {
+        $this->db->select('wd_sections.table');
+        $this->db->join('wd_pages', 'wd_pages.id=wd_sections.fk_page');
+        $this->db->join('wd_projects', 'wd_projects.id=wd_pages.fk_project');
+        $sections = $this->db->get('wd_sections')->result_array();
+        if ($sections) {
+            $this->load->dbforge();
+            foreach ($sections as $section) {
+                $table = $section['table'];
+                $this->dbforge->drop_table($table, TRUE);
+            }
+        }
         return $this->db->delete('wd_projects', ['id' => $id]);
-    }
-
-    public function deleteDB($db) {
-        $this->load->dbforge();
-        return $this->dbforge->drop_database($db);
-    }
-
-    public function createDB($db) {
-        $this->load->dbforge();
-        return $this->dbforge->create_database($db);
     }
 
 }

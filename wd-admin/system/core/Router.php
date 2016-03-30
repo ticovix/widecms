@@ -249,6 +249,8 @@ class CI_Router {
 	protected function _set_request($segments = array())
 	{
 		$segments = $this->_validate_request($segments);
+                                                
+
 		// If we don't have any segments left - try the default controller;
 		// WARNING: Directories get shifted out of the segments array!
 		if (empty($segments))
@@ -365,9 +367,9 @@ class CI_Router {
 	 */
 	protected function _parse_routes()
 	{
+                
 		// Turn the segment array into a URI string
 		$uri = implode('/', $this->uri->segments);
-
 		// Get HTTP verb
 		$http_verb = isset($_SERVER['REQUEST_METHOD']) ? strtolower($_SERVER['REQUEST_METHOD']) : 'cli';
 
@@ -406,7 +408,6 @@ class CI_Router {
 
 			// Convert wildcards to RegEx
 			$key = str_replace(array(':any', ':num'), array('[^/]+', '[0-9]+'), $key);
-
 			// Does the RegEx match?
 			if (preg_match('#^'.$key.'$#', $uri, $matches))
 			{
@@ -424,12 +425,11 @@ class CI_Router {
 				{
 					$val = preg_replace('#^'.$key.'$#', $val, $uri);
 				}
-
 				$this->_set_request(explode('/', $val));
 				return;
 			}
 		}
-
+                
 		// If we got this far it means we didn't encounter a
 		// matching route so we'll set the site default route
 		$this->_set_request(array_values($this->uri->segments));

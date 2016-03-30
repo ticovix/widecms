@@ -61,6 +61,7 @@ if (!defined('BASEPATH')){
                 <?php
                 if ($users) {
                     foreach ($users as $user) {
+                        $root = $user['root'];
                         ?>
                         <tr>
                             <td width="10"><input type="checkbox" name="del[]" <?php if($user['id']=='1'){?>disabled=""<?php }?> value="<?php echo $user['id'];?>" class="multiple_delete"></td>
@@ -70,7 +71,7 @@ if (!defined('BASEPATH')){
                             <td><?php echo $user["login"] ?></td>
                             <td><?php echo $user["email"] ?></td>
                             <td>
-                                <a href="<?php echo base_url(); ?>users/edit/<?php echo $user["login"] ?>"><i class="fa fa-pencil"></i></a>
+                                <?php if($root!='1' or $user_logged['root']=='1'){?><a href="<?php echo base_url(); ?>users/edit/<?php echo $user["login"] ?>"><i class="fa fa-pencil"></i></a><?php }?>
                             </td>
                         </tr>
                         <?php

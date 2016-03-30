@@ -19,9 +19,12 @@ $(function () {
 
     $("#dig_name").keyup(function () {
         var val = $(this).val();
-        $("#dir").val(slug(val,'-'));
-        $("#db").val(slug(val,'_'));
+        $("#dir").val(slug(val, '-'));
     });
-    
-    
+
+    $("#suffix").keyup(function () {
+        var val = $(this).val();
+        $(this).val(slug(val, ''));
+    });
+
 });

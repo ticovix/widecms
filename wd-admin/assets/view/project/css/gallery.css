@@ -1,0 +1,35 @@
+.image-file{
+    text-align: center;
+    padding: 2px;
+    border:1px solid #ccc;
+    margin-bottom: 10px;
+    position: relative;
+}
+.image-file img{
+    margin: 0 auto;
+}
+
+#my-awesome-dropzone{
+    margin-bottom: 15px;
+}
+
+.name-file{
+    text-align: center;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 10px;
+}
+
+.file{
+    margin-bottom: 15px;
+}
+.file.active .image-file{
+    background-color: #eee;
+}
+
+.options-file{
+    position: absolute;
+    top: 0;
+    right: 0;
+}

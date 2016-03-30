@@ -1,0 +1,44 @@
+<div class="row">
+    <%
+    if (data) {
+        var files = data.files;
+        var total_files = files.length;
+        var total = data.total;
+        var pagination = data.pagination;
+        if(total_files){
+            for(var i=0; i < total_files; i++){
+                var file = files[i].file;
+                %>
+    <div class="col-sm-2 file" data-file="<%=file%>">
+        <div class="image-file">
+            <a href="#" class="btn-view-file" data-toggle="modal" data-target="#details">
+                <img src="<%=url+'gallery/image/thumb/'+file%>" title="<%=file%>" alt="<%=file%>" class="img-responsive">
+            </a>
+            <div class="options-file hide">
+                <a href="#" data-toggle="modal" data-target="#edit" class="btn-edit-file">
+                    <span class="fa fa-edit"></span>
+                </a>
+                <a href="#" class="btn-delete-file">
+                    <span class="fa fa-remove"></span>
+                </a>
+            </div>
+        </div>
+        <div class="name-file"><?php echo $file; ?></div>
+    </div>
+    <%
+            }
+            if (pagination) { 
+                %>
+                <div class="col-sm-12">
+                    <ul class="pagination pagination-sm"><%=pagination%></ul>
+                </div>
+                <% 
+            } 
+        }
+    } else {
+    %>
+    <div class="col-sm-12">Nenhum arquivo foi encontrado.</div>    
+    <%
+    }
+    %>
+</div>

@@ -6,7 +6,7 @@ if (!defined('BASEPATH')){
 <div class="header">
     <h1 class="page-title"> 
         <img src="<?php if (!empty($profile['image'])) { ?><?php echo base_url() ?>assets/images/<?php echo $profile['image'] ?><?php } else { ?><?php echo base_url()?>assets/images/no_image.gif<?php } ?>" align="left" class="image-profile-md img-circle"> 
-        Seja bem vindo, <?php echo $profile['name'] ?>
+        Seja bem vindo <?php echo $profile['name'] ?>
     </h1>
 </div>
 

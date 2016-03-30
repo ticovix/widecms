@@ -28,15 +28,15 @@ if (!defined('BASEPATH')) {
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Nome*</label>
-                    <input type="text" name="name" id="dig_name" value="<?php echo set_value('name') ?>" class="form-control">
+                    <input type="text" name="name" id="dig_name" value="<?php echo set_value('name', $name) ?>" class="form-control">
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Status*</label>
                     <select name="status" class="form-control">
-                        <option value="1" <?php echo set_select('status', '1') ?>>Ativado</option>
-                        <option value="0" <?php echo set_select('status', '2') ?>>Desativado</option>
+                        <option value="1" <?php echo set_select('status', '1', ($status=='1')) ?>>Ativado</option>
+                        <option value="0" <?php echo set_select('status', '0', ($status=='0')) ?>>Desativado</option>
                     </select>
                 </div>
             </div>

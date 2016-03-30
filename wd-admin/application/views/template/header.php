@@ -1,3 +1,8 @@
+<?php
+if (!defined('BASEPATH')) {
+    exit('No direct script access allowed');
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -6,12 +11,7 @@
         <meta name="googlebot" content="noindex" />
         <meta charset="utf-8">
         <title>
-            <?php
-            if (!empty($title)) {
-                echo $title . ' | ';
-            }
-            ?>
-            WIDE CMS
+            <?php echo (!empty($title)) ? $title . '| Wide CMS' : 'Wide CMS'; ?>
         </title>
         <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,7 +46,7 @@
                 </li>
             </ul>
             <div class="pull-right dev-mode">
-                Modo desenvolvedor <input type="checkbox" class="js-switch" <?php if ($this->dataUser['dev_mode']) { ?>checked<?php } ?> />
+                <?php if ($this->data_user['allow_dev']) { ?>Modo desenvolvedor <input type="checkbox" class="js-switch" <?php if ($this->data_user['dev_mode']) { ?>checked<?php } ?> /> <?php } ?>
             </div>
             <div class="navbar-header">
                 <a href="<?php echo base_url() ?>">
@@ -72,18 +72,18 @@
                             $active = [$slug, 'project'];
                         }
                         ?>
-                        <li class="<?php echo is_nav_active($this->uri->segment(1), 'project');?>">
+                        <li class="<?php echo is_nav_active($this->uri->segment(1), 'project'); ?>">
                             <a href="<?php
-                            if ($slug != 'projects' or $this->dataUser['dev_mode']) {
+                            if ($slug != 'projects' or $this->data_user['dev_mode']) {
                                 echo base_url() . $slug;
                             } else {
                                 echo 'javascript:void(0);';
                             }
                             ?>" class="<?php echo is_nav_active($this->uri->segment(1), $active); ?>"> 
                                 <span class="fa <?php echo $icon ?> fa-fw"></span> <?php echo $name ?>
-                            <?php if ($slug == 'projects' && !$this->dataUser['dev_mode']) { ?><span class="fa arrow"></span><?php } ?>
+                                <?php if ($slug == 'projects' && !$this->data_user['dev_mode']) { ?><span class="fa arrow"></span><?php } ?>
                             </a>
-                                <?php if ($slug == 'projects' && !$this->dataUser['dev_mode']) { ?>
+                            <?php if ($slug == 'projects' && !$this->data_user['dev_mode']) { ?>
                                 <ul class="nav nav-list nav-projects collapse <?php if ($this->uri->segment(1) == 'project') { ?>in<?php } ?>" <?php if ($this->uri->segment(1) != 'project') { ?>aria-expanded="false" style="height: 0px;"<?php } ?>>
                                     <?php
                                     $projects = projects();
@@ -92,7 +92,7 @@
                                             ?>
                                             <li class="<?php echo is_nav_active($this->uri->segment(2), $arr['slug']) ?>">
                                                 <a href="<?php echo base_url(); ?>project/<?php echo $arr['slug'] ?>">
-                                            <?php echo $arr['name'] ?>
+                                                    <?php echo $arr['name'] ?>
                                                 </a>
                                             </li>
                                             <?php
@@ -114,7 +114,7 @@
 
                 </ul>
             </div>
-<?php } ?>
+        <?php } ?>
 
 
 

@@ -44,7 +44,7 @@ if (!defined('BASEPATH')) {
                     ?>
                     <tr>
                         <td>
-                            <a href="<?php echo base_url() ?>project/<?php echo $project['slug'] ?>/<?php echo $page['slug'] ?>/<?php echo $arr['id'] ?>">
+                            <a href="<?php echo base_url() ?>project/<?php echo $project['slug'] ?>/<?php echo $page['slug'] ?>/<?php echo $arr['slug'] ?>">
                                 <?php echo $arr["name"]; ?>
                             </a>
                         </td>
@@ -64,8 +64,8 @@ if (!defined('BASEPATH')) {
                             ?>">
                         </td>
                         <td>
-                            <a href="<?php echo base_url(); ?>project/<?php echo $project['slug'] ?>/<?php echo $page['slug'] ?>/edit-section/<?php echo $arr["id"] ?>"><i class="fa fa-pencil"></i></a>
-                            <a href="<?php echo base_url(); ?>project/<?php echo $project['slug'] ?>/<?php echo $page['slug'] ?>/delete-section/<?php echo $arr["id"] ?>"><i class="fa fa-remove"></i></a>
+                            <a href="<?php echo base_url(); ?>project/<?php echo $project['slug'] ?>/<?php echo $page['slug'] ?>/edit-section/<?php echo $arr["slug"] ?>"><i class="fa fa-pencil"></i></a>
+                            <a href="<?php echo base_url(); ?>project/<?php echo $project['slug'] ?>/<?php echo $page['slug'] ?>/delete-section/<?php echo $arr["slug"] ?>" onclick="javascript: return confirm('Deseja realmente remover a seção <?php echo $arr['name']?>?')"><i class="fa fa-remove"></i></a>
                         </td>
                     </tr>
                     <?php

@@ -50,7 +50,7 @@ if (!defined('BASEPATH')) {
                                 foreach ($sections as $section) {
                                     ?>
                                     <li>
-                                        <a href="<?php echo base_url() . $project['slug'] . '/' . $arr['slug'] . '/' . $section['slug'] ?>">
+                                        <a href="<?php echo base_url('project/' . $project['slug'] . '/' . $arr['slug'] . '/' . $section['slug']) ?>">
                                             <?php echo $section['name'] ?>                                                
                                         </a>
                                     </li>

@@ -40,10 +40,10 @@ if (!defined('BASEPATH')) {
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>Banco de dados*</label>
-                    <input type="text" name="database" id="db" value="<?php echo set_value('database', $database) ?>" class="form-control" <?php if ($this->uri->segment('2') == 'edit') {echo 'disabled';}?>>
+                    <label>Sufixo para criação de tabelas*</label>
+                    <input type="text" name="suffix" id="suffix" maxlength="6" value="<?php echo set_value('suffix', $suffix) ?>" class="form-control" <?php if ($this->uri->segment('2') == 'edit') {echo 'disabled';}?>>
                 </div>
-                <label><input type="checkbox" value="1" name="main" class="check_main" <?php echo set_checkbox('main', '1', ($main == 1)) ?> <?php if ($this->uri->segment('2') == 'edit') {echo 'disabled';}?>> Projeto principal.</label>
+                <?php if($main == 1){?><strong>Obs: Projeto principal não possui sufixo.</strong><?php }?>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
