@@ -354,7 +354,7 @@ class Sections extends MY_Controller {
                 redirect('project/' . $project['directory'] . '/' . $page['directory']);
             } else {
                 $this->sections_model->removeTable($table);
-                forceRemoveDir(getcwd() . '/application/views/project/' . $project['directory'] . '/' . $pagef['directory'] . '/' . $directory);
+                forceRemoveDir(getcwd() . '/application/views/project/' . $project['directory'] . '/' . $page['directory'] . '/' . $directory);
             }
         } else {
             setError(null, validation_errors());
@@ -400,7 +400,7 @@ class Sections extends MY_Controller {
         if ($total) {
             $this->load->library('config_page');
             $fields = array();
-            $remove_field = $data['remove_field'];
+            $remove_field = (isset($data['remove_field']))?$data['remove_field']:array();
             for ($i = 0; $i < $total; $i++) {
                 $name_field = $data['name_field'][$i];
                 $input_field = $data['input_field'][$i];
