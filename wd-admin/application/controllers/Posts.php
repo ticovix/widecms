@@ -64,7 +64,11 @@ class Posts extends MY_Controller {
             }
             if ($this->form_validation->run()) {
                 $this->posts_model->editPost($current_field, $post, $section, $project);
-                redirect('project/' . $project['slug'] . '/' . $page['slug']);
+                if ($this->data_user['dev_mode']) {
+                    redirect('project/' . $project['slug'] . '/' . $page['slug']);
+                } else {
+                    redirect(current_url());
+                }
             }
         }
 
@@ -327,7 +331,7 @@ class Posts extends MY_Controller {
                         'value' => $value,
                         'label' => $field_trigger['label']
                     );
-                    
+
                     $posts = $this->posts_model->listPostsSelect($field_destination['options'], $field_destination['label_options'], $data_trigger);
                 }
             }
@@ -384,9 +388,6 @@ class Posts extends MY_Controller {
                     }
                 }
             }
-            /* if ($type == 'file' or $type == 'multifile') {
-
-              } */
         }
         return $value;
     }
@@ -471,7 +472,11 @@ class Posts extends MY_Controller {
                 }
                 if ($this->form_validation->run()) {
                     $this->posts_model->editPost($current_field, $post, $section);
-                    redirect('project/' . $project['slug'] . '/' . $page['slug'] . '/' . $section['slug']);
+                    if ($this->data_user['dev_mode']) {
+                        redirect('project/' . $project['slug'] . '/' . $page['slug'] . '/' . $section['slug']);
+                    } else {
+                        redirect(current_url());
+                    }
                 }
             }
 

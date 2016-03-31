@@ -4,7 +4,15 @@ if (!defined('BASEPATH')) {
 }
 ?>
 <div class="header">
-    <h1 class="page-title"><?php echo $title ?></h1>
+    <h1 class="page-title">
+        <?php
+        if ($dev_mode) {
+            echo $title;
+        } else {
+            echo $name_page;
+        }
+        ?>
+    </h1>
 </div>
 
 <ul class="breadcrumb">
@@ -13,9 +21,7 @@ if (!defined('BASEPATH')) {
     <li><a href="<?php echo base_url('project/' . $slug_project); ?>"><?php echo $name_project ?></a></li>
     <?php if ($dev_mode) { ?>
         <li><a href="<?php echo base_url('project/' . $slug_project . '/' . $slug_page); ?>"><?php echo $name_page ?></a></li>
-        <?php
-    }
-    ?>
+    <?php }?>
     <?php
     if ($breadcrumb_section) {
         ?>
@@ -23,46 +29,54 @@ if (!defined('BASEPATH')) {
         <?php
     }
     ?>
-    <li class="active"><?php echo $title ?></li>
+    <li class="active">
+        <?php
+        if ($dev_mode) {
+            echo $title;
+        } else {
+            echo $name_page;
+        }
+        ?>
+    </li>
 </ul>
 
-<div class="container-fluid" id="data-project" data-project="<?php echo $slug_project?>" data-page="<?php echo $slug_page?>" data-section="<?php echo $slug_section?>">
-    <?php
-    $has_input_file = false;
-    echo form_open();
-    if ($fields) {
-        foreach ($fields as $field) {
-            $type = (isset($field['label'])) ? $field['type'] : '';
-            $label = (isset($field['label'])) ? $field['label'] : '';
-            $input = (isset($field['input'])) ? $field['input'] : '';
-            $content_top = (isset($field['content_top'])) ? $field['content_top'] : '';
-            $content_bottom = (isset($field['content_bottom'])) ? $field['content_bottom'] : '';
-            if (!$has_input_file && ($type == 'file' or $type == 'multifile')) {
-                $has_input_file = true;
-            }
-            ?>
+<div class="container-fluid" id="data-project" data-project="<?php echo $slug_project ?>" data-page="<?php echo $slug_page ?>" data-section="<?php echo $slug_section ?>">
+<?php
+$has_input_file = false;
+echo form_open();
+if ($fields) {
+    foreach ($fields as $field) {
+        $type = (isset($field['label'])) ? $field['type'] : '';
+        $label = (isset($field['label'])) ? $field['label'] : '';
+        $input = (isset($field['input'])) ? $field['input'] : '';
+        $content_top = (isset($field['content_top'])) ? $field['content_top'] : '';
+        $content_bottom = (isset($field['content_bottom'])) ? $field['content_bottom'] : '';
+        if (!$has_input_file && ($type == 'file' or $type == 'multifile')) {
+            $has_input_file = true;
+        }
+        ?>
             <div class="form-group <?php if (empty($label)) { ?>hide<?php } ?>">
                 <label><?php echo $label; ?></label>
-                <?php echo $content_top; ?>
+        <?php echo $content_top; ?>
                 <?php echo $input; ?>
                 <?php echo $content_bottom; ?>
             </div>
-            <?php
-        }
-        ?>
+                <?php
+            }
+            ?>
         <div class="form-group text-right">
             <a href="<?php echo base_url('project/' . $slug_project . '/' . $slug_page); ?>" class="btn btn-default">Cancelar</a>
             <input type="submit" value="Salvar" class="btn btn-primary">
         </div>
-        <?php
-    }
-    echo validation_errors('<div class="alert alert-danger">', '</div>');
-    echo form_close();
-    ?>
+    <?php
+}
+echo validation_errors('<div class="alert alert-danger">', '</div>');
+echo form_close();
+?>
 </div>
-<?php
-if ($has_input_file) {
-    ?>
+    <?php
+    if ($has_input_file) {
+        ?>
     <!-- Modal -->
     <div class="modal fade" id="gallery" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog modal-lg">
@@ -72,10 +86,10 @@ if ($has_input_file) {
                     <h4 class="modal-title" id="myModalLabel">Envie ou selecione arquivos</h4>
                 </div>
                 <div class="modal-body">
-                    <?php echo form_open_multipart('gallery/upload', ['id' => 'dropzone_gallery', 'class' => 'dropzone form-group']) ?>
+    <?php echo form_open_multipart('gallery/upload', ['id' => 'dropzone_gallery', 'class' => 'dropzone form-group']) ?>
                     <div class="dropzone-previews"></div>
                     <div class="dz-default dz-message"></div>
-                    <?php echo form_close() ?>
+    <?php echo form_close() ?>
                     <?php echo form_open(null, ['method' => 'get', 'class' => 'form-group', 'id' => 'search-files']); ?>
                     <div class="input-group">
                         <input type="text" name="search" id="search-field" value="<?php echo $this->input->get('search') ?>" placeholder="Procurar arquivo" class="input-sm form-control"> 
@@ -83,7 +97,7 @@ if ($has_input_file) {
                             <button type="submit" class="btn btn-sm btn-primary"> Buscar</button> 
                         </span>
                     </div>
-                    <?php echo form_close(); ?>
+    <?php echo form_close(); ?>
                     <div class="row">
                         <div class="col-sm-6">
                             <h3>Arquivos</h3>
