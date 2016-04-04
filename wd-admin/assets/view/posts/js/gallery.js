@@ -7,7 +7,6 @@ $(function () {
     var myDropzone = new Dropzone("#dropzone_gallery");
     myDropzone.on("complete", function (file) {
         files_list({});
-        //myDropzone.removeFile(file);
     });
     /*
      * Gallery
@@ -32,7 +31,7 @@ $(function () {
         mouseWheel: true,
         fitToView: true,
     });
-    var field = null;
+    var field, index_field_upload;
     var modal = $("#gallery");
     var content_files = $("#files-list");
     var content_files_added = $("#files-list-added");
@@ -41,6 +40,7 @@ $(function () {
      * By clicking the input file, open a modal
      */
     $(".btn-gallery").click(function () {
+        index_field_upload = $(".btn-gallery").index(this);
         field = $(this).data("field");
         var field_list = $("#" + field + "-field").val();
         if (field_list.indexOf('{') != '-1') {
@@ -98,7 +98,7 @@ $(function () {
         return false;
     });
     /*
-     * 
+     * Search file
      */
     $("#search-files").submit(function (e) {
         var keyword = $("#search-field").val();
@@ -148,7 +148,6 @@ $(function () {
 
     content_files_added.on("click", ".btn-delete-file", function () {
         var index = $(".btn-delete-file").index(this);
-        console.log(content_files_added.children(".file"));
         $("#files-list-added .file").eq(index).remove();
         delete_file();
         files_list_added();
@@ -190,11 +189,20 @@ $(function () {
      */
     $("#btn-save-change").click(function () {
         if (list != undefined) {
+            var total = Object.keys(list).length;
+            $(".content-files").eq(index_field_upload).html("");
+            for (var i = 0; i < total; i++) {
+                var file = list[i].file;
+                var img = $("<img>").addClass("img-responsive").attr("src",url+"gallery/image/thumb/"+file);
+                $(".content-files").eq(index).append($("<div>").addClass("files-list thumbnail").html(img));
+            }
             var json = JSON.stringify(list);
             if (json === '{}') {
                 json = '';
             }
             $("#" + field + "-field").val(json);
+
+
         }
     });
 

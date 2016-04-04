@@ -16,7 +16,7 @@ if (!defined('BASEPATH')) {
 
 <div class="container-fluid">
     <div class="btn-toolbar">
-        <a href="<?php echo base_url(); ?>project/<?php echo $project['slug'] ?>/<?php echo $page['slug'] ?>/create-section" class="btn btn-primary"><i class="icon-plus"></i> Nova seção</a>
+        <a href="<?php echo base_url(); ?>project/<?php echo $project['slug'] ?>/<?php echo $page['slug'] ?>/create" class="btn btn-primary"><i class="icon-plus"></i> Nova seção</a>
         <div class="btn-group"></div>
     </div>
     <?php echo form_open(null, ['method' => 'get', 'class' => 'form-group']); ?>
@@ -64,8 +64,8 @@ if (!defined('BASEPATH')) {
                             ?>">
                         </td>
                         <td>
-                            <a href="<?php echo base_url(); ?>project/<?php echo $project['slug'] ?>/<?php echo $page['slug'] ?>/edit-section/<?php echo $arr["slug"] ?>"><i class="fa fa-pencil"></i></a>
-                            <a href="<?php echo base_url(); ?>project/<?php echo $project['slug'] ?>/<?php echo $page['slug'] ?>/delete-section/<?php echo $arr["slug"] ?>" onclick="javascript: return confirm('Deseja realmente remover a seção <?php echo $arr['name']?>?')"><i class="fa fa-remove"></i></a>
+                            <a href="<?php echo base_url(); ?>project/<?php echo $project['slug'] ?>/<?php echo $page['slug'] ?>/edit/<?php echo $arr["slug"] ?>"><i class="fa fa-pencil"></i></a>
+                            <a href="<?php echo base_url(); ?>project/<?php echo $project['slug'] ?>/<?php echo $page['slug'] ?>/remove/<?php echo $arr["slug"] ?>" onclick="javascript: return confirm('Deseja realmente remover a seção <?php echo $arr['name']?>?')"><i class="fa fa-remove"></i></a>
                         </td>
                     </tr>
                     <?php

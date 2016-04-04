@@ -20,7 +20,7 @@ class Files_model extends CI_Model {
         return $this->db->get('wd_files')->result_array();
     }
 
-    public function searchTotalRows($keyword = null) {
+    public function search_total_rows($keyword = null) {
         $this->db->select('count(id) total');
         if ($keyword) {
             $this->db->like('name', $keyword);

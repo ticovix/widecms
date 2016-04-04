@@ -15,11 +15,13 @@ if (!defined('BASEPATH')) {
         </title>
         <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="<?php echo base_url() ?>assets/plugins/bootstrap-3.3.2/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="<?php echo base_url() ?>assets/stylesheets/theme.css">
-        <link rel="stylesheet" href="<?php echo base_url() ?>assets/plugins/font-awesome/css/font-awesome.css">
-        <link rel="stylesheet" href="<?php echo base_url() ?>assets/plugins/switchery/css/switchery.css">
-        <link rel="icon" type="image/png" href="<?php echo base_url() ?>assets/images/favicon.png" />
+        <link rel="stylesheet" type="text/css" href="<?php echo base_url('assets/plugins/bootstrap-3.3.2/css/bootstrap.min.css') ?>">
+        <link rel="stylesheet" type="text/css" href="<?php echo base_url('assets/stylesheets/theme.css') ?>">
+        <link rel="stylesheet" href="<?php echo base_url('assets/plugins/font-awesome/css/font-awesome.css') ?>">
+        <?php if($this->data_user['allow_dev']){?>
+        <link rel="stylesheet" href="<?php echo base_url('assets/plugins/switchery/css/switchery.css') ?>">
+        <?php }?>
+        <link rel="icon" type="image/png" href="<?php echo base_url('assets/images/favicon.png') ?>" />
         <?php echo put_css(); ?>
     </head>
 
@@ -34,14 +36,14 @@ if (!defined('BASEPATH')) {
             <ul class="nav pull-right navbar-nav">
                 <li id="fat-menu" class="dropdown">
                     <a href="#" role="button" class="dropdown-toggle active" data-toggle="dropdown">
-                        <img src="<?php if (!empty($profile['image'])) { ?><?php echo base_url() ?>/upload/<?php echo $profile['image'] ?><?php } else { ?><?php echo base_url() ?>assets/images/no_image.gif<?php } ?>" class="image-profile-sm img-circle">
+                        <img src="<?php if (!empty($profile['image'])) { ?><?php echo base_url('/upload/'.$profile['image']); } else { echo base_url('assets/images/no_image.gif'); } ?>" class="image-profile-sm img-circle">
                         <?php echo $profile['name'] ?>
                         <i class="fa fa-fw fa-caret-down"></i>
                     </a>
 
                     <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a tabindex="-1" href="<?php echo base_url() ?>config">Configurações</a></li>
-                        <li><a tabindex="-1" href="<?php echo base_url() ?>logout">Sair</a></li>
+                        <li><a tabindex="-1" href="<?php echo base_url('config') ?>">Configurações</a></li>
+                        <li><a tabindex="-1" href="<?php echo base_url('logout') ?>">Sair</a></li>
                     </ul>
                 </li>
             </ul>
@@ -51,7 +53,7 @@ if (!defined('BASEPATH')) {
             <div class="navbar-header">
                 <a href="<?php echo base_url() ?>">
                     <span class="first">
-                        <img src="<?php echo base_url() ?>assets/images/cms_wide_sm.png" class="logo">
+                        <img src="<?php echo base_url('assets/images/cms_wide_sm.png') ?>" class="logo">
                     </span>
                 </a>
             </div>
@@ -91,7 +93,7 @@ if (!defined('BASEPATH')) {
                                         foreach ($projects as $arr) {
                                             ?>
                                             <li class="<?php echo is_nav_active($this->uri->segment(2), $arr['slug']) ?>">
-                                                <a href="<?php echo base_url(); ?>project/<?php echo $arr['slug'] ?>">
+                                                <a href="<?php echo base_url('project/'.$arr['slug']); ?>">
                                                     <?php echo $arr['name'] ?>
                                                 </a>
                                             </li>

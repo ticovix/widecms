@@ -5,21 +5,29 @@ if (!defined('BASEPATH')) {
 }
 
 class Gallery extends MY_Controller {
+    /*
+     * Variável pública com extensões permitidas para upload
+     */
 
     public $allowed_types = 'xls|xml|pdf|gif|jpg|jpeg|png|doc|docx|rar|3gp|7z|ace|ai|aif|aiff|amr|asf|asx|bmp|bup|cab|cbr|cda|cdl|cdr|chm|dat|divx|dmg|dss|dvf|dwg|eml|eps|flv|gz|hqx|htm|html|ifo|indd|iso|jar|js|lnk|log|m4a|m4b|m4p|m4v|mcd|mdb|mid|mov|mp2|mp3|mp4|mpeg|mpg|msi|ogg|pdf|pps|ps|psd|pst|ptb|pub|qbb|qbw|qxd|ram|rm|rmvb|rtf|svg|sea|ses|sit|sitx|ss|swf|tgz|thm|tif|tmp|torrent|ttf|txt|vcd|vob|wav|wmv|wps|xpi|xcf|zip|avi|sql|css';
-    public $limit_per_page = 18;
+    /*
+     * Variável pública com o limite de usuários por página
+     */
+    public $limit = 18;
 
     public function __construct() {
         parent::__construct();
         $this->load->model('files_model');
     }
 
-    public function index() {
-        $this->form_validation->set_rules('search', 'Pesquisa', 'trim|required');
-        $keyword = $this->input->get('search');
-        $this->form_validation->run();
-        $per_page = (int) $this->input->get('per_page') or 0;
+    /*
+     * Método para criação de template da listagem de arquivos
+     */
 
+    public function index() {
+        $search = $this->form_search();
+        $files = $search['files'];
+        $total = $search['total'];
         add_js(array(
             'plugins/dropzone/js/dropzone.js',
             'plugins/fancybox/js/jquery.fancybox-buttons.js',
@@ -33,31 +41,52 @@ class Gallery extends MY_Controller {
             'plugins/dropzone/css/dropzone.css',
             'view/gallery/css/style.css'
         ));
-
-        $limit = $this->limit_per_page;
-        $files = $this->files_model->search($keyword, $limit, $per_page);
-        $total = $this->files_model->searchTotalRows($keyword);
-        $pagination = $this->pagination($total, $limit);
         $vars = array(
             'title' => 'Galeria',
-            'files' => $files,
-            'pagination' => $pagination
+            'files' => $files
         );
         $this->load->template('gallery/index', $vars);
     }
+
+    /*
+     * Método para pesquisar arquivos
+     */
+
+    private function form_search() {
+        $keyword = $this->input->get('search');
+        $per_page = (int) $this->input->get('per_page') or 0;
+        $this->form_validation->set_rules('search', 'Pesquisa', 'trim|required');
+        $this->form_validation->run();
+
+        $limit = $this->limit;
+        $files = $this->files_model->search($keyword, $limit, $per_page);
+        $total = $this->files_model->search_total_rows($keyword);
+        return array(
+            'files' => $files,
+            'total' => $total
+        );
+    }
+
+    /*
+     * Método para listar arquivos, acionado por js
+     */
 
     public function files_list() {
         $per_page = (int) $this->input->get('per_page') or 0;
         $keyword = $this->input->get('search');
         $limit = $this->input->post('limit');
         if (empty($limit)) {
-            $limit = $this->limit_per_page;
+            $limit = $this->limit;
         }
         $files = $this->files_model->search($keyword, $limit, $per_page);
-        $total = $this->files_model->searchTotalRows($keyword);
+        $total = $this->files_model->search_total_rows($keyword);
         $pagination = $this->pagination($total, $limit);
         echo json_encode(array('files' => $files, 'total' => $total, 'pagination' => $pagination));
     }
+
+    /*
+     * Método para criação de template da paginação
+     */
 
     private function pagination($total, $limit) {
         $this->load->library('pagination');
@@ -84,6 +113,10 @@ class Gallery extends MY_Controller {
         $this->pagination->initialize($config);
         return $this->pagination->create_links();
     }
+
+    /*
+     * Método para enviar arquivo
+     */
 
     public function upload() {
         $upload = false;
@@ -119,6 +152,10 @@ class Gallery extends MY_Controller {
         }
     }
 
+    /*
+     * Método para criar imagem de exibição com tamanho especifico
+     */
+
     public function image($type = false, $file = false) {
         if ($type && $file) {
             $file = urldecode($file);
@@ -137,29 +174,34 @@ class Gallery extends MY_Controller {
                 $file = $path . $file;
             }
             $this->load->library('upload_verot');
-            $this->image = new Upload_verot($file);
-            if (!$this->image->uploaded) {
+            $file_tmp = new Upload_verot($file);
+            if (!$file_tmp->uploaded) {
                 $file = 'assets/images/icons/' . $ext . '.png';
                 if (!is_file($file)) {
                     $file = 'assets/images/icons/other.png';
                 }
                 $icon = true;
-                $this->image = new Upload_verot($file);
+                $file_tmp = new Upload_verot($file);
             }
-            header('Content-type: ' . $this->image->file_src_mime);
+            header('Content-type: ' . $file_tmp->file_src_mime);
             if ($type == 'thumb') {
-                $this->image->image_resize = true;
+                $file_tmp->image_resize = true;
                 if ($icon) {
-                    $this->image->image_x = 45;
+                    $file_tmp->image_crop = '0 -50 0 -50';
+                    $file_tmp->image_x = 50;
                 } else {
-                    $this->image->image_x = 150;
+                    $file_tmp->image_x = 150;
                 }
-                $this->image->image_y = 100;
-                $this->image->image_ratio_fill = true;
+                $file_tmp->image_y = 100;
+                $file_tmp->image_ratio_fill = true;
             }
-            echo $this->image->Process();
+            echo $file_tmp->Process();
         }
     }
+
+    /*
+     * Método para remover arquivo
+     */
 
     public function delete() {
         $file = $this->input->post('file');
@@ -170,6 +212,10 @@ class Gallery extends MY_Controller {
         }
     }
 
+    /*
+     * Método exibir dados de um arquivo
+     */
+
     public function file() {
         $file = $this->input->post('file');
         $path = PATH_UPLOAD;
@@ -179,6 +225,10 @@ class Gallery extends MY_Controller {
         $name = $get_file['name'];
         echo json_encode(array('file' => $file, 'name' => $name, 'path_file' => base_url($path_file), 'filesize' => FileSizeConvert($filesize)));
     }
+
+    /*
+     * Método para editar arquivo
+     */
 
     public function edit_file() {
         $this->form_validation->set_rules('name', 'Nome', 'required|callback_verify_name');
@@ -204,6 +254,10 @@ class Gallery extends MY_Controller {
             echo json_encode(array('message' => validation_errors(), 'error' => 1));
         }
     }
+
+    /*
+     * Método para verificar existencia do arquivo
+     */
 
     public function verify_name($name) {
         $path = PATH_UPLOAD;

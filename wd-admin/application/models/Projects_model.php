@@ -27,7 +27,7 @@ class Projects_model extends CI_Model {
         return $this->db->update('wd_projects', $set, ['id' => $data['project']]);
     }
 
-    public function verifySlug($slug, $id = NULL) {
+    public function verify_slug($slug, $id = NULL) {
         $this->db->select('id');
         $this->db->where('slug', $slug);
         $this->db->where('id!=', $id);
@@ -47,7 +47,7 @@ class Projects_model extends CI_Model {
         return $this->db->get('wd_projects')->result_array();
     }
 
-    public function searchTotalRows($dev_mode, $keyword = null, $turma = null, $evento = null) {
+    public function search_total_rows($dev_mode, $keyword = null) {
         $this->db->select('count(id) total');
         $this->db->group_start();
         $this->db->like('name', $keyword);
@@ -59,11 +59,11 @@ class Projects_model extends CI_Model {
         return $this->db->get('wd_projects')->row()->total;
     }
 
-    public function mainExists() {
+    public function main_exists() {
         return $this->db->get_where('wd_projects', ['main' => '1'])->row_array();
     }
 
-    public function getProject($slug) {
+    public function get_project($slug) {
         return $this->db->get_where('wd_projects', ['slug' => $slug])->row_array();
     }
 

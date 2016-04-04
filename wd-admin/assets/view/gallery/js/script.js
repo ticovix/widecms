@@ -142,11 +142,33 @@ $(function () {
                 if(data.error){
                     msg.html('<div class="alert alert-danger">'+data.message+'</div>');
                 }else{
-                    var change_filez
                     msg.html('<div class="alert alert-success">'+data.message+'</div>');
                 }
             }
         });
+    });
+    
+    /*
+     * Search file
+     */
+    $("#search-files").submit(function (e) {
+        var keyword = $("#search-field").val();
+        files_list({
+            url: url + 'gallery/files-list?search=' + keyword
+        });
+        e.preventDefault();
+        return false;
+    });
+    
+    /*
+     * Pagination
+     */
+    content_files.on("click", ".btn-page", function (e) {
+        files_list({
+            url: $(this).attr("href")
+        });
+        e.preventDefault();
+        return false;
     });
 
 });

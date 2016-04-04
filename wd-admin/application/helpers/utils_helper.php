@@ -160,7 +160,7 @@ if (!function_exists('generateXML') && !function_exists('arrayToXML')) {
 }
 
 
-if (!function_exists('setError') && !function_exists('getErrors')) {
+if (!function_exists('setError') && !function_exists('getErrors') && !function_exists('hasError')) {
 
     function setError($lang, $message) {
         $CI = & get_instance();
@@ -177,6 +177,13 @@ if (!function_exists('setError') && !function_exists('getErrors')) {
             return $CI->error_reporting->getErrors($prefix, $suffix);
         } else {
             return false;
+        }
+    }
+
+    function hasError() {
+        $CI = & get_instance();
+        if ($CI->load->is_loaded('error_reporting')) {
+            return (count($CI->error_reporting->getErrors()) > 0);
         }
     }
 
@@ -227,6 +234,67 @@ if (!function_exists('projects')) {
         $CI->load->model('projects_model');
         $id_user = $CI->session->userdata('id');
         return $CI->projects_model->search($CI->data_user['dev_mode']);
+    }
+
+}
+
+if (!function_exists('get_project')) {
+    $project = null;
+
+    function get_project() {
+        $CI = & get_instance();
+        if (!isset($CI->project)) {
+            $slug_project = $CI->uri->segment(2);
+            $CI->load->model('projects_model');
+            return $CI->project = $CI->projects_model->get_project($slug_project);
+        } else {
+            return $CI->project;
+        }
+    }
+
+}
+/*
+ * Método para listar página
+ */
+if (!function_exists('get_page')) {
+
+    function get_page() {
+        $CI = & get_instance();
+        $page = $CI->uri->segment(3);
+        if (empty($CI->page)) {
+            $CI->load->model('pages_model');
+            return $CI->page = $CI->pages_model->get_page($page);
+        } else {
+            return $CI->page;
+        }
+    }
+
+}
+/*
+ * Método para listar seção
+ */
+if (!function_exists('get_section')) {
+
+    function get_section() {
+        $CI = & get_instance();
+        $section = $CI->uri->segment(4);
+        if (empty($CI->section)) {
+            $CI->load->model('sections_model');
+            return $CI->section = $CI->sections_model->get_section($section);
+        } else {
+            return $CI->section;
+        }
+    }
+
+}
+if (!function_exists('func_only_dev')) {
+
+    function func_only_dev() {
+        $CI = & get_instance();
+        if (!$CI->data_user['dev_mode']) {
+            header('HTTP/1.1 403 Forbidden');
+            die();
+        }
     }
 
 }

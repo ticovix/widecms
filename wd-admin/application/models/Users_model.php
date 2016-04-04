@@ -10,7 +10,7 @@ class Users_model extends CI_Model {
         parent::__construct();
     }
 
-    public function userExists($user) {
+    public function user_exists($user) {
         $this->db->select('password, id');
         $stmt = $this->db->get_where('wd_users', ['login' => $user, 'status' => '1']);
         if ($stmt->num_rows() > 0) {
@@ -20,11 +20,11 @@ class Users_model extends CI_Model {
         }
     }
 
-    public function getUser($id) {
+    public function get_user($id) {
         return $this->db->get_where('wd_users', ['id' => $id, 'status' => '1'])->row_array();
     }
     
-    public function getUserEdit($login) {
+    public function get_user_edit($login) {
         return $this->db->get_where('wd_users', ['login' => $login])->row_array();
     }
 
@@ -36,7 +36,7 @@ class Users_model extends CI_Model {
         return $this->db->get('wd_users')->result_array();
     }
 
-    public function searchTotalRows($keyword = null, $turma = null, $evento = null) {
+    public function search_total_rows($keyword = null, $turma = null, $evento = null) {
         $this->db->select('count(id) total');
         $this->db->like('name', $keyword);
         $this->db->or_like('login', $keyword);
@@ -68,16 +68,6 @@ class Users_model extends CI_Model {
             'root' => $data['root']
         ];
         $where = ['login' => $data['login']];
-        return $this->db->update('wd_users', $set, $where);
-    }
-
-    public function updatePass($id) {
-        $this->load->helper('passwordhash');
-        $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
-        $set = [
-            'senha' => $PasswordHash->HashPassword($this->input->post('nova_senha'))
-        ];
-        $where = ['id' => $id];
         return $this->db->update('wd_users', $set, $where);
     }
 

@@ -6,7 +6,7 @@ if (!defined('BASEPATH')){
 
 class Navigation_model extends CI_Model{
     
-    public function listNav(){
+    public function list_nav(){
         $this->db->group_by('name');
         $this->db->order_by('order, name');
         return $this->db->get_where('wd_nav',['status'=>1])->result_array();

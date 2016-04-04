@@ -1,29 +1,70 @@
 <?php
 
-if (!defined('BASEPATH')){
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
 class Users extends MY_Controller {
+    /*
+     * Variável pública com o limite de usuários por página
+     */
+
+    public $limit = 10;
 
     public function __construct() {
         parent::__construct();
         $this->load->model('users_model');
     }
 
+    /*
+     * Método com template de listagem de usuários
+     */
+
     public function index() {
+
+        $search = $this->form_search();
+        $users = $search['users'];
+        $total_rows = $search['total_rows'];
+        $pagination = $this->pagination($total_rows);
+        $data = [
+            'title' => 'Usuários',
+            'user_logged' => $this->data_user,
+            'users' => $users,
+            'pagination' => $pagination,
+            'total' => $total_rows
+        ];
+        add_js([
+            'view/users/js/index.js'
+        ]);
+        $this->load->template('users/index', $data);
+    }
+
+    /*
+     * Método para pesquisa de listagem de usuários
+     */
+
+    private function form_search() {
         $this->form_validation->set_rules('search', 'Pesquisa', 'trim|required');
         $keyword = $this->input->get('search');
         $perPage = $this->input->get('per_page');
-        $limit = 10;
+        $limit = $this->limit;
         $this->form_validation->run();
         $users = $this->users_model->search($keyword, $limit, $perPage);
-        $total_rows = $this->users_model->searchTotalRows($keyword);
+        $total_rows = $this->users_model->search_total_rows($keyword);
+        return array(
+            'users' => $users,
+            'total_rows' => $total_rows
+        );
+    }
 
-        // paginação
+    /*
+     * Método para gerar template de páginação para listagem de usuários
+     */
+
+    private function pagination($total_rows) {
         $this->load->library('pagination');
         $config['total_rows'] = $total_rows;
-        $config['per_page'] = $limit;
+        $config['per_page'] = $this->limit;
         $config['page_query_string'] = true;
         $config['reuse_query_string'] = true;
         $config['num_tag_open'] = '<li>';
@@ -41,22 +82,37 @@ class Users extends MY_Controller {
         $config['first_url'] = '?per_page=0';
 
         $this->pagination->initialize($config);
-        $pagination = $this->pagination->create_links();
-
-        $data = [
-            'title' => 'Usuários',
-            'user_logged' => $this->data_user,
-            'users' => $users,
-            'pagination' => $pagination,
-            'total' => $total_rows
-        ];
-        add_js([
-            'view/users/js/index.js'
-        ]);
-        $this->load->template('users/index', $data);
+        return $this->pagination->create_links();
     }
 
+    /*
+     * Método para criação de template para criar usuário 
+     */
+
     public function create() {
+        $this->form_create();
+        add_js([
+            'view/users/js/form.js'
+        ]);
+        $vars = [
+            'title' => 'Novo usuário',
+            'user_logged' => $this->data_user,
+            'name' => null,
+            'last_name' => null,
+            'email' => null,
+            'login' => null,
+            'status' => null,
+            'root' => null,
+            'allow_dev' => null,
+        ];
+        $this->load->template('users/form', $vars);
+    }
+
+    /*
+     * Método para criação de usuário
+     */
+
+    private function form_create() {
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
         $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]');
         $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]');
@@ -78,51 +134,19 @@ class Users extends MY_Controller {
             $this->users_model->create($data);
             redirect('users');
         }
-
-        add_js([
-            'view/users/js/form.js'
-        ]);
-        $vars = [
-            'title' => 'Novo usuário',
-            'user_logged' => $this->data_user,
-            'name' => null,
-            'last_name' => null,
-            'email' => null,
-            'login' => null,
-            'status' => null,
-            'root' => null,
-            'allow_dev' => null,
-        ];
-        $this->load->template('users/form', $vars);
     }
 
+    /*
+     * Método para criação de template de edição de usuário
+     */
+
     public function edit($login) {
-        $user = $this->users_model->getUserEdit($login);
+        $user = $this->users_model->get_user_edit($login);
         if (!$user) {
             redirect('users');
         }
 
-        $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-
-        if ($this->form_validation->run()) {
-            $data = [
-                'login' => $user['login'],
-                'name' => $this->input->post('name'),
-                'lastname' => $this->input->post('lastname'),
-                'status' => $this->input->post('status'),
-                'root' => $this->input->post('root'),
-                'allow_dev' => $this->input->post('allow_dev')
-            ];
-            if (!empty($this->input->post('password'))) {
-                $this->load->helper('passwordhash');
-                $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
-                $data['password'] = $PasswordHash->HashPassword($this->input->post('password'));
-            }else{
-                $data['password'] = $user['password'];
-            }
-            $this->users_model->update($data);
-            redirect('users');
-        }
+        $this->form_edit($user);
 
         add_js([
             'view/users/js/form.js'
@@ -140,18 +164,56 @@ class Users extends MY_Controller {
         ];
         $this->load->template('users/form', $vars);
     }
-    
+
+    /*
+     * Método para edição de usuário
+     */
+
+    private function form_edit($user) {
+        $this->form_validation->set_rules('name', 'Nome', 'trim|required');
+
+        if ($this->form_validation->run()) {
+            $data = [
+                'login' => $user['login'],
+                'name' => $this->input->post('name'),
+                'lastname' => $this->input->post('lastname'),
+                'status' => $this->input->post('status'),
+                'root' => $this->input->post('root'),
+                'allow_dev' => $this->input->post('allow_dev')
+            ];
+            if (!empty($this->input->post('password'))) {
+                $this->load->helper('passwordhash');
+                $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
+                $data['password'] = $PasswordHash->HashPassword($this->input->post('password'));
+            } else {
+                $data['password'] = $user['password'];
+            }
+            $this->users_model->update($data);
+            redirect('users');
+        }
+    }
+
+    /*
+     * Método para deletar usuário
+     */
+
     public function delete() {
         $del = $this->input->post('del');
-        $this->users_model->delete($del);
+        if ($del > 1) {
+            $this->users_model->delete($del);
+        }
         redirect('users');
     }
-    
-    public function dev_mode(){
+
+    /*
+     * Método para ativar e desativar o modo desenvolvedor, acionado por js
+     */
+
+    public function dev_mode() {
         $this->form_validation->set_rules('dev', 'Dev', 'required');
-        if($this->form_validation->run()){
+        if ($this->form_validation->run()) {
             $dev = $this->input->post('dev');
-            $this->users_model->change_mode(['dev'=>$dev,'id_user'=>$this->data_user['id']]);
+            $this->users_model->change_mode(['dev' => $dev, 'id_user' => $this->data_user['id']]);
         }
     }
 

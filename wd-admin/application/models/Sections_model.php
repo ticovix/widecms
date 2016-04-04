@@ -6,11 +6,11 @@ if (!defined('BASEPATH')) {
 
 class Sections_model extends CI_Model {
 
-    public function getSection($slug) {
+    public function get_section($slug) {
         return $this->db->get_where('wd_sections', array('slug' => $slug))->row_array();
     }
 
-    public function searchSections($page, $keyword = null, $total = null, $offset = null) {
+    public function search_sections($page, $keyword = null, $total = null, $offset = null) {
         $this->db->like('name', $keyword);
         $this->db->limit($total, $offset);
         $this->db->order_by('order, name');
@@ -18,21 +18,20 @@ class Sections_model extends CI_Model {
         return $this->db->get('wd_sections')->result_array();
     }
 
-    public function searchSectionsTotalRows($page, $keyword = null) {
+    public function search_sections_total_rows($page, $keyword = null) {
         $this->db->select('count(id) total');
         $this->db->like('name', $keyword);
         $this->db->where('fk_page', $page);
         return $this->db->get('wd_sections')->row()->total;
     }
 
-    public function listSectionsSelect($page, $section) {
+    public function list_sections_select($page, $section) {
         $this->db->order_by('order, name');
         $this->db->where('fk_page', $page);
-        //$this->db->where('id!=', $section);
         return $this->db->get('wd_sections')->result_array();
     }
 
-    public function createSection($data) {
+    public function create($data) {
         $set = [
             'fk_page' => $data['page'],
             'name' => $data['name'],
@@ -44,27 +43,24 @@ class Sections_model extends CI_Model {
         $this->db->insert('wd_sections', $set);
     }
 
-    public function listSections($page) {
+    public function list_sections($page) {
         return $this->db->get_where('wd_sections', ['fk_page' => $page, 'status' => '1'])->result_array();
     }
 
-    public function removeSection($table, $section) {
+    public function remove($table, $section) {
         $remove = $this->db->delete('wd_sections', array('id' => $section));
         if ($remove) {
-            return $this->removeTable($table);
+            return $this->remove_table($table);
         }
     }
 
-    public function removeTable($table) {
-        //$this->openProjectDB($db);
+    public function remove_table($table) {
         $this->load->dbforge();
         $stmt = $this->dbforge->drop_table($table);
-        //$this->closeProjectDB();
         return $stmt;
     }
 
-    public function createColumns($table, $fields) {
-        //$this->openProjectDB($db);
+    public function create_columns($table, $fields) {
         $this->load->dbforge();
         foreach ($fields as $field) {
             $column = $field['column'];
@@ -77,11 +73,9 @@ class Sections_model extends CI_Model {
             ];
             $this->dbforge->add_column($table, $set);
         }
-        //$this->closeProjectDB();
     }
 
-    public function createTable($table) {
-        //$this->openProjectDB($db);
+    public function create_table($table) {
         $this->load->dbforge();
         /* Columns default */
         $fields['id'] = [
@@ -94,34 +88,28 @@ class Sections_model extends CI_Model {
         $this->dbforge->add_field($fields);
         $this->dbforge->add_key('id', TRUE);
         $stmt = $this->dbforge->create_table($table, TRUE, ['engine' => 'InnoDB']);
-        //$this->closeProjectDB();
         return $stmt;
     }
 
-    public function checkTableExists($table) {
-        //$this->openProjectDB($db);
+    public function check_table_exists($table) {
         $check = $this->db->query('SELECT * FROM information_schema.tables WHERE table_name = ?', array($table))->row();
-        //$this->closeProjectDB();
         return $check;
     }
 
-    public function removeColumn($data) {
+    public function remove_column($data) {
         $table = $data['table'];
         $column = $data['old_column'];
-        //$this->openProjectDB($database);
         $this->load->dbforge();
         $remove = $this->dbforge->drop_column($table, $column);
-        //$this->closeProjectDB();
         return $remove;
     }
 
-    public function modifyColumn($data) {
+    public function modify_column($data) {
         $table = $data['table'];
         $column = $data['column'];
         $old_column = $data['old_column'];
         $type = $data['type'];
         $limit = $data['limit'];
-        //$this->openProjectDB($database);
         $this->load->dbforge();
         $fields = array(
             $old_column => array(
@@ -132,11 +120,10 @@ class Sections_model extends CI_Model {
         );
 
         $modify = $this->dbforge->modify_column($table, $fields);
-        //$this->closeProjectDB();
         return $modify;
     }
 
-    public function editSection($data) {
+    public function edit($data) {
         $old_config = $data['old_config'];
         $old_section = $data['old_section'];
         $table = $data['table'];
@@ -148,10 +135,8 @@ class Sections_model extends CI_Model {
         $rename = false;
         $update = false;
         if ($table != $old_table) {
-            //$this->openProjectDB($db);
             $this->load->dbforge();
             $rename = $this->dbforge->rename_table($old_table, $table);
-            //$this->closeProjectDB();
         }
         if ($table != $old_table && $rename or $table == $old_table) {
             $set = array(
@@ -168,7 +153,7 @@ class Sections_model extends CI_Model {
         return $update;
     }
 
-    public function listColumns($table) {
+    public function list_columns($table) {
         $result = $this->db->query('SHOW COLUMNS FROM ' . $table)->result_array();
         $col = array();
         if ($result) {

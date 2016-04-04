@@ -49,17 +49,13 @@ if ($fields) {
         $type = (isset($field['label'])) ? $field['type'] : '';
         $label = (isset($field['label'])) ? $field['label'] : '';
         $input = (isset($field['input'])) ? $field['input'] : '';
-        $content_top = (isset($field['content_top'])) ? $field['content_top'] : '';
-        $content_bottom = (isset($field['content_bottom'])) ? $field['content_bottom'] : '';
         if (!$has_input_file && ($type == 'file' or $type == 'multifile')) {
             $has_input_file = true;
         }
         ?>
             <div class="form-group <?php if (empty($label)) { ?>hide<?php } ?>">
                 <label><?php echo $label; ?></label>
-        <?php echo $content_top; ?>
                 <?php echo $input; ?>
-                <?php echo $content_bottom; ?>
             </div>
                 <?php
             }

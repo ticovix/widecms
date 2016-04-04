@@ -56,16 +56,20 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = TRUE;
 $route['logout'] = 'home/logout';
 
+// Pages
+$route['project/(:any)/create'] = 'pages/create/$1';
+$route['project/(:any)/edit/(:any)'] = 'pages/edit/$1/$2';
+$route['project/(:any)/remove/(:any)'] = 'pages/remove/$1/$2';
+// Sections
+$route['project/(:any)/(:any)/create'] = 'sections/create/$1/$2';
+$route['project/(:any)/(:any)/remove/(:any)'] = 'sections/remove/$1/$2/$3';
+$route['project/(:any)/(:any)/edit/(:any)'] = 'sections/edit/$1/$2/$3';
+// Posts
+$route['project/(:any)/(:any)/(:any)/create'] = 'posts/create/$1/$2/$3';
+$route['project/(:any)/(:any)/(:any)/(:any)/edit'] = 'posts/edit/$1/$2/$3/$4';
+$route['project/(:any)/(:any)/(:any)/(:any)/remove'] = 'posts/remove/$1/$2/$3/$4';
+$route['project/(:any)/(:any)/(:any)/mod/(:any)(.*)'] = 'posts/$4$5';
 
-$route['project/(:any)/create-page'] = 'pages/create-page/$1';
-$route['project/(:any)/edit-page/(:any)'] = 'pages/edit-page/$1/$2';
-$route['project/(:any)/delete-page/(:any)'] = 'pages/delete-page/$1/$2';
-$route['project/(:any)/(:any)/create-section'] = 'sections/create-section/$1/$2';
-$route['project/(:any)/(:any)/delete-section/(:any)'] = 'sections/delete-section/$1/$2/$3';
-$route['project/(:any)/(:any)/edit-section/(:any)'] = 'sections/edit-section/$1/$2/$3';
-$route['project/(:any)/(:any)/(:any)/create-post'] = 'posts/create-post/$1/$2/$3';
-$route['project/(:any)/(:any)/(:any)/(:any)/edit-post'] = 'posts/edit-post/$1/$2/$3/$4';
-$route['project/(:any)/(:any)/(:any)/(:any)/remove-post'] = 'posts/remove-post/$1/$2/$3/$4';
 $route['project/(:any)/(:any)/(:any)'] = 'posts/index/$1/$2/$3';
 $route['project/(:any)/(:any)'] = 'sections/index/$1/$2';
 $route['project/(:any)'] = 'pages/index/$1';

@@ -5,6 +5,9 @@ if (!defined('BASEPATH')) {
 }
 
 class Config_page {
+    /*
+     * Método com lista de inputs disponíveis
+     */
 
     public function inputs() {
         $input = array();
@@ -19,6 +22,10 @@ class Config_page {
         $input[] = ['name' => 'Hidden', 'value' => 'hidden'];
         return $input;
     }
+
+    /*
+     * Método com lista de tipos de colunas do banco de dados
+     */
 
     public function types() {
         $input = array();
@@ -36,6 +43,10 @@ class Config_page {
         return $input;
     }
 
+    /*
+     * Método com lista de mascaras disponíveis
+     */
+
     public function masks_input() {
         $js_default = array(
             'plugins/masks/js/jquery.meio.js',
@@ -43,7 +54,7 @@ class Config_page {
         );
         $masks = array(
             'date' => array(
-                'label' => 'Data',
+                'label' => 'Mascarar Data',
                 'js' => array_merge($js_default, array(
                     'plugins/jquery-ui/jquery-ui.min.js',
                     'plugins/masks/js/datetimepicker.js',
@@ -59,7 +70,7 @@ class Config_page {
                 )
             ),
             'datetime' => array(
-                'label' => 'Data e hora',
+                'label' => 'Mascarar Data e hora',
                 'js' => array_merge($js_default, array(
                     'plugins/jquery-ui/jquery-ui.min.js',
                     'plugins/masks/js/datetimepicker.js',
@@ -75,7 +86,7 @@ class Config_page {
                 )
             ),
             'time' => array(
-                'label' => 'Hora',
+                'label' => 'Mascarar Hora',
                 'js' => array_merge($js_default, array(
                     'plugins/jquery-ui/jquery-ui.min.js',
                     'plugins/masks/js/datetimepicker.js',
@@ -89,7 +100,7 @@ class Config_page {
                 )
             ),
             'real' => array(
-                'label' => 'Real (R$)',
+                'label' => 'Mascarar Real (R$)',
                 'js' => $js_default,
                 'callback_input' => 'mask_input_real',
                 'callback_output' => 'mask_output_real',
@@ -99,7 +110,7 @@ class Config_page {
                 )
             ),
             'cpf' => array(
-                'label' => 'CPF',
+                'label' => 'Mascarar CPF',
                 'js' => $js_default,
                 'attr' => array(
                     'alt' => 'cpf',
@@ -107,7 +118,7 @@ class Config_page {
                 )
             ),
             'cnpj' => array(
-                'label' => 'CNPJ',
+                'label' => 'Mascarar CNPJ',
                 'js' => $js_default,
                 'attr' => array(
                     'alt' => 'cnpj',
@@ -115,7 +126,7 @@ class Config_page {
                 )
             ),
             'cep' => array(
-                'label' => 'CEP',
+                'label' => 'Mascarar CEP',
                 'js' => $js_default,
                 'attr' => array(
                     'alt' => 'cep',
@@ -123,7 +134,7 @@ class Config_page {
                 )
             ),
             'cc' => array(
-                'label' => 'Cartão de crédito',
+                'label' => 'Mascarar Cartão de crédito',
                 'js' => $js_default,
                 'attr' => array(
                     'alt' => 'cc',
@@ -131,7 +142,7 @@ class Config_page {
                 )
             ),
             'phone' => array(
-                'label' => 'Telefone',
+                'label' => 'Mascarar Telefone (99) 9999-9999',
                 'js' => $js_default,
                 'attr' => array(
                     'alt' => 'phone',
@@ -139,7 +150,7 @@ class Config_page {
                 )
             ),
             'cellphone' => array(
-                'label' => 'Celular',
+                'label' => 'Mascarar Celular (99) 99999-9999',
                 'js' => $js_default,
                 'attr' => array(
                     'alt' => 'cellphone',
@@ -147,7 +158,7 @@ class Config_page {
                 )
             ),
             'ckeditor' => array(
-                'label' => 'CKEditor',
+                'label' => 'Editor CKEditor',
                 'js' => array(
                     'plugins/ckeditor/ckeditor.js'
                 ),
@@ -160,12 +171,20 @@ class Config_page {
         return $masks;
     }
 
+    /*
+     * Método para buscar uma mascara do array
+     */
+
     public function get_mask($mask) {
         $masks = $this->masks_input();
         if (isset($masks[$mask])) {
             return $masks[$mask];
         }
     }
+
+    /*
+     * Método pra criar arquivo config xml
+     */
 
     public function create_config_xml($fields) {
         $total = count($fields);
@@ -194,13 +213,13 @@ class Config_page {
                 if (!empty($mask)) {
                     $attr['@mask'] = $mask;
                 }
-                if(!empty($options)){
+                if (!empty($options)) {
                     $attr['@options'] = $options;
                 }
-                if(!empty($label_options)){
+                if (!empty($label_options)) {
                     $attr['@label_options'] = $label_options;
                 }
-                if(!empty($trigger_select)){ 
+                if (!empty($trigger_select)) {
                     $attr['@trigger_select'] = $trigger_select;
                 }
                 $new_field['input'] = $name;
@@ -213,6 +232,10 @@ class Config_page {
         }
     }
 
+    /*
+     * Método para carregar o arquivo xml
+     */
+
     public function load_config($project, $page, $section) {
         $dir_project = $project;
         $dir_page = $page;
@@ -223,6 +246,10 @@ class Config_page {
             return $this->treat_config($xml);
         }
     }
+
+    /*
+     * Método para tratar os valores do config xml
+     */
 
     private function treat_config($xml) {
         if ($xml) {
@@ -279,6 +306,344 @@ class Config_page {
         } else {
             return false;
         }
+    }
+
+    /*
+     * Método para criação do template com todos os campos do config xml
+     */
+
+    public function fields_template($fields, $post) {
+        $CI = & get_instance();
+        foreach ($fields as $field) {
+
+            // Lista os campos do formulário
+            $this->type = strtolower($field['type']);
+            $this->column = $field['column'];
+            $this->required = $field['required'];
+            // Recebe os dados da máscara do formulário
+            $this->mask = $this->get_mask($field['mask']);
+            // Seta o label do arquivo, se for obrigatóro insere asterísco
+            $this->label = ($this->required) ? $field['label'] . '<span>*</span>' : $field['label'];
+            $this->value = (!empty($post)) ? $post[$this->column] : '';
+            $this->post = $post;
+
+            if ($this->mask) {
+                $mask_added = $this->add_mask();
+                if ($mask_added) {
+                    $value = $mask_added;
+                }
+            }
+            switch ($this->type) {
+                case 'file':
+                case 'multifile':
+                    $new_field = $this->template_input_file();
+                    break;
+                case 'textarea':
+                    $new_field = $this->template_textarea();
+                    break;
+                case 'select':
+                    $new_field = $this->template_select();
+                    break;
+                case 'hidden':
+                    $new_field = $this->template_input_hidden();
+                    break;
+                default:
+                    $new_field = $this->template_input();
+                    break;
+            }
+            $form[] = $new_field;
+        }
+        return $form;
+    }
+
+    /*
+     * Método para alterar valor do input, caso tenha algum método para tratar a saida do valor do banco de dados
+     */
+
+    private function add_mask() {
+        $mask = $this->mask;
+        //Se o campo possuir mascara, seta as chaves que existem no array
+        $attr = (isset($mask['attr'])) ? $mask['attr'] : $attr;
+        $js = (isset($mask['js'])) ? $mask['js'] : false;
+        $css = (isset($mask['css'])) ? $mask['css'] : false;
+        $callback_output = (isset($mask['callback_output'])) ? $mask['callback_output'] : false;
+        if ($js) {
+            add_js($js);
+        }
+        if ($css) {
+            add_css($css);
+        }
+        if ($callback_output) {
+            // Se houver um método de saida
+            $CI->load->library('masks_input');
+            if (method_exists($CI->masks_input, $callback_output)) {
+                // Se o método existir, aciona e seta o novo valor
+                return $CI->masks_input->$callback_output($this->value);
+            }
+        }
+    }
+
+    /*
+     * Método para criar template do input file
+     */
+
+    private function template_input_file() {
+        // Se o campo for file ou multifile carrega arquivos css e js na página do formulário
+        add_css(array(
+            'plugins/fancybox/css/jquery.fancybox.css',
+            'plugins/fancybox/css/jquery.fancybox-buttons.css',
+            'plugins/dropzone/css/dropzone.css',
+            'view/project/css/gallery.css'
+        ));
+        add_js(array(
+            'plugins/dropzone/js/dropzone.js',
+            'plugins/fancybox/js/jquery.fancybox.pack.js',
+            'plugins/fancybox/js/jquery.fancybox-buttons.js',
+            'plugins/embeddedjs/ejs.js',
+            'view/posts/js/gallery.js'
+        ));
+        $new_field = array();
+        $new_field['type'] = $this->type;
+        $new_field['label'] = $this->label;
+        $files = json_decode($this->value);
+        $attr = array();
+        $attr['data-field'] = $this->column;
+        $attr['class'] = 'form-control btn-gallery ' . (isset($attr['class']) ? $attr['class'] : '');
+        $attr['data-toggle'] = 'modal';
+        $attr['data-target'] = '#gallery';
+        $new_field['input'] = $this->list_files($files);
+        $new_field['input'] .= form_button($attr, '<span class="fa fa-cloud"></span> Galeria');
+
+        $attr = array();
+        if ($this->type == 'multifile') {
+            $attr['multiple'] = "true";
+        }
+        $attr['id'] = $this->column . '-field';
+        $attr['name'] = $this->column;
+        $attr['type'] = 'hidden';
+        $new_field['input'] .= form_input($attr, $this->value);
+        return $new_field;
+    }
+
+    /*
+     * Método para criar template do textarea
+     */
+
+    private function template_textarea() {
+        $new_field = array();
+        $new_field['type'] = $this->type;
+        $new_field['label'] = $this->label;
+        $attr = array();
+        $attr['name'] = $this->column;
+        $attr['class'] = 'form-control ' . (isset($attr['class']) ? $attr['class'] : '');
+        $new_field['input'] = form_textarea($attr, $this->value);
+    }
+
+    /*
+     * Método para criar template do select
+     */
+
+    private function template_select() {
+        add_js(array(
+            'view/posts/js/events-select.js'
+        ));
+        $new_field = array();
+        $attr = array();
+        $new_field['type'] = $this->type;
+        $new_field['label'] = $this->label;
+        if (isset($this->field['options']) && isset($this->field['label_options'])) {
+            $column_trigger = (isset($this->field['trigger_select'])) ? $this->field['trigger_select'] : '';
+            $data_trigger = null;
+            if ($column_trigger) {
+                $field_trigger = search($this->fields, 'column', $column_trigger);
+                if (count($field_trigger) > 0) {
+                    $field_trigger = $field_trigger[0];
+                    $table_trigger = $field_trigger['options'];
+                    $label_trigger = $field_trigger['label'];
+                    $value_trigger = $this->post[$column_trigger];
+                    $attr['class'] = (isset($attr['class'])) ? $attr['class'] : '';
+                    $attr['class'] .= ' trigger-' . $column_trigger;
+                    $data_trigger = array(
+                        'table' => $table_trigger,
+                        'column' => $column_trigger,
+                        'value' => $value_trigger,
+                        'label' => $label_trigger
+                    );
+                } else {
+                    $field_trigger = null;
+                }
+            }
+            // Lista as opções do select
+            $array_options = $this->set_options($this->field['options'], $this->field['label_options'], $data_trigger);
+        } else {
+            $array_options = array('' => 'Nenhum opção adicionada.');
+        }
+        $attr['class'] = 'form-control trigger-select ' . (isset($attr['class']) ? $attr['class'] : '');
+        $new_field['input'] = form_dropdown($this->column, $array_options, $this->value, $attr);
+        return $new_field;
+    }
+
+    /*
+     * Método para criar template do input hidden
+     */
+
+    private function template_input_hidden() {
+        $new_field = array();
+        $attr = array();
+        $attr['name'] = $this->column;
+        $attr['class'] = 'form-control ' . (isset($attr['class']) ? $attr['class'] : '');
+        $new_field['input'] = form_hidden('my_array', $attr);
+        return $new_field;
+    }
+
+    /*
+     * Método para criar template do input
+     */
+
+    private function template_input() {
+        $new_field = array();
+        $new_field['type'] = $this->type;
+        $new_field['label'] = $this->label;
+        $attr = array();
+        $attr['name'] = $this->column;
+        $attr['type'] = $this->type;
+        $attr['class'] = 'form-control ' . (isset($attr['class']) ? $attr['class'] : '');
+        $new_field['input'] = form_input($attr, $this->value);
+        return $new_field;
+    }
+
+    /*
+     * Método para listar as opções de um select
+     */
+
+    private function set_options($table, $column, $data_trigger = null) {
+        $CI = & get_instance();
+        if (is_array($data_trigger) && empty($data_trigger['value'])) {
+            return array('' => 'Selecione uma ' . $data_trigger['label']);
+        }
+        // Lista registros para o select
+        $CI->load->model('posts_model');
+        $posts = $CI->posts_model->list_posts_select($table, $column, $data_trigger);
+        $options = array();
+        if ($posts) {
+            // Se for encontrado registros
+            $options[''] = 'Selecione';
+            foreach ($posts as $post) {
+                $id = $post['value'];
+                $value = $post['label'];
+                // Seta os options
+                $options[$id] = $value;
+            }
+        } else {
+            $options[''] = 'Nenhuma opção encontrada.';
+        }
+        return $options;
+    }
+
+    /*
+     * Método para montar template da listagem de arquivos
+     */
+
+    private function list_files($files, $cols = 2) {
+        $files = (array) $files;
+        $ctt = '<div class="content-files">';
+        if ($files) {
+            $path = PATH_UPLOAD;
+            foreach ($files as $file) {
+                $file_ = $file->file;
+                if (!empty($file)) {
+                    $ctt .= '<div class="files-list thumbnail"><img src="' . base_url('gallery/image/thumb/' . $file_) . '" class="img-responsive"></div>';
+                }
+            }
+        }
+        $ctt .= '</div>';
+        return $ctt;
+    }
+
+    /*
+     * Método para tratar a listagem de registros
+     * Param posts - contém os registros do banco de dados
+     * Param data - contém os dados dos campos de listagem do config xml
+     */
+
+    public function treat_list($posts, $data) {
+        $list = array();
+        // Lista os registros do banco de dados
+        foreach ($posts as $row) {
+            foreach ($row as $key => $value) {
+                // Busca a coluna nos campos do config xml
+                $field = search($data, 'column', $key);
+                if (isset($field[0])) {
+                    // Se o campo for encontrada, faz diversas filtragens no valor da coluna
+                    $type = strtolower($field[0]['type']);
+                    if (isset($field[0]['mask'])) {
+                        // Se houver um parametro mask setado
+                        $value = $this->treat_mask_output($value);
+                    }
+                    switch ($type) {
+                        case 'select':
+                        case 'radio':
+                            $value = $this->treat_options($value, $field);
+                            break;
+                        case 'file':
+                        case 'multifile':
+                            $value = $this->treat_value_json($value, $field);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                $row[$key] = $value;
+            }
+            $list[] = $row;
+        }
+        return $list;
+    }
+
+    private function treat_mask_output($value) {
+        // Verifica se possui um método de saida
+        $callback_output = (isset($mask['callback_output'])) ? $mask['callback_output'] : false;
+        if ($callback_output) {
+            $CI = & get_instance();
+            $CI->load->library('masks_input');
+            if (method_exists($CI->masks_input, $callback_output)) {
+                // Se o método de saída existir, aciona
+                $value = $CI->masks_input->$callback_output($value);
+            }
+        }
+        return $value;
+    }
+
+    private function treat_options($value, $field) {
+        if (!empty($value)) {
+            // Se o valor da coluna não estiver vazio
+            $CI = & get_instance();
+            $CI->load->model('posts_model');
+            $field = $field[0];
+            $table = (isset($field['options'])) ? $field['options'] : '';
+            $column = (isset($field['label_options'])) ? $field['label_options'] : '';
+
+            if ($table && $column) {
+                // Se tabela e coluna existir, lista o valor selecionado pelo campo
+                $val = $CI->posts_model->get_post_selected($table, $column, $value);
+                if ($val) {
+                    // Se um valor for encontrado, seta value com o valor encontrado
+                    $value = $val[$column];
+                }
+            }
+        }
+        return $value;
+    }
+
+    private function treat_value_json($value, $field) {
+        if (!empty($value)) {
+            // Se o valor da coluna não estiver vazio
+            // Decodifica o json
+            $files = json_decode($value);
+            // Monta o template com as imagens selecionadas e seta no value
+            $value = $this->list_files($files, 1);
+        }
+        return $value;
     }
 
 }

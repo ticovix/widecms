@@ -23,7 +23,7 @@ if (!defined('BASEPATH')) {
 
 <div class="container-fluid">
     <div class="btn-toolbar">
-        <a href="<?php echo base_url('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/create-post'); ?>" class="btn btn-primary"><i class="icon-plus"></i> Novo</a>
+        <a href="<?php echo base_url('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> Novo</a>
         <div class="btn-group"></div>
     </div>
     <?php echo form_open(null, ['method' => 'get', 'class' => 'form-group']); ?>
@@ -66,8 +66,8 @@ if (!defined('BASEPATH')) {
                         }
                         ?>
                         <td>
-                            <a href="<?php echo base_url('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/' . $id . '/edit-post'); ?>"><i class="fa fa-pencil"></i></a>
-                            <a href="<?php echo base_url('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/' . $id . '/remove-post'); ?>" onclick="javascript: return confirm('Deseja realmente remover esse registro?')"><i class="fa fa-remove"></i></a>
+                            <a href="<?php echo base_url('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/' . $id . '/edit'); ?>"><i class="fa fa-pencil"></i></a>
+                            <a href="<?php echo base_url('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/' . $id . '/remove'); ?>" onclick="javascript: return confirm('Deseja realmente remover esse registro?')"><i class="fa fa-remove"></i></a>
                         </td>
                     </tr>
                     <?php

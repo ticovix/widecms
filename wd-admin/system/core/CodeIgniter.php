@@ -342,17 +342,6 @@ function &get_instance() {
 if (file_exists(APPPATH . 'core/' . $CFG->config['subclass_prefix'] . 'Controller.php')) {
     require_once APPPATH . 'core/' . $CFG->config['subclass_prefix'] . 'Controller.php';
 }
-/*
- * LOAD CONTROLLERS EXTENDED
- */
-
-function __autoload($class) {
-
-    if (file_exists(APPPATH . "controllers/" . $class . '.php')) {
-        //load_class($class, 'controllers', null, 'test');
-        require_once(APPPATH . "controllers/" . $class . '.php');
-    }
-}
 
 // Set a mark point for benchmarking
 $BM->mark('loading_time:_base_classes_end');
@@ -384,8 +373,18 @@ $method = $RTR->method;
 if (empty($class) OR ! file_exists(APPPATH . 'controllers/' . $RTR->directory . $class . '.php')) {
     $e404 = TRUE;
 } else {
-    require_once(APPPATH . 'controllers/' . $RTR->directory . $class . '.php');
-
+    
+    $load_module = false;
+    if ($RTR->uri->segment(1)=='project' && !empty($RTR->uri->segment(4))) {
+        $load_module = load_module($RTR);
+        if($load_module){
+            $class = $load_module;
+        }
+    }
+    if(!$load_module){
+        require_once(APPPATH . 'controllers/' . $RTR->directory . $class . '.php');
+    }
+    
     if (!class_exists($class, FALSE) OR $method[0] === '_' OR method_exists('CI_Controller', $method)) {
         $e404 = TRUE;
     } elseif (method_exists($class, '_remap')) {
@@ -399,6 +398,7 @@ if (empty($class) OR ! file_exists(APPPATH . 'controllers/' . $RTR->directory . 
     elseif (!in_array(strtolower($method), array_map('strtolower', get_class_methods($class)), TRUE)) {
         $e404 = TRUE;
     }
+    
 }
 
 if ($e404) {
@@ -460,6 +460,7 @@ $EXT->call_hook('pre_controller');
 $BM->mark('controller_execution_time_( ' . $class . ' / ' . $method . ' )_start');
 
 $CI = new $class();
+
 
 /*
  * ------------------------------------------------------

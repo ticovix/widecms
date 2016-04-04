@@ -5,29 +5,42 @@ if (!defined('BASEPATH')) {
 }
 
 class Posts extends MY_Controller {
+    /*
+     * Variável pública com o limite de seções por página
+     */
+
+    public $limit = 10;
 
     public function __construct() {
         parent::__construct();
         $this->load->model('posts_model');
     }
 
+
+    /*
+     * Método para listar os registros de uma tabela
+     */
+
     public function index($slug_project, $slug_page, $slug_section) {
-        $section = $this->get_section();
-        $project = $this->get_project();
-        $page = $this->get_page();
+        $section = get_section();
+        $project = get_project();
+        $page = get_page();
         if ($section && $page) {
             $dir_section = $section['directory'];
             $name = $section['name'];
             $table = $section['table'];
             $this->load->library('config_page');
+            // Carrega config xml
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
             $this->load->setVars(array(
                 'dev_mode' => $this->data_user['dev_mode']
             ));
             if ($data) {
                 if (isset($data['list'])) {
+                    // Se algum campo estiver para ser listado, significa que o administrador pode inserir mais de um registro
                     $this->mount_list($data, $section, $project, $page);
                 } else {
+                    // Se não, o administrador pode editar um registro, levando direto para formulário
                     $this->mount_form($data, $section, $project, $page);
                 }
             } else {
@@ -38,41 +51,27 @@ class Posts extends MY_Controller {
         }
     }
 
+    /*
+     * Método para montar o formulário de edição 
+     */
+
     private function mount_form($data, $section, $project, $page) {
         add_css(array(
             'view/posts/css/post-form.css'
         ));
-        $post = $this->posts_model->getPost($section);
+        $post = $this->posts_model->get_post($section);
         if (!$post) {
-            $this->posts_model->createPost(null, $section);
-            $post = $this->posts_model->getPost($section);
+            // Verifica se já existe um registro na tabela, caso não exista, cria um novo e seta
+            $this->posts_model->create(null, $section);
+            $post = $this->posts_model->get_post($section);
         }
+        // Recebe todos os campos do formulário
         $data_fields = $data['fields'];
-        if ($data_fields) {
-            $current_field = array();
-            foreach ($data_fields as $field) {
-                $column = $field['column'];
-                $required = $field['required'];
-                $label = $field['label'];
-                $value = $this->set_value($this->input->post($column), $field);
-                $current_field["$column"] = $value;
-                if ($required == '1') {
-                    $this->form_validation->set_rules($column, $label, 'required');
-                } else {
-                    $this->form_validation->set_rules($column, $label);
-                }
-            }
-            if ($this->form_validation->run()) {
-                $this->posts_model->editPost($current_field, $post, $section, $project);
-                if ($this->data_user['dev_mode']) {
-                    redirect('project/' . $project['slug'] . '/' . $page['slug']);
-                } else {
-                    redirect(current_url());
-                }
-            }
-        }
+        $this->form_edit_post($data_fields, $section, $post);
 
-        $fields = $this->gen_form($data_fields, $post);
+        // Gera o template baseado nos campos do config xml
+        $this->load->library('config_page');
+        $fields = $this->config_page->fields_template($data_fields, $post);
         $vars = array(
             'title' => 'Registro',
             'breadcrumb_section' => false,
@@ -87,21 +86,63 @@ class Posts extends MY_Controller {
         $this->load->template('posts/form-post', $vars);
     }
 
+    /*
+     * Método para listar os registros com possibilidade de inserir, editar e deletar registros
+     */
+
     private function mount_list($data, $section, $project, $page) {
+        $this->load->library('config_page');
         add_css(array(
             'view/posts/css/posts-list.css'
         ));
+        $search = $this->form_search($data, $section);
+        $posts = $search['posts'];
+        $total_rows = $search['total_rows'];
+        $pagination = $this->pagination($total_rows);
+
+        $vars = array(
+            'title' => $section['name'],
+            'list' => $data['list'],
+            'total_list' => (count($data['list']) + 1),
+            'posts' => $this->config_page->treat_list($posts['rows'], $data),
+            'slug_section' => $section['slug'],
+            'slug_project' => $project['slug'],
+            'slug_page' => $page['slug'],
+            'name_section' => $section['name'],
+            'name_page' => $page['name'],
+            'name_project' => $project['name'],
+            'pagination' => $pagination,
+            'total' => $total_rows
+        );
+        $this->load->template('posts/index', $vars);
+    }
+
+    /*
+     * Método com formulário de pesquisa de registros
+     */
+
+    private function form_search($data, $section) {
         $this->form_validation->set_rules('search', 'Pesquisa', 'trim|required');
         $this->form_validation->run();
         $keyword = $this->input->get('search');
         $perPage = $this->input->get('per_page');
-        $limit = 10;
+        $limit = $this->limit;
         $posts = $this->posts_model->search($data, $section, $keyword, $limit, $perPage);
         $total_rows = $posts['total'];
+        return array(
+            'posts' => $posts,
+            'total_rows' => $total_rows
+        );
+    }
 
+    /*
+     * Método para criar template da paginação da listagem de registros
+     */
+
+    private function pagination($total_rows) {
         $this->load->library('pagination');
         $config['total_rows'] = $total_rows;
-        $config['per_page'] = $limit;
+        $config['per_page'] = $this->limit;
         $config['page_query_string'] = true;
         $config['reuse_query_string'] = true;
         $config['num_tag_open'] = '<li>';
@@ -117,190 +158,13 @@ class Posts extends MY_Controller {
         $config['first_tag_open'] = '<li>';
         $config['first_tag_open'] = '</li>';
         $config['first_url'] = '?per_page=0';
-
         $this->pagination->initialize($config);
-        $pagination = $this->pagination->create_links();
-
-        $vars = array(
-            'title' => $section['name'],
-            'list' => $data['list'],
-            'total_list' => (count($data['list']) + 1),
-            'posts' => $this->treat_list($posts['rows'], $data),
-            'slug_section' => $section['slug'],
-            'slug_project' => $project['slug'],
-            'slug_page' => $page['slug'],
-            'name_section' => $section['name'],
-            'name_page' => $page['name'],
-            'name_project' => $project['name'],
-            'pagination' => $pagination,
-            'total' => $total_rows
-        );
-        $this->load->template('posts/index', $vars);
+        return $this->pagination->create_links();
     }
 
-    private function treat_list($posts, $data) {
-        $list = array();
-        foreach ($posts as $row) {
-            foreach ($row as $key => $value) {
-                $field = search($data, 'column', $key);
-                if (isset($field[0])) {
-                    $type = strtolower($field[0]['type']);
-                    if (isset($field[0]['mask'])) {
-                        $callback_output = (isset($mask['callback_output'])) ? $mask['callback_output'] : false;
-                        if ($callback_output) {
-                            $this->load->library('masks_input');
-                            if (method_exists($this->masks_input, $callback_output)) {
-                                $value = $this->masks_input->$callback_output($value);
-                            }
-                        }
-                    }
-                    if ($type == 'select' or $type == 'radio') {
-                        if (!empty($value)) {
-                            $table = (isset($field[0]['options'])) ? $field[0]['options'] : '';
-                            $column = (isset($field[0]['label_options'])) ? $field[0]['label_options'] : '';
-
-                            if ($table && $column) {
-                                $val = $this->posts_model->getPostSelected($table, $column, $value);
-                                if ($val) {
-                                    $value = $val[$column];
-                                }
-                            }
-                        }
-                    } elseif ($type == 'file' or $type == 'multifile') {
-                        if (!empty($value)) {
-                            $files = json_decode($value);
-                            $value = $this->list_files($files, 1);
-                        }
-                    }
-                }
-                $row[$key] = $value;
-            }
-            $list[] = $row;
-        }
-        return $list;
-    }
-
-    private function gen_form($fields, $post = null) {
-        $this->load->helper('form');
-        $this->load->library('config_page');
-        $form = array();
-        if ($fields) {
-            foreach ($fields as $field) {
-                $type = strtolower($field['type']);
-                $column = $field['column'];
-                $required = $field['required'];
-                $mask = $this->config_page->get_mask($field['mask']);
-                $label = ($required) ? $field['label'] . '<span>*</span>' : $field['label'];
-                $value = (!empty($post)) ? $post[$column] : '';
-                $new_field = array();
-                $attr = array();
-                if ($mask) {
-                    $attr = (isset($mask['attr'])) ? $mask['attr'] : $attr;
-                    $js = (isset($mask['js'])) ? $mask['js'] : false;
-                    $css = (isset($mask['css'])) ? $mask['css'] : false;
-                    $callback_output = (isset($mask['callback_output'])) ? $mask['callback_output'] : false;
-                    if ($js) {
-                        add_js($js);
-                    }
-                    if ($css) {
-                        add_css($css);
-                    }
-                    if ($callback_output) {
-                        $this->load->library('masks_input');
-                        if (method_exists($this->masks_input, $callback_output)) {
-                            $value = $this->masks_input->$callback_output($value);
-                        }
-                    }
-                }
-                if ($type == 'file' or $type == 'multifile') {
-                    add_css(array(
-                        'plugins/fancybox/css/jquery.fancybox.css',
-                        'plugins/fancybox/css/jquery.fancybox-buttons.css',
-                        'plugins/dropzone/css/dropzone.css',
-                        'view/project/css/gallery.css'
-                    ));
-                    add_js(array(
-                        'plugins/dropzone/js/dropzone.js',
-                        'plugins/fancybox/js/jquery.fancybox.pack.js',
-                        'plugins/fancybox/js/jquery.fancybox-buttons.js',
-                        'plugins/embeddedjs/ejs.js',
-                        'view/posts/js/gallery.js'
-                    ));
-                    $new_field['type'] = $type;
-                    $new_field['label'] = $label;
-                    $attr['data-field'] = $column;
-                    $attr['class'] = 'form-control btn-gallery ' . (isset($attr['class']) ? $attr['class'] : '');
-                    $attr['data-toggle'] = 'modal';
-                    $attr['data-target'] = '#gallery';
-                    $files = json_decode($value);
-                    $new_field['content_top'] = $this->list_files($files);
-                    $new_field['input'] = form_button($attr, '<span class="fa fa-cloud"></span> Galeria');
-
-                    $attr = array();
-                    if ($type == 'multifile') {
-                        $attr['multiple'] = "true";
-                    }
-                    $attr['id'] = $column . '-field';
-                    $attr['name'] = $column;
-                    $attr['type'] = 'hidden';
-                    $new_field['input'] .= form_input($attr, $value);
-                } elseif ($type == 'textarea') {
-                    $new_field['type'] = $type;
-                    $new_field['label'] = $label;
-                    $attr['name'] = $column;
-                    $attr['class'] = 'form-control ' . (isset($attr['class']) ? $attr['class'] : '');
-                    $new_field['input'] = form_textarea($attr, $value);
-                } elseif ($type == 'select') {
-                    add_js(array(
-                        'view/posts/js/events-select.js'
-                    ));
-                    $new_field['type'] = $type;
-                    $new_field['label'] = $label;
-                    if (isset($field['options']) && isset($field['label_options'])) {
-                        $column_trigger = (isset($field['trigger_select'])) ? $field['trigger_select'] : '';
-                        $data_trigger = null;
-                        if ($column_trigger) {
-                            $field_trigger = search($fields, 'column', $column_trigger);
-                            if (count($field_trigger) > 0) {
-                                $field_trigger = $field_trigger[0];
-                                $table_trigger = $field_trigger['options'];
-                                $label_trigger = $field_trigger['label'];
-                                $value_trigger = $post[$column_trigger];
-                                $attr['class'] = (isset($attr['class'])) ? $attr['class'] : '';
-                                $attr['class'] .= ' trigger-' . $column_trigger;
-                                $data_trigger = array(
-                                    'table' => $table_trigger,
-                                    'column' => $column_trigger,
-                                    'value' => $value_trigger,
-                                    'label' => $label_trigger
-                                );
-                            } else {
-                                $field_trigger = null;
-                            }
-                        }
-                        $array_options = $this->set_options($field['options'], $field['label_options'], $data_trigger);
-                    } else {
-                        $array_options = array('' => 'Nenhum opção adicionada.');
-                    }
-                    $attr['class'] = 'form-control trigger-select ' . (isset($attr['class']) ? $attr['class'] : '');
-                    $new_field['input'] = form_dropdown($column, $array_options, $value, $attr);
-                } elseif ($type == 'hidden') {
-                    $attr['name'] = $column;
-                    $attr['class'] = 'form-control ' . (isset($attr['class']) ? $attr['class'] : '');
-                    $new_field['input'] = form_hidden('my_array', $attr);
-                } else {
-                    $new_field['type'] = $type;
-                    $new_field['label'] = $label;
-                    $attr['name'] = $column;
-                    $attr['type'] = $type;
-                    $attr['class'] = 'form-control ' . (isset($attr['class']) ? $attr['class'] : '');
-                    $new_field['input'] = form_input($attr, $value);
-                }
-                $form[] = $new_field;
-            }
-        }
-        return $form;
-    }
+    /*
+     * Método para listar os options do select no json acionado por um js
+     */
 
     public function options_json() {
         $this->form_validation->set_rules('project', 'Projeto', 'required');
@@ -331,59 +195,30 @@ class Posts extends MY_Controller {
                         'value' => $value,
                         'label' => $field_trigger['label']
                     );
-
-                    $posts = $this->posts_model->listPostsSelect($field_destination['options'], $field_destination['label_options'], $data_trigger);
+                    // Lista os registros do campo
+                    $posts = $this->posts_model->list_posts_select($field_destination['options'], $field_destination['label_options'], $data_trigger);
                 }
             }
         }
         echo json_encode($posts);
     }
 
-    private function set_options($table, $column, $data_trigger = null) {
-        if (is_array($data_trigger) && empty($data_trigger['value'])) {
-            return array('' => 'Selecione uma ' . $data_trigger['label']);
-        }
-
-        $posts = $this->posts_model->listPostsSelect($table, $column, $data_trigger);
-        $options = array();
-        if ($posts) {
-            $options[''] = 'Selecione';
-            foreach ($posts as $post) {
-                $id = $post['value'];
-                $value = $post['label'];
-                $options[$id] = $value;
-            }
-        } else {
-            $options[''] = 'Nenhuma opção encontrada.';
-        }
-        return $options;
-    }
-
-    private function list_files($files, $cols = 2) {
-        $files = (array) $files;
-        if ($files) {
-            $path = PATH_UPLOAD;
-            $ctt = '<div class="content-files">';
-            foreach ($files as $file) {
-                $file_ = $file->file;
-                if (!empty($file)) {
-                    $ctt .= '<div class="files-list thumbnail"><img src="' . base_url('gallery/image/thumb/' . $file_) . '" class="img-responsive"></div>';
-                }
-            }
-            $ctt .= '</div>';
-            return $ctt;
-        }
-    }
+    /*
+     * Método para setar um valor que possui um método de entrada
+     */
 
     private function set_value($value, $field) {
         if ($value) {
             $type = strtolower($field['type']);
             $mask = $this->config_page->get_mask($field['mask']);
             if ($mask) {
+                // Se o  campo possui mascara
                 $callback_input = (isset($mask['callback_input'])) ? $mask['callback_input'] : false;
                 if ($callback_input) {
+                    // Se o campo possui método de entrada
                     $this->load->library('masks_input');
                     if (method_exists($this->masks_input, $callback_input)) {
+                        // Se o método existir, aciona e modifica o valor
                         $value = $this->masks_input->$callback_input($value);
                     }
                 }
@@ -392,40 +227,26 @@ class Posts extends MY_Controller {
         return $value;
     }
 
-    public function create_post($slug_project, $slug_page, $slug_section) {
-        add_css(array(
-            'view/posts/css/post-form.css'
-        ));
-        $section = $this->get_section();
-        $project = $this->get_project();
-        $page = $this->get_page();
+    /*
+     * Método para criar registro
+     */
+
+    public function create($slug_project, $slug_page, $slug_section) {
+        $section = get_section();
+        $project = get_project();
+        $page = get_page();
+
         if ($section && $project && $page) {
+            add_css(array(
+                'view/posts/css/post-form.css'
+            ));
+
             $this->load->library('config_page');
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
             $data_fields = $data['fields'];
-            if ($data_fields) {
-                $current_field = array();
-                foreach ($data_fields as $field) {
-                    $column = $field['column'];
-                    $required = $field['required'];
-                    $label = $field['label'];
-
-                    $value = $this->set_value($this->input->post($column), $field);
-                    $current_field["$column"] = $value;
-
-                    if ($required == '1') {
-                        $this->form_validation->set_rules($column, $label, 'required');
-                    } else {
-                        $this->form_validation->set_rules($column, $label);
-                    }
-                }
-                if ($this->form_validation->run()) {
-                    $this->posts_model->createPost($current_field, $section);
-                    redirect('project/' . $project['slug'] . '/' . $page['slug'] . '/' . $section['slug']);
-                }
-            }
-
-            $fields = $this->gen_form($data_fields);
+            $this->form_create_post($data_fields, $project, $page, $section);
+            // Seta template para criação do formulário
+            $fields = $this->config_page->fields_template($data_fields, $post);
             $vars = array(
                 'title' => 'Novo registro',
                 'breadcrumb_section' => true,
@@ -444,43 +265,53 @@ class Posts extends MY_Controller {
         }
     }
 
-    public function edit_post($slug_project, $slug_page, $slug_section, $id_post) {
+    /*
+     * Método para configuração de requisitos para criação do registro
+     */
+
+    private function form_create_post($data_fields, $project, $page, $section) {
+        if ($data_fields) {
+            $current_field = array();
+            foreach ($data_fields as $field) {
+                $column = $field['column'];
+                $required = $field['required'];
+                $label = $field['label'];
+
+                $value = $this->set_value($this->input->post($column), $field);
+                $current_field["$column"] = $value;
+
+                if ($required == '1') {
+                    $this->form_validation->set_rules($column, $label, 'required');
+                } else {
+                    $this->form_validation->set_rules($column, $label);
+                }
+            }
+            if ($this->form_validation->run()) {
+                $this->posts_model->create($current_field, $section);
+                redirect('project/' . $project['slug'] . '/' . $page['slug'] . '/' . $section['slug']);
+            }
+        }
+    }
+
+    /*
+     * Método para editar registro
+     */
+
+    public function edit($slug_project, $slug_page, $slug_section, $id_post) {
+        $project = get_project();
+        $section = get_section();
+        $page = get_page();
+        $post = $this->posts_model->get_post($section, $id_post);
         add_css(array(
             'view/posts/css/post-form.css'
         ));
-        $project = $this->get_project();
-        $section = $this->get_section();
-        $page = $this->get_page();
-        $post = $this->posts_model->getPost($section, $id_post);
         if ($section && $project && $page && $post) {
             $this->load->library('config_page');
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
             $data_fields = $data['fields'];
-            if ($data_fields) {
-                $current_field = array();
-                foreach ($data_fields as $field) {
-                    $column = $field['column'];
-                    $required = $field['required'];
-                    $label = $field['label'];
-                    $value = $this->set_value($this->input->post($column), $field);
-                    $current_field["$column"] = $value;
-                    if ($required == '1') {
-                        $this->form_validation->set_rules($column, $label, 'required');
-                    } else {
-                        $this->form_validation->set_rules($column, $label);
-                    }
-                }
-                if ($this->form_validation->run()) {
-                    $this->posts_model->editPost($current_field, $post, $section);
-                    if ($this->data_user['dev_mode']) {
-                        redirect('project/' . $project['slug'] . '/' . $page['slug'] . '/' . $section['slug']);
-                    } else {
-                        redirect(current_url());
-                    }
-                }
-            }
-
-            $fields = $this->gen_form($data_fields, $post);
+            $this->form_edit_post($data_fields, $section, $post);
+            // Seta template para criação do formulário
+            $fields = $this->config_page->fields_template($data_fields, $post);
             $vars = array(
                 'title' => 'Editar registro',
                 'breadcrumb_section' => true,
@@ -499,36 +330,50 @@ class Posts extends MY_Controller {
         }
     }
 
-    public function remove_post($slug_project, $slug_page, $slug_section, $id_post) {
-        $section = $this->get_section();
-        $project = $this->get_project();
-        $page = $this->get_page();
-        $post = $this->posts_model->getPost($section, $id_post);
+    /*
+     * Método para configuração de requisitos para edição do registro
+     */
+
+    private function form_edit_post($data_fields, $section, $post) {
+        $project = get_project();
+        $page = get_page();
+        if ($data_fields) {
+            $current_field = array();
+            foreach ($data_fields as $field) {
+                $column = $field['column'];
+                $required = $field['required'];
+                $label = $field['label'];
+                $value = $this->set_value($this->input->post($column), $field);
+                $current_field["$column"] = $value;
+                if ($required == '1') {
+                    $this->form_validation->set_rules($column, $label, 'required');
+                } else {
+                    $this->form_validation->set_rules($column, $label);
+                }
+            }
+            if ($this->form_validation->run()) {
+                // Se o envio for acionado e todos os campos estiverem corretos
+                // Edita o post no banco de dados
+                $this->posts_model->edit($current_field, $post, $section);
+                redirect(current_url());
+            }
+        }
+    }
+
+    /*
+     * Método para remover registro
+     */
+
+    public function remove($slug_project, $slug_page, $slug_section, $id_post) {
+        $section = get_section();
+        $project = get_project();
+        $page = get_page();
+        $post = $this->posts_model->get_post($section, $id_post);
         if ($section && $page && $post) {
-            $this->posts_model->removePost($section, $post);
+            $this->posts_model->remove($section, $post);
             redirect('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section);
         } else {
             redirect('projects');
-        }
-    }
-
-    private function get_page() {
-        $page = $this->uri->segment(3);
-        if (empty($this->page)) {
-            $this->load->model('pages_model');
-            return $this->page = $this->pages_model->getPage($page);
-        } else {
-            return $this->page;
-        }
-    }
-
-    private function get_section() {
-        $section = $this->uri->segment(4);
-        if (empty($this->section)) {
-            $this->load->model('sections_model');
-            return $this->section = $this->sections_model->getSection($section);
-        } else {
-            return $this->section;
         }
     }
 

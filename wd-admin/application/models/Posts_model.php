@@ -8,11 +8,10 @@ class Posts_model extends CI_Model {
 
     public function search($data, $section, $keyword = null, $total = null, $offset = null) {
         $get = array();
-        //$this->openProjectDB($project['database']);
         $select = implode(',', $data['select_query']);
         $this->db->select('id,' . $select);
         $this->db->limit($total, $offset);
-        $this->db->order_by('order, id');
+        $this->db->order_by('order, id DESC');
         if ($keyword) {
             $x = 0;
             foreach ($data['fields'] as $arr) {
@@ -30,11 +29,10 @@ class Posts_model extends CI_Model {
             $this->db->select('count(id) total');
             $get['total'] = $this->db->get($section['table'])->row()->total;
         }
-        //$this->closeProjectDB();
         return $get;
     }
 
-    public function listPostsSelect($table, $column, $data_trigger = null) {
+    public function list_posts_select($table, $column, $data_trigger = null) {
         $this->db->select($table . '.id value, ' . $table . '.' . $column.' label');
         if ($data_trigger) {
             $table_trigger = $data_trigger['table'];
@@ -46,47 +44,39 @@ class Posts_model extends CI_Model {
         return $this->db->get($table)->result_array();
     }
 
-    public function getPostSelected($table, $column, $id) {
+    public function get_post_selected($table, $column, $id) {
         $this->db->select('id,' . $column);
         $this->db->where('id', $id);
         return $this->db->get($table)->row_array();
     }
 
-    public function getPost($section, $id = null) {
-        //$this->openProjectDB($project['database']);
+    public function get_post($section, $id = null) {
         if ($id) {
             $this->db->where('id', $id);
         }
         $get = $this->db->get($section['table'])->row_array();
-        //$this->closeProjectDB();
         return $get;
     }
 
-    public function createPost($data, $section) {
-        //$this->openProjectDB($project['database']);
+    public function create($data, $section) {
         if ($data) {
             $set = $data;
         } else {
             $set = array('order' => 1);
         }
         $insert = $this->db->insert($section['table'], $set);
-        //$this->closeProjectDB();
         return $insert;
     }
 
-    public function editPost($set, $post, $section) {
-        //$this->openProjectDB($project['database']);
+    public function edit($set, $post, $section) {
         $where = array('id' => $post['id']);
         $update = $this->db->update($section['table'], $set, $where);
-        //$this->closeProjectDB();
         return $update;
     }
 
-    public function removePost($section, $post) {
-        //$this->openProjectDB($project['database']);
+    public function remove($section, $post) {
         $where = array('id' => $post['id']);
         $delete = $this->db->delete($section['table'], $where);
-        //$this->closeProjectDB();
         return $delete;
     }
 
