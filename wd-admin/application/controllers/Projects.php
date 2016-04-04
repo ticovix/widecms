@@ -288,29 +288,6 @@ class Projects extends MY_Controller {
                 ], $index);
         file_put_contents($path_index, $index);
 
-        // Config database 
-        $path_config_db = '../' . $dir_project . '/application/config/database.php';
-
-        $data_db = $this->db;
-        $db = $data['database'];
-        $hostname_db = $data_db->hostname;
-        $username_db = $data_db->username;
-        $pass_db = $data_db->password;
-
-        $config_db = file_get_contents($path_config_db);
-        $config_db = str_replace([
-            '[[hostname]]',
-            '[[username]]',
-            '[[password]]',
-            '[[database]]',
-                ], [
-            $hostname_db,
-            $username_db,
-            $pass_db,
-            $db
-                ], $config_db);
-        file_put_contents($path_config_db, $config_db);
-
 
         if ($main) {
             rename($path_index, '../index.php');

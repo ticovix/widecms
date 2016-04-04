@@ -9,9 +9,7 @@ class Crud_model extends CI_Model {
     public function dynamic_query($where = null, $join = null) {
 
         if (is_array($join) && count($join) > 0) {
-            foreach ($join as $j) {
-                $table = array_keys($j);
-                $where = array_values($j);
+            foreach ($join as $table => $where) {
                 if (is_array($where)) {
                     $this->db->join($table, $where[0], $where[1]);
                 } else {
@@ -20,9 +18,7 @@ class Crud_model extends CI_Model {
             }
         }
         if (is_array($where) && count($where) > 0) {
-            foreach ($where as $w) {
-                $column = array_keys($w);
-                $value = array_values($w);
+            foreach ($where as $column => $value) {
                 if (strpos('or ', $column)) {
                     $column = str_replace('or ', '', $column);
                     $this->db->or_where($column, $value);
@@ -42,7 +38,7 @@ class Crud_model extends CI_Model {
             $this->db->limit($limit, $offset);
         }
         if ($order) {
-            $this->db->order($order);
+            $this->db->order_by($order);
         }
         $get = $this->db->get($table);
 
