@@ -21,7 +21,6 @@ if (!defined('BASEPATH')){
                     <input type="password" id="password" name="password" class="form-control">
                 </div>
                 <div class="panel-bottom form-group">
-                    <a href="<?php echo base_url() ?>login/reset-pass">Esqueci minha senha</a>
                     <input value="Acessar" name="access" class="btn btn-primary pull-right" type="submit">
                     <div class="clearfix"></div>
                 </div>
