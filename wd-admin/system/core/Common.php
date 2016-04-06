@@ -778,23 +778,63 @@ if (!function_exists('function_usable')) {
     }
 
 }
+if (!function_exists('load_app')) {
+
+    function load_app($CI) {
+        $class = ucfirst($CI->class);
+        $method = $CI->method;
+
+        $app = str_replace('-', '_', $CI->uri->segment(2));
+        $controller = str_replace('-', '_', ($CI->uri->segment(3)));
+        //$method = str_replace('-', '_', $CI->uri->segment(4));
+        //$class = ucfirst($controller);
+        $path_class = APPPATH . 'apps/' . $app . '/controllers/' . $class . '.php';
+        if (!is_file($path_class)) {
+            $class = ucfirst($app);
+            $method = $controller;
+            $path_class = APPPATH . 'apps/' . $app . '/controllers/' . $class . '.php';
+        }
+        if (empty($method)) {
+            $method = 'index';
+        } else {
+            $method = $method;
+        }
+        if (is_file($path_class)) {
+            require_once($path_class);
+            if (!method_exists($class, $method)) {
+                return false;
+            }
+            return array(
+                'class' => $class,
+                'method' => $method
+            );
+        }
+    }
+
+}
+
 if (!function_exists('load_module')) {
 
     function load_module($CI) {
-        $slug_project = $CI->uri->segment(2);
-        $slug_page = $CI->uri->segment(3);
-        $slug_section = $CI->uri->segment(4);
+        $slug_project = $CI->uri->segment(4);
+        $slug_page = $CI->uri->segment(5);
+        $slug_section = $CI->uri->segment(6);
         $class = ucfirst($slug_section);
-        $path_class = APPPATH . '/modules/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/controllers/' . $class . '.php';
+        $path_class = APPPATH . 'apps/projects/modules/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/controllers/' . $class . '.php';
         if (is_file($path_class)) {
-            $type = $CI->uri->segment(6);
+            $method = $CI->uri->segment(7);
+            if(empty($method)){
+                $method = 'index';
+            }
             require_once($path_class);
-            if (empty($type) && !method_exists($class, 'index') or !empty($type) && !method_exists($class, $type)) {
+            if (!empty($method) && !method_exists($class, $method)) {
                 return false;
             }
-            return $class;
+            return array(
+                'class' => $class,
+                'method' => $method
+            );
         }
-        
     }
 
 }

@@ -42,7 +42,6 @@ if (!defined('BASEPATH')) {
                     </a>
 
                     <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a tabindex="-1" href="<?php echo base_url('config') ?>">Configurações</a></li>
                         <li><a tabindex="-1" href="<?php echo base_url('logout') ?>">Sair</a></li>
                     </ul>
                 </li>
@@ -65,50 +64,19 @@ if (!defined('BASEPATH')) {
                 <ul id="dashboard-menu" class="nav nav-list collapse in">
                     <?php
                     foreach ($navigation as $menu) {
-                        $slug = $menu["slug"];
+                        $app = $menu["app"];
                         $name = $menu["name"];
-                        $icon = $menu["icon"];
-                        if ($slug != 'projects') {
-                            $active = $slug;
+                        $image = $menu["image"];
+                        if ($app != 'projects') {
+                            $active = $app;
                         } else {
-                            $active = [$slug, 'project'];
+                            $active = [$app, 'project'];
                         }
                         ?>
                         <li class="<?php echo is_nav_active($this->uri->segment(1), 'project'); ?>">
-                            <a href="<?php
-                            if ($slug != 'projects' or $this->data_user['dev_mode']) {
-                                echo base_url() . $slug;
-                            } else {
-                                echo 'javascript:void(0);';
-                            }
-                            ?>" class="<?php echo is_nav_active($this->uri->segment(1), $active); ?>"> 
-                                <span class="fa <?php echo $icon ?> fa-fw"></span> <?php echo $name ?>
-                                <?php if ($slug == 'projects' && !$this->data_user['dev_mode']) { ?><span class="fa arrow"></span><?php } ?>
+                            <a href="<?php echo base_url('app/'.$app);?>" class="<?php echo is_nav_active($this->uri->segment(1), $active); ?>"> 
+                                <?php echo $name ?>
                             </a>
-                            <?php if ($slug == 'projects' && !$this->data_user['dev_mode']) { ?>
-                                <ul class="nav nav-list nav-projects collapse <?php if ($this->uri->segment(1) == 'project') { ?>in<?php } ?>" <?php if ($this->uri->segment(1) != 'project') { ?>aria-expanded="false" style="height: 0px;"<?php } ?>>
-                                    <?php
-                                    $projects = projects();
-                                    if ($projects) {
-                                        foreach ($projects as $arr) {
-                                            ?>
-                                            <li class="<?php echo is_nav_active($this->uri->segment(2), $arr['slug']) ?>">
-                                                <a href="<?php echo base_url('project/'.$arr['slug']); ?>">
-                                                    <?php echo $arr['name'] ?>
-                                                </a>
-                                            </li>
-                                            <?php
-                                        }
-                                    } else {
-                                        ?>
-                                        <li>Nenhum projeto encontrado.</li>
-                                        <?php
-                                    }
-                                    ?>
-                                </ul>
-                                <?php
-                            }
-                            ?>
                         </li>
                         <?php
                     }

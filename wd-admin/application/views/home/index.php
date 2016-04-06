@@ -16,15 +16,15 @@ if (!defined('BASEPATH')){
                 <?php
                 $count = 0;
                 foreach ($navigation as $menu)   {
-                    $slug = $menu['slug'];
+                    $app = $menu['app'];
                     $name = $menu['name'];
-                    $icon = $menu['icon'];
+                    $image = $menu['image'];
                         if ($count > 0 && ($count % 6) == 0) {
                             ?>
                         </div><div class="row apps-home">
                         <?php } ?>
-                        <a href="<?php echo base_url() . $slug ?>" class="col-sm-2 app">
-                            <p><span class="fa <?php echo $icon;?> icon-hm"></span></p>
+                        <a href="<?php echo base_url('app/'.$app) ?>" class="col-sm-2 app">
+                            <p><span class="fa <?php echo $image;?> icon-hm"></span></p>
                             <p><?php echo $name ?></p>
                         </a>
                         <?php

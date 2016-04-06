@@ -66,7 +66,7 @@ $(function () {
         var URL = param.url;
         var content = $("#files-list");
         if (URL == '' || URL == undefined) {
-            URL = url + "gallery/files-list";
+            URL = url + "app/gallery/files-list";
         }
         $.ajax({
             url: URL,
@@ -103,7 +103,7 @@ $(function () {
     $("#search-files").submit(function (e) {
         var keyword = $("#search-field").val();
         files_list({
-            url: url + 'gallery/files-list?search=' + keyword
+            url: url + 'app/gallery/files-list?search=' + keyword
         });
         e.preventDefault();
         return false;
@@ -117,12 +117,12 @@ $(function () {
         var content = $("#details .modal-content");
         content.html('<div class="modal-body">Aguarde..</div>');
         $.ajax({
-            url: url + "gallery/file",
+            url: url + "app/gallery/file",
             dataType: "json",
             type: "POST",
             data: {file: file},
             success: function (data) {
-                var template = new EJS({url: url + "assets/view/gallery/ejs/file-view.ejs"}).render({data: data, url: url});
+                var template = new EJS({url: url + "assets/view/app/gallery/ejs/file-view.ejs"}).render({data: data, url: url});
                 content.html(template);
             }
         });
@@ -193,8 +193,8 @@ $(function () {
             $(".content-files").eq(index_field_upload).html("");
             for (var i = 0; i < total; i++) {
                 var file = list[i].file;
-                var img = $("<img>").addClass("img-responsive").attr("src",url+"gallery/image/thumb/"+file);
-                $(".content-files").eq(index).append($("<div>").addClass("files-list thumbnail").html(img));
+                var img = $("<img>").addClass("img-responsive").attr("src",url+"app/gallery/image/thumb/"+file);
+                $(".content-files").eq(index_field_upload).append($("<div>").addClass("files-list thumbnail").html(img));
             }
             var json = JSON.stringify(list);
             if (json === '{}') {

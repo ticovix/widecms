@@ -165,7 +165,7 @@ if (!function_exists('setError') && !function_exists('getErrors') && !function_e
     function setError($lang, $message) {
         $CI = & get_instance();
         if ($CI->load->is_loaded('error_reporting')) {
-            $CI->error_reporting->setError($lang, $message);
+            $CI->error_reporting->set_error($lang, $message);
         } else {
             return false;
         }
@@ -174,7 +174,7 @@ if (!function_exists('setError') && !function_exists('getErrors') && !function_e
     function getErrors($prefix = '<div class="alert alert-danger">', $suffix = '</div>') {
         $CI = & get_instance();
         if ($CI->load->is_loaded('error_reporting')) {
-            return $CI->error_reporting->getErrors($prefix, $suffix);
+            return $CI->error_reporting->get_errors($prefix, $suffix);
         } else {
             return false;
         }
@@ -183,7 +183,7 @@ if (!function_exists('setError') && !function_exists('getErrors') && !function_e
     function hasError() {
         $CI = & get_instance();
         if ($CI->load->is_loaded('error_reporting')) {
-            return (count($CI->error_reporting->getErrors()) > 0);
+            return $CI->error_reporting->has_error();
         }
     }
 
@@ -244,7 +244,7 @@ if (!function_exists('get_project')) {
     function get_project() {
         $CI = & get_instance();
         if (!isset($CI->project)) {
-            $slug_project = $CI->uri->segment(2);
+            $slug_project = $CI->uri->segment(4);
             $CI->load->model('projects_model');
             return $CI->project = $CI->projects_model->get_project($slug_project);
         } else {
@@ -260,7 +260,7 @@ if (!function_exists('get_page')) {
 
     function get_page() {
         $CI = & get_instance();
-        $page = $CI->uri->segment(3);
+        $page = $CI->uri->segment(5);
         if (empty($CI->page)) {
             $CI->load->model('pages_model');
             return $CI->page = $CI->pages_model->get_page($page);
@@ -277,7 +277,7 @@ if (!function_exists('get_section')) {
 
     function get_section() {
         $CI = & get_instance();
-        $section = $CI->uri->segment(4);
+        $section = $CI->uri->segment(6);
         if (empty($CI->section)) {
             $CI->load->model('sections_model');
             return $CI->section = $CI->sections_model->get_section($section);
@@ -295,6 +295,75 @@ if (!function_exists('func_only_dev')) {
             header('HTTP/1.1 403 Forbidden');
             die();
         }
+    }
+
+}
+if (!function_exists('segments')) {
+
+    function segments() {
+        $CI = & get_instance();
+        return array(
+            $CI->uri->segment(1),
+            $CI->uri->segment(2),
+            $CI->uri->segment(3),
+            $CI->uri->segment(4),
+            $CI->uri->segment(5),
+            $CI->uri->segment(6),
+            $CI->uri->segment(7),
+            $CI->uri->segment(8),
+        );
+    }
+
+}
+
+if (!function_exists('base_url_app')) {
+
+    function base_url_app($uri = '', $protocol = null) {
+        $segments = segments();
+        $addslashes = '';
+        if (empty($uri)) {
+            $addslashes = '/';
+        }
+        $base_url = base_url('app/' . $segments[1] . '/' . $uri, $protocol) . $addslashes;
+        return $base_url;
+    }
+
+}
+
+if (!function_exists('redirect_app')) {
+
+    function redirect_app($url, $method = 'auto', $code = null) {
+        $segments = segments();
+        redirect('app/' . $segments[1] . '/' . $url, $method, $code);
+    }
+
+}
+
+if (!function_exists('redirect_module')) {
+
+    function redirect_module($url, $method = 'auto', $code = null) {
+        $segments = segments();
+        $project = $segments[3];
+        $page = $segments[4];
+        $section = $segments[5];
+        redirect('app/projects/project/' . $project . '/' . $page . '/' . $section . '/' . $url, $method, $code);
+    }
+
+}
+
+if (!function_exists('base_url_module')) {
+
+    function base_url_module($uri = '', $protocol = null) {
+        $segments = segments();
+        $project = $segments[3];
+        $page = $segments[4];
+        $section = $segments[5];
+        $addslashes = '';
+        if (empty($uri)) {
+            $addslashes = '/';
+        }
+        $base_url = base_url('app/projects/project/' . $project . '/' . $page . '/' . $section . '/' . $uri, $protocol) . $addslashes;
+        return $base_url;
     }
 
 }

@@ -5,7 +5,8 @@
             </div>
         </footer>
         <script type="text/javascript">
-            var url = '<?php echo base_url()?>';
+            var url = '<?php echo base_url()?>';    
+            var url_app = '<?php echo base_url_app()?>';
         </script>
         <script src="<?php echo base_url('assets/plugins/jquery-1.9.1.js') ?>" type="text/javascript"></script>
         <script src="<?php echo base_url('assets/plugins/bootstrap-3.3.2/js/bootstrap.min.js')?>"></script>

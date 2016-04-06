@@ -370,21 +370,40 @@ $BM->mark('loading_time:_base_classes_end');
 $e404 = FALSE;
 $class = ucfirst($RTR->class);
 $method = $RTR->method;
-if (empty($class) OR ! file_exists(APPPATH . 'controllers/' . $RTR->directory . $class . '.php')) {
+$segment = $RTR->uri->segment(1);
+if (empty($class) OR $segment != 'app' && !file_exists(APPPATH . 'controllers/' . $RTR->directory . $class . '.php')) {
     $e404 = TRUE;
 } else {
-    
-    $load_module = false;
-    if ($RTR->uri->segment(1)=='project' && !empty($RTR->uri->segment(4))) {
-        $load_module = load_module($RTR);
-        if($load_module){
-            $class = $load_module;
+    $load_app = false;
+    if ($segment == 'app' && !empty($RTR->uri->segment(2))) {
+        if ($RTR->uri->segment(2) == 'projects' && !empty($RTR->uri->segment(5))) {
+            $load_app = load_module($RTR);
+            if ($load_app) {
+                $class = $load_app['class'];
+                $method = $load_app['method'];
+                $params = array_slice($URI->rsegments, 7);
+                define('LOAD_MODULE', $class);
+            }
+        } 
+        if(!$load_app){
+            $load_app = load_app($RTR);
+            if ($load_app) {
+                $class = $load_app['class'];
+                $method = $load_app['method'];
+                if ($URI->rsegments[1] == 'app') {
+                    $params = array_slice($URI->rsegments, 3);
+                } else {
+                    $params = array_slice($URI->rsegments, 2);
+                }
+            } else {
+                $e404 = TRUE;
+            }
         }
     }
-    if(!$load_module){
+    if (!$e404 && !$load_app) {
         require_once(APPPATH . 'controllers/' . $RTR->directory . $class . '.php');
     }
-    
+
     if (!class_exists($class, FALSE) OR $method[0] === '_' OR method_exists('CI_Controller', $method)) {
         $e404 = TRUE;
     } elseif (method_exists($class, '_remap')) {
@@ -398,7 +417,6 @@ if (empty($class) OR ! file_exists(APPPATH . 'controllers/' . $RTR->directory . 
     elseif (!in_array(strtolower($method), array_map('strtolower', get_class_methods($class)), TRUE)) {
         $e404 = TRUE;
     }
-    
 }
 
 if ($e404) {
@@ -440,7 +458,7 @@ if ($e404) {
     }
 }
 
-if ($method !== '_remap') {
+if ($method !== '_remap' && !$load_app) {
     $params = array_slice($URI->rsegments, 2);
 }
 

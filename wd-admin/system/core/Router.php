@@ -124,18 +124,17 @@ class CI_Router {
 	{
 		$this->config =& load_class('Config', 'core');
 		$this->uri =& load_class('URI', 'core');
-
+                
 		$this->enable_query_strings = ( ! is_cli() && $this->config->item('enable_query_strings') === TRUE);
 		$this->_set_routing();
-
 		// Set any routing overrides that may exist in the main index file
 		if (is_array($routing))
 		{
+                   
 			if (isset($routing['directory']))
 			{
 				$this->set_directory($routing['directory']);
 			}
-
 			if ( ! empty($routing['controller']))
 			{
 				$this->set_class($routing['controller']);
@@ -167,6 +166,7 @@ class CI_Router {
 		// If this feature is enabled, we will gather the directory/class/method a little differently
 		if ($this->enable_query_strings)
 		{
+                    
 			$_d = $this->config->item('directory_trigger');
 			$_d = isset($_GET[$_d]) ? trim($_GET[$_d], " \t\n\r\0\x0B/") : '';
 			if ($_d !== '')
@@ -187,7 +187,6 @@ class CI_Router {
 					$this->uri->filter_uri($_GET[$_f]);
 					$this->set_method($_GET[$_f]);
 				}
-
 				$this->uri->rsegments = array(
 					1 => $this->class,
 					2 => $this->method
@@ -249,7 +248,6 @@ class CI_Router {
 	protected function _set_request($segments = array())
 	{
 		$segments = $this->_validate_request($segments);
-                                                
 
 		// If we don't have any segments left - try the default controller;
 		// WARNING: Directories get shifted out of the segments array!
@@ -308,8 +306,7 @@ class CI_Router {
 			// This will trigger 404 later
 			return;
 		}
-
-		$this->set_class($class);
+    		$this->set_class($class);
 		$this->set_method($method);
 
 		// Assign routed segments, index starting from 1

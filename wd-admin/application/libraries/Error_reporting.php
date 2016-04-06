@@ -5,13 +5,13 @@ if (!defined('BASEPATH')) {
 }
 class Error_reporting {
 
-    public $errors = array();
+    public $errors = null;
 
-    public function setError($lang, $message) {
+    public function set_error($lang, $message) {
         $this->errors[] = ['lang' => $lang, 'message' => $message];
     }
 
-    public function getErrors($prefix = '<div class="alert alert-danger">', $suffix = '</div>') {
+    public function get_errors($prefix = '<div class="alert alert-danger">', $suffix = '</div>') {
         $messages = '';
         if (!empty($this->errors)) {
             foreach ($this->errors as $error) {
@@ -21,6 +21,10 @@ class Error_reporting {
             }
         }
         return $messages;
+    }
+    
+    public function has_error(){
+        return (!empty($this->errors));
     }
 
 }

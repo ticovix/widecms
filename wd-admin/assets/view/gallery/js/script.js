@@ -39,7 +39,7 @@ $(function () {
         var URL = param.url;
         var content = $("#files-list");
         if (URL == '' || URL == undefined) {
-            URL = url + "gallery/files-list";
+            URL = url + "app/gallery/files-list";
         }
         $.ajax({
             url: URL,
@@ -75,7 +75,7 @@ $(function () {
 
         if (confirm("Deseja realmente remover o arquivo " + file + " ?")) {
             $.ajax({
-                url: url + "gallery/delete",
+                url: url + "app/gallery/delete",
                 type: 'POST',
                 data: {file: file},
                 success: function () {
@@ -95,7 +95,7 @@ $(function () {
         var content = $("#details .modal-content");
         content.html('<div class="modal-body">Aguarde..</div>');
         $.ajax({
-            url: url + "gallery/file",
+            url: url + "app/gallery/file",
             dataType: "json",
             type: "POST",
             data: {file: file},
@@ -115,7 +115,7 @@ $(function () {
         var content = $("#edit .modal-content");
         content.html('<div class="modal-body">Aguarde..</div>');
         $.ajax({
-            url: url + "gallery/file",
+            url: url + "app/gallery/file",
             dataType: "json",
             type: "POST",
             data: {file: file},
@@ -134,7 +134,7 @@ $(function () {
         var file = $(this).data("file");
         var msg = $("#message-edit");
         $.ajax({
-            url: url + "gallery/edit-file",
+            url: url + "app/gallery/edit-file",
             dataType: "json",
             type: "POST",
             data: {file: file, name: name, new_file: new_file},
