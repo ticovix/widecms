@@ -786,13 +786,22 @@ if (!function_exists('load_app')) {
 
         $app = str_replace('-', '_', $CI->uri->segment(2));
         $controller = str_replace('-', '_', ($CI->uri->segment(3)));
-        //$method = str_replace('-', '_', $CI->uri->segment(4));
-        //$class = ucfirst($controller);
+        $method_ = str_replace('-', '_', $CI->uri->segment(4));
+        // Seta o caminho definido pelo sistema
         $path_class = APPPATH . 'apps/' . $app . '/controllers/' . $class . '.php';
         if (!is_file($path_class)) {
-            $class = ucfirst($app);
-            $method = $controller;
+            // Se o caminho padrão não existir
+            $class = ucfirst($controller);
+            $method = $method_;
+            // Seta um novo caminho verificando se o controller tem uma class separada
             $path_class = APPPATH . 'apps/' . $app . '/controllers/' . $class . '.php';
+            if(!is_file($path_class)) {
+                // Se não existir
+                $class = ucfirst($app);
+                $method = $controller;
+                // Seta a class padrão do app
+                $path_class = APPPATH . 'apps/' . $app . '/controllers/' . $class . '.php';
+            }
         }
         if (empty($method)) {
             $method = 'index';
@@ -800,10 +809,13 @@ if (!function_exists('load_app')) {
             $method = $method;
         }
         if (is_file($path_class)) {
+            // Se a class existir
             require_once($path_class);
             if (!method_exists($class, $method)) {
+                // Se o método não existir, retorna false
                 return false;
             }
+            
             return array(
                 'class' => $class,
                 'method' => $method
@@ -823,7 +835,7 @@ if (!function_exists('load_module')) {
         $path_class = APPPATH . 'apps/projects/modules/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/controllers/' . $class . '.php';
         if (is_file($path_class)) {
             $method = $CI->uri->segment(7);
-            if(empty($method)){
+            if (empty($method)) {
                 $method = 'index';
             }
             require_once($path_class);

@@ -324,7 +324,7 @@ if (!function_exists('base_url_app')) {
         if (empty($uri)) {
             $addslashes = '/';
         }
-        $base_url = base_url('app/' . $segments[1] . '/' . $uri, $protocol) . $addslashes;
+        $base_url = base_url(APP_PATH . $uri, $protocol) . $addslashes;
         return $base_url;
     }
 
@@ -334,7 +334,10 @@ if (!function_exists('redirect_app')) {
 
     function redirect_app($url, $method = 'auto', $code = null) {
         $segments = segments();
-        redirect('app/' . $segments[1] . '/' . $url, $method, $code);
+        if (strpos($url, '://') === false) {
+            $url = APP_PATH . $url;
+        }
+        redirect($url, $method, $code);
     }
 
 }
@@ -346,7 +349,7 @@ if (!function_exists('redirect_module')) {
         $project = $segments[3];
         $page = $segments[4];
         $section = $segments[5];
-        redirect('app/projects/project/' . $project . '/' . $page . '/' . $section . '/' . $url, $method, $code);
+        redirect(APP_PATH . 'project/' . $project . '/' . $page . '/' . $section . '/' . $url, $method, $code);
     }
 
 }
@@ -362,7 +365,7 @@ if (!function_exists('base_url_module')) {
         if (empty($uri)) {
             $addslashes = '/';
         }
-        $base_url = base_url('app/projects/project/' . $project . '/' . $page . '/' . $section . '/' . $uri, $protocol) . $addslashes;
+        $base_url = base_url(APP_PATH . 'project/' . $project . '/' . $page . '/' . $section . '/' . $uri, $protocol) . $addslashes;
         return $base_url;
     }
 

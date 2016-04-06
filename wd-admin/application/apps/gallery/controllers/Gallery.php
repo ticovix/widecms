@@ -33,13 +33,13 @@ class Gallery extends MY_Controller {
             'plugins/fancybox/js/jquery.fancybox-buttons.js',
             'plugins/fancybox/js/jquery.fancybox.pack.js',
             'plugins/embeddedjs/ejs.js',
-            'view/gallery/js/script.js'
+            'apps/gallery/js/script.js'
         ));
         add_css(array(
             'plugins/fancybox/css/jquery.fancybox.css',
             'plugins/fancybox/css/jquery.fancybox-buttons.css',
             'plugins/dropzone/css/dropzone.css',
-            'view/gallery/css/style.css'
+            'apps/gallery/css/style.css'
         ));
         $vars = array(
             'title' => 'Galeria',

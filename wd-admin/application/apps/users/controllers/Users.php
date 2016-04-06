@@ -34,7 +34,7 @@ class Users extends MY_Controller {
             'total' => $total_rows
         ];
         add_js([
-            'view/users/js/index.js'
+            APP_PATH . 'js/index.js'
         ]);
         $this->load->template('index', $data);
     }
@@ -92,7 +92,7 @@ class Users extends MY_Controller {
     public function create() {
         $this->form_create();
         add_js([
-            'view/users/js/form.js'
+            APP_PATH . 'js/form.js'
         ]);
         $vars = [
             'title' => 'Novo usuário',
@@ -149,7 +149,7 @@ class Users extends MY_Controller {
         $this->form_edit($user);
 
         add_js([
-            'view/users/js/form.js'
+            APP_PATH . 'js/form.js'
         ]);
         $vars = [
             'title' => 'Editar usuário',

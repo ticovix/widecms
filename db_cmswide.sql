@@ -16,6 +16,34 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `wd_app_perm`
+--
+
+DROP TABLE IF EXISTS `wd_app_perm`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `wd_app_perm` (
+  `id` int(11) NOT NULL,
+  `app` int(11) NOT NULL,
+  `fk_user` int(11) NOT NULL,
+  `status` int(11) NOT NULL COMMENT '1 = yes\n0 = no',
+  PRIMARY KEY (`id`),
+  KEY `fk_wd_nav_perm_1_idx` (`app`),
+  KEY `fk_wd_nav_perm_2_idx` (`fk_user`),
+  CONSTRAINT `fk_wd_nav_perm_2` FOREIGN KEY (`fk_user`) REFERENCES `wd_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `wd_app_perm`
+--
+
+LOCK TABLES `wd_app_perm` WRITE;
+/*!40000 ALTER TABLE `wd_app_perm` DISABLE KEYS */;
+/*!40000 ALTER TABLE `wd_app_perm` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `wd_files`
 --
 
@@ -27,7 +55,7 @@ CREATE TABLE `wd_files` (
   `file` varchar(100) NOT NULL,
   `name` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -37,63 +65,6 @@ CREATE TABLE `wd_files` (
 LOCK TABLES `wd_files` WRITE;
 /*!40000 ALTER TABLE `wd_files` DISABLE KEYS */;
 /*!40000 ALTER TABLE `wd_files` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `wd_nav`
---
-
-DROP TABLE IF EXISTS `wd_nav`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `wd_nav` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(45) NOT NULL,
-  `slug` varchar(45) NOT NULL,
-  `icon` varchar(45) NOT NULL,
-  `status` int(11) NOT NULL DEFAULT '1',
-  `order` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `wd_nav`
---
-
-LOCK TABLES `wd_nav` WRITE;
-/*!40000 ALTER TABLE `wd_nav` DISABLE KEYS */;
-INSERT INTO `wd_nav` VALUES (1,'Projetos','projects','fa-paste',1,1),(2,'Minha conta','my-account','fa-user',1,4),(3,'Configurações','config','fa-cog',0,3),(5,'WIDE Store','wide-store','fa-shopping-cart',0,6),(6,'Usuários','users','fa-group',1,5),(7,'Galeria','gallery','fa-picture-o',1,2);
-/*!40000 ALTER TABLE `wd_nav` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `wd_nav_perm`
---
-
-DROP TABLE IF EXISTS `wd_nav_perm`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `wd_nav_perm` (
-  `id` int(11) NOT NULL,
-  `fk_nav` int(11) NOT NULL,
-  `fk_user` int(11) NOT NULL,
-  `status` int(11) NOT NULL COMMENT '1 = yes\n0 = no',
-  PRIMARY KEY (`id`),
-  KEY `fk_wd_nav_perm_1_idx` (`fk_nav`),
-  KEY `fk_wd_nav_perm_2_idx` (`fk_user`),
-  CONSTRAINT `fk_wd_nav_perm_1` FOREIGN KEY (`fk_nav`) REFERENCES `wd_nav` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_wd_nav_perm_2` FOREIGN KEY (`fk_user`) REFERENCES `wd_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `wd_nav_perm`
---
-
-LOCK TABLES `wd_nav_perm` WRITE;
-/*!40000 ALTER TABLE `wd_nav_perm` DISABLE KEYS */;
-/*!40000 ALTER TABLE `wd_nav_perm` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -117,7 +88,7 @@ CREATE TABLE `wd_pages` (
   KEY `fk_wd_pages_1_idx` (`fk_project`),
   KEY `fk_wd_pages_1_id` (`fk_project`),
   CONSTRAINT `fk_wd_pages_1` FOREIGN KEY (`fk_project`) REFERENCES `wd_projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -147,7 +118,7 @@ CREATE TABLE `wd_projects` (
   `status` int(11) DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -180,7 +151,7 @@ CREATE TABLE `wd_sections` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `fk_wd_sections_1_idx` (`fk_page`),
   CONSTRAINT `fk_wd_sections_1` FOREIGN KEY (`fk_page`) REFERENCES `wd_pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -213,7 +184,7 @@ CREATE TABLE `wd_users` (
   `allow_dev` int(11) NOT NULL DEFAULT '0',
   `root` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -235,4 +206,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-03-30 15:44:27
+-- Dump completed on 2016-04-06 19:16:02

@@ -11,7 +11,7 @@ $(function(){
         }
         $.ajax({
             type: 'POST',
-            url: url+'app/users/dev-mode',
+            url: url+'apps/users/dev-mode',
             data: {dev:dev},
             success: function(){
                 setTimeout(function(){

@@ -1,1 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><page><form><input type="text" type_column="varchar" list_registers="1" required="1" limit="255" column="data" mask="date">Data</input><input type="multifile" type_column="text" list_registers="0" required="0" limit="" column="upload">Upload</input></form></page>

@@ -371,11 +371,11 @@ $e404 = FALSE;
 $class = ucfirst($RTR->class);
 $method = $RTR->method;
 $segment = $RTR->uri->segment(1);
-if (empty($class) OR $segment != 'app' && !file_exists(APPPATH . 'controllers/' . $RTR->directory . $class . '.php')) {
+if (empty($class) OR $segment != 'apps' && !file_exists(APPPATH . 'controllers/' . $RTR->directory . $class . '.php')) {
     $e404 = TRUE;
 } else {
     $load_app = false;
-    if ($segment == 'app' && !empty($RTR->uri->segment(2))) {
+    if ($segment == 'apps' && !empty($RTR->uri->segment(2))) {
         if ($RTR->uri->segment(2) == 'projects' && !empty($RTR->uri->segment(5))) {
             $load_app = load_module($RTR);
             if ($load_app) {
@@ -390,11 +390,14 @@ if (empty($class) OR $segment != 'app' && !file_exists(APPPATH . 'controllers/' 
             if ($load_app) {
                 $class = $load_app['class'];
                 $method = $load_app['method'];
-                if ($URI->rsegments[1] == 'app') {
+                if ($URI->rsegments[1] == 'apps') {
                     $params = array_slice($URI->rsegments, 3);
                 } else {
                     $params = array_slice($URI->rsegments, 2);
                 }
+                define('APP', $RTR->uri->segment(2));
+                define('APP_PATH', 'apps/'.APP.'/');
+                define('APP_ASSETS', 'assets/'.APP_PATH);
             } else {
                 $e404 = TRUE;
             }

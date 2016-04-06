@@ -393,14 +393,14 @@ class Config_page {
             'plugins/fancybox/css/jquery.fancybox.css',
             'plugins/fancybox/css/jquery.fancybox-buttons.css',
             'plugins/dropzone/css/dropzone.css',
-            'view/project/css/gallery.css'
+            'apps/projects/project/css/gallery.css'
         ));
         add_js(array(
             'plugins/dropzone/js/dropzone.js',
             'plugins/fancybox/js/jquery.fancybox.pack.js',
             'plugins/fancybox/js/jquery.fancybox-buttons.js',
             'plugins/embeddedjs/ejs.js',
-            'view/posts/js/gallery.js'
+            'apps/projects/posts/js/gallery.js'
         ));
         $new_field = array();
         $new_field['type'] = $this->type;
@@ -436,6 +436,7 @@ class Config_page {
         $this->attr['name'] = $this->column;
         $this->attr['class'] = 'form-control ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
         $new_field['input'] = form_textarea($this->attr, $this->value);
+        return $new_field;
     }
 
     /*
@@ -444,7 +445,7 @@ class Config_page {
 
     private function template_select() {
         add_js(array(
-            'view/posts/js/events-select.js'
+            'apps/projects/posts/js/events-select.js'
         ));
         $new_field = array();
         $new_field['type'] = $this->type;
@@ -548,7 +549,7 @@ class Config_page {
             foreach ($files as $file) {
                 $file_ = $file->file;
                 if (!empty($file)) {
-                    $ctt .= '<div class="files-list thumbnail"><img src="' . base_url('app/gallery/image/thumb/' . $file_) . '" class="img-responsive"></div>';
+                    $ctt .= '<div class="files-list thumbnail"><img src="' . base_url('apps/gallery/image/thumb/' . $file_) . '" class="img-responsive"></div>';
                 }
             }
         }

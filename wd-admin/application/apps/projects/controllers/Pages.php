@@ -5,17 +5,17 @@ if (!defined('BASEPATH')) {
 }
 
 class Pages extends MY_Controller {
-    
-    private $path_view_project = 'application/apps/projects/views/project/';
+
+    private $path_view_project = '';
     /*
      * Variável pública com o limite de páginas
      */
-
     public $limit = 10;
 
     public function __construct() {
         parent::__construct();
         $this->load->model('pages_model');
+        $this->path_view_project = 'application/' . APP_PATH . 'views/project/';
     }
 
     /*
@@ -32,7 +32,7 @@ class Pages extends MY_Controller {
         $pagination = $this->pagination($total_rows);
 
         add_js([
-            'view/project/js/list-pages.js'
+            APP_PATH . 'project/js/list-pages.js'
         ]);
         $vars = [
             'title' => $project['name'],
@@ -137,8 +137,9 @@ class Pages extends MY_Controller {
             $name = $this->input->post('name');
             $status = $this->input->post('status');
             $slug = slug($name);
+            $dir_page = $this->path_view_project . $project['slug'] . '/';
             //Tenta criar o novo diretório
-            if (@mkdir($path_view_project . $project['slug'] . '/' . $slug)) {
+            if (is_writable($dir_page)) {
                 // Caso o diretório seja criado, os valores são inseridos no banco de dados
                 $id_user = $this->data_user['id'];
                 $data = [
@@ -149,10 +150,11 @@ class Pages extends MY_Controller {
                     'id_project' => $project['id'],
                     'id_user' => $id_user
                 ];
+                mkdir($dir_page . $slug);
                 $this->pages_model->create($data);
                 redirect_app('project/' . $project['slug']);
             } else {
-                setError('createPage', 'Não foi possível criar o diretório, você não possui privilégios suficiente.');
+                setError('createPage', 'Você não possui privilégios suficiente para criar um diretório em '.$dir_page.'.');
             }
         } else {
             setError('createPage', validation_errors());
@@ -195,7 +197,7 @@ class Pages extends MY_Controller {
             $name = $this->input->post('name');
             $status = $this->input->post('status');
             $slug = slug($name);
-            $dir_project = $path_view_project . $project['slug'] . '/';
+            $dir_project = $this->path_view_project . $project['slug'] . '/';
 
             if ($slug != $page['slug']) {
                 //Se o slug da página estiver diferente do slug atual
@@ -238,7 +240,7 @@ class Pages extends MY_Controller {
             $id_page = $page['id'];
             if ($this->pages_model->remove($id_page)) {
                 // Se a página for removida do banco de dados, todos os arquivos incluindo a pasta são removidos.
-                forceRemoveDir($path_view_project . $dir_project . '/' . $dir_page);
+                forceRemoveDir($this->path_view_project . $dir_project . '/' . $dir_page);
             }
             redirect_app('project/' . $slug_project);
         } else {

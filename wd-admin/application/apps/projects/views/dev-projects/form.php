@@ -33,7 +33,7 @@ if (!defined('BASEPATH')) {
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Diretório*</label>
-                    <input type="text" name="dir" id="dir" value="<?php echo set_value('dir', $directory) ?>" class="form-control" <?php if ($this->uri->segment('2') == 'edit') {echo 'disabled';}?>>
+                    <input type="text" name="dir" id="dir" value="<?php echo set_value('dir', $directory) ?>" class="form-control" <?php if ($this->uri->segment('3') == 'edit') {echo 'disabled';}?>>
                 </div>
             </div>
         </div>
@@ -41,7 +41,7 @@ if (!defined('BASEPATH')) {
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Sufixo para criação de tabelas*</label>
-                    <input type="text" name="suffix" id="suffix" maxlength="6" value="<?php echo set_value('suffix', $suffix) ?>" class="form-control" <?php if ($this->uri->segment('2') == 'edit') {echo 'disabled';}?>>
+                    <input type="text" name="suffix" id="suffix" maxlength="6" value="<?php echo set_value('suffix', $suffix) ?>" class="form-control" <?php if ($this->uri->segment('3') == 'edit') {echo 'disabled';}?>>
                 </div>
                 <?php if($main == 1){?><strong>Obs: Projeto principal não possui sufixo.</strong><?php }?>
             </div>

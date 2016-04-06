@@ -28,7 +28,7 @@ class MY_Loader extends CI_Loader {
                 $page = str_replace('-', '_', $this->segments[4]);
                 $section = str_replace('-', '_', $this->segments[5]);
                 $dir = '../apps/projects/modules/' . $project . '/' . $page . '/' . $section . '/' . $path . '/';
-            } elseif ($segment == 'app' && !empty($segment2)) {
+            } elseif ($segment == 'apps' && !empty($segment2)) {
                 $dir = '../apps/'.$segment2.'/' . $path . '/';
             }
         }

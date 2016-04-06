@@ -5,7 +5,6 @@ if (!defined('BASEPATH')) {
 }
 
 class Posts extends MY_Controller {
-    
     /*
      * Variável pública com o limite de seções por página
      */
@@ -16,7 +15,6 @@ class Posts extends MY_Controller {
         parent::__construct();
         $this->load->model('posts_model');
     }
-
 
     /*
      * Método para listar os registros de uma tabela
@@ -30,7 +28,7 @@ class Posts extends MY_Controller {
             $dir_section = $section['directory'];
             $name = $section['name'];
             $table = $section['table'];
-            $this->load->library('../apps/projects/libraries/config_page');
+            $this->load->library('../' . APP_PATH . 'libraries/config_page');
             // Carrega config xml
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
             $this->load->setVars(array(
@@ -58,7 +56,7 @@ class Posts extends MY_Controller {
 
     private function mount_form($data, $section, $project, $page) {
         add_css(array(
-            'view/posts/css/post-form.css'
+            APP_PATH . 'posts/css/post-form.css'
         ));
         $post = $this->posts_model->get_post($section);
         if (!$post) {
@@ -71,7 +69,7 @@ class Posts extends MY_Controller {
         $this->form_edit_post($data_fields, $section, $post);
 
         // Gera o template baseado nos campos do config xml
-        $this->load->library('../apps/projects/libraries/config_page');
+        $this->load->library('../' . APP_PATH . 'libraries/config_page');
         $fields = $this->config_page->fields_template($data_fields, $post);
         $vars = array(
             'title' => 'Registro',
@@ -92,9 +90,9 @@ class Posts extends MY_Controller {
      */
 
     private function mount_list($data, $section, $project, $page) {
-        $this->load->library('../apps/projects/libraries/config_page');
+        $this->load->library('../'.APP_PATH.'libraries/config_page');
         add_css(array(
-            'view/posts/css/posts-list.css'
+            APP_PATH . 'posts/css/posts-list.css'
         ));
         $search = $this->form_search($data, $section);
         $posts = $search['posts'];
@@ -182,7 +180,7 @@ class Posts extends MY_Controller {
             $value = (int) $this->input->post('id_post');
             $name_trigger = $this->input->post('name_trigger');
             $name_destination = $this->input->post('name_destination');
-            $this->load->library('../apps/projects/libraries/config_page');
+            $this->load->library('../'.APP_PATH.'libraries/config_page');
             $data = $this->config_page->load_config($project, $page, $section);
             if ($data) {
                 $field_trigger = search($data, 'column', $name_trigger);
@@ -217,7 +215,7 @@ class Posts extends MY_Controller {
                 $callback_input = (isset($mask['callback_input'])) ? $mask['callback_input'] : false;
                 if ($callback_input) {
                     // Se o campo possui método de entrada
-                    $this->load->library('../apps/projects/libraries/masks_input');
+                    $this->load->library('../'.APP_PATH.'libraries/masks_input');
                     if (method_exists($this->masks_input, $callback_input)) {
                         // Se o método existir, aciona e modifica o valor
                         $value = $this->masks_input->$callback_input($value);
@@ -239,10 +237,10 @@ class Posts extends MY_Controller {
 
         if ($section && $project && $page) {
             add_css(array(
-                'view/posts/css/post-form.css'
+                APP_PATH . 'posts/css/post-form.css'
             ));
 
-            $this->load->library('../apps/projects/libraries/config_page');
+            $this->load->library('../'.APP_PATH.'libraries/config_page');
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
             $data_fields = $data['fields'];
             $this->form_create_post($data_fields, $project, $page, $section);
@@ -304,10 +302,10 @@ class Posts extends MY_Controller {
         $page = get_page();
         $post = $this->posts_model->get_post($section, $id_post);
         add_css(array(
-            'view/posts/css/post-form.css'
+            APP_PATH . 'posts/css/post-form.css'
         ));
         if ($section && $project && $page && $post) {
-            $this->load->library('../apps/projects/libraries/config_page');
+            $this->load->library('../'.APP_PATH.'libraries/config_page');
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
             $data_fields = $data['fields'];
             $this->form_edit_post($data_fields, $section, $post);
@@ -327,7 +325,7 @@ class Posts extends MY_Controller {
             );
             $this->load->template('posts/form-post', $vars);
         } else {
-            redirect_app('projects');
+            redirect_app();
         }
     }
 
@@ -356,7 +354,7 @@ class Posts extends MY_Controller {
                 // Se o envio for acionado e todos os campos estiverem corretos
                 // Edita o post no banco de dados
                 $this->posts_model->edit($current_field, $post, $section);
-                redirect_app();
+                redirect_app(current_url());
             }
         }
     }
@@ -374,7 +372,7 @@ class Posts extends MY_Controller {
             $this->posts_model->remove($section, $post);
             redirect_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section);
         } else {
-            redirect_app('projects');
+            redirect_app();
         }
     }
 

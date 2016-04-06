@@ -8,7 +8,7 @@
 </ul>
 
 <div class="container-fluid">
-    <?php echo form_open_multipart('app/gallery/upload', ['id' => 'dropzone_gallery', 'class' => 'dropzone form-group']) ?>
+    <?php echo form_open_multipart(APP_PATH.'upload', ['id' => 'dropzone_gallery', 'class' => 'dropzone form-group']) ?>
     <div class="dropzone-previews"></div>
     <div class="dz-default dz-message"></div>
     <?php echo form_close() ?>

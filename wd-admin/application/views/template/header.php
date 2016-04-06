@@ -36,8 +36,8 @@ if (!defined('BASEPATH')) {
             <ul class="nav pull-right navbar-nav">
                 <li id="fat-menu" class="dropdown">
                     <a href="#" role="button" class="dropdown-toggle active" data-toggle="dropdown">
-                        <img src="<?php if (!empty($profile['image'])) { ?><?php echo base_url('/upload/'.$profile['image']); } else { echo base_url('assets/images/no_image.gif'); } ?>" class="image-profile-sm img-circle">
-                        <?php echo $profile['name'] ?>
+                        <img src="<?php if (!empty($PROFILE['image'])) { ?><?php echo base_url('/upload/'.$PROFILE['image']); } else { echo base_url('assets/images/no_image.gif'); } ?>" class="image-profile-sm img-circle">
+                        <?php echo $PROFILE['name'] ?>
                         <i class="fa fa-fw fa-caret-down"></i>
                     </a>
 
@@ -47,7 +47,7 @@ if (!defined('BASEPATH')) {
                 </li>
             </ul>
             <div class="pull-right dev-mode">
-                <?php if ($this->data_user['allow_dev']) { ?>Modo desenvolvedor <input type="checkbox" class="js-switch" <?php if ($this->data_user['dev_mode']) { ?>checked<?php } ?> /> <?php } ?>
+                <?php if ($PROFILE['allow_dev']) { ?>Modo desenvolvedor <input type="checkbox" class="js-switch" <?php if ($PROFILE['dev_mode']) { ?>checked<?php } ?> /> <?php } ?>
             </div>
             <div class="navbar-header">
                 <a href="<?php echo base_url() ?>">
@@ -63,7 +63,7 @@ if (!defined('BASEPATH')) {
                 <a href="#dashboard-menu" class="nav-header" data-toggle="collapse"><i class="icon-th"></i>Navegação</a>
                 <ul id="dashboard-menu" class="nav nav-list collapse in">
                     <?php
-                    foreach ($navigation as $menu) {
+                    foreach ($APPS as $menu) {
                         $app = $menu["app"];
                         $name = $menu["name"];
                         $image = $menu["image"];
@@ -73,8 +73,8 @@ if (!defined('BASEPATH')) {
                             $active = [$app, 'project'];
                         }
                         ?>
-                        <li class="<?php echo is_nav_active($this->uri->segment(1), 'project'); ?>">
-                            <a href="<?php echo base_url('app/'.$app);?>" class="<?php echo is_nav_active($this->uri->segment(1), $active); ?>"> 
+                        <li>
+                            <a href="<?php echo base_url('apps/'.$app);?>" class="<?php echo is_nav_active($this->uri->segment(2), $active); ?>"> 
                                 <?php echo $name ?>
                             </a>
                         </li>

@@ -58,7 +58,7 @@ $(function () {
         var index = $(".select-options").index(this);
         $(".select-label").eq(index).html($("<option>").val("").html("Carregando.."));
         $.ajax({
-            url: url + "sections/list-columns-json",
+            url: app_path + "sections/list-columns-json",
             data: {table: option},
             dataType: "json",
             type: "POST",

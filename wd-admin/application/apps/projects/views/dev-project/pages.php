@@ -60,7 +60,7 @@ if (!defined('BASEPATH')) {
                         </td>
                         <td>
                             <a href="<?php echo base_url_app('project/'.$project['slug'].'/edit/'.$arr["slug"]); ?>"><i class="fa fa-pencil"></i></a>
-                            <a href="<?php echo base_url_app('project/'.$project['slug'].'/remove/'.$arr["slug"]); ?>"><i class="fa fa-remove"></i></a>
+                            <a href="<?php echo base_url_app('project/'.$project['slug'].'/remove/'.$arr["slug"]); ?>" onclick="javascript: return confirm('Deseja realmente remover a página <?php echo $arr['name'] ?>?')"><i class="fa fa-remove"></i></a>
                         </td>
                     </tr>
                     <?php

@@ -39,7 +39,7 @@ $(function () {
         var URL = param.url;
         var content = $("#files-list");
         if (URL == '' || URL == undefined) {
-            URL = url + "app/gallery/files-list";
+            URL = app_path + "files-list";
         }
         $.ajax({
             url: URL,
@@ -47,7 +47,7 @@ $(function () {
             type: "POST",
             data: {limit: 12},
             success: function (data) {
-                var template = new EJS({url: url + "assets/view/gallery/ejs/list-files.ejs"}).render({data: data, url: url});
+                var template = new EJS({url: app_assets + "ejs/list-files.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });
@@ -75,7 +75,7 @@ $(function () {
 
         if (confirm("Deseja realmente remover o arquivo " + file + " ?")) {
             $.ajax({
-                url: url + "app/gallery/delete",
+                url: app_path + "delete",
                 type: 'POST',
                 data: {file: file},
                 success: function () {
@@ -95,12 +95,12 @@ $(function () {
         var content = $("#details .modal-content");
         content.html('<div class="modal-body">Aguarde..</div>');
         $.ajax({
-            url: url + "app/gallery/file",
+            url: app_path + "file",
             dataType: "json",
             type: "POST",
             data: {file: file},
             success: function (data) {
-                var template = new EJS({url: url + "assets/view/gallery/ejs/file-view.ejs"}).render({data: data, url: url});
+                var template = new EJS({url: app_assets + "ejs/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });
@@ -115,12 +115,12 @@ $(function () {
         var content = $("#edit .modal-content");
         content.html('<div class="modal-body">Aguarde..</div>');
         $.ajax({
-            url: url + "app/gallery/file",
+            url: app_path + "file",
             dataType: "json",
             type: "POST",
             data: {file: file},
             success: function (data) {
-                var template = new EJS({url: url + "assets/view/gallery/ejs/file-edit.ejs"}).render({data: data, url: url});
+                var template = new EJS({url: app_assets + "ejs/file-edit.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });
@@ -134,7 +134,7 @@ $(function () {
         var file = $(this).data("file");
         var msg = $("#message-edit");
         $.ajax({
-            url: url + "app/gallery/edit-file",
+            url: app_path + "edit-file",
             dataType: "json",
             type: "POST",
             data: {file: file, name: name, new_file: new_file},
@@ -154,7 +154,7 @@ $(function () {
     $("#search-files").submit(function (e) {
         var keyword = $("#search-field").val();
         files_list({
-            url: url + 'gallery/files-list?search=' + keyword
+            url: app_path + 'files-list?search=' + keyword
         });
         e.preventDefault();
         return false;

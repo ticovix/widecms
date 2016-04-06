@@ -12,7 +12,7 @@
     <div class="col-sm-2 file" data-file="<%=file%>">
         <div class="image-file">
             <a href="#" class="btn-view-file" data-toggle="modal" data-target="#details">
-                <img src="<%=url+'app/gallery/image/thumb/'+file%>" title="<%=file%>" alt="<%=file%>" class="img-responsive">
+                <img src="<%=app_path+'image/thumb/'+file%>" title="<%=file%>" alt="<%=file%>" class="img-responsive">
             </a>
             <div class="options-file hide">
                 <a href="#" data-toggle="modal" data-target="#edit" class="btn-edit-file">
@@ -34,10 +34,14 @@
                 </div>
                 <% 
             } 
+        }else{
+%>
+        <div class="col-sm-12">Envie um arquivo.</div>   
+<%
         }
     } else {
     %>
-    <div class="col-sm-12">Nenhum arquivo foi encontrado.</div>    
+    <div class="col-sm-12">Envie um arquivo.</div>    
     <%
     }
     %>

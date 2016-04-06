@@ -5,7 +5,8 @@ if (!defined('BASEPATH')) {
 }
 
 class Sections extends MY_Controller {
-    private $path_view_project = 'application/apps/projects/views/project/';
+
+    private $path_view_project = '';
     /*
      * Variável pública com o limite de seções por página
      */
@@ -15,6 +16,7 @@ class Sections extends MY_Controller {
         parent::__construct();
         func_only_dev();
         $this->load->model('sections_model');
+        $this->path_view_project = 'application/' . APP_PATH . 'views/project/';
     }
 
     /*
@@ -97,7 +99,7 @@ class Sections extends MY_Controller {
         $project = get_project();
         $page = get_page();
         $section = $this->sections_model->get_section($slug_section);
-        $this->load->library('../apps/projects/libraries/config_page');
+        $this->load->library('../' . APP_PATH . 'libraries/config_page');
         // Carrega os campos da seção
         $config = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
         if ($config) {
@@ -113,10 +115,10 @@ class Sections extends MY_Controller {
 
         add_js(array(
             'plugins/masks/js/jquery.meio.js',
-            'view/project/js/form-section.js'
+            APP_PATH . 'project/js/form-section.js'
         ));
         add_css(array(
-            'view/project/css/form-section.css'
+            APP_PATH . 'project/css/form-section.css'
         ));
         $vars = array(
             'fields' => $fields,
@@ -282,7 +284,7 @@ class Sections extends MY_Controller {
 
     private function save_edit_config($data, $new_config) {
         if ($new_config) {
-            $this->load->library('../apps/projects/libraries/config_page');
+            $this->load->library('../'.APP_PATH.'libraries/config_page');
             // Gera uma nova estrutura xml com os novos campos
             $config_xml = $this->config_page->create_config_xml($new_config);
             if ($config_xml) {
@@ -348,19 +350,19 @@ class Sections extends MY_Controller {
      */
 
     public function create($slug_project, $slug_page) {
-        $this->load->library('../apps/projects/libraries/config_page');
+        $this->load->library('../'.APP_PATH.'libraries/config_page');
         $project = get_project();
         $page = get_page();
         $this->form_create_section($project, $page);
         add_js(array(
             'plugins/masks/js/jquery.meio.js',
-            'view/project/js/form-section.js'
+            APP_PATH . 'project/js/form-section.js'
         ));
         add_css(array(
-            'view/project/css/form-section.css'
+            APP_PATH . 'project/css/form-section.css'
         ));
         $vars = [
-            'title' => 'Criar nova seção em '.$page['name'],
+            'title' => 'Criar nova seção em ' . $page['name'],
             'name' => '',
             'directory' => '',
             'table' => '',
@@ -469,7 +471,7 @@ class Sections extends MY_Controller {
         $fields = $this->filter_fields($data);
         if ($fields) {
             if (count($fields)) {
-                $this->load->library('../apps/projects/libraries/config_page');
+                $this->load->library('../'.APP_PATH.'libraries/config_page');
                 // Cria estrutura xml do array
                 $config_xml = $this->config_page->create_config_xml($fields);
                 $path_config_xml = $this->path_view_project . $data['project_directory'] . '/' . $data['page_directory'] . '/' . $data['directory'] . '/config.xml';
@@ -501,7 +503,7 @@ class Sections extends MY_Controller {
     protected function filter_fields($data) {
         $total = count($data['name_field']);
         if ($total) {
-            $this->load->library('../apps/projects/libraries/config_page');
+            $this->load->library('../'.APP_PATH.'libraries/config_page');
             $fields = array();
             // Recebe os campos que foram selecionados para ser removido
             $remove_field = (isset($data['remove_field'])) ? $data['remove_field'] : array();

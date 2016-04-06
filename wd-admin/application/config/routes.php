@@ -57,19 +57,19 @@ $route['translate_uri_dashes'] = TRUE;
 $route['logout'] = 'home/logout';
 
 // Pages
-$route['app/projects/project/(:any)/create'] = 'pages/create/$1';
-$route['app/projects/project/(:any)/edit/(:any)'] = 'pages/edit/$1/$2';
-$route['app/projects/project/(:any)/remove/(:any)'] = 'pages/remove/$1/$2';
+$route['apps/projects/project/(:any)/create'] = 'pages/create/$1';
+$route['apps/projects/project/(:any)/edit/(:any)'] = 'pages/edit/$1/$2';
+$route['apps/projects/project/(:any)/remove/(:any)'] = 'pages/remove/$1/$2';
 // Sections
-$route['app/projects/project/(:any)/(:any)/create'] = 'sections/create/$1/$2';
-$route['app/projects/project/(:any)/(:any)/remove/(:any)'] = 'sections/remove/$1/$2/$3';
-$route['app/projects/project/(:any)/(:any)/edit/(:any)'] = 'sections/edit/$1/$2/$3';
+$route['apps/projects/project/(:any)/(:any)/create'] = 'sections/create/$1/$2';
+$route['apps/projects/project/(:any)/(:any)/remove/(:any)'] = 'sections/remove/$1/$2/$3';
+$route['apps/projects/project/(:any)/(:any)/edit/(:any)'] = 'sections/edit/$1/$2/$3';
 // Posts
-$route['app/projects/project/(:any)/(:any)/(:any)/create'] = 'posts/create/$1/$2/$3';
-$route['app/projects/project/(:any)/(:any)/(:any)/edit/(:any)'] = 'posts/edit/$1/$2/$3/$4';
-$route['app/projects/project/(:any)/(:any)/(:any)/remove/(:any)'] = 'posts/remove/$1/$2/$3/$4';
-$route['app/projects/project/(:any)/(:any)/(:any)/mod/(:any)(.*)'] = 'posts/$4$5';
+$route['apps/projects/project/(:any)/(:any)/(:any)/create'] = 'posts/create/$1/$2/$3';
+$route['apps/projects/project/(:any)/(:any)/(:any)/edit/(:any)'] = 'posts/edit/$1/$2/$3/$4';
+$route['apps/projects/project/(:any)/(:any)/(:any)/remove/(:any)'] = 'posts/remove/$1/$2/$3/$4';
+$route['apps/projects/project/(:any)/(:any)/(:any)/mod/(:any)(.*)'] = 'posts/$4$5';
 
-$route['app/projects/project/(:any)/(:any)/(:any)'] = 'posts/index/$1/$2/$3';
-$route['app/projects/project/(:any)/(:any)'] = 'sections/index/$1/$2';
-$route['app/projects/project/(:any)'] = 'pages/index/$1';
+$route['apps/projects/project/(:any)/(:any)/(:any)'] = 'posts/index/$1/$2/$3';
+$route['apps/projects/project/(:any)/(:any)'] = 'sections/index/$1/$2';
+$route['apps/projects/project/(:any)'] = 'pages/index/$1';

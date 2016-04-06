@@ -8,12 +8,12 @@ class MY_Controller extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->model('/navigation_model');
+        $this->load->library('apps');
         $this->security();
-        $this->listNav = $this->navigation_model->list_nav();
         $this->allow_project_list();
         $default_values = [
-            'profile' => $this->data_user,
-            'navigation' => $this->listNav
+            'PROFILE' => $this->data_user,
+            'APPS' => $this->apps->list_apps()
         ];
         $this->load->setVars($default_values);
     }

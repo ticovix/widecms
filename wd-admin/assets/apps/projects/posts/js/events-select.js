@@ -12,7 +12,7 @@ $(function () {
 
             select.html($("<option>").val("").html("Carregando.."));
             $.ajax({
-                url: url + 'posts/options-json',
+                url: app_path + 'posts/options-json',
                 dataType: 'json',
                 type: 'POST',
                 data: {

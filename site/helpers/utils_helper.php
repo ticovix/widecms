@@ -16,15 +16,15 @@ if (!function_exists('list_files')) {
         } else {
             return false;
         }
-
-        if (($limit > 1 or $limit == '1' && $offset != null) or $limit == null) {
+        if ($limit == null or $limit > 1 or ($limit===1 && $offset != null)) {
             $arr_file = array();
+            
             foreach ($files as $file) {
                 $checked = (isset($file->checked)) ? $file->checked : 0;
                 $title = (isset($file->title)) ? $file->title : '';
                 $name_file = (isset($file->file)) ? $file->file : '';
                 if (!empty($name_file) && is_file(getcwd() . '/wd-content/upload/' . $name_file)) {
-                    $arr_file[$checked] = array('file' => $name_file, 'title' => $title, 'checked' => $checked);
+                    $arr_file[] = array('file' => $name_file, 'title' => $title, 'checked' => $checked);
                 }
             }
 
@@ -39,8 +39,7 @@ if (!function_exists('list_files')) {
             } else {
                 $final_files = $arr_file;
             }
-            sort($arr_file);
-            return $arr_file;
+            return $final_files;
         } else {
             $file = search($files, 'checked', 1);
             if ($file) {

@@ -5,18 +5,18 @@ if (!defined('BASEPATH')) {
 }
 
 class Projects extends MY_Controller {
-    
-    private $path_view_project = 'application/apps/projects/views/project/';
-    
+
+    private $path_view_project = '';
+
     /*
      * Variável pública com o limite de projetos por página
      */
-
     public $limit = 10;
 
     public function __construct() {
         parent::__construct();
         $this->load->model('projects_model');
+        $this->path_view_project = 'application/' . APP_PATH . '/views/project/';
     }
 
     /*
@@ -96,7 +96,7 @@ class Projects extends MY_Controller {
         $this->form_create();
 
         add_js([
-            'view/projects/js/form.js'
+            APP_PATH . 'js/form.js'
         ]);
         $vars = [
             'title' => 'Novo projeto',
@@ -137,6 +137,7 @@ class Projects extends MY_Controller {
                 'main' => $main,
                 'status' => $status
             ];
+            $this->createDir($dir, $main);
             $create = $this->projects_model->create($data);
             if ($create) {
                 // Se o projeto for criado com sucesso, é extraido um projeto em codeigniter na pasta inicial
@@ -160,7 +161,7 @@ class Projects extends MY_Controller {
         }
         $this->form_edit($project);
         add_js([
-            'view/projects/js/form.js'
+            APP_PATH . 'js/form.js'
         ]);
         $suffix = $project['suffix'];
         $vars = [
@@ -203,6 +204,8 @@ class Projects extends MY_Controller {
 
     public function verify_dir($dir) {
         $main = $this->input->post('main');
+        $dir_project = '../';
+        $dir_admin = $this->path_view_project;
         if ($main) {
             $mainExists = $this->projects_model->main_exists();
             if ($mainExists && is_dir('../' . $mainExists['directory'])) {
@@ -210,13 +213,17 @@ class Projects extends MY_Controller {
                 return false;
             }
         }
-        if (is_dir('../' . $dir) or is_dir($this->path_view_project . $dir)) {
+        if (is_dir($dir_project . $dir) or is_dir($dir_admin . $dir)) {
             // Se o diretório já existir no admin ou no diretório inicial
             $this->form_validation->set_message('verify_dir', 'Esse diretório já existe.');
             return false;
-        } elseif (!$this->createDir($dir, $main)) {
+        } elseif (!is_writable($dir_project)) {
             // Se não for possível criar o diretório do projeto
-            $this->form_validation->set_message('verify_dir', 'Não foi possível criar o diretório.');
+            $this->form_validation->set_message('verify_dir', 'Você não tem permissões para criar pasta no diretório ' . $dir_project);
+            return false;
+        } elseif (!is_writable($dir_admin)) {
+            // Se não for possível criar o diretório do projeto
+            $this->form_validation->set_message('verify_dir', 'Você não tem permissões para criar pasta no diretório ' . $dir_admin);
             return false;
         } else {
             return true;
@@ -250,7 +257,7 @@ class Projects extends MY_Controller {
         $main = $data['main'];
         $dir_project = '../' . $dir;
 
-        $file = getcwd() . '/application/apps/projects/files_project/project_default.zip';
+        $file = getcwd() . '/application/' . APP_PATH . 'files_project/project_default.zip';
         $to = $dir_project;
 
         $zip = new ZipArchive;
@@ -355,16 +362,27 @@ class Projects extends MY_Controller {
                 $this->projects_model->delete($project['id']);
                 $dir_project = $project['directory'];
                 // Remove todos controllers
-                forceRemoveDir(getcwd() . '/application/apps/projects/modules/' . $dir_project);
+                $dir_module = getcwd() . '/application/' . APP_PATH . 'modules/' . $dir_project;
+                if (is_dir($dir_module)) {
+                    forceRemoveDir($dir_module);
+                }
                 // Remove todos arquivos de assets
-                forceRemoveDir(getcwd() . '/assets/project/' . $dir_project);
+                $dir_mudule_assets = getcwd() . '/' . APP_ASSETS . 'modules/' . $dir_project;
+                if (is_dir($dir_mudule_assets)) {
+                    forceRemoveDir($dir_mudule_assets);
+                }
                 // Remove todos arquivos de views
-                forceRemoveDir($this->path_view_project . $dir_project);
+                $dir_views_project = $this->path_view_project . $dir_project;
+                if (is_dir($dir_views_project)) {
+                    forceRemoveDir($dir_views_project);
+                }
                 if ($delete_all) {
                     // Remove todos os arquivos do projeto no diretório inicial
-                    forceRemoveDir('../' . $dir_project);
-                    redirect_app();
+                    if (is_dir('../' . $dir_project)) {
+                        forceRemoveDir('../' . $dir_project);
+                    }
                 }
+                redirect_app();
             }
         }
     }

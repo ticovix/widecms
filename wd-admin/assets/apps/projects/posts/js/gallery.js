@@ -66,7 +66,7 @@ $(function () {
         var URL = param.url;
         var content = $("#files-list");
         if (URL == '' || URL == undefined) {
-            URL = url + "app/gallery/files-list";
+            URL = url + "apps/gallery/files-list";
         }
         $.ajax({
             url: URL,
@@ -74,7 +74,7 @@ $(function () {
             type: "POST",
             data: {limit: 12},
             success: function (data) {
-                var template = new EJS({url: url + "assets/view/project/ejs/list-files.ejs"}).render({data: data, url: url});
+                var template = new EJS({url: app_assets +"project/ejs/list-files.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });
@@ -84,7 +84,7 @@ $(function () {
      */
     function files_list_added() {
         var content = content_files_added;
-        var template = new EJS({url: url + "assets/view/project/ejs/list-files-added.ejs"}).render({files: list, url: url});
+        var template = new EJS({url: app_assets + "project/ejs/list-files-added.ejs"}).render({files: list, url: url, app_path: app_path});
         content.html(template);
     }
     /*
@@ -103,7 +103,7 @@ $(function () {
     $("#search-files").submit(function (e) {
         var keyword = $("#search-field").val();
         files_list({
-            url: url + 'app/gallery/files-list?search=' + keyword
+            url: url + 'apps/gallery/files-list?search=' + keyword
         });
         e.preventDefault();
         return false;
@@ -117,12 +117,12 @@ $(function () {
         var content = $("#details .modal-content");
         content.html('<div class="modal-body">Aguarde..</div>');
         $.ajax({
-            url: url + "app/gallery/file",
+            url: url + "apps/gallery/file",
             dataType: "json",
             type: "POST",
             data: {file: file},
             success: function (data) {
-                var template = new EJS({url: url + "assets/view/app/gallery/ejs/file-view.ejs"}).render({data: data, url: url});
+                var template = new EJS({url: url + "assets/apps/gallery/ejs/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });
@@ -193,7 +193,7 @@ $(function () {
             $(".content-files").eq(index_field_upload).html("");
             for (var i = 0; i < total; i++) {
                 var file = list[i].file;
-                var img = $("<img>").addClass("img-responsive").attr("src",url+"app/gallery/image/thumb/"+file);
+                var img = $("<img>").addClass("img-responsive").attr("src", url + "apps/gallery/image/thumb/" + file);
                 $(".content-files").eq(index_field_upload).append($("<div>").addClass("files-list thumbnail").html(img));
             }
             var json = JSON.stringify(list);
