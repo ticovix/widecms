@@ -113,7 +113,6 @@ class Sections extends MY_Controller {
             setError('config_error', 'Não foi possível abrir o config.xml dessa seção, deseja <a href="javascript:window.history.go(-1)">voltar</a>?');
         }
         
-        var_dump($selects);
         add_js(array(
             'plugins/masks/js/jquery.meio.js',
             APP_PATH . 'project/js/form-section.js'
