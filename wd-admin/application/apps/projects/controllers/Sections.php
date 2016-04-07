@@ -106,13 +106,14 @@ class Sections extends MY_Controller {
             // Se carregado corretamente, carrega o formulário de edição
             $fields = $this->treat_fields($config['fields']);
             $this->form_edit_section($project, $page, $section, $config);
+            // Busca todos os campos do tipo select
+            $selects = search($fields, 'type', 'select');
         } else {
             $fields = false;
             setError('config_error', 'Não foi possível abrir o config.xml dessa seção, deseja <a href="javascript:window.history.go(-1)">voltar</a>?');
         }
-        // Busca todos os campos do tipo select
-        $selects = search($config, 'type', 'select');
-
+        
+        var_dump($selects);
         add_js(array(
             'plugins/masks/js/jquery.meio.js',
             APP_PATH . 'project/js/form-section.js'
@@ -371,6 +372,7 @@ class Sections extends MY_Controller {
             'suffix' => $project['suffix'],
             'project' => $project,
             'page' => $page,
+            'sections' => $this->sections_model->list_sections_select($page['id']),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
             'masks' => $this->config_page->masks_input()
@@ -663,6 +665,7 @@ class Sections extends MY_Controller {
                     $field['label_options_'] = $this->list_columns($table);
                 }
             }
+            
             $new_fields[] = $field;
         }
         return $new_fields;

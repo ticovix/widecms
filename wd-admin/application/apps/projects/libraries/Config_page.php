@@ -318,6 +318,7 @@ class Config_page {
 
     public function fields_template($fields, $post=null) {
         $CI = & get_instance();
+        $this->fields = $fields;
         foreach ($fields as $field) {
 
             // Lista os campos do formulário
@@ -480,7 +481,7 @@ class Config_page {
         } else {
             $array_options = array('' => 'Nenhum opção adicionada.');
         }
-        $attr['class'] = 'form-control trigger-select ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
+        $this->attr['class'] = 'form-control trigger-select ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
         $new_field['input'] = form_dropdown($this->column, $array_options, $this->value, $this->attr);
         return $new_field;
     }
