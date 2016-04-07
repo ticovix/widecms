@@ -5,8 +5,10 @@ if (!defined('BASEPATH')) {
 }
 
 class Config_page {
-    private $path_view_project = 'application/apps/projects/views/project/';
-    
+    private $path_view_project = '';
+    public function __construct(){
+        $this->path_view_project = 'application/'.APP_PATH.'views/project/';
+    }
     /*
      * Método com lista de inputs disponíveis
      */
@@ -319,6 +321,7 @@ class Config_page {
         foreach ($fields as $field) {
 
             // Lista os campos do formulário
+            $this->field = $field;
             $this->type = strtolower($field['type']);
             $this->column = $field['column'];
             $this->required = $field['required'];
@@ -375,7 +378,7 @@ class Config_page {
         if ($callback_output) {
             // Se houver um método de saida
             $CI = & get_instance();
-            $CI->load->library('../apps/projects/libraries/masks_input');
+            $CI->load->library('../'.APP_PATH.'libraries/masks_input');
             if (method_exists($CI->masks_input, $callback_output)) {
                 // Se o método existir, aciona e seta o novo valor
                 $this->value = $CI->masks_input->$callback_output($this->value);
@@ -393,14 +396,14 @@ class Config_page {
             'plugins/fancybox/css/jquery.fancybox.css',
             'plugins/fancybox/css/jquery.fancybox-buttons.css',
             'plugins/dropzone/css/dropzone.css',
-            'apps/projects/project/css/gallery.css'
+            ''.APP_PATH.'project/css/gallery.css'
         ));
         add_js(array(
             'plugins/dropzone/js/dropzone.js',
             'plugins/fancybox/js/jquery.fancybox.pack.js',
             'plugins/fancybox/js/jquery.fancybox-buttons.js',
             'plugins/embeddedjs/ejs.js',
-            'apps/projects/posts/js/gallery.js'
+            ''.APP_PATH.'posts/js/gallery.js'
         ));
         $new_field = array();
         $new_field['type'] = $this->type;
@@ -445,7 +448,7 @@ class Config_page {
 
     private function template_select() {
         add_js(array(
-            'apps/projects/posts/js/events-select.js'
+            ''.APP_PATH.'posts/js/events-select.js'
         ));
         $new_field = array();
         $new_field['type'] = $this->type;
@@ -516,11 +519,12 @@ class Config_page {
     private function set_options($table, $column, $data_trigger = null) {
         $CI = & get_instance();
         if (is_array($data_trigger) && empty($data_trigger['value'])) {
-            return array('' => 'Selecione uma ' . $data_trigger['label']);
+            return array('' => 'Selecione um(a) ' . $data_trigger['label']);
         }
         // Lista registros para o select
         $CI->load->model('posts_model');
         $posts = $CI->posts_model->list_posts_select($table, $column, $data_trigger);
+        
         $options = array();
         if ($posts) {
             // Se for encontrado registros
@@ -603,7 +607,7 @@ class Config_page {
         $callback_output = (isset($mask['callback_output'])) ? $mask['callback_output'] : false;
         if ($callback_output) {
             $CI = & get_instance();
-            $CI->load->library('../apps/projects/libraries/masks_input');
+            $CI->load->library('../'.APP_PATH.'libraries/masks_input');
             if (method_exists($CI->masks_input, $callback_output)) {
                 // Se o método de saída existir, aciona
                 $value = $CI->masks_input->$callback_output($value);

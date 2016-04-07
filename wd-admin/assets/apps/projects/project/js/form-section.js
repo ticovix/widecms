@@ -38,22 +38,22 @@ $(function () {
         $(".field:eq(" + final + ") checkbox").removeAttr('checked');
     });
 
-    $(".select-input, .radio-input").change(function () {
+    $("#fields").on("change", ".select-input, .radio-input", function () {
         var input = $(this).val();
         var index = $(".select-input").index(this);
         if (input == "select" || input == "checkbox" || input == "radio") {
-            $(".options-field:eq("+index+"), .label-options-field:eq("+index+")").removeClass('hide');
+            $(".options-field:eq(" + index + "), .label-options-field:eq(" + index + ")").removeClass('hide');
         } else {
-            $(".options-field:eq("+index+"), .label-options-field:eq("+index+")").addClass('hide');
+            $(".options-field:eq(" + index + "), .label-options-field:eq(" + index + ")").addClass('hide');
         }
-        if(input == "select"){
+        if (input == "select") {
             $(".trigger-field").eq(index).removeClass('hide');
-        }else{
+        } else {
             $(".trigger-field").eq(index).addClass('hide');
         }
     });
 
-    $(".select-options").change(function () {
+    $("#fields").on("change", ".select-options", function () {
         var option = $(this).val();
         var index = $(".select-options").index(this);
         $(".select-label").eq(index).html($("<option>").val("").html("Carregando.."));
