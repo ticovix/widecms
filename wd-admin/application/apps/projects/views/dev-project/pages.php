@@ -20,7 +20,7 @@ if (!defined('BASEPATH')) {
     </div>
     <?php echo form_open(null, ['method' => 'get', 'class' => 'form-group']); ?>
     <div class="input-group">
-        <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="Procurar projeto" class="input-sm form-control"> 
+        <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="Procurar página" class="input-sm form-control"> 
         <span class="input-group-btn">
             <button type="submit" class="btn btn-sm btn-primary"> Buscar</button> 
         </span>

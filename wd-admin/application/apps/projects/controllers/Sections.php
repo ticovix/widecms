@@ -132,7 +132,7 @@ class Sections extends MY_Controller {
             'page' => $page,
             'section' => $section,
             'selects' => $selects,
-            'sections' => $this->sections_model->list_sections_select($page['id'], $section['id']),
+            'sections' => $this->sections_model->list_sections_select($section['id']),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
             'masks' => $this->config_page->masks_input()
@@ -371,7 +371,7 @@ class Sections extends MY_Controller {
             'suffix' => $project['suffix'],
             'project' => $project,
             'page' => $page,
-            'sections' => $this->sections_model->list_sections_select($page['id']),
+            'sections' => $this->sections_model->list_sections_select(),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
             'masks' => $this->config_page->masks_input()

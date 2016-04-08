@@ -25,9 +25,9 @@ class Sections_model extends CI_Model {
         return $this->db->get('wd_sections')->row()->total;
     }
 
-    public function list_sections_select($page, $section=null) {
+    public function list_sections_select($section=null) {
         $this->db->order_by('order, name');
-        $this->db->where('fk_page', $page);
+        //$this->db->where('fk_page', $page);
         if($section){
             $this->db->where('id!=',$section);
         }

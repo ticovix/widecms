@@ -84,7 +84,7 @@ if (!defined('BASEPATH')) {
                 $remove = (isset($fields[$i]['remove'])) ? $fields[$i]['remove'] : '';
                 $mask_field = (isset($fields[$i]['mask'])) ? $fields[$i]['mask'] : '';
                 $options_field = (isset($fields[$i]['options'])) ? $fields[$i]['options'] : '';
-                $select_trigger_field = (isset($fields[$i]['select_trigger'])) ? $fields[$i]['select_trigger'] : '';
+                $select_trigger_field = (isset($fields[$i]['trigger_select'])) ? $fields[$i]['trigger_select'] : '';
                 $label_options_field = (isset($fields[$i]['label_options'])) ? $fields[$i]['label_options'] : '';
                 $label_options = (isset($fields[$i]['label_options_'])) ? $fields[$i]['label_options_'] : '';
                 ?>
@@ -165,7 +165,7 @@ if (!defined('BASEPATH')) {
                                             $label = $select['label'];
                                             if ($col != $column) {
                                                 ?>
-                                                <option value="<?php echo $col ?>" <?php echo set_select('select_trigger_field[' . $i . ']', $arr['id'], ($select_trigger_field == $col)) ?>><?php echo $label ?> (<?php echo $col ?>)</option>
+                                                <option value="<?php echo $col ?>" <?php echo set_select('select_trigger_field[' . $i . ']', $col, ($select_trigger_field == $col)) ?>><?php echo $label ?> (<?php echo $col ?>)</option>
                                                 <?php
                                             }
                                         }
