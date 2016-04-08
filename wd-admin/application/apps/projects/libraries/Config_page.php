@@ -322,6 +322,7 @@ class Config_page {
         foreach ($fields as $field) {
 
             // Lista os campos do formulário
+            $this->attr = array();
             $this->field = $field;
             $this->type = strtolower($field['type']);
             $this->column = $field['column'];
@@ -460,6 +461,7 @@ class Config_page {
             if ($column_trigger) {
                 $field_trigger = search($this->fields, 'column', $column_trigger);
                 if (count($field_trigger) > 0) {
+                    
                     $field_trigger = $field_trigger[0];
                     $table_trigger = $field_trigger['options'];
                     $label_trigger = $field_trigger['label'];
