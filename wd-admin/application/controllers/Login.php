@@ -45,7 +45,7 @@ class Login extends CI_Controller {
         $pass = $account['password'];
         $id = $account['id'];
         if (!$account) {
-            $this->form_validation->set_message('authAccount', 'Login ou senha incorreto.');
+            $this->form_validation->set_message('auth_account', 'Login ou senha incorreto.');
             return false;
         }
 
@@ -61,7 +61,7 @@ class Login extends CI_Controller {
             ]);
             return true;
         } else {
-            $this->form_validation->set_message('authAccount', 'Login ou senha incorreto.');
+            $this->form_validation->set_message('auth_account', 'Login ou senha incorreto.');
             return false;
         }
     }
