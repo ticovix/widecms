@@ -90,7 +90,7 @@ class Posts extends MY_Controller {
      */
 
     private function mount_list($data, $section, $project, $page) {
-        $this->load->library('../'.APP_PATH.'libraries/config_page');
+        $this->load->library('../' . APP_PATH . 'libraries/config_page');
         add_css(array(
             APP_PATH . 'posts/css/posts-list.css'
         ));
@@ -180,7 +180,7 @@ class Posts extends MY_Controller {
             $value = (int) $this->input->post('id_post');
             $name_trigger = $this->input->post('name_trigger');
             $name_destination = $this->input->post('name_destination');
-            $this->load->library('../'.APP_PATH.'libraries/config_page');
+            $this->load->library('../' . APP_PATH . 'libraries/config_page');
             $data = $this->config_page->load_config($project, $page, $section);
             if ($data) {
                 $field_trigger = search($data, 'column', $name_trigger);
@@ -206,20 +206,19 @@ class Posts extends MY_Controller {
      * Método para setar um valor que possui um método de entrada
      */
 
-    private function set_value($value, $field) {
-        if ($value) {
-            $type = strtolower($field['type']);
-            $mask = $this->config_page->get_mask($field['mask']);
-            if ($mask) {
-                // Se o  campo possui mascara
-                $callback_input = (isset($mask['callback_input'])) ? $mask['callback_input'] : false;
-                if ($callback_input) {
-                    // Se o campo possui método de entrada
-                    $this->load->library('../'.APP_PATH.'libraries/masks_input');
-                    if (method_exists($this->masks_input, $callback_input)) {
-                        // Se o método existir, aciona e modifica o valor
-                        $value = $this->masks_input->$callback_input($value);
-                    }
+    private function set_value($value, $field, $fields) {
+        $type = strtolower($field['type']);
+        $plugin = $this->config_page->get_plugin($field['plugin']);
+        if ($plugin) {
+            $class = ucfirst($plugin['plugin']);
+            $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
+            if (is_file($class_plugin)) {
+                // Se o campo possui método de entrada
+                $this->load->library('../' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php');
+                if (method_exists($class, 'input')) {
+                    $class = strtolower($class);
+                    // Se o método existir, aciona e modifica o valor
+                    $value = $this->$class->input($value, $field, $fields);
                 }
             }
         }
@@ -240,7 +239,7 @@ class Posts extends MY_Controller {
                 APP_PATH . 'posts/css/post-form.css'
             ));
 
-            $this->load->library('../'.APP_PATH.'libraries/config_page');
+            $this->load->library('../' . APP_PATH . 'libraries/config_page');
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
             $data_fields = $data['fields'];
             $this->form_create_post($data_fields, $project, $page, $section);
@@ -271,23 +270,40 @@ class Posts extends MY_Controller {
     private function form_create_post($data_fields, $project, $page, $section) {
         if ($data_fields) {
             $current_field = array();
+            $table = $section['table'];
             foreach ($data_fields as $field) {
                 $column = $field['column'];
                 $required = $field['required'];
+                $unique = $field['unique'];
                 $label = $field['label'];
 
-                $value = $this->set_value($this->input->post($column), $field);
+                $value = $this->set_value($this->input->post($column), $field, $data_fields);
                 $current_field["$column"] = $value;
-
+                $rules = array();
                 if ($required == '1') {
-                    $this->form_validation->set_rules($column, $label, 'required');
-                } else {
+                    $rules[] = 'required';
+                }
+                if ($unique == '1' && !empty($value)) {
+                    $rules[] = 'is_unique[' . $table . '.' . $column . ']';
+                }
+                $rules = implode('|', $rules);
+                if (empty($rules)) {
                     $this->form_validation->set_rules($column, $label);
+                } else {
+                    $this->form_validation->set_rules($column, $label, $rules);
                 }
             }
             if ($this->form_validation->run()) {
-                $this->posts_model->create($current_field, $section);
-                redirect_app('project/' . $project['slug'] . '/' . $page['slug'] . '/' . $section['slug']);
+
+                // Se o envio for acionado e todos os campos estiverem corretos
+                if (!hasError()) {
+                    // Se não houver nenhum erro
+                    // Cria o post no banco de dados
+                    $this->posts_model->create($current_field, $section);
+                    redirect_app('project/' . $project['slug'] . '/' . $page['slug'] . '/' . $section['slug']);
+                }
+            } else {
+                setError(null, validation_errors());
             }
         }
     }
@@ -305,7 +321,7 @@ class Posts extends MY_Controller {
             APP_PATH . 'posts/css/post-form.css'
         ));
         if ($section && $project && $page && $post) {
-            $this->load->library('../'.APP_PATH.'libraries/config_page');
+            $this->load->library('../' . APP_PATH . 'libraries/config_page');
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
             $data_fields = $data['fields'];
             $this->form_edit_post($data_fields, $section, $post);
@@ -337,24 +353,39 @@ class Posts extends MY_Controller {
         $project = get_project();
         $page = get_page();
         if ($data_fields) {
+            $table = $section['table'];
             $current_field = array();
             foreach ($data_fields as $field) {
                 $column = $field['column'];
                 $required = $field['required'];
+                $unique = $field['unique'];
                 $label = $field['label'];
-                $value = $this->set_value($this->input->post($column), $field);
+                $value = $this->set_value($this->input->post($column), $field, $data_fields);
                 $current_field["$column"] = $value;
+                $rules = array();
                 if ($required == '1') {
-                    $this->form_validation->set_rules($column, $label, 'required');
-                } else {
+                    $rules[] = 'required';
+                }
+                if ($unique == '1' && !empty($value) && $value != $post[$column]) {
+                    $rules[] = 'is_unique[' . $table . '.' . $column . ']';
+                }
+                $rules = implode('|', $rules);
+                if (empty($rules)) {
                     $this->form_validation->set_rules($column, $label);
+                } else {
+                    $this->form_validation->set_rules($column, $label, $rules);
                 }
             }
             if ($this->form_validation->run()) {
                 // Se o envio for acionado e todos os campos estiverem corretos
-                // Edita o post no banco de dados
-                $this->posts_model->edit($current_field, $post, $section);
-                redirect_app(current_url());
+                if (!hasError()) {
+                    // Se não houver nenhum erro
+                    // Edita o post no banco de dados
+                    $this->posts_model->edit($current_field, $post, $section);
+                    redirect_app(current_url());
+                }
+            } else {
+                setError(null, validation_errors());
             }
         }
     }

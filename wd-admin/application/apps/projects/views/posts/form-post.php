@@ -42,6 +42,7 @@ if (!defined('BASEPATH')) {
 
 <div class="container-fluid" id="data-project" data-project="<?php echo $slug_project ?>" data-page="<?php echo $slug_page ?>" data-section="<?php echo $slug_section ?>">
 <?php
+echo getErrors();
 $has_input_file = false;
 echo form_open();
 if ($fields) {
@@ -66,7 +67,6 @@ if ($fields) {
         </div>
     <?php
 }
-echo validation_errors('<div class="alert alert-danger">', '</div>');
 echo form_close();
 ?>
 </div>

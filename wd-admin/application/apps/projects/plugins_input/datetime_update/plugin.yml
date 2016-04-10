@@ -1,0 +1,4 @@
+name: Ao alterar o registro, atualizar para data atual
+attr:
+    readonly: readonly
+    placeholder: A data será atualizada automaticamente

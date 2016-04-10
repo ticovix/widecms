@@ -1,0 +1,6 @@
+name: CKEditor
+js_form:
+    - ckeditor.js
+attr:
+    alt: ckeditor
+    class: ckeditor

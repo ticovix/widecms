@@ -81,8 +81,9 @@ if (!defined('BASEPATH')) {
                 $type_column = (isset($fields[$i]['type_column'])) ? $fields[$i]['type_column'] : '';
                 $limit = (isset($fields[$i]['limit'])) ? $fields[$i]['limit'] : '';
                 $required = (isset($fields[$i]['required'])) ? $fields[$i]['required'] : '';
+                $unique = (isset($fields[$i]['unique'])) ? $fields[$i]['unique'] : '';
                 $remove = (isset($fields[$i]['remove'])) ? $fields[$i]['remove'] : '';
-                $mask_field = (isset($fields[$i]['mask'])) ? $fields[$i]['mask'] : '';
+                $plugin_field = (isset($fields[$i]['plugin'])) ? $fields[$i]['plugin'] : '';
                 $options_field = (isset($fields[$i]['options'])) ? $fields[$i]['options'] : '';
                 $select_trigger_field = (isset($fields[$i]['trigger_select'])) ? $fields[$i]['trigger_select'] : '';
                 $label_options_field = (isset($fields[$i]['label_options'])) ? $fields[$i]['label_options'] : '';
@@ -214,14 +215,14 @@ if (!defined('BASEPATH')) {
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Mascarar input</label>
-                                <select name="mask_field[]" class="form-control">
+                                <label>Plugin</label>
+                                <select name="plugin_field[]" class="form-control">
                                     <option value="">Selecione</option>
                                     <?php
-                                    if (count($masks)) {
-                                        foreach ($masks as $key => $arr) {
+                                    if (count($plugins_input)) {
+                                        foreach ($plugins_input as $plugin) {
                                             ?>
-                                            <option value="<?php echo $key; ?>" <?php echo set_select('mask_field[' . $i . ']', $key, ($mask_field == $key)) ?>><?php echo $arr['label'] ?></option>        
+                                            <option value="<?php echo $plugin['plugin']; ?>" <?php echo set_select('plugin_field[' . $i . ']', $plugin['plugin'], ($plugin_field == $plugin['plugin'])) ?>><?php echo $plugin['name'] ?></option>        
                                             <?php
                                         }
                                     }
@@ -235,6 +236,15 @@ if (!defined('BASEPATH')) {
                                 <select name="required_field[]" class="form-control">
                                     <option value="0" <?php echo set_select('required_field[' . $i . ']', '0', ($required == '0')) ?>>Não</option>
                                     <option value="1" <?php echo set_select('required_field[' . $i . ']', '1', ($required == '1')) ?>>Sim</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label title="Campo de preenchimento obrigatório no formulário e coluna do tipo NOT NULL no banco de dados">Valor único</label>
+                                <select name="unique_field[]" class="form-control">
+                                    <option value="0" <?php echo set_select('unique_field[' . $i . ']', '0', ($unique == '0')) ?>>Não</option>
+                                    <option value="1" <?php echo set_select('unique_field[' . $i . ']', '1', ($unique == '1')) ?>>Sim</option>
                                 </select>
                             </div>
                         </div>

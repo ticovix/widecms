@@ -1,0 +1,4 @@
+name: Ao inserir registro, inserir data atual
+attr:
+    readonly: readonly
+    placeholder: A data será inserida automaticamente

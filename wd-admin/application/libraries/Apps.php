@@ -8,7 +8,6 @@ class Apps {
     public function list_apps() {
         $path_apps = $this->path;
         $opendir = \opendir($path_apps);
-        $apps = '';
         while (false !== ($app = readdir($opendir))) {
             if ($app != '.' && $app != '..') {
                 if (is_dir($path_apps . $app)) {
@@ -22,7 +21,7 @@ class Apps {
         return $this->apps;
     }
 
-    public function set_app($path, $app) {
+    private function set_app($path, $app) {
         $CI = &get_instance();
         $CI->load->library('spyc');
         $config = $CI->spyc->loadFile($path);

@@ -1,0 +1,5 @@
+name: Slug Gatilho
+js_form:
+    - script.js
+attr:
+    id: slug-trigger

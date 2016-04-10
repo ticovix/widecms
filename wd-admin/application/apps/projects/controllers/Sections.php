@@ -135,7 +135,7 @@ class Sections extends MY_Controller {
             'sections' => $this->sections_model->list_sections_select($section['id']),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
-            'masks' => $this->config_page->masks_input()
+            'plugins_input' => $this->config_page->list_plugins()
         );
         $this->load->template('dev-project/form-section', $vars);
     }
@@ -159,8 +159,9 @@ class Sections extends MY_Controller {
             $column_field = $this->input->post('column_field');
             $type_field = $this->input->post('type_field');
             $limit_field = $this->input->post('limit_field');
-            $mask_field = $this->input->post('mask_field');
+            $plugin_field = $this->input->post('plugin_field');
             $required_field = $this->input->post('required_field');
+            $unique_field = $this->input->post('unique_field');
             $remove_field = $this->input->post('remove_field');
             $options_field = $this->input->post('options_field');
             $label_options_field = $this->input->post('label_options_field');
@@ -183,8 +184,9 @@ class Sections extends MY_Controller {
                 'column_field' => $column_field,
                 'type_field' => $type_field,
                 'limit_field' => $limit_field,
-                'mask_field' => $mask_field,
+                'plugin_field' => $plugin_field,
                 'required_field' => $required_field,
+                'unique_field' => $unique_field,
                 'remove_field' => $remove_field,
                 'options_field' => $options_field,
                 'label_options_field' => $label_options_field,
@@ -374,7 +376,7 @@ class Sections extends MY_Controller {
             'sections' => $this->sections_model->list_sections_select(),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
-            'masks' => $this->config_page->masks_input()
+            'plugins_input' => $this->config_page->list_plugins()
         ];
         $this->load->template('dev-project/form-section', $vars);
     }
@@ -398,8 +400,9 @@ class Sections extends MY_Controller {
             $column_field = $this->input->post('column_field');
             $type_field = $this->input->post('type_field');
             $limit_field = $this->input->post('limit_field');
-            $mask_field = $this->input->post('mask_field');
+            $plugin_field = $this->input->post('plugin_field');
             $required_field = $this->input->post('required_field');
+            $unique_field = $this->input->post('unique_field');
             $options_field = $this->input->post('options_field');
             $label_options_field = $this->input->post('label_options_field');
             $trigger_select_field = $this->input->post('trigger_select_field');
@@ -419,8 +422,9 @@ class Sections extends MY_Controller {
                 'column_field' => $column_field,
                 'type_field' => $type_field,
                 'limit_field' => $limit_field,
-                'mask_field' => $mask_field,
+                'plugin_field' => $plugin_field,
                 'required_field' => $required_field,
+                'unique_field' => $unique_field,
                 'options_field' => $options_field,
                 'label_options_field' => $label_options_field,
                 'trigger_select_field' => $trigger_select_field
@@ -529,7 +533,8 @@ class Sections extends MY_Controller {
                 $type_field = $data['type_field'][$i];
                 $limit_field = $data['limit_field'][$i];
                 $required_field = $data['required_field'][$i];
-                $mask_field = $data['mask_field'][$i];
+                $unique_field = $data['unique_field'][$i];
+                $plugin_field = $data['plugin_field'][$i];
                 $options_field = $data['options_field'][$i];
                 $label_options_field = $data['label_options_field'][$i];
                 $trigger_select_field = $data['trigger_select_field'][$i];
@@ -568,8 +573,9 @@ class Sections extends MY_Controller {
                         'column' => $column_field,
                         'type' => $type_field,
                         'limit' => $limit_field,
-                        'mask' => $mask_field,
+                        'plugin' => $plugin_field,
                         'required' => $required_field,
+                        'unique' => $unique_field,
                         'options' => $options_field,
                         'remove' => $remove,
                         'label_options' => $label_options_field,

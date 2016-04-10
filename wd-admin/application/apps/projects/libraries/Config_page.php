@@ -5,10 +5,14 @@ if (!defined('BASEPATH')) {
 }
 
 class Config_page {
-    private $path_view_project = '';
-    public function __construct(){
-        $this->path_view_project = 'application/'.APP_PATH.'views/project/';
+
+    private $plugins;
+    private $path_view_project;
+
+    public function __construct() {
+        $this->path_view_project = 'application/' . APP_PATH . 'views/project/';
     }
+
     /*
      * Método com lista de inputs disponíveis
      */
@@ -48,145 +52,6 @@ class Config_page {
     }
 
     /*
-     * Método com lista de mascaras disponíveis
-     */
-
-    public function masks_input() {
-        $js_default = array(
-            'plugins/masks/js/jquery.meio.js',
-            'plugins/masks/js/masks.js'
-        );
-        $masks = array(
-            'date' => array(
-                'label' => 'Mascarar Data',
-                'js' => array_merge($js_default, array(
-                    'plugins/jquery-ui/jquery-ui.min.js',
-                    'plugins/masks/js/datetimepicker.js',
-                )),
-                'css' => array(
-                    'plugins/jquery-ui/jquery-ui.css'
-                ),
-                'callback_input' => 'mask_input_date',
-                'callback_output' => 'mask_output_date',
-                'attr' => array(
-                    'alt' => 'date',
-                    'class' => 'add-mask date-mod'
-                )
-            ),
-            'datetime' => array(
-                'label' => 'Mascarar Data e hora',
-                'js' => array_merge($js_default, array(
-                    'plugins/jquery-ui/jquery-ui.min.js',
-                    'plugins/masks/js/datetimepicker.js',
-                )),
-                'css' => array(
-                    'plugins/jquery-ui/jquery-ui.css'
-                ),
-                'callback_input' => 'mask_input_date',
-                'callback_output' => 'mask_output_date',
-                'attr' => array(
-                    'alt' => 'datetime',
-                    'class' => 'add-mask datetime-mod'
-                )
-            ),
-            'time' => array(
-                'label' => 'Mascarar Hora',
-                'js' => array_merge($js_default, array(
-                    'plugins/jquery-ui/jquery-ui.min.js',
-                    'plugins/masks/js/datetimepicker.js',
-                )),
-                'css' => array(
-                    'plugins/jquery-ui/jquery-ui.css'
-                ),
-                'attr' => array(
-                    'alt' => 'time',
-                    'class' => 'add-mask time-mod'
-                )
-            ),
-            'real' => array(
-                'label' => 'Mascarar Real (R$)',
-                'js' => $js_default,
-                'callback_input' => 'mask_input_real',
-                'callback_output' => 'mask_output_real',
-                'attr' => array(
-                    'alt' => 'real',
-                    'class' => 'add-mask'
-                )
-            ),
-            'cpf' => array(
-                'label' => 'Mascarar CPF',
-                'js' => $js_default,
-                'attr' => array(
-                    'alt' => 'cpf',
-                    'class' => 'add-mask'
-                )
-            ),
-            'cnpj' => array(
-                'label' => 'Mascarar CNPJ',
-                'js' => $js_default,
-                'attr' => array(
-                    'alt' => 'cnpj',
-                    'class' => 'add-mask'
-                )
-            ),
-            'cep' => array(
-                'label' => 'Mascarar CEP',
-                'js' => $js_default,
-                'attr' => array(
-                    'alt' => 'cep',
-                    'class' => 'add-mask'
-                )
-            ),
-            'cc' => array(
-                'label' => 'Mascarar Cartão de crédito',
-                'js' => $js_default,
-                'attr' => array(
-                    'alt' => 'cc',
-                    'class' => 'add-mask'
-                )
-            ),
-            'phone' => array(
-                'label' => 'Mascarar Telefone (99) 9999-9999',
-                'js' => $js_default,
-                'attr' => array(
-                    'alt' => 'phone',
-                    'class' => 'add-mask'
-                )
-            ),
-            'cellphone' => array(
-                'label' => 'Mascarar Celular (99) 99999-9999',
-                'js' => $js_default,
-                'attr' => array(
-                    'alt' => 'cellphone',
-                    'class' => 'add-mask'
-                )
-            ),
-            'ckeditor' => array(
-                'label' => 'Editor CKEditor',
-                'js' => array(
-                    'plugins/ckeditor/ckeditor.js'
-                ),
-                'attr' => array(
-                    'alt' => 'ckeditor',
-                    'class' => 'ckeditor'
-                )
-            )
-        );
-        return $masks;
-    }
-
-    /*
-     * Método para buscar uma mascara do array
-     */
-
-    public function get_mask($mask) {
-        $masks = $this->masks_input();
-        if (isset($masks[$mask])) {
-            return $masks[$mask];
-        }
-    }
-
-    /*
      * Método pra criar arquivo config xml
      */
 
@@ -201,8 +66,9 @@ class Config_page {
                 $column = $field['column'];
                 $type = $field['type'];
                 $limit = $field['limit'];
-                $mask = $field['mask'];
+                $plugin = $field['plugin'];
                 $required = $field['required'];
+                $unique = $field['unique'];
                 $options = $field['options'];
                 $label_options = $field['label_options'];
                 $trigger_select = $field['trigger_select'];
@@ -212,10 +78,11 @@ class Config_page {
                 $attr['@type_column'] = $type;
                 $attr['@list_registers'] = $list_reg;
                 $attr['@required'] = $required;
+                $attr['@unique'] = $unique;
                 $attr['@limit'] = $limit;
                 $attr['@column'] = $column;
-                if (!empty($mask)) {
-                    $attr['@mask'] = $mask;
+                if (!empty($plugin)) {
+                    $attr['@plugin'] = $plugin;
                 }
                 if (!empty($options)) {
                     $attr['@options'] = $options;
@@ -269,8 +136,9 @@ class Config_page {
                     $type_column = (string) $attr->type_column;
                     $list_registers = (string) $attr->list_registers;
                     $required = (string) $attr->required;
+                    $unique = (string) $attr->unique;
                     $limit = (string) $attr->limit;
-                    $mask = (string) $attr->mask;
+                    $plugin = (string) $attr->plugin;
                     $options = (string) $attr->options;
                     $label_options = (string) $attr->label_options;
                     $trigger_select = (string) $attr->trigger_select;
@@ -285,7 +153,7 @@ class Config_page {
                             'required' => $required,
                             'options' => $options,
                             'label_options' => $label_options,
-                            'mask' => $mask,
+                            'plugin' => $plugin,
                             'limit' => $limit
                         );
                     }
@@ -296,7 +164,8 @@ class Config_page {
                         'type_column' => $type_column,
                         'list_registers' => $list_registers,
                         'required' => $required,
-                        'mask' => $mask,
+                        'unique' => $unique,
+                        'plugin' => $plugin,
                         'options' => $options,
                         'label_options' => $label_options,
                         'trigger_select' => $trigger_select,
@@ -316,7 +185,7 @@ class Config_page {
      * Método para criação do template com todos os campos do config xml
      */
 
-    public function fields_template($fields, $post=null) {
+    public function fields_template($fields, $post = null) {
         $CI = & get_instance();
         $this->fields = $fields;
         foreach ($fields as $field) {
@@ -328,14 +197,14 @@ class Config_page {
             $this->column = $field['column'];
             $this->required = $field['required'];
             // Recebe os dados da máscara do formulário
-            $this->mask = $this->get_mask($field['mask']);
+            $this->plugin = $this->get_plugin($field['plugin']);
             // Seta o label do arquivo, se for obrigatóro insere asterísco
             $this->label = ($this->required) ? $field['label'] . '<span>*</span>' : $field['label'];
             $this->value = (!empty($post)) ? $post[$this->column] : '';
             $this->post = $post;
 
-            if ($this->mask) {
-                $mask_added = $this->add_mask();
+            if ($this->plugin) {
+                $plugin_added = $this->add_plugin();
             }
             switch ($this->type) {
                 case 'file':
@@ -364,27 +233,40 @@ class Config_page {
      * Método para alterar valor do input, caso tenha algum método para tratar a saida do valor do banco de dados
      */
 
-    private function add_mask() {
-        $mask = $this->mask;
+    private function add_plugin() {
+        $plugin = $this->plugin;
         //Se o campo possuir mascara, seta as chaves que existem no array
-        $this->attr = (isset($mask['attr'])) ? $mask['attr'] : array();
-        $js = (isset($mask['js'])) ? $mask['js'] : false;
-        $css = (isset($mask['css'])) ? $mask['css'] : false;
-        $callback_output = (isset($mask['callback_output'])) ? $mask['callback_output'] : false;
+        $this->attr = (isset($plugin['attr'])) ? $plugin['attr'] : array();
+        $js = (isset($plugin['js_form'])) ? $this->change_path($plugin['js_form'], $plugin) : false;
+        $css = (isset($plugin['css_form'])) ? $this->change_path($plugin['css_form'], $plugin) : false;
+        $class = ucfirst($plugin['plugin']);
+        $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
         if ($js) {
             add_js($js);
         }
         if ($css) {
             add_css($css);
         }
-        if ($callback_output) {
+        if (is_file($class_plugin)) {
             // Se houver um método de saida
             $CI = & get_instance();
-            $CI->load->library('../'.APP_PATH.'libraries/masks_input');
-            if (method_exists($CI->masks_input, $callback_output)) {
+            $CI->load->library('../' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php');
+            if (method_exists($class, 'output')) {
+                $class = strtolower($class);
                 // Se o método existir, aciona e seta o novo valor
-                $this->value = $CI->masks_input->$callback_output($this->value);
+                $this->value = $CI->$class->output($this->value, $this->field, $this->fields);
             }
+        }
+    }
+
+    private function change_path($path, $plugin) {
+        if (is_array($path)) {
+            foreach ($path as $p) {
+                $new_path[] = APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $p;
+            }
+            return $new_path;
+        } else {
+            return APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $path;
         }
     }
 
@@ -398,19 +280,21 @@ class Config_page {
             'plugins/fancybox/css/jquery.fancybox.css',
             'plugins/fancybox/css/jquery.fancybox-buttons.css',
             'plugins/dropzone/css/dropzone.css',
-            ''.APP_PATH.'project/css/gallery.css'
+            '' . APP_PATH . 'project/css/gallery.css'
         ));
         add_js(array(
             'plugins/dropzone/js/dropzone.js',
             'plugins/fancybox/js/jquery.fancybox.pack.js',
             'plugins/fancybox/js/jquery.fancybox-buttons.js',
             'plugins/embeddedjs/ejs.js',
-            ''.APP_PATH.'posts/js/gallery.js'
+            '' . APP_PATH . 'posts/js/gallery.js'
         ));
         $new_field = array();
         $new_field['type'] = $this->type;
         $new_field['label'] = $this->label;
-        $files = json_decode($this->value);
+        $CI = &get_instance();
+        $value = ($CI->input->post($this->column) !== null ? $CI->input->post($this->column) : $this->value);
+        $files = json_decode($value);
         $this->attr['data-field'] = $this->column;
         $this->attr['class'] = 'form-control btn-gallery ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
         $this->attr['data-toggle'] = 'modal';
@@ -426,7 +310,7 @@ class Config_page {
         $attr['id'] = $this->column . '-field';
         $attr['name'] = $this->column;
         $attr['type'] = 'hidden';
-        $new_field['input'] .= form_input($attr, $this->value);
+        $new_field['input'] .= form_input($attr, set_value($this->column, $this->value, false));
         return $new_field;
     }
 
@@ -440,7 +324,7 @@ class Config_page {
         $new_field['label'] = $this->label;
         $this->attr['name'] = $this->column;
         $this->attr['class'] = 'form-control ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $new_field['input'] = form_textarea($this->attr, $this->value);
+        $new_field['input'] = form_textarea($this->attr, set_value($this->column, $this->value, false));
         return $new_field;
     }
 
@@ -450,7 +334,7 @@ class Config_page {
 
     private function template_select() {
         add_js(array(
-            ''.APP_PATH.'posts/js/events-select.js'
+            '' . APP_PATH . 'posts/js/events-select.js'
         ));
         $new_field = array();
         $new_field['type'] = $this->type;
@@ -461,7 +345,7 @@ class Config_page {
             if ($column_trigger) {
                 $field_trigger = search($this->fields, 'column', $column_trigger);
                 if (count($field_trigger) > 0) {
-                    
+
                     $field_trigger = $field_trigger[0];
                     $table_trigger = $field_trigger['options'];
                     $label_trigger = $field_trigger['label'];
@@ -484,7 +368,9 @@ class Config_page {
             $array_options = array('' => 'Nenhum opção adicionada.');
         }
         $this->attr['class'] = 'form-control trigger-select ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $new_field['input'] = form_dropdown($this->column, $array_options, $this->value, $this->attr);
+        $CI = &get_instance();
+        $value = ($CI->input->post($this->column) !== null ? $CI->input->post($this->column) : $this->value);
+        $new_field['input'] = form_dropdown($this->column, $array_options, $value, $this->attr);
         return $new_field;
     }
 
@@ -495,8 +381,9 @@ class Config_page {
     private function template_input_hidden() {
         $new_field = array();
         $this->attr['name'] = $this->column;
+        $new_field['type'] = 'hidden';
         $this->attr['class'] = 'form-control ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $new_field['input'] = form_hidden('my_array', $this->attr);
+        $new_field['input'] = form_input($this->attr, set_value($this->column, $this->value));
         return $new_field;
     }
 
@@ -511,7 +398,7 @@ class Config_page {
         $this->attr['name'] = $this->column;
         $this->attr['type'] = $this->type;
         $this->attr['class'] = 'form-control ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $new_field['input'] = form_input($this->attr, $this->value);
+        $new_field['input'] = form_input($this->attr, set_value($this->column, $this->value));
         return $new_field;
     }
 
@@ -527,7 +414,7 @@ class Config_page {
         // Lista registros para o select
         $CI->load->model('posts_model');
         $posts = $CI->posts_model->list_posts_select($table, $column, $data_trigger);
-        
+
         $options = array();
         if ($posts) {
             // Se for encontrado registros
@@ -580,9 +467,9 @@ class Config_page {
                 if (isset($field[0])) {
                     // Se o campo for encontrada, faz diversas filtragens no valor da coluna
                     $type = strtolower($field[0]['type']);
-                    if (isset($field[0]['mask'])) {
+                    if (isset($field[0]['plugin'])) {
                         // Se houver um parametro mask setado
-                        $value = $this->treat_mask_output($field[0]['mask'], $value);
+                        $value = $this->plugin_output($field[0]['plugin'], $value, $field, $data);
                     }
                     switch ($type) {
                         case 'select':
@@ -604,23 +491,25 @@ class Config_page {
         return $list;
     }
 
-    private function treat_mask_output($mask, $value) {
-        $mask = $this->get_mask($mask);
+    private function plugin_output($plugin, $value, $field, $fields) {
+        $plugin = $this->get_plugin($plugin);
         // Verifica se possui um método de saida
-        $callback_output = (isset($mask['callback_output'])) ? $mask['callback_output'] : false;
-        if ($callback_output) {
+        $class = ucfirst($plugin['plugin']);
+        $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
+        if (is_file($class_plugin)) {
             $CI = & get_instance();
-            $CI->load->library('../'.APP_PATH.'libraries/masks_input');
-            if (method_exists($CI->masks_input, $callback_output)) {
+            $CI->load->library('../' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php');
+            if (method_exists($class, 'output')) {
+                $class = strtolower($class);
                 // Se o método de saída existir, aciona
-                $value = $CI->masks_input->$callback_output($value);
+                $value = $CI->$class->output($value, $field, $fields);
             }
         }
         return $value;
     }
 
     private function treat_options($value, $field) {
-        if (!empty($value)) {
+        if (!empty($value) && $value > 0) {
             // Se o valor da coluna não estiver vazio
             $CI = & get_instance();
             $CI->load->model('posts_model');
@@ -637,6 +526,9 @@ class Config_page {
                 }
             }
         }
+        if ($value == '0') {
+            $value = '';
+        }
         return $value;
     }
 
@@ -649,6 +541,67 @@ class Config_page {
             $value = $this->list_files($files, 1);
         }
         return $value;
+    }
+
+    /*
+     * Método para listar os plugins para usar nos inputs
+     * return Array
+     */
+
+    public function list_plugins() {
+        $path_apps = getcwd() . '/application/' . APP_PATH . 'plugins_input/';
+        $opendir = \opendir($path_apps);
+        while (false !== ($plugin = readdir($opendir))) {
+            if ($plugin != '.' && $plugin != '..') {
+                if (is_dir($path_apps . $plugin)) {
+                    if (is_file($path_apps . $plugin . '/plugin.yml')) {
+                        $this->set_plugin($path_apps . $plugin . '/plugin.yml', $plugin);
+                    }
+                }
+            }
+        }
+        closedir($opendir);
+        asort($this->plugins);
+        return $this->plugins;
+    }
+
+    /*
+     * Método para buscar o arquivo yml e setar o plugin
+     * return Array
+     */
+
+    private function set_plugin($path, $plugin) {
+        $CI = &get_instance();
+        $CI->load->library('spyc');
+        $config = $CI->spyc->loadFile($path);
+        if (is_array($config)) {
+            $config['plugin'] = $plugin;
+            if (empty($config['name'])) {
+                $config['name'] = $config['plugin'];
+            }
+            $config['name'] = ucfirst(strtolower($config['name']));
+            return $this->plugins[] = $config;
+        }
+    }
+
+    /*
+     * Método para buscar um plugin
+     * return String
+     */
+
+    public function get_plugin($plugin) {
+        if (!empty($plugin)) {
+            $plugins = $this->plugins;
+            if (empty($plugins)) {
+                $plugins = $this->list_plugins();
+            }
+            if ($plugins) {
+                $plugin = search($plugins, 'plugin', $plugin);
+                if (isset($plugin[0])) {
+                    return $plugin[0];
+                }
+            }
+        }
     }
 
 }
