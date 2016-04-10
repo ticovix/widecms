@@ -429,6 +429,7 @@ class Sections extends MY_Controller {
                 // Se a tabela não for inserida no banco de dados
                 setError('verify_table', 'Não foi possível criar a tabela ' . $table . ', a tabela existe ou você não tem permissões suficientes.');
             } else {
+
                 // Cria diretório
                 mkdir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $directory, 0755);
                 if ($this->create_fields($data)) {
@@ -482,31 +483,31 @@ class Sections extends MY_Controller {
     protected function create_fields($data) {
         // Filtra os campos do arquivo xml
         $fields = $this->filter_fields($data);
-        if ($fields) {
-            if (count($fields)) {
-                $this->load->library('../' . APP_PATH . 'libraries/config_page');
-                // Cria estrutura xml do array
-                $config_xml = $this->config_page->create_config_xml($fields);
-                $path_config_xml = $this->path_view_project . $data['project_directory'] . '/' . $data['page_directory'] . '/' . $data['directory'] . '/config.xml';
-                // Cria o arquivo config.xml
-                $fp = \fopen($path_config_xml, 'w');
-                \fwrite($fp, $config_xml);
-                \fclose($fp);
-                \chmod($path_config_xml, 0640);
-                if ($fp) {
-                    // Se o arquivo for criado, cria colunas dos campos no banco de dados
-                    $this->sections_model->create_columns($data['table'], $fields);
-                } else {
-                    return false;
-                }
+        if (is_array($fields) && count($fields) > 0) {
+            $this->load->library('../' . APP_PATH . 'libraries/config_page');
+            // Cria estrutura xml do array
+            $config_xml = $this->config_page->create_config_xml($fields);
+            $path_config_xml = $this->path_view_project . $data['project_directory'] . '/' . $data['page_directory'] . '/' . $data['directory'] ;
+            // Cria o arquivo config.xml
+            $fp = \fopen($path_config_xml. '/config.xml', 'w');
+            \fwrite($fp, $config_xml);
+            \fclose($fp);
+            \chmod($path_config_xml. '/config.xml', 0640);
+            if ($fp) {
+                // Se o arquivo for criado, cria colunas dos campos no banco de dados
+                $this->sections_model->create_columns($data['table'], $fields);
+            } else {
+                setError('create_config', 'Não foi possível criar o arquivo config.xml em '.$path_config_xml);
+                return false;
             }
-            // Se tudo der certo, cria nova seção
+            // Se tudo der certo, cria nova seção no banco de dados
             $this->sections_model->create($data);
             return true;
-        } else {
-            // Se houver algum erro na filtragem de campos
+        }else{
+            setError('fields','É obrigatório criar pelo menos um campo.');
             return false;
         }
+        
     }
 
     /*
