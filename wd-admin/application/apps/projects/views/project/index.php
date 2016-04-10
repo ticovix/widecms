@@ -39,7 +39,7 @@ if (!defined('BASEPATH')) {
                        }
                        ?>" class="page-current">
                        <?php echo $arr["name"] ?>
-                        <?php if (count($sections) > 1 or count($sections) == 0) { ?><span class="fa arrow"></span><?php } ?>
+                        <?php if (count($sections) > 1) { ?><span class="fa arrow"></span><?php } ?>
                     </a>
                     <?php if (count($sections) > 1) { ?>
                         <ul class="nav nav-list collapse">
