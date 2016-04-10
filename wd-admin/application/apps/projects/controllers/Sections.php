@@ -112,7 +112,7 @@ class Sections extends MY_Controller {
             $fields = false;
             setError('config_error', 'Não foi possível abrir o config.xml dessa seção, deseja <a href="javascript:window.history.go(-1)">voltar</a>?');
         }
-        
+
         add_js(array(
             'plugins/masks/js/jquery.meio.js',
             APP_PATH . 'project/js/form-section.js'
@@ -284,7 +284,7 @@ class Sections extends MY_Controller {
 
     private function save_edit_config($data, $new_config) {
         if ($new_config) {
-            $this->load->library('../'.APP_PATH.'libraries/config_page');
+            $this->load->library('../' . APP_PATH . 'libraries/config_page');
             // Gera uma nova estrutura xml com os novos campos
             $config_xml = $this->config_page->create_config_xml($new_config);
             if ($config_xml) {
@@ -350,7 +350,7 @@ class Sections extends MY_Controller {
      */
 
     public function create($slug_project, $slug_page) {
-        $this->load->library('../'.APP_PATH.'libraries/config_page');
+        $this->load->library('../' . APP_PATH . 'libraries/config_page');
         $project = get_project();
         $page = get_page();
         $this->form_create_section($project, $page);
@@ -385,7 +385,7 @@ class Sections extends MY_Controller {
 
     private function form_create_section($project, $page) {
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-        $this->form_validation->set_rules('directory', 'Diretório', 'trim|required|is_unique[wd_sections.directory]');
+        $this->form_validation->set_rules('directory', 'Diretório', 'trim|required|is_unique[wd_sections.directory]|callback_verify_dir_create');
         $this->form_validation->set_rules('table', 'Tabela', 'trim|required|is_unique[wd_sections.table]|callback_verify_table');
         if ($this->form_validation->run()) {
             $name = $this->input->post('name');
@@ -428,23 +428,35 @@ class Sections extends MY_Controller {
             if (!$this->sections_model->create_table($table)) {
                 // Se a tabela não for inserida no banco de dados
                 setError('verify_table', 'Não foi possível criar a tabela ' . $table . ', a tabela existe ou você não tem permissões suficientes.');
-            } elseif (!\mkdir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $directory, 0755)) {
-                // Se o diretório não existir
-                setError('verify_dir', 'Não foi possível criar o diretório, já existe ou voce não tem permissões suficientes.');
-                // Remove tabela criada
-                $this->sections_model->remove_table($table);
-                return false;
-            } elseif ($this->create_fields($data)) {
-                // Se os campos xml forem criados com sucesso
-                redirect_app('project/' . $project['directory'] . '/' . $page['directory']);
             } else {
-                // Se os campos não forem criados, remove a tabela e o diretório criado
-                $this->sections_model->remove_table($table);
-                forceRemoveDir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $directory);
+                // Cria diretório
+                mkdir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $directory, 0755);
+                if ($this->create_fields($data)) {
+                    // Se os campos xml forem criados com sucesso
+                    redirect_app('project/' . $project['directory'] . '/' . $page['directory']);
+                } else {
+                    // Se os campos não forem criados, remove a tabela e o diretório criado
+                    $this->sections_model->remove_table($table);
+                    forceRemoveDir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $directory);
+                }
             }
         } else {
             setError(null, validation_errors());
         }
+    }
+
+    public function verify_dir_create($directory) {
+        $project = get_project();
+        $page = get_page();
+        if (is_dir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $directory)) {
+            $this->form_validation->set_message('verify_dir_create', 'Já existe um diretório com o nome ' . $directory . '.');
+            return false;
+        }
+        if (!is_writable($this->path_view_project . $project['directory'] . '/' . $page['directory'])) {
+            $this->form_validation->set_message('verify_dir_create', 'Voce não tem permissões suficiente para criar esse diretório.');
+            return false;
+        }
+        return true;
     }
 
     /*
@@ -472,7 +484,7 @@ class Sections extends MY_Controller {
         $fields = $this->filter_fields($data);
         if ($fields) {
             if (count($fields)) {
-                $this->load->library('../'.APP_PATH.'libraries/config_page');
+                $this->load->library('../' . APP_PATH . 'libraries/config_page');
                 // Cria estrutura xml do array
                 $config_xml = $this->config_page->create_config_xml($fields);
                 $path_config_xml = $this->path_view_project . $data['project_directory'] . '/' . $data['page_directory'] . '/' . $data['directory'] . '/config.xml';
@@ -504,7 +516,7 @@ class Sections extends MY_Controller {
     protected function filter_fields($data) {
         $total = count($data['name_field']);
         if ($total) {
-            $this->load->library('../'.APP_PATH.'libraries/config_page');
+            $this->load->library('../' . APP_PATH . 'libraries/config_page');
             $fields = array();
             // Recebe os campos que foram selecionados para ser removido
             $remove_field = (isset($data['remove_field'])) ? $data['remove_field'] : array();
@@ -664,7 +676,7 @@ class Sections extends MY_Controller {
                     $field['label_options_'] = $this->list_columns($table);
                 }
             }
-            
+
             $new_fields[] = $field;
         }
         return $new_fields;
