@@ -82,7 +82,7 @@ echo form_close();
                     <h4 class="modal-title" id="myModalLabel">Envie ou selecione arquivos</h4>
                 </div>
                 <div class="modal-body">
-    <?php echo form_open_multipart('gallery/upload', ['id' => 'dropzone_gallery', 'class' => 'dropzone form-group']) ?>
+    <?php echo form_open_multipart('apps/gallery/upload', ['id' => 'dropzone_gallery', 'class' => 'dropzone form-group']) ?>
                     <div class="dropzone-previews"></div>
                     <div class="dz-default dz-message"></div>
     <?php echo form_close() ?>

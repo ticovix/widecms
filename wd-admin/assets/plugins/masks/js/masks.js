@@ -28,9 +28,9 @@ $(function () {
             prevText: 'Anterior'
         });
     }
-    if ($('input').hasClass('datetime-mod')){
+    if ($('input').hasClass('time-mod')){
         $(".time-mod").timepicker({
-            timeFormat: "HH:mm:00"
+            timeFormat: "HH:mm"
         });
     }
 });

@@ -35,13 +35,17 @@ class Masks_input {
     }
 
     public function mask_input_real($real) {
-        $float = str_replace(",", ".", str_replace(".", "", $real));
-        return (float) $float;
+        if (!empty($real)) {
+            $float = str_replace(",", ".", str_replace(".", "", $real));
+            return (float) $float;
+        }
     }
 
     public function mask_output_real($float) {
-        $real = number_format($float, 2, ",", ".");
-        return $real;
+        if (!empty($float)) {
+            $real = number_format($float, 2, ",", ".");
+            return $real;
+        }
     }
 
 }
