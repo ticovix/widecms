@@ -214,6 +214,9 @@ class Config_page {
                 case 'textarea':
                     $new_field = $this->template_textarea();
                     break;
+                case 'checkbox':
+                    $new_field = $this->template_checkbox();
+                    break;
                 case 'select':
                     $new_field = $this->template_select();
                     break;
@@ -325,6 +328,49 @@ class Config_page {
         $this->attr['name'] = $this->column;
         $this->attr['class'] = 'form-control ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
         $new_field['input'] = form_textarea($this->attr, set_value($this->column, $this->value, false));
+        return $new_field;
+    }
+
+    /*
+     * Método para criar template do checkbox
+     */
+
+    private function template_checkbox() {
+        add_js(array(
+            '' . APP_PATH . 'posts/js/events-select.js'
+        ));
+        $new_field = array();
+        $new_field['type'] = $this->type;
+        $new_field['label'] = $this->label;
+        $this->attr['name'] = $this->column . '[]';
+        $this->attr['class'] = (isset($this->attr['class']) ? $this->attr['class'] : '');
+        $CI = &get_instance();
+        // Lista registros para o select
+        $CI->load->model('posts_model');
+        $table = $this->field['options'];
+        $column = $this->field['label_options'];
+        $posts = $CI->posts_model->list_posts_checkbox($table, $column);
+        $opts_checked = array();
+        if (!empty($this->value)) {
+            $opts_checked = json_decode($this->value);
+        }
+        if ($posts) {
+            $new_field['input'] = '<div>';
+            foreach ($posts as $opts) {
+                $label = $opts['label'];
+                $value = $opts['value'];
+                $checked = false;
+                if (is_array($opts_checked)) {
+                    $checked = (in_array($value, $opts_checked));
+                }
+                $new_field['input'] .= '<label class="option-checkbox">';
+                $new_field['input'] .= form_checkbox($this->attr, $value, $checked);
+                $new_field['input'] .= $label;
+                $new_field['input'] .= '</label>';
+            }
+            $new_field['input'] .= '</div>';
+        }
+
         return $new_field;
     }
 
@@ -469,7 +515,7 @@ class Config_page {
                     $type = strtolower($field[0]['type']);
                     if (isset($field[0]['plugin'])) {
                         // Se houver um parametro mask setado
-                        $value = $this->plugin_output($field[0]['plugin'], $value, $field, $data);
+                        $value = $this->plugin_output($field[0]['plugin'], $value, $field[0], $data);
                     }
                     switch ($type) {
                         case 'select':
@@ -492,18 +538,38 @@ class Config_page {
     }
 
     private function plugin_output($plugin, $value, $field, $fields) {
+        $type = $field['type'];
         $plugin = $this->get_plugin($plugin);
-        // Verifica se possui um método de saida
+        $CI = & get_instance();
         $class = ucfirst($plugin['plugin']);
         $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
         if (is_file($class_plugin)) {
-            $CI = & get_instance();
             $CI->load->library('../' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php');
+            // Verifica se possui um método de saida
             if (method_exists($class, 'output')) {
                 $class = strtolower($class);
                 // Se o método de saída existir, aciona
                 $value = $CI->$class->output($value, $field, $fields);
             }
+        }
+        switch ($type) {
+            case 'checkbox':
+                if(!empty($value)){
+                    $table = (isset($field['options'])) ? $field['options'] : '';
+                    $column = (isset($field['label_options'])) ? $field['label_options'] : '';
+                    $opts = json_decode($value);
+                    $opts_checked = $CI->posts_model->list_options_checked($table, $column, $opts);
+                    if($opts_checked){
+                        foreach($opts_checked as $opt){
+                            $val[] = $opt['value'];
+                        }
+                        $value = implode(', ',$val);
+                    }
+                }
+                break;
+
+            default:
+                break;
         }
         return $value;
     }

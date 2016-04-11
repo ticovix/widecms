@@ -43,6 +43,16 @@ class Posts_model extends CI_Model {
         }
         return $this->db->get($table)->result_array();
     }
+    public function list_posts_checkbox($table, $column) {
+        $this->db->select($table . '.id value, ' . $table . '.' . $column.' label');
+        return $this->db->get($table)->result_array();
+    }
+    
+    public function list_options_checked($table, $column, $value){
+        $this->db->select($column.' value');
+        $this->db->where_in('id', $value);
+        return $this->db->get($table)->result_array();
+    }
 
     public function get_post_selected($table, $column, $id) {
         $this->db->select('id,' . $column);

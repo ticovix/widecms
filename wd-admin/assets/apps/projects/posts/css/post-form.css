@@ -8,3 +8,8 @@
 .content-files{
     clear: both;
 }
+
+.option-checkbox{
+    font-weight: normal;
+    margin-right: 15px;
+}

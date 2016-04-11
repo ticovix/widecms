@@ -222,6 +222,12 @@ class Posts extends MY_Controller {
                 }
             }
         }
+
+        switch ($type) {
+            case 'checkbox':
+                $value = json_encode($value);
+                break;
+        }
         return $value;
     }
 
