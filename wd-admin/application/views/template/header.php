@@ -11,7 +11,7 @@ if (!defined('BASEPATH')) {
         <meta name="googlebot" content="noindex" />
         <meta charset="utf-8">
         <title>
-            <?php echo (!empty($title)) ? $title . '| Wide CMS' : 'Wide CMS'; ?>
+            <?php echo (!empty($title)) ? $title . ' | Wide CMS' : 'Wide CMS'; ?>
         </title>
         <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
