@@ -39,10 +39,12 @@ if (!defined('BASEPATH')) {
             <div class="col-md-3">
                 <div class="form-group">
                     <label>Tabela* <span class="fa fa-question-circle fa-fw" title="Nome da tabela no banco de dados"></span></label>
+                    <?php if(!empty($preffix)){ ?>
                     <div class="input-group">
-                        <div class="input-group-addon"><?php echo $suffix ?></div>
+                        <div class="input-group-addon"><?php echo $preffix ?></div>
+                            <?php }?>
                         <input type="text" name="table" id="table_name" value="<?php echo set_value('table', $table) ?>" class="form-control">
-                    </div>
+                    <?php if(!empty($preffix)){ ?></div><?php }?>
                 </div>
             </div>
             <div class="col-md-3">
@@ -64,12 +66,12 @@ if (!defined('BASEPATH')) {
             $total = count($this->input->post('name_field'));
             if ($total > 0 && $total < $start_total) {
                 $total = $start_total;
-            } elseif ($fields) {
+            } elseif ($total<=0 && $fields) {
                 $total = count($fields);
                 if ($total < $start_total) {
                     $total = $start_total;
                 }
-            } else {
+            }elseif($total<=0 && !$fields){
                 $total = $start_total;
             }
             for ($i = 0; $i < $total; $i++) {

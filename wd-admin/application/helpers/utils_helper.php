@@ -245,7 +245,7 @@ if (!function_exists('get_project')) {
         $CI = & get_instance();
         if (!isset($CI->project)) {
             $slug_project = $CI->uri->segment(4);
-            $CI->load->model('projects_model');
+            $CI->load->model('../apps/projects/models/projects_model', null, null, true);
             return $CI->project = $CI->projects_model->get_project($slug_project);
         } else {
             return $CI->project;
@@ -262,7 +262,7 @@ if (!function_exists('get_page')) {
         $CI = & get_instance();
         $page = $CI->uri->segment(5);
         if (empty($CI->page)) {
-            $CI->load->model('pages_model');
+            $CI->load->model('../apps/projects/models/pages_model', null, null, true);
             return $CI->page = $CI->pages_model->get_page($page);
         } else {
             return $CI->page;
@@ -279,7 +279,7 @@ if (!function_exists('get_section')) {
         $CI = & get_instance();
         $section = $CI->uri->segment(6);
         if (empty($CI->section)) {
-            $CI->load->model('sections_model');
+            $CI->load->model('../apps/projects/models/sections_model', null, null, true);
             return $CI->section = $CI->sections_model->get_section($section);
         } else {
             return $CI->section;
@@ -370,3 +370,4 @@ if (!function_exists('base_url_module')) {
     }
 
 }
+

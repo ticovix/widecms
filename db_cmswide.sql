@@ -114,7 +114,7 @@ CREATE TABLE `wd_projects` (
   `fk_user` int(11) NOT NULL,
   `slug` varchar(45) NOT NULL,
   `main` int(11) DEFAULT '0' COMMENT '1 = yes\n0 = no',
-  `suffix` varchar(10) DEFAULT NULL,
+  `preffix` varchar(10) DEFAULT NULL,
   `status` int(11) DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)

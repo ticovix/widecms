@@ -84,7 +84,7 @@ class Projects extends MY_Controller {
         $config['last_tag_open'] = '<li>';
         $config['last_tag_close'] = '</li>';
         $config['first_tag_open'] = '<li>';
-        $config['first_tag_open'] = '</li>';
+        $config['first_tag_close'] = '</li>';
         $config['first_url'] = '?per_page=0';
 
         $this->pagination->initialize($config);
@@ -105,7 +105,7 @@ class Projects extends MY_Controller {
             'database' => '',
             'main' => '',
             'status' => '',
-            'suffix' => ''
+            'preffix' => ''
         ];
         $this->load->template('dev-projects/form', $vars);
     }
@@ -116,14 +116,14 @@ class Projects extends MY_Controller {
 
     private function form_create() {
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-        $this->form_validation->set_rules('suffix', 'Sufixo', 'trim|required|max_length[6]');
+        $this->form_validation->set_rules('preffix', 'Prefixo', 'trim|required|max_length[6]');
         $this->form_validation->set_rules('dir', 'Diretório', 'trim|required|callback_verify_dir');
         if ($this->form_validation->run()) {
             $name = $this->input->post('name');
             $slug = $this->slug($name);
             $dir = slug($this->input->post('dir'));
             $main = $this->input->post('main');
-            $suffix = str_replace('_', '', $this->input->post('suffix')) . '_';
+            $preffix = str_replace('_', '', $this->input->post('preffix')) . '_';
             $status = $this->input->post('status');
             $create_db = false;
 
@@ -133,7 +133,7 @@ class Projects extends MY_Controller {
                 'dir' => $dir,
                 'slug' => $slug,
                 'id_user' => $user['id'],
-                'suffix' => $suffix,
+                'preffix' => $preffix,
                 'main' => $main,
                 'status' => $status
             ];
@@ -160,15 +160,12 @@ class Projects extends MY_Controller {
             redirect_app();
         }
         $this->form_edit($project);
-        add_js([
-            APP_PATH . 'js/form.js'
-        ]);
-        $suffix = $project['suffix'];
+        $preffix = $project['preffix'];
         $vars = [
             'title' => 'Editar projeto',
             'name' => $project['name'],
             'directory' => $project['directory'],
-            'suffix' => $suffix,
+            'preffix' => $preffix,
             'status' => $project['status'],
             'main' => $project['main']
         ];

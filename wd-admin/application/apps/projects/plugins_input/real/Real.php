@@ -8,7 +8,7 @@ class Real{
     public function input($value) {
         if (!empty($value)) {
             $value = str_replace(",", ".", str_replace(".", "", $value));
-            return (float) $value;
+            return number_format((float) $value, 2, '.', '');
         }
         return $value;
     }

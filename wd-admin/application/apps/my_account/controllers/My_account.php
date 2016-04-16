@@ -14,7 +14,7 @@ class My_account extends MY_Controller {
         $this->form_edit();
 
         add_js([
-            APP_PATH.'js/form.js'
+            'apps/users/js/form.js'
         ]);
 
         $vars = array(

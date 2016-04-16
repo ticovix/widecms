@@ -13,7 +13,7 @@ class Projects_model extends CI_Model {
             'fk_user' => $data['id_user'],
             'slug' => $data['slug'],
             'main' => $data['main'],
-            'suffix' => $data['suffix']
+            'preffix' => $data['preffix']
         ];
         return $this->db->insert('wd_projects', $set);
     }

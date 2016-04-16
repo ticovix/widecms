@@ -88,7 +88,7 @@ class Pages extends MY_Controller {
         $config['last_tag_open'] = '<li>';
         $config['last_tag_close'] = '</li>';
         $config['first_tag_open'] = '<li>';
-        $config['first_tag_open'] = '</li>';
+        $config['first_tag_close'] = '</li>';
         $config['first_url'] = '?per_page=0';
         $this->pagination->initialize($config);
         return $this->pagination->create_links();

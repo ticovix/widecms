@@ -376,6 +376,9 @@ if (empty($class) OR $segment != 'apps' && !file_exists(APPPATH . 'controllers/'
 } else {
     $load_app = false;
     if ($segment == 'apps' && !empty($RTR->uri->segment(2))) {
+        define('APP', $RTR->uri->segment(2));
+        define('APP_PATH', 'apps/' . APP . '/');
+        define('APP_ASSETS', 'assets/' . APP_PATH);
         if ($RTR->uri->segment(2) == 'projects' && !empty($RTR->uri->segment(5))) {
             $load_app = load_module($RTR);
             if ($load_app) {
@@ -384,8 +387,8 @@ if (empty($class) OR $segment != 'apps' && !file_exists(APPPATH . 'controllers/'
                 $params = array_slice($URI->rsegments, 7);
                 define('LOAD_MODULE', $class);
             }
-        } 
-        if(!$load_app){
+        }
+        if (!$load_app) {
             $load_app = load_app($RTR);
             if ($load_app) {
                 $class = $load_app['class'];
@@ -395,9 +398,6 @@ if (empty($class) OR $segment != 'apps' && !file_exists(APPPATH . 'controllers/'
                 } else {
                     $params = array_slice($URI->rsegments, 2);
                 }
-                define('APP', $RTR->uri->segment(2));
-                define('APP_PATH', 'apps/'.APP.'/');
-                define('APP_ASSETS', 'assets/'.APP_PATH);
             } else {
                 $e404 = TRUE;
             }

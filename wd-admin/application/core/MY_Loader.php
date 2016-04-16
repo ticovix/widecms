@@ -6,12 +6,11 @@ if (!defined('BASEPATH'))
 class MY_Loader extends CI_Loader {
 
     private $segments = false;
+    private $vars = array();
 
     public function __construct() {
         parent::__construct();
     }
-
-    public $vars = array();
 
     private function config_load($path, $file) {
         $CI = & get_instance();
@@ -29,7 +28,7 @@ class MY_Loader extends CI_Loader {
                 $section = str_replace('-', '_', $this->segments[5]);
                 $dir = '../apps/projects/modules/' . $project . '/' . $page . '/' . $section . '/' . $path . '/';
             } elseif ($segment == 'apps' && !empty($segment2)) {
-                $dir = '../apps/'.$segment2.'/' . $path . '/';
+                $dir = '../apps/' . $segment2 . '/' . $path . '/';
             }
         }
         return $dir;
@@ -45,13 +44,20 @@ class MY_Loader extends CI_Loader {
         return $models;
     }
 
-    public function view($template, $vars = array(), $return = false) {
-        $dir = $this->config_load('views', $template);
+    public function view($template, $vars = array(), $return = false, $path_default = false) {
+        if ($path_default) {
+            $dir = '';
+        } else {
+            $dir = $this->config_load('views', $template);
+        }
         return $this->_ci_load(array('_ci_view' => $dir . $template, '_ci_vars' => $this->_ci_object_to_array($vars), '_ci_return' => $return));
     }
 
-    public function model($model, $name = '', $db_conn = FALSE) {
-        parent::model($this->filter_model($model), $name, $db_conn);
+    public function model($model, $name = '', $db_conn = FALSE, $path_default = false) {
+        if (!$path_default) {
+            $model = $this->filter_model($model);
+        }
+        parent::model($model, $name, $db_conn);
     }
 
     private function view_template($path = '', $template, $vars = array(), $return = false) {
@@ -82,43 +88,6 @@ class MY_Loader extends CI_Loader {
         if ($return) {
             return $content;
         }
-    }
-
-    public function module_view($template, $vars = array(), $return = false) {
-        $get_project = get_project();
-        $get_page = get_page();
-        $get_section = get_section();
-        $project = $get_project['slug'];
-        $page = $get_page['slug'];
-        $section = $get_section['slug'];
-        $path = '../modules/' . $project . '/' . $page . '/' . $section . '/views/';
-        return $this->view($path . $template, $vars, $return);
-    }
-
-    public function module_template($template, $vars = array(), $return = false) {
-        $this->vars = array_merge($this->vars, $vars);
-        $get_project = get_project();
-        $get_page = get_page();
-        $get_section = get_section();
-        $project = $get_project['slug'];
-        $page = $get_page['slug'];
-        $section = $get_section['slug'];
-        $path = '../modules/' . $project . '/' . $page . '/' . $section . '/views/';
-        $content = $this->view_template($path, $template, $vars, $return);
-        if ($return) {
-            return $content;
-        }
-    }
-
-    public function module_model($model) {
-        $get_project = get_project();
-        $get_page = get_page();
-        $get_section = get_section();
-        $project = $get_project['slug'];
-        $page = $get_page['slug'];
-        $section = $get_section['slug'];
-        $path = '../modules/' . $project . '/' . $page . '/' . $section . '/models/';
-        return $this->model($path . $model);
     }
 
 }

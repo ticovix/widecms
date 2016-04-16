@@ -83,7 +83,7 @@ class Sections extends MY_Controller {
         $config['last_tag_open'] = '<li>';
         $config['last_tag_close'] = '</li>';
         $config['first_tag_open'] = '<li>';
-        $config['first_tag_open'] = '</li>';
+        $config['first_tag_close'] = '</li>';
         $config['first_url'] = '?per_page=0';
 
         $this->pagination->initialize($config);
@@ -125,9 +125,9 @@ class Sections extends MY_Controller {
             'title' => 'Editar - ' . $section['name'],
             'name' => $section['name'],
             'directory' => $section['directory'],
-            'table' => str_replace($project['suffix'], '', $section['table']),
+            'table' => str_replace($project['preffix'], '', $section['table']),
             'status' => $section['status'],
-            'suffix' => $project['suffix'],
+            'preffix' => $project['preffix'],
             'project' => $project,
             'page' => $page,
             'section' => $section,
@@ -166,7 +166,7 @@ class Sections extends MY_Controller {
             $options_field = $this->input->post('options_field');
             $label_options_field = $this->input->post('label_options_field');
             $trigger_select_field = $this->input->post('trigger_select_field');
-            $table = $project['suffix'] . $table;
+            $table = $project['preffix'] . $table;
             $data = [
                 'old_config' => $config,
                 'old_section' => $section,
@@ -370,7 +370,7 @@ class Sections extends MY_Controller {
             'table' => '',
             'status' => '',
             'fields' => '',
-            'suffix' => $project['suffix'],
+            'preffix' => $project['preffix'],
             'project' => $project,
             'page' => $page,
             'sections' => $this->sections_model->list_sections_select(),
@@ -406,7 +406,7 @@ class Sections extends MY_Controller {
             $options_field = $this->input->post('options_field');
             $label_options_field = $this->input->post('label_options_field');
             $trigger_select_field = $this->input->post('trigger_select_field');
-            $table = $project['suffix'] . $table;
+            $table = $project['preffix'] . $table;
             $data = [
                 'project_directory' => $project['directory'],
                 'page_directory' => $page['directory'],
@@ -472,7 +472,7 @@ class Sections extends MY_Controller {
         $project = get_project();
         $page = get_page();
         $directory = slug($this->input->post('directory'));
-        if (substr($project['suffix'] . $table, 0, 3) == 'wd_') {
+        if (substr($project['preffix'] . $table, 0, 3) == 'wd_') {
             $this->form_validation->set_message('verify_table', 'Nomes iniciados por "wd_" são reservados pelo sistema. ');
             return false;
         } else {

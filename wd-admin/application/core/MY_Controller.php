@@ -7,7 +7,7 @@ class MY_Controller extends CI_Controller {
 
     public function __construct() {
         parent::__construct();
-        $this->load->model('/navigation_model');
+        $this->load->model('navigation_model', null, null, true);
         $this->load->library('apps');
         $this->security();
         $this->allow_project_list();
@@ -32,7 +32,7 @@ class MY_Controller extends CI_Controller {
             if (!empty($this->data_user)) {
                 return $this->data_user;
             } else {
-                $this->load->model('/users_model');
+                $this->load->model('users_model', null, null, true);
                 $id_user = $this->session->userdata('id');
                 $this->data_user = $this->users_model->get_user($id_user);
                 if ($this->data_user) {

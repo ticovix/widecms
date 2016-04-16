@@ -40,10 +40,10 @@ if (!defined('BASEPATH')) {
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>Sufixo para criação de tabelas*</label>
-                    <input type="text" name="suffix" id="suffix" maxlength="6" value="<?php echo set_value('suffix', $suffix) ?>" class="form-control" <?php if ($this->uri->segment('3') == 'edit') {echo 'disabled';}?>>
+                    <label>Prefixo para criação de tabelas*</label>
+                    <input type="text" name="preffix" id="preffix" maxlength="6" value="<?php echo set_value('preffix', $preffix) ?>" class="form-control" <?php if ($this->uri->segment('3') == 'edit') {echo 'disabled';}?>>
                 </div>
-                <?php if($main == 1){?><strong>Obs: Projeto principal não possui sufixo.</strong><?php }?>
+                <?php if($main == 1){?><strong>Obs: Projeto principal não possui prefixo.</strong><?php }?>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
