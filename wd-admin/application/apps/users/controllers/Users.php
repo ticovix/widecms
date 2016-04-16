@@ -121,6 +121,12 @@ class Users extends MY_Controller {
         if ($this->form_validation->run()) {
             $this->load->helper('passwordhash');
             $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
+            $root = $this->input->post('root');
+            $allow_dev = $this->input->post('allow_dev');
+            if($this->data_user['root']!='1'){
+                $root = 0;
+                $allow_dev = 0;
+            }
             $data = [
                 'name' => $this->input->post('name'),
                 'email' => $this->input->post('email'),
@@ -128,8 +134,8 @@ class Users extends MY_Controller {
                 'password' => $PasswordHash->HashPassword($this->input->post('password')),
                 'lastname' => $this->input->post('lastname'),
                 'status' => $this->input->post('status'),
-                'root' => $this->input->post('root'),
-                'allow_dev' => $this->input->post('allow_dev')
+                'root' => $root,
+                'allow_dev' => $allow_dev
             ];
             $this->users_model->create($data);
             redirect_app('users');

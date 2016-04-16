@@ -81,8 +81,8 @@ if (!defined('BASEPATH')) {
                     <div class="form-group">
                         <label>Modo desenvolvedor</label>
                         <select name="allow_dev" class="form-control">
-                            <option value="1" <?php echo set_select('status', '1', ($allow_dev == '1')) ?>>Permitir</option>
-                            <option value="0" <?php echo set_select('status', '0', ($allow_dev == '0')) ?>>Não permitir</option>
+                            <option value="1" <?php echo set_select('allow_dev', '1', ($allow_dev == '1')) ?>>Permitir</option>
+                            <option value="0" <?php echo set_select('allow_dev', '0', ($allow_dev == '0')) ?>>Não permitir</option>
                         </select>
                     </div>
                 </div>
@@ -90,8 +90,8 @@ if (!defined('BASEPATH')) {
                     <div class="form-group">
                         <label>Permissões ROOT</label>
                         <select name="root" class="form-control">
-                            <option value="1" <?php echo set_select('status', '1', ($root == '1')) ?>>Sim</option>
-                            <option value="0" <?php echo set_select('status', '0', ($root == '0')) ?>>Não</option>
+                            <option value="1" <?php echo set_select('root', '1', ($root == '1')) ?>>Sim</option>
+                            <option value="0" <?php echo set_select('root', '0', ($root == '0')) ?>>Não</option>
                         </select>
                     </div>
                 </div>
