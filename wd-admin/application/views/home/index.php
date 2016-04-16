@@ -28,8 +28,8 @@ if (!defined('BASEPATH')) {
                     ?>
                 </div><div class="row apps-home">
                 <?php } ?>
-                <a href="<?php echo base_url('apps/' . $app) ?>" class="col-sm-2  app center-block">
-                    <img src="<?php echo base_url($path_image); ?>" width="200" height="130">
+                <a href="<?php echo base_url('apps/' . $app) ?>" class="col-sm-2 col-xs-6 app center-block">
+                    <img src="<?php echo base_url($path_image); ?>">
                     <p><?php echo $name ?></p>
                 </a>
                 <?php
