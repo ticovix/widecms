@@ -1,5 +1,3 @@
-Dropzone.autoDiscover = false;
-
 $(function () {
     /*
      * Dropzone
@@ -47,7 +45,7 @@ $(function () {
             type: "POST",
             data: {limit: 12},
             success: function (data) {
-                var template = new EJS({url: app_assets + "ejs/list-files.ejs"}).render({data: data, url: url, app_path: app_path});
+                var template = new EJS({url: app_assets + "ejs/gallery/list-files.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });
@@ -56,14 +54,6 @@ $(function () {
      * Init method files_list()
      */
     files_list({});
-    /*
-     * File hover
-     */
-    $("#files-list").on('mouseenter', '.file', function (event) {
-        $(this).children(".image-file").children(".options-file").removeClass("hide");
-    }).on('mouseleave', '.file', function (event) {
-        $(this).children(".image-file").children(".options-file").addClass("hide");
-    });
 
     /*
      * Delete file
@@ -100,7 +90,7 @@ $(function () {
             type: "POST",
             data: {file: file},
             success: function (data) {
-                var template = new EJS({url: app_assets + "ejs/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
+                var template = new EJS({url: app_assets + "ejs/gallery/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });
@@ -120,7 +110,7 @@ $(function () {
             type: "POST",
             data: {file: file},
             success: function (data) {
-                var template = new EJS({url: app_assets + "ejs/file-edit.ejs"}).render({data: data, url: url, app_path: app_path});
+                var template = new EJS({url: app_assets + "ejs/gallery/file-edit.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });

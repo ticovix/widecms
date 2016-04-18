@@ -9,6 +9,13 @@
     margin: 0 auto;
 }
 
+.image-file .options-file{
+    display: none;
+}
+.image-file:hover .options-file{
+    display: block;
+}
+
 #my-awesome-dropzone{
     margin-bottom: 15px;
 }
@@ -32,4 +39,24 @@
     position: absolute;
     top: 0;
     right: 0;
+}
+.options-file .btn{
+    font-size: 12px;
+    padding: 5px;
+}
+
+.image-file.active{
+    border-color: #F12938;
+}
+
+.file-ckeditor .options-file{
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+.file-ckeditor .image-file:hover .options-file{
+    background-color: rgba(0,0,0,0.7) !important;
+    padding: 40px;
 }

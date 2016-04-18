@@ -1,0 +1,31 @@
+<div class="row">
+    <%
+    var total_files = Object.keys(files).length;
+    if(total_files>0){
+        for(var i=0; i < total_files; i++){
+            var file = files[i].file;
+            var checked = files[i].checked;
+            %>
+            <div class="col-sm-3 file-added" data-file="<%=file%>">
+                <div class="image-file <%if(checked==true){%>active<%}%>" >
+                    <a href="javascript:void(0);" class="btn-view-file" data-toggle="modal" data-target="#details">
+                        <img src="<%=url%>apps/gallery/image/thumb/<%=file%>" title="<%=file%>" alt="<%=file%>" class="img-responsive">
+                    </a>
+                    <div class="options-file">
+                        <a href="javascript:void(0);" class="btn btn-primary btn-checked-file" title="Arquivo principal da lista"><span class="fa fa-star"></span></a>
+                        <a href="javascript:void(0);" class="btn btn-primary btn-edit-file" data-toggle="modal" data-target="#modal-edit" title="Editar arquivo"><span class="fa fa-edit"></span></a>
+                        <a href="javascript:void(0);" class="btn btn-primary btn-delete-file" title="Remover arquivo da lista"><span class="fa fa-remove"></span></a>
+                    </div>
+                </div>
+                <div class="name-file"><%=file%></div>
+            </div>
+            <%
+        }
+    }else {
+    %>
+    <div class="col-sm-12">Adicione um arquivo.</div>    
+    <%
+    }
+    %>
+</div>
+<div id="msg-add-file"></div>

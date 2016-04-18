@@ -188,6 +188,18 @@ class Config_page {
     public function fields_template($fields, $post = null) {
         $CI = & get_instance();
         $this->fields = $fields;
+        add_css(array(
+            'plugins/fancybox/css/jquery.fancybox.css',
+            'plugins/fancybox/css/jquery.fancybox-buttons.css',
+            'plugins/dropzone/css/dropzone.css'
+        ));
+        add_js(array(
+            'plugins/dropzone/js/dropzone.js',
+            'plugins/fancybox/js/jquery.fancybox.pack.js',
+            'plugins/fancybox/js/jquery.fancybox-buttons.js',
+            'plugins/embeddedjs/ejs.js',
+            APP_PATH.'posts/js/load_gallery.js'
+        ));
         foreach ($fields as $field) {
 
             // Lista os campos do formulário
@@ -227,6 +239,7 @@ class Config_page {
                     $new_field = $this->template_input();
                     break;
             }
+            $new_field['column'] = $this->column;
             $form[] = $new_field;
         }
         return $form;
@@ -280,17 +293,10 @@ class Config_page {
     private function template_input_file() {
         // Se o campo for file ou multifile carrega arquivos css e js na página do formulário
         add_css(array(
-            'plugins/fancybox/css/jquery.fancybox.css',
-            'plugins/fancybox/css/jquery.fancybox-buttons.css',
-            'plugins/dropzone/css/dropzone.css',
-            '' . APP_PATH . 'project/css/gallery.css'
+            APP_PATH . 'posts/css/gallery.css'
         ));
         add_js(array(
-            'plugins/dropzone/js/dropzone.js',
-            'plugins/fancybox/js/jquery.fancybox.pack.js',
-            'plugins/fancybox/js/jquery.fancybox-buttons.js',
-            'plugins/embeddedjs/ejs.js',
-            '' . APP_PATH . 'posts/js/gallery.js'
+            APP_PATH . 'posts/js/gallery.js'
         ));
         $new_field = array();
         $new_field['type'] = $this->type;
@@ -304,15 +310,16 @@ class Config_page {
         $this->attr['data-target'] = '#gallery';
         $this->attr['type'] = 'button';
         $new_field['input'] = $this->list_files($files);
-        $new_field['input'] .= form_button($this->attr, '<span class="fa fa-cloud"></span> Galeria');
+        $new_field['input'] .= form_button($this->attr, '<span class="fa fa-file-image-o"></span> Inserir / gerenciar arquivos');
 
         $attr = array();
         if ($this->type == 'multifile') {
             $attr['multiple'] = "true";
         }
-        $attr['id'] = $this->column . '-field';
+        $attr['id'] = $this->column . '_field';
         $attr['name'] = $this->column;
         $attr['type'] = 'hidden';
+        $attr['class'] = 'input-field';
         $new_field['input'] .= form_input($attr, set_value($this->column, $this->value, false));
         return $new_field;
     }
@@ -325,8 +332,9 @@ class Config_page {
         $new_field = array();
         $new_field['type'] = $this->type;
         $new_field['label'] = $this->label;
+        $this->attr['id'] = $this->column . '_field';
         $this->attr['name'] = $this->column;
-        $this->attr['class'] = 'form-control ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
+        $this->attr['class'] = 'form-control input-field ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
         $new_field['input'] = form_textarea($this->attr, set_value($this->column, $this->value, false));
         return $new_field;
     }
@@ -342,6 +350,7 @@ class Config_page {
         $new_field = array();
         $new_field['type'] = $this->type;
         $new_field['label'] = $this->label;
+        $this->attr['id'] = $this->column . '_field';
         $this->attr['name'] = $this->column . '[]';
         $this->attr['class'] = (isset($this->attr['class']) ? $this->attr['class'] : '');
         $CI = &get_instance();
@@ -413,7 +422,8 @@ class Config_page {
         } else {
             $array_options = array('' => 'Nenhum opção adicionada.');
         }
-        $this->attr['class'] = 'form-control trigger-select ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
+        $this->attr['id'] = $this->column . '_field';
+        $this->attr['class'] = 'form-control input-field trigger-select ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
         $CI = &get_instance();
         $value = ($CI->input->post($this->column) !== null ? $CI->input->post($this->column) : $this->value);
         $new_field['input'] = form_dropdown($this->column, $array_options, $value, $this->attr);
@@ -426,9 +436,10 @@ class Config_page {
 
     private function template_input_hidden() {
         $new_field = array();
+        $this->attr['id'] = $this->column . '_field';
         $this->attr['name'] = $this->column;
         $new_field['type'] = 'hidden';
-        $this->attr['class'] = 'form-control ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
+        $this->attr['class'] = 'form-control input-field ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
         $new_field['input'] = form_input($this->attr, set_value($this->column, $this->value));
         return $new_field;
     }
@@ -443,7 +454,8 @@ class Config_page {
         $new_field['label'] = $this->label;
         $this->attr['name'] = $this->column;
         $this->attr['type'] = $this->type;
-        $this->attr['class'] = 'form-control ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
+        $this->attr['id'] = $this->column . '_field';
+        $this->attr['class'] = 'form-control input-field ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
         $new_field['input'] = form_input($this->attr, set_value($this->column, $this->value));
         return $new_field;
     }
@@ -488,8 +500,14 @@ class Config_page {
             $path = PATH_UPLOAD;
             foreach ($files as $file) {
                 $file_ = $file->file;
+                $checked = $file->checked;
                 if (!empty($file)) {
-                    $ctt .= '<div class="files-list thumbnail"><img src="' . base_url('apps/gallery/image/thumb/' . $file_) . '" class="img-responsive"></div>';
+                    if($checked==true){
+                        $active = 'active';
+                    }else{
+                        $active = '';
+                    }
+                    $ctt .= '<div class="files-list thumbnail '.$active.'"><a href="'.wd_base_url('wd-content/upload/'.$file_).'" class="fancybox"><img src="' . base_url('apps/gallery/image/thumb/' . $file_) . '" class="img-responsive"></a></div>';
                 }
             }
         }

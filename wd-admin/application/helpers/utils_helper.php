@@ -371,3 +371,10 @@ if (!function_exists('base_url_module')) {
 
 }
 
+if (!function_exists('wd_base_url')) {
+
+    function wd_base_url($uri = '', $protocol = null) {
+        return str_replace(DIR_ADMIN_DEFAULT, '', base_url($uri, $protocol));
+    }
+
+}

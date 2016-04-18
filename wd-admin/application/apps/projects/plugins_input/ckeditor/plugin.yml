@@ -1,6 +1,7 @@
 name: CKEditor
 js_form:
-    - ckeditor.js
+    - ckeditor/ckeditor.js
+    - gallery/js/upload.js
 attr:
     alt: ckeditor
     class: ckeditor

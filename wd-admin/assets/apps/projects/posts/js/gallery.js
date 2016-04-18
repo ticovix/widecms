@@ -1,63 +1,36 @@
-Dropzone.autoDiscover = false;
-
 $(function () {
     /*
      * Dropzone
      */
-    var myDropzone = new Dropzone("#dropzone_gallery");
     myDropzone.on("complete", function (file) {
         files_list({});
-    });
-    /*
-     * Gallery
-     */
-    $(".fancybox").attr('rel', 'gallery').fancybox({
-        beforeShow: function () {
-            /* Disable right click */
-            $.fancybox.wrap.bind("contextmenu", function (e) {
-                return false;
-            });
-        }
-    });
-    $(".fancybox").attr('rel', 'gallery').fancybox({
-        nextEffect: 'fade',
-        prevEffect: 'fade',
-        openEffect: 'elastic',
-        closeEffect: 'elastic',
-        autoCenter: true,
-        padding: 0,
-        margin: 20,
-        arrows: true,
-        mouseWheel: true,
-        fitToView: true,
     });
     var field, index_field_upload;
     var modal = $("#gallery");
     var content_files = $("#files-list");
-    var content_files_added = $("#files-list-added");
+    var content_files_added = '';
     var list = new Object();
     /*
      * By clicking the input file, open a modal
      */
-    $(".btn-gallery").click(function () {
+    $("#data-project").on("click", ".btn-gallery", function () {
         index_field_upload = $(".btn-gallery").index(this);
         field = $(this).data("field");
-        var field_list = $("#" + field + "-field").val();
+        var field_list = $("#" + field + "_field").val();
         if (field_list.indexOf('{') != '-1') {
             list = $.parseJSON(field_list);
         } else {
             list = new Object();
         }
+        if ($("#files-content").data('gallery') != "posts") {
+            var template = new EJS({url: url + "assets/apps/gallery/ejs/posts/base-files.ejs"}).render();
+            $("#files-content").data("gallery", "posts").html(template);
+            $("#btn-save-change").removeClass("hide");
+            content_files_added = $("#files-list-added");
+        }
+
         files_list({});
         files_list_added();
-    });
-    /*
-     * Display options to hover over the file
-     */
-    modal.on('mouseenter', '.file', function (event) {
-        $(this).children(".image-file").children(".options-file").removeClass("hide");
-    }).on('mouseleave', '.file', function (event) {
-        $(this).children(".image-file").children(".options-file").addClass("hide");
     });
     /*
      * Function to list files
@@ -68,13 +41,14 @@ $(function () {
         if (URL == '' || URL == undefined) {
             URL = url + "apps/gallery/files-list";
         }
+        content.html("Carregando..");
         $.ajax({
             url: URL,
             dataType: "json",
             type: "POST",
             data: {limit: 12},
             success: function (data) {
-                var template = new EJS({url: app_assets +"project/ejs/list-files.ejs"}).render({data: data, url: url, app_path: app_path});
+                var template = new EJS({url: url + "assets/apps/gallery/ejs/posts/list-files.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });
@@ -84,9 +58,10 @@ $(function () {
      */
     function files_list_added() {
         var content = content_files_added;
-        var template = new EJS({url: app_assets + "project/ejs/list-files-added.ejs"}).render({files: list, url: url, app_path: app_path});
+        var template = new EJS({url: url + "assets/apps/gallery/ejs/posts/list-files-added.ejs"}).render({files: list, url: url, app_path: app_path});
         content.html(template);
     }
+
     /*
      * Pagination
      */
@@ -122,17 +97,24 @@ $(function () {
             type: "POST",
             data: {file: file},
             success: function (data) {
-                var template = new EJS({url: url + "assets/apps/gallery/ejs/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
+                var template = new EJS({url: url + "assets/apps/gallery/ejs/gallery/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });
     });
 
+    modal.on("click", ".btn-checked-file", function () {
+        var index = $(".btn-checked-file").index(this);
+        $("#files-list-added .image-file").removeClass("active");
+        $("#files-list-added .image-file").eq(index).addClass("active");
+
+        checked_file(index);
+    });
     /*
      * Add file to post
      */
-    content_files.on("click", ".btn-add-file", function () {
-        var is_multiple = ($("#" + field + "-field").attr("multiple") !== undefined);
+    modal.on("click", ".btn-add-file", function () {
+        var is_multiple = ($("#" + field + "_field").attr("multiple") !== undefined);
         var index = $(".btn-add-file").index(this);
         var file = $(".file").eq(index).data('file');
         if (is_multiple || list !== undefined && Object.keys(list).length < 1) {
@@ -146,10 +128,9 @@ $(function () {
      * Delete file to list
      */
 
-    content_files_added.on("click", ".btn-delete-file", function () {
+    modal.on("click", ".btn-delete-file", function () {
         var index = $(".btn-delete-file").index(this);
-        $("#files-list-added .file").eq(index).remove();
-        delete_file();
+        delete_file(index);
         files_list_added();
     });
 
@@ -162,25 +143,72 @@ $(function () {
             list = new Object();
         }
         var file_current = Object.keys(list).length;
-        list[file_current] = {file: file, checked: false, title: ''};
+        var checked = true;
+        for (var i = 0; i < file_current; i++) {
+            var checked_ = list[i].checked;
+            if (checked_ == true) {
+                checked = false;
+            }
+        }
+        list[file_current] = {file: file, checked: checked, title: ''};
         files_list_added();
     }
     /*
      * Function to delete file
      */
-    function delete_file(file) {
+    function delete_file(index) {
         if (list != undefined) {
             var new_list = new Object();
             var total = Object.keys(list).length;
-            for (var i = 0; i < total - 1; i++) {
-                var file_ = list[i].file;
+            var x = 0;
+            for (var i = 0; i < total; i++) {
+                var file = list[i].file;
                 var checked = list[i].checked;
                 var title = list[i].title;
-                if (file_ != file) {
-                    new_list[i] = {file: file_, checked: checked, title: title};
+                if (i != index) {
+                    new_list[x] = {file: file, checked: checked, title: title};
+                    x++;
                 }
             }
             list = new_list;
+        }
+    }
+
+    function checked_file(index) {
+        if (list != undefined) {
+            var new_list = new Object();
+            var total = Object.keys(list).length;
+            for (var i = 0; i < total; i++) {
+                var file = list[i].file;
+                var checked = false;
+                var title = list[i].title;
+                if (i == index) {
+                    checked = true;
+                }
+                new_list[i] = {file: file, checked: checked, title: title};
+            }
+            list = new_list;
+        }
+    }
+    
+    function edit_file(param) {
+        var index = param.index;
+        var title = param.title;
+        if (list != undefined) {
+            var new_list = new Object();
+            var total = Object.keys(list).length;
+            for (var i = 0; i < total; i++) {
+                var file = list[i].file;
+                var checked = list[i].checked;
+                var title_ = list[i].title;
+                    console.log(i, index);
+                if (i == index) {
+                    title_ = title;
+                }
+                new_list[i] = {file: file, checked: checked, title: title_};
+            }
+            list = new_list;
+            
         }
     }
 
@@ -193,17 +221,51 @@ $(function () {
             $(".content-files").eq(index_field_upload).html("");
             for (var i = 0; i < total; i++) {
                 var file = list[i].file;
+                var checked = list[i].checked;
                 var img = $("<img>").addClass("img-responsive").attr("src", url + "apps/gallery/image/thumb/" + file);
-                $(".content-files").eq(index_field_upload).append($("<div>").addClass("files-list thumbnail").html(img));
+                var div = $("<div>").addClass("files-list thumbnail").html($("<a>").attr("href", base_url + "wd-content/upload/" + file).addClass("fancybox").html(img));
+                if (checked == true) {
+                    div.removeClass("active");
+                    div.addClass("active");
+                }
+                $(".content-files").eq(index_field_upload).append(div);
             }
             var json = JSON.stringify(list);
             if (json === '{}') {
                 json = '';
             }
-            $("#" + field + "-field").val(json);
+            $("#" + field + "_field").val(json);
 
 
         }
+    });
+
+    /*
+     * Edit file
+     */
+
+    modal.on("click", ".btn-edit-file", function () {
+        var index = $(".btn-edit-file").index(this);
+        var file = list[index];
+        var content = $("#modal-edit .modal-content");
+        
+        content.attr("data-index",index);
+        var template = new EJS({url: url + "assets/apps/gallery/ejs/posts/file-edit.ejs"}).render({file: file, url: url, app_path: app_path});
+        content.html(template);
+    });
+    
+    /*
+     * Save Edit
+     */
+    $("#modal-edit .modal-content").delegate("#btn-save-edit", "click", function () {
+        var title = $("#field-title").val();
+        var index = $("#modal-edit .modal-content").attr("data-index");
+        edit_file({
+            title: title,
+            index: index
+        });
+        var msg = $("#message-edit");
+        msg.html('<div class="alert alert-success">Atualizado com sucesso!</div>');
     });
 
 });

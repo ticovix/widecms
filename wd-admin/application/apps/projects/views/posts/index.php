@@ -34,7 +34,7 @@ if (!defined('BASEPATH')) {
         </span>
     </div>
     <?php echo form_close(); ?>
-    <table class="table table-striped">
+    <table class="table table-striped table-responsive">
         <thead>
             <tr>
                 <?php

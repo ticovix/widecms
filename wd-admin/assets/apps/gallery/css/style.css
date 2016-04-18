@@ -10,6 +10,14 @@
     margin: 0 auto;
 }
 
+.image-file .options-file{
+    display: none;
+}
+.image-file:hover .options-file{
+    display: block;
+}
+
+
 #my-awesome-dropzone{
     margin-bottom: 15px;
 }

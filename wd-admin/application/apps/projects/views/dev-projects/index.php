@@ -17,15 +17,15 @@ if (!defined('BASEPATH')) {
         <a href="<?php echo base_url_app('create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> Novo projeto</a>
         <div class="btn-group"></div>
     </div>
-<?php echo form_open(null, ['method' => 'get', 'class' => 'form-group']); ?>
+    <?php echo form_open(null, ['method' => 'get', 'class' => 'form-group']); ?>
     <div class="input-group">
         <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="Procurar projeto" class="input-sm form-control"> 
         <span class="input-group-btn">
             <button type="submit" class="btn btn-sm btn-primary"> Buscar</button> 
         </span>
     </div>
-<?php echo form_close(); ?>
-    <table class="table table-striped">
+    <?php echo form_close(); ?>
+    <table class="table table-striped table-responsive">
         <thead>
             <tr>
                 <th>Projeto</th>
@@ -35,25 +35,27 @@ if (!defined('BASEPATH')) {
             </tr>
         </thead>
         <tbody>
-<?php
-if ($projects) {
-    foreach ($projects as $arr) {
-        ?>
+            <?php
+            if ($projects) {
+                foreach ($projects as $arr) {
+                    ?>
                     <tr>
                         <td>
-                            <a href="<?php echo base_url_app('project/'.$arr['slug']) ?>">
-        <?php if ($arr['main']) { ?><span class="fa fa-star"></span> <?php } ?> <?php echo $arr["name"] ?>
+                            <a href="<?php echo base_url_app('project/' . $arr['slug']) ?>">
+                                <?php if ($arr['main']) { ?><span class="fa fa-star"></span> <?php } ?> <?php echo $arr["name"] ?>
                             </a>
                         </td>
                         <td><?php echo $arr["directory"] ?></td>
-                        <td><i class="fa fa-lg <?php if ($arr['status'] === '1') {
-            echo 'fa-check';
-        } elseif ($arr['status'] === '0') {
-            echo 'fa-times';
-        } ?>"></td>
+                        <td><i class="fa fa-lg <?php
+                            if ($arr['status'] === '1') {
+                                echo 'fa-check';
+                            } elseif ($arr['status'] === '0') {
+                                echo 'fa-times';
+                            }
+                            ?>"></td>
                         <td>
-                            <a href="<?php echo base_url_app('edit/'.$arr["slug"]); ?>"><i class="fa fa-pencil"></i></a>
-                            <a href="<?php echo base_url_app('delete/'.$arr["slug"]); ?>"><i class="fa fa-remove"></i></a>
+                            <a href="<?php echo base_url_app('edit/' . $arr["slug"]); ?>"><i class="fa fa-pencil"></i></a>
+                            <a href="<?php echo base_url_app('delete/' . $arr["slug"]); ?>"><i class="fa fa-remove"></i></a>
                         </td>
                     </tr>
                     <?php

@@ -223,7 +223,7 @@ class Gallery extends MY_Controller {
         $filesize = filesize($path_file);
         $get_file = $this->files_model->file($file);
         $name = $get_file['name'];
-        echo json_encode(array('file' => $file, 'name' => $name, 'path_file' => base_url($path_file), 'filesize' => FileSizeConvert($filesize)));
+        echo json_encode(array('file' => $file, 'name' => $name, 'path_file' => wd_base_url('wd-content/upload/'.$file), 'filesize' => FileSizeConvert($filesize)));
     }
 
     /*

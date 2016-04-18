@@ -5,6 +5,10 @@
     margin-bottom: 5px;
 }
 
+.files-list.active{
+    border-color: #F12938;
+}
+
 .content-files{
     clear: both;
 }
