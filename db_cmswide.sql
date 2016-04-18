@@ -19,7 +19,6 @@
 -- Table structure for table `wd_app_perm`
 --
 
-DROP TABLE IF EXISTS `wd_app_perm`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wd_app_perm` (
@@ -47,7 +46,6 @@ UNLOCK TABLES;
 -- Table structure for table `wd_files`
 --
 
-DROP TABLE IF EXISTS `wd_files`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wd_files` (
@@ -71,7 +69,6 @@ UNLOCK TABLES;
 -- Table structure for table `wd_pages`
 --
 
-DROP TABLE IF EXISTS `wd_pages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wd_pages` (
@@ -104,7 +101,6 @@ UNLOCK TABLES;
 -- Table structure for table `wd_projects`
 --
 
-DROP TABLE IF EXISTS `wd_projects`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wd_projects` (
@@ -135,7 +131,6 @@ UNLOCK TABLES;
 -- Table structure for table `wd_sections`
 --
 
-DROP TABLE IF EXISTS `wd_sections`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wd_sections` (
@@ -167,7 +162,6 @@ UNLOCK TABLES;
 -- Table structure for table `wd_users`
 --
 
-DROP TABLE IF EXISTS `wd_users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wd_users` (

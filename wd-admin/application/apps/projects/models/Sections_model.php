@@ -25,11 +25,11 @@ class Sections_model extends CI_Model {
         return $this->db->get('wd_sections')->row()->total;
     }
 
-    public function list_sections_select($section=null) {
+    public function list_sections_select($section = null) {
         $this->db->order_by('order, name');
         //$this->db->where('fk_page', $page);
-        if($section){
-            $this->db->where('id!=',$section);
+        if ($section) {
+            $this->db->where('id!=', $section);
         }
         return $this->db->get('wd_sections')->result_array();
     }
@@ -134,6 +134,7 @@ class Sections_model extends CI_Model {
         $name = $data['name'];
         $directory = $data['directory'];
         $status = $data['status'];
+        $slug = $data['slug'];
         $id = $old_section['id'];
         $rename = false;
         $update = false;
@@ -144,6 +145,7 @@ class Sections_model extends CI_Model {
         if ($table != $old_table && $rename or $table == $old_table) {
             $set = array(
                 'name' => $name,
+                'slug' => $slug,
                 'directory' => $directory,
                 'table' => $table,
                 'status' => $status
@@ -160,7 +162,7 @@ class Sections_model extends CI_Model {
         $result = $this->db->query('SHOW COLUMNS FROM ' . $table)->result_array();
         $col = array();
         if ($result) {
-            foreach($result as $column){
+            foreach ($result as $column) {
                 $col[] = $column['Field'];
             }
         }
