@@ -1,4 +1,5 @@
 <IfModule authz_core_module>
+    Options All -Indexes
     Require all denied
 </IfModule>
 <IfModule !authz_core_module>

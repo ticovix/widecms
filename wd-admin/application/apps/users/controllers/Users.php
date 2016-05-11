@@ -34,7 +34,7 @@ class Users extends MY_Controller {
             'total' => $total_rows
         ];
         add_js([
-            APP_PATH . 'js/index.js'
+            'js/index.js'
         ]);
         $this->load->template('index', $data);
     }
@@ -92,7 +92,7 @@ class Users extends MY_Controller {
     public function create() {
         $this->form_create();
         add_js([
-            APP_PATH . 'js/form.js'
+            'js/form.js'
         ]);
         $vars = [
             'title' => 'Novo usuário',
@@ -155,7 +155,7 @@ class Users extends MY_Controller {
         $this->form_edit($user);
 
         add_js([
-            APP_PATH . 'js/form.js'
+            'js/form.js'
         ]);
         $vars = [
             'title' => 'Editar usuário',
@@ -187,10 +187,11 @@ class Users extends MY_Controller {
                 'root' => $this->input->post('root'),
                 'allow_dev' => $this->input->post('allow_dev')
             ];
-            if (!empty($this->input->post('password'))) {
+            $password = $this->input->post('password');
+            if (!empty($password)) {
                 $this->load->helper('passwordhash');
                 $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
-                $data['password'] = $PasswordHash->HashPassword($this->input->post('password'));
+                $data['password'] = $PasswordHash->HashPassword($password);
             } else {
                 $data['password'] = $user['password'];
             }

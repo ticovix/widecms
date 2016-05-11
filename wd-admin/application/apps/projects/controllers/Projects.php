@@ -96,7 +96,7 @@ class Projects extends MY_Controller {
         $this->form_create();
 
         add_js([
-            APP_PATH . 'js/form.js'
+            'js/form.js'
         ]);
         $vars = [
             'title' => 'Novo projeto',

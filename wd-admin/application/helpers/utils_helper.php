@@ -13,8 +13,7 @@ if (!function_exists('only_number')) {
 }
 if (!function_exists('is_nav_active')) {
 
-    function is_nav_active($page_current = null, $keys = null) {
-        $result = 'active';
+    function is_nav_active($page_current = null, $keys = null, $result="active") {
         $return = null;
         if (!is_array($keys)) {
             $keys = [$keys];

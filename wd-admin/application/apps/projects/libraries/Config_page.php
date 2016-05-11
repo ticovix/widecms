@@ -198,7 +198,7 @@ class Config_page {
             'plugins/fancybox/js/jquery.fancybox.pack.js',
             'plugins/fancybox/js/jquery.fancybox-buttons.js',
             'plugins/embeddedjs/ejs.js',
-            APP_PATH.'posts/js/load_gallery.js'
+            APP_PATH . 'posts/js/load_gallery.js'
         ));
         foreach ($fields as $field) {
 
@@ -291,7 +291,6 @@ class Config_page {
      */
 
     private function template_input_file() {
-        // Se o campo for file ou multifile carrega arquivos css e js na página do formulário
         add_css(array(
             APP_PATH . 'posts/css/gallery.css'
         ));
@@ -329,13 +328,19 @@ class Config_page {
      */
 
     private function template_textarea() {
+        add_css(array(
+            APP_PATH . 'posts/css/gallery.css'
+        ));
+        add_js(array(
+            APP_PATH . 'posts/js/gallery.js'
+        ));
         $new_field = array();
         $new_field['type'] = $this->type;
         $new_field['label'] = $this->label;
         $this->attr['id'] = $this->column . '_field';
         $this->attr['name'] = $this->column;
         $this->attr['class'] = 'form-control input-field ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $new_field['input'] = form_textarea($this->attr, set_value($this->column, $this->value, false));
+        $new_field['input'] = form_textarea($this->attr, htmlspecialchars_decode(set_value($this->column, $this->value, false), ENT_QUOTES));
         return $new_field;
     }
 
@@ -456,7 +461,7 @@ class Config_page {
         $this->attr['type'] = $this->type;
         $this->attr['id'] = $this->column . '_field';
         $this->attr['class'] = 'form-control input-field ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $new_field['input'] = form_input($this->attr, set_value($this->column, $this->value));
+        $new_field['input'] = form_input($this->attr, htmlspecialchars_decode(set_value($this->column, $this->value), ENT_QUOTES));
         return $new_field;
     }
 
@@ -502,12 +507,12 @@ class Config_page {
                 $file_ = $file->file;
                 $checked = $file->checked;
                 if (!empty($file)) {
-                    if($checked==true){
+                    if ($checked == true) {
                         $active = 'active';
-                    }else{
+                    } else {
                         $active = '';
                     }
-                    $ctt .= '<div class="files-list thumbnail '.$active.'"><a href="'.wd_base_url('wd-content/upload/'.$file_).'" class="fancybox"><img src="' . base_url('apps/gallery/image/thumb/' . $file_) . '" class="img-responsive"></a></div>';
+                    $ctt .= '<div class="files-list thumbnail ' . $active . '"><a href="' . wd_base_url('wd-content/upload/' . $file_) . '" class="fancybox"><img src="' . base_url('apps/gallery/image/thumb/' . $file_) . '" class="img-responsive"></a></div>';
                 }
             }
         }
@@ -572,16 +577,16 @@ class Config_page {
         }
         switch ($type) {
             case 'checkbox':
-                if(!empty($value)){
+                if (!empty($value)) {
                     $table = (isset($field['options'])) ? $field['options'] : '';
                     $column = (isset($field['label_options'])) ? $field['label_options'] : '';
                     $opts = json_decode($value);
                     $opts_checked = $CI->posts_model->list_options_checked($table, $column, $opts);
-                    if($opts_checked){
-                        foreach($opts_checked as $opt){
+                    if ($opts_checked) {
+                        foreach ($opts_checked as $opt) {
                             $val[] = $opt['value'];
                         }
-                        $value = implode(', ',$val);
+                        $value = implode(', ', $val);
                     }
                 }
                 break;

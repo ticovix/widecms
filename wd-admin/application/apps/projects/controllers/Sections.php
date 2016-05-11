@@ -95,13 +95,14 @@ class Sections extends MY_Controller {
      * Método para chamar a view de edição da seção
      */
 
-    public function edit($slug_project, $slug_page, $slug_section) {
+    public function edit($slug_section) {
         $project = get_project();
         $page = get_page();
         $section = $this->sections_model->get_section($slug_section);
         $this->load->library('../' . APP_PATH . 'libraries/config_page');
         // Carrega os campos da seção
         $config = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
+        $selects = '';
         if ($config) {
             // Se carregado corretamente, carrega o formulário de edição
             $fields = $this->treat_fields($config['fields']);
@@ -114,11 +115,11 @@ class Sections extends MY_Controller {
         }
 
         add_js(array(
-            'plugins/masks/js/jquery.meio.js',
-            APP_PATH . 'project/js/form-section.js'
+            '../../../../assets/plugins/masks/js/jquery.meio.js',
+            'project/js/form-section.js'
         ));
         add_css(array(
-            APP_PATH . 'project/css/form-section.css'
+            'project/css/form-section.css'
         ));
         $vars = array(
             'fields' => $fields,
@@ -329,7 +330,7 @@ class Sections extends MY_Controller {
      * Método para remover seção
      */
 
-    public function remove($slug_project, $slug_page, $slug_section) {
+    public function remove($slug_section) {
         $section = $this->sections_model->get_section($slug_section);
         $project = get_project();
         $page = get_page();
@@ -341,9 +342,9 @@ class Sections extends MY_Controller {
                 // Se tudo relacionado a seção for removida do banco de dados, remove o diretório com as config xml dos formulárioss
                 forceRemoveDir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $dir_section);
             }
-            redirect_app('project/' . $slug_project . '/' . $slug_page);
+            redirect_app('project/' . $project['slug'] . '/' . $page['slug']);
         } else {
-            redirect_app('project/' . $slug_project . '/' . $slug_page);
+            redirect_app('project/' . $project['slug'] . '/' . $page['slug']);
         }
     }
 
@@ -351,17 +352,17 @@ class Sections extends MY_Controller {
      * Método para criar seção
      */
 
-    public function create($slug_project, $slug_page) {
+    public function create() {
         $this->load->library('../' . APP_PATH . 'libraries/config_page');
         $project = get_project();
         $page = get_page();
         $this->form_create_section($project, $page);
         add_js(array(
-            'plugins/masks/js/jquery.meio.js',
-            APP_PATH . 'project/js/form-section.js'
+            '../../../../assets/plugins/masks/js/jquery.meio.js',
+            'project/js/form-section.js'
         ));
         add_css(array(
-            APP_PATH . 'project/css/form-section.css'
+            'project/css/form-section.css'
         ));
         $vars = [
             'title' => 'Criar nova seção em ' . $page['name'],
@@ -491,27 +492,23 @@ class Sections extends MY_Controller {
             $this->load->library('../' . APP_PATH . 'libraries/config_page');
             // Cria estrutura xml do array
             $config_xml = $this->config_page->create_config_xml($fields);
-            $path_config_xml = $this->path_view_project . $data['project_directory'] . '/' . $data['page_directory'] . '/' . $data['directory'] ;
+            $path_config_xml = $this->path_view_project . $data['project_directory'] . '/' . $data['page_directory'] . '/' . $data['directory'];
             // Cria o arquivo config.xml
-            $fp = \fopen($path_config_xml. '/config.xml', 'w');
+            $fp = \fopen($path_config_xml . '/config.xml', 'w');
             \fwrite($fp, $config_xml);
             \fclose($fp);
-            \chmod($path_config_xml. '/config.xml', 0640);
+            \chmod($path_config_xml . '/config.xml', 0640);
             if ($fp) {
                 // Se o arquivo for criado, cria colunas dos campos no banco de dados
                 $this->sections_model->create_columns($data['table'], $fields);
             } else {
-                setError('create_config', 'Não foi possível criar o arquivo config.xml em '.$path_config_xml);
+                setError('create_config', 'Não foi possível criar o arquivo config.xml em ' . $path_config_xml);
                 return false;
             }
             // Se tudo der certo, cria nova seção no banco de dados
             $this->sections_model->create($data);
             return true;
-        }else{
-            setError('fields','É obrigatório criar pelo menos um campo.');
-            return false;
         }
-        
     }
 
     /*
@@ -610,7 +607,7 @@ class Sections extends MY_Controller {
             return false;
         } elseif ($column_field == $table) {
             // Se o nome da coluna for igual da tabela
-            setError('error_column', 'O nome da coluna não pode ter o mesmo nome da tabela.');
+            setError('error_column', 'O nome da coluna não pode ser igual ao da tabela.');
             return false;
         } elseif (count(search($fields, 'column', $column_field)) > 0) {
             // Se o nome da coluna estiver duplicado

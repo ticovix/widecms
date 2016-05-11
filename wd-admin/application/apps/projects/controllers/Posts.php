@@ -36,6 +36,15 @@ class Posts extends MY_Controller {
             ));
             if ($data) {
                 if (isset($data['list'])) {
+                    add_css(array(
+                        '../../../../assets/plugins/fancybox/css/jquery.fancybox.css',
+                        '../../../../assets/plugins/fancybox/css/jquery.fancybox-buttons.css',
+                    ));
+                    add_js(array(
+                        '../../../../assets/plugins/fancybox/js/jquery.fancybox.pack.js',
+                        '../../../../assets/plugins/fancybox/js/jquery.fancybox-buttons.js',
+                        'posts/js/load_gallery.js'
+                    ));
                     // Se algum campo estiver para ser listado, significa que o administrador pode inserir mais de um registro
                     $this->mount_list($data, $section, $project, $page);
                 } else {
@@ -56,7 +65,7 @@ class Posts extends MY_Controller {
 
     private function mount_form($data, $section, $project, $page) {
         add_css(array(
-            APP_PATH . 'posts/css/post-form.css'
+            'posts/css/post-form.css'
         ));
         $post = $this->posts_model->get_post($section);
         if (!$post) {
@@ -72,7 +81,7 @@ class Posts extends MY_Controller {
         $this->load->library('../' . APP_PATH . 'libraries/config_page');
         $fields = $this->config_page->fields_template($data_fields, $post);
         $vars = array(
-            'title' => 'Registro',
+            'title' => $section['name'],
             'breadcrumb_section' => false,
             'fields' => $fields,
             'slug_section' => $section['slug'],
@@ -92,7 +101,7 @@ class Posts extends MY_Controller {
     private function mount_list($data, $section, $project, $page) {
         $this->load->library('../' . APP_PATH . 'libraries/config_page');
         add_css(array(
-            APP_PATH . 'posts/css/posts-list.css'
+            'posts/css/posts-list.css'
         ));
         $search = $this->form_search($data, $section);
         $posts = $search['posts'];
@@ -242,7 +251,7 @@ class Posts extends MY_Controller {
 
         if ($section && $project && $page) {
             add_css(array(
-                APP_PATH . 'posts/css/post-form.css'
+                'posts/css/post-form.css'
             ));
 
             $this->load->library('../' . APP_PATH . 'libraries/config_page');
@@ -324,7 +333,7 @@ class Posts extends MY_Controller {
         $page = get_page();
         $post = $this->posts_model->get_post($section, $id_post);
         add_css(array(
-            APP_PATH . 'posts/css/post-form.css'
+            'posts/css/post-form.css'
         ));
         if ($section && $project && $page && $post) {
             $this->load->library('../' . APP_PATH . 'libraries/config_page');

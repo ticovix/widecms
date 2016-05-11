@@ -29,17 +29,17 @@ class Gallery extends MY_Controller {
         $files = $search['files'];
         $total = $search['total'];
         add_js(array(
-            'plugins/dropzone/js/dropzone.js',
-            'plugins/fancybox/js/jquery.fancybox-buttons.js',
-            'plugins/fancybox/js/jquery.fancybox.pack.js',
-            'plugins/embeddedjs/ejs.js',
-            'apps/gallery/js/script.js'
+            '../../../../assets/plugins/dropzone/js/dropzone.js',
+            '../../../../assets/plugins/fancybox/js/jquery.fancybox-buttons.js',
+            '../../../../assets/plugins/fancybox/js/jquery.fancybox.pack.js',
+            '../../../../assets/plugins/embeddedjs/ejs.js',
+            'js/script.js'
         ));
         add_css(array(
-            'plugins/fancybox/css/jquery.fancybox.css',
-            'plugins/fancybox/css/jquery.fancybox-buttons.css',
-            'plugins/dropzone/css/dropzone.css',
-            'apps/gallery/css/style.css'
+            '../../../../assets/plugins/fancybox/css/jquery.fancybox.css',
+            '../../../../assets/plugins/fancybox/css/jquery.fancybox-buttons.css',
+            '../../../../assets/plugins/dropzone/css/dropzone.css',
+            'css/style.css'
         ));
         $vars = array(
             'title' => 'Galeria',
@@ -92,7 +92,7 @@ class Gallery extends MY_Controller {
         $this->load->library('pagination');
         $config['total_rows'] = $total;
         $config['per_page'] = $limit;
-        $config['base_url'] = base_url('gallery/files-list');
+        $config['base_url'] = base_url('apps/gallery/files-list');
         $config['attributes'] = array('class' => 'btn-page');
         $config['page_query_string'] = true;
         $config['reuse_query_string'] = true;
@@ -107,8 +107,8 @@ class Gallery extends MY_Controller {
         $config['last_tag_open'] = '<li>';
         $config['last_tag_close'] = '</li>';
         $config['first_tag_open'] = '<li>';
-        $config['first_tag_open'] = '</li>';
-        $config['first_url'] = base_url('gallery/files-list?per_page=0');
+        $config['first_tag_close'] = '</li>';
+        $config['first_url'] = base_url('apps/gallery/files-list?per_page=0');
 
         $this->pagination->initialize($config);
         return $this->pagination->create_links();
@@ -122,7 +122,9 @@ class Gallery extends MY_Controller {
         $upload = false;
         $insert = false;
         $path = PATH_UPLOAD;
-        if (!empty($_FILES)) {
+        if (isset($_FILES['file']['name'])) {
+            $name = $_FILES['file']['name'];
+            $config['file_name'] = preg_replace("/[^a-z0-9_\s-\._\-]/", "", $name);
             $config['upload_path'] = PATH_UPLOAD;
             $config['file_ext_tolower'] = TRUE;
             $config['remove_spaces'] = TRUE;

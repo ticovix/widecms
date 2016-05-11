@@ -50,26 +50,38 @@ defined('BASEPATH') OR exit('No direct script access allowed');
   | Examples:	my-controller/index	-> my_controller/index
   |		my-controller/my-method	-> my_controller/my_method
  */
+/*
+ * No change this code
+ */
+$path_apps = 'application/apps/';
+$opendir = \opendir($path_apps);
+$app_routes = array();
+while (false !== ($app = readdir($opendir))) {
+    if ($app != '.' && $app != '..') {
+        if (is_dir($path_apps . $app)) {
+            if (is_file($path_apps . $app . '/config/routes.php')) {
+                require_once($path_apps . $app . '/config/routes.php');
+                if (!empty($route)) {
+                    $app_routes[$app] = $route;
+                    unset($route);
+                }
+            }
+        }
+    }
+}
+if (isset($app_routes) && count($app_routes) > 0) {
+    foreach ($app_routes as $app => $routes) {
+        foreach ($routes as $key => $value) {
+            $route['apps/' . $app . '/' . $key] = $value;
+        }
+    }
+}
+
+/*
+ * No change
+ */
 
 $route['default_controller'] = 'Home';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = TRUE;
 $route['logout'] = 'home/logout';
-
-// Pages
-$route['apps/projects/project/(:any)/create'] = 'pages/create/$1';
-$route['apps/projects/project/(:any)/edit/(:any)'] = 'pages/edit/$1/$2';
-$route['apps/projects/project/(:any)/remove/(:any)'] = 'pages/remove/$1/$2';
-// Sections
-$route['apps/projects/project/(:any)/(:any)/create'] = 'sections/create/$1/$2';
-$route['apps/projects/project/(:any)/(:any)/remove/(:any)'] = 'sections/remove/$1/$2/$3';
-$route['apps/projects/project/(:any)/(:any)/edit/(:any)'] = 'sections/edit/$1/$2/$3';
-// Posts
-$route['apps/projects/project/(:any)/(:any)/(:any)/create'] = 'posts/create/$1/$2/$3';
-$route['apps/projects/project/(:any)/(:any)/(:any)/edit/(:any)'] = 'posts/edit/$1/$2/$3/$4';
-$route['apps/projects/project/(:any)/(:any)/(:any)/remove/(:any)'] = 'posts/remove/$1/$2/$3/$4';
-$route['apps/projects/project/(:any)/(:any)/(:any)/mod/(:any)(.*)'] = 'posts/$4$5';
-
-$route['apps/projects/project/(:any)/(:any)/(:any)'] = 'posts/index/$1/$2/$3';
-$route['apps/projects/project/(:any)/(:any)'] = 'sections/index/$1/$2';
-$route['apps/projects/project/(:any)'] = 'pages/index/$1';

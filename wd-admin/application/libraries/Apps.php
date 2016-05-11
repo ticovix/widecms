@@ -30,6 +30,9 @@ class Apps {
             if (empty($config['name'])) {
                 $config['name'] = $config['app'];
             }
+            if(!isset($config['icon']) or isset($config['icon']) && empty($config['icon'])){
+                $config['icon'] = 'fa-exclamation-triangle';
+            }
             if (isset($config['status']) && $config['status'] == 1) {
                 return $this->apps[] = $config;
             }

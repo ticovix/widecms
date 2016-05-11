@@ -32,7 +32,7 @@ class Pages extends MY_Controller {
         $pagination = $this->pagination($total_rows);
 
         add_js([
-            APP_PATH . 'project/js/list-pages.js'
+            'project/js/list-pages.js'
         ]);
         $vars = [
             'title' => $project['name'],
@@ -165,7 +165,7 @@ class Pages extends MY_Controller {
      * Método para exibir template de edição da página
      */
 
-    public function edit($slug_project, $slug_page) {
+    public function edit($slug_page) {
         func_only_dev();
         $project = get_project();
         $page = $this->pages_model->get_page($slug_page);
@@ -230,9 +230,10 @@ class Pages extends MY_Controller {
      * Método para remover página
      */
 
-    public function remove($slug_project, $slug_page) {
+    public function remove($slug_page) {
         func_only_dev();
         $project = get_project();
+        $slug_project = $project['slug'];
         $page = $this->pages_model->get_page($slug_page);
         if ($page) {
             $dir_project = $project['directory'];

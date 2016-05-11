@@ -1,12 +1,12 @@
 <?php
 
-if (!defined('BASEPATH')){
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
 if (!function_exists('add_js')) {
 
-    function add_js($file = '') {
+    function add_js($file = '', $path = '') {
         $str = '';
         $ci = &get_instance();
         $footer_js = $ci->config->item('add_js');
@@ -32,7 +32,7 @@ if (!function_exists('add_js')) {
 }
 if (!function_exists('add_css')) {
 
-    function add_css($file = '') {
+    function add_css($file = '', $path = '') {
         $str = '';
         $ci = &get_instance();
         $header_css = $ci->config->item('add_css');
@@ -64,14 +64,16 @@ if (!function_exists('put_css')) {
         $ci = &get_instance();
         $header_css = $ci->config->item('add_css');
         $path_asset = $ci->config->item('path_asset');
-        
+
         if ($header_css) {
             $header_css = array_unique($header_css);
             foreach ($header_css AS $item) {
-                if(strpos($item, '//')){
+                if (strpos($item, '//')) {
                     $href = $item;
-                }else{
-                    $href = base_url().$path_asset.'/'.$item;
+                } elseif (defined('APP_ASSETS')) {
+                    $href = base_url(APP_ASSETS . $item);
+                } else {
+                    $href = base_url($path_asset . '/' . $item);
                 }
                 $str .= '<link rel="stylesheet" href="' . $href . '" type="text/css" />' . "\n";
             }
@@ -89,13 +91,15 @@ if (!function_exists('put_js')) {
         $ci = &get_instance();
         $footer_js = $ci->config->item('add_js');
         $path_asset = $ci->config->item('path_asset');
-        if($footer_js){
+        if ($footer_js) {
             $footer_js = array_unique($footer_js);
             foreach ($footer_js AS $item) {
-                if(strpos($item, '//')){
+                if (strpos($item, '//')) {
                     $src = $item;
-                }else{
-                    $src = base_url().$path_asset.'/'.$item;
+                } elseif (defined('APP_ASSETS')) {
+                    $src = base_url(APP_ASSETS . $item);
+                } else {
+                    $src = base_url($path_asset . '/' . $item);
                 }
                 $str .= '<script type="text/javascript" src="' . $src . '"></script>' . "\n";
             }

@@ -1,34 +1,37 @@
 <?php
-if (!defined('BASEPATH')){
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 ?>
-<div class="row">
-    <div class="dialog">
-            <div class="block-body">
-                <div align="center">
-                    <img src="<?php echo base_url() ?>assets/images/cms_wide.png" class="logo img-responsive">
-                </div>
+<div class="">
+    <a class="hiddenanchor" id="toregister"></a>
+    <a class="hiddenanchor" id="tologin"></a>
+
+    <div id="wrapper">
+        <div id="login" class=" form">
+            <section class="login_content">
                 <?php
                 echo form_open();
                 ?>
-                <div class="form-group">
-                    <label for="login">Login:</label>
-                    <input type="text" id="login" name="login" value="<?php echo set_value('login'); ?>" class="form-control">
+                <div align="center">
+                    <img src="<?php echo base_url() ?>assets/images/cms_wide.png" class="logo img-responsive">
                 </div>
-                <div class="form-group">
-                    <label for="password">Senha:</label>
-                    <input type="password" id="password" name="password" class="form-control">
+                <div>
+                    <input type="text" name="login" value="<?php echo set_value('login'); ?>" class="form-control" placeholder="Login" required="" />
                 </div>
-                <div class="panel-bottom form-group">
+                <div>
+                    <input type="password" name="password" class="form-control" placeholder="Senha" required="" />
+                </div>
+                <div>
                     <input value="Acessar" name="access" class="btn btn-primary pull-right" type="submit">
-                    <div class="clearfix"></div>
+                    <a class="reset_pass" href="#">Esqueceu sua senha?</a>
                 </div>
                 <?php
                 echo form_close();
                 echo validation_errors('<p class="alert alert-danger">', '</p>');
                 ?>
-            </div>
+            </section>
+        </div>
     </div>
 </div>
 

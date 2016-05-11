@@ -10,37 +10,16 @@ if (!function_exists('list_files')) {
         if (empty($json)) {
             return false;
         }
+        // Decodifica o json para object
         $files = \json_decode($json);
+        // Verifica se foi decodificado
         if (is_object($files)) {
             $files = (array) $files;
         } else {
             return false;
         }
-        if ($limit == null or $limit > 1 or ($limit===1 && $offset != null)) {
-            $arr_file = array();
-            
-            foreach ($files as $file) {
-                $checked = (isset($file->checked)) ? $file->checked : 0;
-                $title = (isset($file->title)) ? $file->title : '';
-                $name_file = (isset($file->file)) ? $file->file : '';
-                if (!empty($name_file) && is_file(getcwd() . '/wd-content/upload/' . $name_file)) {
-                    $arr_file[] = array('file' => $name_file, 'title' => $title, 'checked' => $checked);
-                }
-            }
-
-            if ($offset or $limit) {
-                $total_files = count($arr_file);
-                for ($i = $offset; $i < $total_files; $i++) {
-                    $final_files[] = $arr_file[$i];
-                    if ($limit && $limit == ($i + 1)) {
-                        break;
-                    }
-                }
-            } else {
-                $final_files = $arr_file;
-            }
-            return $final_files;
-        } else {
+        // Se o limit for setado como 1, busca o arquivo principal ou exibe o primeiro arquivo que encontrar.
+        if ($limit == '1') {
             $file = search($files, 'checked', 1);
             if ($file) {
                 $file = $file[0];
@@ -53,6 +32,40 @@ if (!function_exists('list_files')) {
             } else {
                 return false;
             }
+        } else {
+            // Se for necessário listar mais de um arquivo
+            $arr_file = array();
+            // Busca o arquivo principal
+            $search_checked = search($files, 'checked', 1);
+            // Caso encontre, seta no array de arquivos
+            if (isset($search_checked[0])) {
+                $arr_file[] = array('file' => $search_checked[0]['file'], 'title' => $search_checked[0]['title'], 'checked' => 1);
+            }
+            // Lista os arquivos do objeto
+            foreach ($files as $file) {
+                $checked = (isset($file->checked)) ? $file->checked : 0;
+                $title = (isset($file->title)) ? $file->title : '';
+                $name_file = (isset($file->file)) ? $file->file : '';
+                // Seta imagens que o caminho exista e que não seja o arquivo principal
+                if (!empty($name_file) && is_file(getcwd() . '/wd-content/upload/' . $name_file) && $checked == '0') {
+                    $arr_file[] = array('file' => $name_file, 'title' => $title, 'checked' => $checked);
+                }
+            }
+            /* Se o parametro offset ou limit for preenchido
+             * limita a exibição
+             */
+            if ($offset or $limit) {
+                $total_files = count($arr_file);
+                for ($i = $offset; $i < $total_files; $i++) {
+                    $final_files[] = $arr_file[$i];
+                    if ($limit && $limit == ($i + 1)) {
+                        break;
+                    }
+                }
+            } else {
+                $final_files = $arr_file;
+            }
+            return $final_files;
         }
     }
 

@@ -14,7 +14,7 @@ class My_account extends MY_Controller {
         $this->form_edit();
 
         add_js([
-            'apps/users/js/form.js'
+            'js/form.js'
         ]);
 
         $vars = array(
@@ -43,10 +43,11 @@ class My_account extends MY_Controller {
                 'allow_dev' => $user['allow_dev'],
                 'root' => $user['root']
             ];
-            if (!empty($this->input->post('password'))) {
+            $password = $this->input->post('password');
+            if (!empty($password)) {
                 $this->load->helper('passwordhash');
                 $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
-                $data['password'] = $PasswordHash->HashPassword($this->input->post('password'));
+                $data['password'] = $PasswordHash->HashPassword($password);
             } else {
                 $data['password'] = $user['password'];
             }
