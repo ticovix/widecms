@@ -32,12 +32,12 @@ if (!defined('BASEPATH')) {
                         <button type="submit" class="btn btn-sm btn-primary"> Buscar</button> 
                     </span>
                 </div>
-                <?php echo form_close(); ?>
                 <div class="btn-toolbar">
                     <a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> Novo</a>
                     <div class="btn-group"></div>
                 </div>
-                <table class="table table-striped table-responsive">
+                <?php echo form_close(); ?>
+                <table class="table table-striped table-responsive table-bordered">
                     <thead>
                         <tr>
                             <?php
