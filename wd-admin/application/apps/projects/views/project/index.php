@@ -44,9 +44,9 @@ if (!defined('BASEPATH')) {
                                 } else {
                                     echo '#collapse'.$x;
                                 }
-                                ?>" class="page-current list-group-item" data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse<?php echo $x;?>">
+                                ?>" class="page-current list-group-item" <?php if (count($sections) > 1) { ?>data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse<?php echo $x;?>"<?php }?>>
                                    <?php echo $arr["name"] ?>
-                                    <?php if (count($sections) > 1) { ?><span class="fa arrow"></span><?php } ?>
+                                    <?php if (count($sections) > 1) { ?><span class="fa fa-caret-down pull-right"></span><?php } ?>
                                 </a>
                                 <?php if (count($sections) > 1 or count($sections) == 1 && $sections[0]['name']!=$arr['name']) { ?>
                                     <div id="collapse<?php echo $x;?>" class="panel-collapse collapse" role="tabpanel">
