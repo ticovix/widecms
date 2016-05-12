@@ -1,3 +1,12 @@
+.icon-edit{
+    position: absolute;
+    left:50%;
+    top:70%;
+    margin-left: -30px;
+    color: #fff;
+    background: #555;
+    padding: 5px;
+}
 .image-file{
     text-align: center;
     padding: 2px;
@@ -48,15 +57,14 @@
 .image-file.active{
     border-color: #F12938;
 }
-
-.file-ckeditor .options-file{
+.file .options-file{
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
 }
-.file-ckeditor .image-file:hover .options-file{
+.file .image-file:hover .options-file{
     background-color: rgba(0,0,0,0.7) !important;
     padding: 40px;
     margin: 0;

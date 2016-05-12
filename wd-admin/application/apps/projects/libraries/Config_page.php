@@ -189,16 +189,16 @@ class Config_page {
         $CI = & get_instance();
         $this->fields = $fields;
         add_css(array(
-            'plugins/fancybox/css/jquery.fancybox.css',
-            'plugins/fancybox/css/jquery.fancybox-buttons.css',
-            'plugins/dropzone/css/dropzone.css'
+            '../../../../assets/plugins/fancybox/css/jquery.fancybox.css',
+            '../../../../assets/plugins/fancybox/css/jquery.fancybox-buttons.css',
+            '../../../../assets/plugins/dropzone/css/dropzone.css'
         ));
         add_js(array(
-            'plugins/dropzone/js/dropzone.js',
-            'plugins/fancybox/js/jquery.fancybox.pack.js',
-            'plugins/fancybox/js/jquery.fancybox-buttons.js',
-            'plugins/embeddedjs/ejs.js',
-            APP_PATH . 'posts/js/load_gallery.js'
+            '../../../../assets/plugins/dropzone/js/dropzone.js',
+            '../../../../assets/plugins/fancybox/js/jquery.fancybox.pack.js',
+            '../../../../assets/plugins/fancybox/js/jquery.fancybox-buttons.js',
+            '../../../../assets/plugins/embeddedjs/ejs.js',
+            'posts/js/load_gallery.js'
         ));
         foreach ($fields as $field) {
 
@@ -278,11 +278,11 @@ class Config_page {
     private function change_path($path, $plugin) {
         if (is_array($path)) {
             foreach ($path as $p) {
-                $new_path[] = APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $p;
+                $new_path[] = '../plugins_input/' . $plugin['plugin'] . '/assets/' . $p;
             }
             return $new_path;
         } else {
-            return APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $path;
+            return '../plugins_input/' . $plugin['plugin'] . '/assets/' . $path;
         }
     }
 
@@ -292,10 +292,10 @@ class Config_page {
 
     private function template_input_file() {
         add_css(array(
-            APP_PATH . 'posts/css/gallery.css'
+            'posts/css/gallery.css'
         ));
         add_js(array(
-            APP_PATH . 'posts/js/gallery.js'
+            'posts/js/gallery.js'
         ));
         $new_field = array();
         $new_field['type'] = $this->type;
@@ -329,10 +329,10 @@ class Config_page {
 
     private function template_textarea() {
         add_css(array(
-            APP_PATH . 'posts/css/gallery.css'
+            'posts/css/gallery.css'
         ));
         add_js(array(
-            APP_PATH . 'posts/js/gallery.js'
+            'posts/js/gallery.js'
         ));
         $new_field = array();
         $new_field['type'] = $this->type;
@@ -350,7 +350,7 @@ class Config_page {
 
     private function template_checkbox() {
         add_js(array(
-            '' . APP_PATH . 'posts/js/events-select.js'
+            'posts/js/events-select.js'
         ));
         $new_field = array();
         $new_field['type'] = $this->type;
@@ -394,7 +394,7 @@ class Config_page {
 
     private function template_select() {
         add_js(array(
-            '' . APP_PATH . 'posts/js/events-select.js'
+            'posts/js/events-select.js'
         ));
         $new_field = array();
         $new_field['type'] = $this->type;

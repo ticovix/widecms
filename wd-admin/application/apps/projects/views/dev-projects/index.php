@@ -18,7 +18,7 @@ if (!defined('BASEPATH')) {
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
-                    <?php echo form_open(null, ['method' => 'get', 'class' => 'form-group']); ?>
+                    <?php echo form_open(null, ['method' => 'get']); ?>
                     <div class="input-group">
                         <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="Procurar projeto" class="input-sm form-control"> 
                         <span class="input-group-btn">

@@ -22,9 +22,20 @@ if (!defined('BASEPATH')) {
                 <div>
                     <input type="password" name="password" class="form-control" placeholder="Senha" required="" />
                 </div>
+                <?php
+                if ($captcha) {
+                    ?>
+                    <div>
+                        <label for="captcha"><?php echo $captcha['image']; ?></label>
+                        <br>
+                        <input type="text" class="form-control" autocomplete="off" name="captcha" placeholder="Digite o texto da imagem" value="<?php echo set_value('captcha') ?>" />
+                    </div>
+                    <?php
+                }
+                ?>
                 <div>
                     <input value="Acessar" name="access" class="btn btn-primary pull-right" type="submit">
-                    <a class="reset_pass" href="#">Esqueceu sua senha?</a>
+                    <a class="reset_pass" href="<?php echo base_url('login/recovery') ?>">Esqueceu sua senha?</a>
                 </div>
                 <?php
                 echo form_close();

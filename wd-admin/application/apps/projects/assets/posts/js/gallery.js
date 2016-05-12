@@ -25,7 +25,7 @@ $(function () {
             list = new Object();
         }
         if ($("#files-content").data('gallery') != "posts") {
-            var template = new EJS({url: url + "assets/apps/gallery/ejs/posts/base-files.ejs"}).render();
+            var template = new EJS({url: app_assets + "posts/ejs/base-files.ejs"}).render();
             $("#files-content").data("gallery", "posts").html(template);
             $("#btn-save-change").removeClass("hide");
             content_files_added = $("#files-list-added");
@@ -50,7 +50,7 @@ $(function () {
             type: "POST",
             data: {limit: 12},
             success: function (data) {
-                var template = new EJS({url: url + "assets/apps/gallery/ejs/posts/list-files.ejs"}).render({data: data, url: url, app_path: app_path});
+                var template = new EJS({url: app_assets + "posts/ejs/list-files.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });
@@ -60,7 +60,7 @@ $(function () {
      */
     function files_list_added() {
         var content = content_files_added;
-        var template = new EJS({url: url + "assets/apps/gallery/ejs/posts/list-files-added.ejs"}).render({files: list, url: url, app_path: app_path});
+        var template = new EJS({url: app_assets + "posts/ejs/list-files-added.ejs"}).render({files: list, url: url, app_path: app_path});
         content.html(template);
     }
 
@@ -99,7 +99,7 @@ $(function () {
             type: "POST",
             data: {file: file},
             success: function (data) {
-                var template = new EJS({url: url + "assets/apps/gallery/ejs/gallery/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
+                var template = new EJS({url: url + "application/apps/gallery/assets/ejs/gallery/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });
@@ -252,7 +252,7 @@ $(function () {
         var content = $("#modal-edit .modal-content");
 
         content.attr("data-index", index);
-        var template = new EJS({url: url + "assets/apps/gallery/ejs/posts/file-edit.ejs"}).render({file: file, url: url, app_path: app_path});
+        var template = new EJS({url: url + "application/apps/gallery/assets/ejs/posts/file-edit.ejs"}).render({file: file, url: url, app_path: app_path});
         content.html(template);
     });
 

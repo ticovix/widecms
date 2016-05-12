@@ -4,7 +4,7 @@ if (!defined('BASEPATH')){
     exit('No direct script access allowed');
 }
 
-class Users_model extends CI_Model {
+class User_model extends CI_Model {
 
     public function __construct() {
         parent::__construct();
@@ -15,11 +15,12 @@ class Users_model extends CI_Model {
             'name' => $data['name'],
             'last_name' => $data['lastname'],
             'password' => $data['password'],
-            'status' => $data['status'],
-            'allow_dev' => $data['allow_dev'],
-            'root' => $data['root']
+            'image' => $data['image'],
+            'about' => $data['about'],
+            'email' => $data['email'],
+            'login' => $data['login']
         ];
-        $where = ['login' => $data['login']];
+        $where = ['id' => $data['id']];
         return $this->db->update('wd_users', $set, $where);
     }
 

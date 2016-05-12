@@ -37,7 +37,7 @@ if (!defined('BASEPATH')) {
                 <div class="col-md-3 left_col">
                     <div class="left_col scroll-view">
                         <div class="navbar nav_title" style="border: 0;">
-                            <a href="index.html" class="site_title">
+                            <a href="<?php echo base_url(); ?>" class="site_title">
                                 <img src="<?php echo base_url('assets/images/cms_wide_sm.png') ?>">
                             </a>
                         </div>
@@ -47,7 +47,13 @@ if (!defined('BASEPATH')) {
                         <!-- menu profile quick info -->
                         <div class="profile">
                             <div class="profile_pic">
-                                <img src="<?php echo base_url('assets/images/user.png') ?>" alt="..." class="img-circle profile_img">
+                                <img src="<?php
+                                if (is_file('../wd-content/upload/'.$PROFILE['image'])) {
+                                    echo wd_base_url('wd-content/upload/' . $PROFILE['image']);
+                                } else {
+                                    echo base_url('assets/images/user.png');
+                                }
+                                ?>" alt="<?php echo $PROFILE['name'] ?>" class="img-circle profile_img" height="56">
                             </div>
                             <div class="profile_info">
                                 <span>Bem vindo,</span>
@@ -108,12 +114,13 @@ if (!defined('BASEPATH')) {
                             <ul class="nav navbar-nav navbar-right">
                                 <li class="">
                                     <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                        <img src="<?php if (!empty($PROFILE['image'])) { ?><?php
-                                            echo base_url('/upload/' . $PROFILE['image']);
+                                        <img src="<?php
+                                        if (is_file('../wd-content/upload/'.$PROFILE['image'])) {
+                                            echo wd_base_url('wd-content/upload/' . $PROFILE['image']);
                                         } else {
                                             echo base_url('assets/images/user.png');
                                         }
-                                        ?>" alt=""><?php echo $PROFILE['name'] ?>
+                                        ?>" alt="<?php echo $PROFILE['name'] ?>" height="29"><?php echo $PROFILE['name'] ?>
                                         <span class=" fa fa-angle-down"></span>
                                     </a>
                                     <ul class="dropdown-menu dropdown-usermenu pull-right">
@@ -124,7 +131,7 @@ if (!defined('BASEPATH')) {
                                 </li>
 
                                 <li class="dev-mode">
-                                    <?php if ($PROFILE['allow_dev']) { ?>Modo desenvolvedor <input type="checkbox" class="js-switch" <?php if ($PROFILE['dev_mode']) { ?>checked<?php } ?> /> <?php } ?>
+<?php if ($PROFILE['allow_dev']) { ?>Modo desenvolvedor <input type="checkbox" class="js-switch" <?php if ($PROFILE['dev_mode']) { ?>checked<?php } ?> /> <?php } ?>
                                 </li>
                             </ul>
                         </nav>

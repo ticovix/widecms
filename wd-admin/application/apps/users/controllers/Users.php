@@ -104,6 +104,7 @@ class Users extends MY_Controller {
             'status' => null,
             'root' => null,
             'allow_dev' => null,
+            'about' => null
         ];
         $this->load->template('form', $vars);
     }
@@ -114,8 +115,8 @@ class Users extends MY_Controller {
 
     private function form_create() {
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-        $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]');
-        $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]');
+        $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]|valid_email');
+        $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]|min_length[3]');
         $this->form_validation->set_rules('password', 'Senha', 'trim|required');
 
         if ($this->form_validation->run()) {
@@ -134,6 +135,7 @@ class Users extends MY_Controller {
                 'password' => $PasswordHash->HashPassword($this->input->post('password')),
                 'lastname' => $this->input->post('lastname'),
                 'status' => $this->input->post('status'),
+                'about' => $this->input->post('about'),
                 'root' => $root,
                 'allow_dev' => $allow_dev
             ];
@@ -159,7 +161,6 @@ class Users extends MY_Controller {
         ]);
         $vars = [
             'title' => 'Editar usuário',
-            'user_logged' => $this->data_user,
             'name' => $user['name'],
             'last_name' => $user['last_name'],
             'email' => $user['email'],
@@ -167,6 +168,7 @@ class Users extends MY_Controller {
             'status' => $user['status'],
             'root' => $user['root'],
             'allow_dev' => $user['allow_dev'],
+            'about' => $user['about'],
         ];
         $this->load->template('form', $vars);
     }
@@ -177,15 +179,30 @@ class Users extends MY_Controller {
 
     private function form_edit($user) {
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-
+        if($this->input->post('email')!=$user['email']){
+            $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]|valid_email');
+        }
+        if($this->input->post('login')!=$user['login']){
+            $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]|min_length[3]');
+        }
         if ($this->form_validation->run()) {
+            if($user['root']){
+                $root = $this->input->post('root');
+                $allow_dev = $this->input->post('allow_dev');
+            }else{
+                $root = $user['root'];
+                $allow_dev = $user['allow_dev'];
+            }
             $data = [
-                'login' => $user['login'],
+                'login_old' => $user['login'],
                 'name' => $this->input->post('name'),
                 'lastname' => $this->input->post('lastname'),
                 'status' => $this->input->post('status'),
-                'root' => $this->input->post('root'),
-                'allow_dev' => $this->input->post('allow_dev')
+                'email' => $this->input->post('email'),
+                'login' => $this->input->post('login'),
+                'about' => $this->input->post('about'),
+                'root' => $root,
+                'allow_dev' => $allow_dev,
             ];
             $password = $this->input->post('password');
             if (!empty($password)) {
@@ -196,6 +213,7 @@ class Users extends MY_Controller {
                 $data['password'] = $user['password'];
             }
             $this->users_model->update($data);
+            die();
             redirect_app('users');
         }
     }

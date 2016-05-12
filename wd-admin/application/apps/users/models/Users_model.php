@@ -1,6 +1,6 @@
 <?php
 
-if (!defined('BASEPATH')){
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
@@ -10,8 +10,11 @@ class Users_model extends CI_Model {
         parent::__construct();
     }
 
+    public function list_user_email($email) {
+        return $this->db->get_where('wd_users', ['email' => $email])->row_array();
+    }
+
     public function user_exists($user) {
-        $this->db->select('password, id');
         $stmt = $this->db->get_where('wd_users', ['login' => $user, 'status' => '1']);
         if ($stmt->num_rows() > 0) {
             return $stmt->row_array();
@@ -20,10 +23,15 @@ class Users_model extends CI_Model {
         }
     }
 
+    public function user_recovery($user) {
+        $this->db->where('limit_recovery_token>=now()');
+        return $this->db->get_where('wd_users', ['login' => $user, 'status' => '1'])->row_array();
+    }
+
     public function get_user($id) {
         return $this->db->get_where('wd_users', ['id' => $id, 'status' => '1'])->row_array();
     }
-    
+
     public function get_user_edit($login) {
         return $this->db->get_where('wd_users', ['login' => $login])->row_array();
     }
@@ -50,6 +58,7 @@ class Users_model extends CI_Model {
             'last_name' => $data['lastname'],
             'login' => $data['login'],
             'email' => $data['email'],
+            'about' => $data['about'],
             'password' => $data['password'],
             'status' => $data['status'],
             'allow_dev' => $data['allow_dev'],
@@ -65,9 +74,12 @@ class Users_model extends CI_Model {
             'password' => $data['password'],
             'status' => $data['status'],
             'allow_dev' => $data['allow_dev'],
+            'email' => $data['email'],
+            'login' => $data['login'],
+            'about' => $data['about'],
             'root' => $data['root']
         ];
-        $where = ['login' => $data['login']];
+        $where = ['loginn' => $data['login_old']];
         return $this->db->update('wd_users', $set, $where);
     }
 
@@ -75,9 +87,21 @@ class Users_model extends CI_Model {
         $this->db->where_in('id', $users);
         return $this->db->delete('wd_users');
     }
-    
-    public function change_mode($data){
-        return $this->db->update('wd_users', ['dev_mode'=>$data['dev']], ['id'=>$data['id_user']]);
+
+    public function change_mode($data) {
+        return $this->db->update('wd_users', ['dev_mode' => $data['dev']], ['id' => $data['id_user']]);
+    }
+
+    public function change_recovery_token($token, $id_user) {
+        $today = date('Y-m-d H:i:s');
+        $dt = DateTime::createFromFormat('Y-m-d H:i:s', $today);
+        $dt->add(new DateInterval('P7D'));
+        $date = $dt->format('Y-m-d H:i:s');
+        return $this->db->update('wd_users', ['recovery_token' => $token, 'limit_recovery_token' => $date], ['id' => $id_user]);
+    }
+
+    public function change_pass_user($pass, $login) {
+        return $this->db->update('wd_users', ['password' => $pass, 'recovery_token' => '', 'limit_recovery_token' => ''], ['login' => $login]);
     }
 
 }

@@ -7,7 +7,6 @@ class MY_Controller extends CI_Controller {
 
     public function __construct() {
         parent::__construct();
-        $this->load->model('navigation_model', null, null, true);
         $this->load->library('apps');
         $this->security();
         $this->allow_project_list();
@@ -19,7 +18,7 @@ class MY_Controller extends CI_Controller {
     }
 
     public function allow_project_list() {
-        if ($this->uri->segment(1) == 'project') {
+        if ($this->uri->segment(3) == 'project') {
             $project = get_project();
             if ($this->data_user['dev_mode'] == 0 && $project && $project['status'] == 0) {
                 redirect('projects');
@@ -32,7 +31,7 @@ class MY_Controller extends CI_Controller {
             if (!empty($this->data_user)) {
                 return $this->data_user;
             } else {
-                $this->load->model('users_model', null, null, true);
+                $this->load->model('../apps/users/models/users_model', null, null, true);
                 $id_user = $this->session->userdata('id');
                 $this->data_user = $this->users_model->get_user($id_user);
                 if ($this->data_user) {

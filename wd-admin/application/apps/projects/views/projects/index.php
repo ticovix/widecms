@@ -39,7 +39,7 @@ if (!defined('BASEPATH')) {
                             <strong><hr>Foram encontrados <?php echo $total ?> projetos.</strong>
                             <?php
                         } else {
-                            echo '<li>Nenhum projeto encontrado, contate o desenvolvedor.</li>';
+                            echo 'Nenhum projeto encontrado, contate o desenvolvedor.';
                         }
                         ?>
                     </div>

@@ -3059,7 +3059,6 @@ ul.project_files li a i {
 /* *********  media gallery  **************************** */
 
 .thumbnail .image {
-    height: 120px;
     overflow: hidden;
 }
 .caption {
@@ -3070,7 +3069,6 @@ ul.project_files li a i {
     margin-bottom: 5px;
 }
 .thumbnail {
-    height: 190px;
     overflow: hidden;
 }
 .view {

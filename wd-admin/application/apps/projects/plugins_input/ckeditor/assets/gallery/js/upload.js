@@ -23,7 +23,7 @@ $(function () {
             type: "POST",
             data: {limit: 12},
             success: function (data) {
-                var template = new EJS({url: url + "assets/apps/gallery/ejs/ckeditor/list-files.ejs"}).render({data: data, url: url, app_path: app_path});
+                var template = new EJS({url: url + "application/apps/projects/plugins_input/ckeditor/assets/gallery/ejs/list-files.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });
@@ -47,7 +47,7 @@ $(function () {
         var text = $(this).html();
         field = $(this).data("field") + "_field";
         if ($("#files-content").data('gallery') != "ckeditor") {
-            var template = new EJS({url: url + "assets/apps/gallery/ejs/ckeditor/base-files.ejs"}).render();
+            var template = new EJS({url: url + "application/apps/projects/plugins_input/ckeditor/assets/gallery/ejs/base-files.ejs"}).render();
             $("#files-content").data("gallery", "ckeditor").html(template);
             ck_files_list();
         }

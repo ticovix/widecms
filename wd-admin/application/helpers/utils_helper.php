@@ -13,7 +13,7 @@ if (!function_exists('only_number')) {
 }
 if (!function_exists('is_nav_active')) {
 
-    function is_nav_active($page_current = null, $keys = null, $result="active") {
+    function is_nav_active($page_current = null, $keys = null, $result = "active") {
         $return = null;
         if (!is_array($keys)) {
             $keys = [$keys];
@@ -110,6 +110,8 @@ if (!function_exists('forceRemoveDir')) {
     }
 
 }
+
+
 if (!function_exists('generateXML') && !function_exists('arrayToXML')) {
 
     function generateXML($tag_in, $value_in = "", $attribute_in = "", $cdata) {
@@ -377,3 +379,4 @@ if (!function_exists('wd_base_url')) {
     }
 
 }
+
