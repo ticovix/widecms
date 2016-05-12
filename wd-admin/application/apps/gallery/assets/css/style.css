@@ -5,6 +5,7 @@
     border:1px solid #ccc;
     margin-bottom: 5px;
     position: relative;
+    overflow: hidden;
 }
 .image-file img{
     margin: 0 auto;

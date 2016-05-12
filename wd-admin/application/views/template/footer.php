@@ -1,3 +1,4 @@
+</div>
 <!-- footer content -->
 <footer>
     <div class="pull-right">
