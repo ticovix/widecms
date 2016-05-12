@@ -1,8 +1,10 @@
--- MySQL dump 10.13  Distrib 5.6.24, for linux-glibc2.5 (x86_64)
+CREATE DATABASE  IF NOT EXISTS `cmswide` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `cmswide`;
+-- MySQL dump 10.13  Distrib 5.5.49, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: admwide_wide
+-- Host: localhost    Database: cmswide
 -- ------------------------------------------------------
--- Server version	5.5.47-0ubuntu0.14.04.1
+-- Server version	5.5.49-0ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -16,44 +18,19 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `wd_app_perm`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `wd_app_perm` (
-  `id` int(11) NOT NULL,
-  `app` int(11) NOT NULL,
-  `fk_user` int(11) NOT NULL,
-  `status` int(11) NOT NULL COMMENT '1 = yes\n0 = no',
-  PRIMARY KEY (`id`),
-  KEY `fk_wd_nav_perm_1_idx` (`app`),
-  KEY `fk_wd_nav_perm_2_idx` (`fk_user`),
-  CONSTRAINT `fk_wd_nav_perm_2` FOREIGN KEY (`fk_user`) REFERENCES `wd_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `wd_app_perm`
---
-
-LOCK TABLES `wd_app_perm` WRITE;
-/*!40000 ALTER TABLE `wd_app_perm` DISABLE KEYS */;
-/*!40000 ALTER TABLE `wd_app_perm` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `wd_files`
 --
 
+DROP TABLE IF EXISTS `wd_files`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wd_files` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `file` varchar(100) NOT NULL,
   `name` varchar(45) DEFAULT NULL,
+  `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -62,13 +39,41 @@ CREATE TABLE `wd_files` (
 
 LOCK TABLES `wd_files` WRITE;
 /*!40000 ALTER TABLE `wd_files` DISABLE KEYS */;
+INSERT INTO `wd_files` VALUES (5,'-love-linux.png',NULL,NULL);
 /*!40000 ALTER TABLE `wd_files` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `wd_history`
+--
+
+DROP TABLE IF EXISTS `wd_history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `wd_history` (
+  `id` int(11) NOT NULL,
+  `message` varchar(255) DEFAULT NULL,
+  `app` varchar(45) DEFAULT NULL,
+  `fk_user` int(11) DEFAULT NULL,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `wd_history`
+--
+
+LOCK TABLES `wd_history` WRITE;
+/*!40000 ALTER TABLE `wd_history` DISABLE KEYS */;
+/*!40000 ALTER TABLE `wd_history` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
 -- Table structure for table `wd_pages`
 --
 
+DROP TABLE IF EXISTS `wd_pages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wd_pages` (
@@ -85,7 +90,7 @@ CREATE TABLE `wd_pages` (
   KEY `fk_wd_pages_1_idx` (`fk_project`),
   KEY `fk_wd_pages_1_id` (`fk_project`),
   CONSTRAINT `fk_wd_pages_1` FOREIGN KEY (`fk_project`) REFERENCES `wd_projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,6 +106,7 @@ UNLOCK TABLES;
 -- Table structure for table `wd_projects`
 --
 
+DROP TABLE IF EXISTS `wd_projects`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wd_projects` (
@@ -114,7 +120,7 @@ CREATE TABLE `wd_projects` (
   `status` int(11) DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -123,7 +129,7 @@ CREATE TABLE `wd_projects` (
 
 LOCK TABLES `wd_projects` WRITE;
 /*!40000 ALTER TABLE `wd_projects` DISABLE KEYS */;
-INSERT INTO `wd_projects` VALUES (11,'Site principal','site',1,'site',1,'',1);
+INSERT INTO `wd_projects` VALUES (11,'Site principal','site',1,'site-principal',1,'',1);
 /*!40000 ALTER TABLE `wd_projects` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -131,6 +137,7 @@ UNLOCK TABLES;
 -- Table structure for table `wd_sections`
 --
 
+DROP TABLE IF EXISTS `wd_sections`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wd_sections` (
@@ -146,7 +153,7 @@ CREATE TABLE `wd_sections` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `fk_wd_sections_1_idx` (`fk_page`),
   CONSTRAINT `fk_wd_sections_1` FOREIGN KEY (`fk_page`) REFERENCES `wd_pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -162,6 +169,7 @@ UNLOCK TABLES;
 -- Table structure for table `wd_users`
 --
 
+DROP TABLE IF EXISTS `wd_users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wd_users` (
@@ -177,8 +185,11 @@ CREATE TABLE `wd_users` (
   `dev_mode` int(11) NOT NULL DEFAULT '0' COMMENT '1 = true\n0 = false',
   `allow_dev` int(11) NOT NULL DEFAULT '0',
   `root` int(11) NOT NULL DEFAULT '0',
+  `about` varchar(255) DEFAULT NULL,
+  `recovery_token` varchar(255) DEFAULT NULL,
+  `limit_recovery_token` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -187,8 +198,38 @@ CREATE TABLE `wd_users` (
 
 LOCK TABLES `wd_users` WRITE;
 /*!40000 ALTER TABLE `wd_users` DISABLE KEYS */;
-INSERT INTO `wd_users` VALUES (1,'root','contato@widedevelop.com','$2a$08$GoAtuNEYzLOBvyaYiWzfRu9cLQ14yXVq1w3xG1gPJ/F0u3W9NsrkS',1,'Root','','2013-01-16 02:00:00','',1,1,1);
+INSERT INTO `wd_users` VALUES (1,'root','contato@widedevelop.com','$2a$08$sjADIB0xPHbiEQuDYqDUN.RuI9g1JBZl.UpCZoW.g5ED4APUxUpRO',1,'Root','','2013-01-16 02:00:00','-love-linux.png',1,1,1,'tester','','0000-00-00 00:00:00');
 /*!40000 ALTER TABLE `wd_users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `wd_users_perm`
+--
+
+DROP TABLE IF EXISTS `wd_users_perm`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `wd_users_perm` (
+  `id` int(11) NOT NULL,
+  `app` varchar(200) NOT NULL,
+  `fk_user` int(11) NOT NULL,
+  `page` varchar(100) DEFAULT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `status` int(11) NOT NULL COMMENT '1 = yes\n0 = no',
+  PRIMARY KEY (`id`),
+  KEY `fk_wd_nav_perm_1_idx` (`app`),
+  KEY `fk_wd_nav_perm_2_idx` (`fk_user`),
+  CONSTRAINT `fk_wd_nav_perm_2` FOREIGN KEY (`fk_user`) REFERENCES `wd_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `wd_users_perm`
+--
+
+LOCK TABLES `wd_users_perm` WRITE;
+/*!40000 ALTER TABLE `wd_users_perm` DISABLE KEYS */;
+/*!40000 ALTER TABLE `wd_users_perm` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -200,4 +241,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-04-06 19:16:02
+-- Dump completed on 2016-05-11 23:35:12
