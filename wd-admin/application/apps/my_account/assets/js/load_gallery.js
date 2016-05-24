@@ -1,4 +1,4 @@
-if (typeof Dropzone != 'undefined') {
+if (typeof Dropzone == 'function' && typeof myDropzone == 'function') {
     Dropzone.autoDiscover = false;
     myDropzone = new Dropzone("#dropzone_gallery");
 }

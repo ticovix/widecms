@@ -409,6 +409,7 @@ if (empty($class) OR $segment != 'apps' && !file_exists(APPPATH . 'controllers/'
         }
     }
     if (!$e404 && !$load_app) {
+        define('APP', '');
         require_once(APPPATH . 'controllers/' . $RTR->directory . $class . '.php');
     }
 

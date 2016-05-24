@@ -1,7 +1,12 @@
-.remove-field{
-    text-align: center;
-    width: 100%;
-    background: #eee;
-    padding: 12px;
-    border: 1px solid #ddd;
+table {
+    border-collapse:collapse;
+}
+table tr{
+    display: table-row;
+}
+.btn-edit{
+    cursor: pointer;
+}
+.btn-edit:hover > td{
+    background: #f3f3f3;
 }

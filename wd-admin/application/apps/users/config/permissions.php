@@ -1,5 +1,6 @@
 <?php
 
-$permission['edit'] = 'Editar usuário';
-$permission['create'] = 'Criar usuário';
-$permission['delete'] = 'Deletar usuário';
+$permission['edit/.*']['edit'] = 'Editar usuário';
+$permission['edit/.*'][]['edit-permission'] = 'Editar permissões';
+$permission['create']['create'] = 'Criar usuário';
+$permission['delete']['delete'] = 'Deletar usuário';

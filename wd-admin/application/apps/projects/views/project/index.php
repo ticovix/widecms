@@ -49,11 +49,13 @@ if (!defined('BASEPATH')) {
                                     <?php
                                     if (count($sections)) {
                                         foreach ($sections as $section) {
-                                            ?>
-                                            <a class="list-group-item" href="<?php echo base_url_app('project/' . $project['slug'] . '/' . $arr['slug'] . '/' . $section['slug']) ?>">
-                                                &nbsp;&nbsp; <?php echo $section['name'] ?>                                                
-                                            </a>
-                                            <?php
+                                            if (check_method($project['slug'] . '-' . $arr['slug'] . '-' . $section['slug'])) {
+                                                ?>
+                                                <a class="list-group-item" href="<?php echo base_url_app('project/' . $project['slug'] . '/' . $arr['slug'] . '/' . $section['slug']) ?>">
+                                                    &nbsp;&nbsp; <?php echo $section['name'] ?>                                                
+                                                </a>
+                                                <?php
+                                            }
                                         }
                                     }
                                     ?>

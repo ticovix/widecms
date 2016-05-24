@@ -1,7 +1,7 @@
 name: Mascarar CPF
 js_form:
-    - ../../js/masks/js/jquery.meio.js
-    - ../../js/masks/js/masks.js
+    - ../../../assets/js/masks/js/jquery.meio.js
+    - ../../../assets/js/masks/js/masks.js
 attr:
     alt: cpf
     class: add-mask

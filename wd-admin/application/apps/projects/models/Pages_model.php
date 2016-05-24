@@ -76,4 +76,11 @@ class Pages_model extends CI_Model {
         return $this->db->delete('wd_pages', array('id' => $page));
     }
     
+    public function list_pages_permissions($id_project){
+        $this->db->select('id, name, slug, directory');
+        $this->db->where('status',1);
+        $this->db->where('fk_project', $id_project);
+        return $this->db->get('wd_pages')->result_array();
+    }
+    
 }

@@ -1,0 +1,27 @@
+<tr class="field-current btn-edit" data-index="<%=index%>">
+    <td>
+        <input type="hidden" class="name-val" name="name_field[<%=index%>]" value="<%=name%>">
+        <input type="hidden" class="input-val" name="input_field[<%=index%>]" value="<%=input%>">
+        <input type="hidden" class="list-registers-val" name="list_registers_field[<%=index%>]" value="<%=list_registers%>">
+        <input type="hidden" class="options-val" name="options_field[<%=index%>]" value="<%=options%>">
+        <input type="hidden" class="label-options-val" name="label_options_field[<%=index%>]" value="<%=label_options%>">
+        <input type="hidden" class="trigger-select-val" name="trigger_select_field[<%=index%>]" value="<%=trigger_select%>">
+        <input type="hidden" class="column-val" name="column_field[<%=index%>]" value="<%=column%>">
+        <input type="hidden" class="type-val" name="type_field[<%=index%>]" value="<%=type_column%>">
+        <input type="hidden" class="plugins-val" name="plugins_field[<%=index%>]" value="<%=plugin%>">
+        <input type="hidden" class="require-val" name="required_field[<%=index%>]" value="<%=required%>">
+        <input type="hidden" class="observation-val" name="observation_field[<%=index%>]" value="<%=observation%>">
+        <input type="hidden" class="attributes-val" name="attributes_field[<%=index%>]" value='<%=attributes%>'>
+        <input type="hidden" class="unique-val" name="unique_field[<%=index%>]" value="<%=unique%>">
+        <input type="hidden" class="limit-val" name="limit_field[<%=index%>]" value="<%=limit_column%>">
+        <input type="hidden" class="position-val" name="position[<%=index%>]" value="<%=index%>">
+        <input type="hidden" class="options-selected" name="options_selected[<%=index%>]" value='<%=options_selected%>'>
+
+        <%=name%>
+    </td>
+    <td><%=input%></td>
+    <td><i class="fa fa-<% if(list_registers){%>check<% } else{%>remove<% } %>"></i></td>
+    <td><%=column%></td>
+    <td><%=type_column%></td>
+    <td align="center"><input type="checkbox" name="remove_field[<%=index%>]" title="Remover campo"> </td>
+</tr>

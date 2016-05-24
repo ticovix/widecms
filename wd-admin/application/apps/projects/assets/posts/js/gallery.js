@@ -2,11 +2,13 @@ $(function () {
     /*
      * Dropzone
      */
-    myDropzone.on("complete", function (file) {
-        if ($("#files-content").data('gallery') == "posts") {
-            files_list({});
-        }
-    });
+    if (typeof myDropzone == "function") {
+        myDropzone.on("complete", function (file) {
+            if ($("#files-content").data('gallery') == "posts") {
+                files_list({});
+            }
+        });
+    }
     var field, index_field_upload;
     var modal = $("#gallery");
     var content_files = $("#files-list");
@@ -203,7 +205,6 @@ $(function () {
                 var file = list[i].file;
                 var checked = list[i].checked;
                 var title_ = list[i].title;
-                console.log(i, index);
                 if (i == index) {
                     title_ = title;
                 }

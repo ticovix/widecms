@@ -81,5 +81,11 @@ class Projects_model extends CI_Model {
         }
         return $this->db->delete('wd_projects', ['id' => $id]);
     }
+    
+    public function list_projects_permissions(){
+        $this->db->select('id, name, slug, directory');
+        $this->db->where('status',1);
+        return $this->db->get('wd_projects')->result_array();
+    }
 
 }

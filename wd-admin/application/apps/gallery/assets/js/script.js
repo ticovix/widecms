@@ -1,12 +1,14 @@
 $(function () {
-    /*
-     * Dropzone
-     */
-    var myDropzone = new Dropzone("#dropzone_gallery");
-    myDropzone.on("complete", function (file) {
-        files_list({});
-        //myDropzone.removeFile(file);
-    });
+    if (typeof Dropzone == "function") {
+        /*
+         * Dropzone
+         */
+        var myDropzone = new Dropzone("#dropzone_gallery");
+        myDropzone.on("complete", function (file) {
+            files_list({});
+            //myDropzone.removeFile(file);
+        });
+    }
     /*
      * Gallery
      */
@@ -46,7 +48,7 @@ $(function () {
             type: "POST",
             data: {limit: 12},
             success: function (data) {
-                var template = new EJS({url: app_assets + "ejs/gallery/list-files.ejs"}).render({data: data, url: url, app_path: app_path});
+                var template = new EJS({url: app_assets + "ejs/gallery/list-files.ejs"}).render({data: data, url: url, app_path: app_path, edit: edit_file, remove: remove_file});
                 content.html(template);
             }
         });
@@ -80,7 +82,7 @@ $(function () {
      * View file
      */
 
-    $("#files-list").on("click", ".btn-view-file",function () {
+    $("#files-list").on("click", ".btn-view-file", function () {
         var index = $(".btn-view-file").index(this);
         var file = $(".file").eq(index).data("file");
         var content = $("#details .modal-content");
@@ -100,7 +102,7 @@ $(function () {
      * Edit file
      */
 
-    $("#files-list").on("click", ".btn-edit-file",function () {
+    $("#files-list").on("click", ".btn-edit-file", function () {
         var index = $(".btn-edit-file").index(this);
         var file = $(".file").eq(index).data("file");
         var content = $("#edit .modal-content");
@@ -130,15 +132,15 @@ $(function () {
             type: "POST",
             data: {file: file, name: name, new_file: new_file},
             success: function (data) {
-                if(data.error){
-                    msg.html('<div class="alert alert-danger">'+data.message+'</div>');
-                }else{
-                    msg.html('<div class="alert alert-success">'+data.message+'</div>');
+                if (data.error) {
+                    msg.html('<div class="alert alert-danger">' + data.message + '</div>');
+                } else {
+                    msg.html('<div class="alert alert-success">' + data.message + '</div>');
                 }
             }
         });
     });
-    
+
     /*
      * Search file
      */
@@ -150,7 +152,7 @@ $(function () {
         e.preventDefault();
         return false;
     });
-    
+
     /*
      * Pagination
      */

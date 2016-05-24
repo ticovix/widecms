@@ -131,7 +131,7 @@ if (!defined('BASEPATH')) {
                                 </li>
 
                                 <li class="dev-mode">
-<?php if ($PROFILE['allow_dev']) { ?>Modo desenvolvedor <input type="checkbox" class="js-switch" <?php if ($PROFILE['dev_mode']) { ?>checked<?php } ?> /> <?php } ?>
+                                    <?php if ($PROFILE['allow_dev']) { ?>Modo desenvolvedor <input type="checkbox" id="allow_dev" class="js-switch" <?php if ($PROFILE['dev_mode']) { ?>checked<?php } ?> /> <?php } ?>
                                 </li>
                             </ul>
                         </nav>

@@ -7,7 +7,19 @@ if (!defined('BASEPATH')) {
 class Home extends MY_Controller {
 
     public function index() {
-        $this->load->template('home/index');
+        $widgets = $this->list_widgets();
+        $vars = array(
+            'widgets' => $widgets
+        );
+        $this->load->template('home/index', $vars);
+    }
+    
+    /*
+     * Método para listar os widgets da página inicial
+     */
+    private function list_widgets(){
+        $this->load->library('apps');
+        return $this->apps->list_widgets_dashboards();
     }
 
     /*
@@ -16,6 +28,7 @@ class Home extends MY_Controller {
 
     public function logout() {
         $this->session->unset_userdata('logged_in');
+        $this->session->unset_userdata('id');
         session_destroy();
         redirect('login');
     }

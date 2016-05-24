@@ -15,7 +15,7 @@ class Projects extends MY_Controller {
 
     public function __construct() {
         parent::__construct();
-        $this->load->model('projects_model');
+        $this->load->model_app('projects_model');
         $this->path_view_project = 'application/' . APP_PATH . '/views/project/';
     }
 

@@ -6,11 +6,13 @@ $(function () {
      * Dropzone
      */
 
-    myDropzone.on("complete", function (file) {
-        if ($("#files-content").data('gallery') == "ckeditor") {
-            files_list();
-        }
-    });
+    if (typeof myDropzone == 'function') {
+        myDropzone.on("complete", function (file) {
+            if ($("#files-content").data('gallery') == "ckeditor") {
+                files_list();
+            }
+        });
+    }
     /*
      * Function to list files
      */
@@ -48,7 +50,7 @@ $(function () {
             var ext = file_split[file_split.length - 1];
             if ($.inArray(ext, exts) != '-1') {
                 $("#upload-image").val(file);
-                $("#img-profile").attr('src',base_url + 'wd-content/upload/' + file);
+                $("#img-profile").attr('src', base_url + 'wd-content/upload/' + file);
             }
         }
         modal.modal('toggle');

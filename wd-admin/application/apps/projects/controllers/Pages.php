@@ -14,7 +14,7 @@ class Pages extends MY_Controller {
 
     public function __construct() {
         parent::__construct();
-        $this->load->model('pages_model');
+        $this->load->model_app('pages_model');
         $this->path_view_project = 'application/' . APP_PATH . 'views/project/';
     }
 
@@ -31,9 +31,6 @@ class Pages extends MY_Controller {
         $total_rows = $search['total_rows'];
         $pagination = $this->pagination($total_rows);
 
-        add_js([
-            'project/js/list-pages.js'
-        ]);
         $vars = [
             'title' => $project['name'],
             'pages' => $this->includeSections($pages),
@@ -99,7 +96,7 @@ class Pages extends MY_Controller {
      */
 
     private function includeSections($pages) {
-        $this->load->model('sections_model');
+        $this->load->model_app('sections_model');
         if (count($pages)) {
             foreach ($pages as $page) {
                 $page['sections'] = $this->sections_model->list_sections($page['id']);

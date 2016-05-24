@@ -5,12 +5,13 @@ $(function () {
     /*
      * Dropzone
      */
-
-    myDropzone.on("complete", function (file) {
-        if ($("#files-content").data('gallery') == "ckeditor") {
-            ck_files_list();
-        }
-    });
+    if (typeof myDropzone == "function") {
+        myDropzone.on("complete", function (file) {
+            if ($("#files-content").data('gallery') == "ckeditor") {
+                ck_files_list();
+            }
+        });
+    }
     /*
      * Function to list files
      */

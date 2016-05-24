@@ -41,8 +41,9 @@
     right: 0;
 }
 .options-file .btn{
-    font-size: 12px;
+    font-size: 14px;
     padding: 5px;
+    margin-right: 0px;
 }
 
 .image-file.active{

@@ -64,7 +64,18 @@ class Users_model extends CI_Model {
             'allow_dev' => $data['allow_dev'],
             'root' => $data['root']
         ];
-        return $this->db->insert('wd_users', $data);
+        $create = $this->db->insert('wd_users', $data);
+        if ($create) {
+            return $this->db->insert_id();
+        }
+    }
+
+    public function create_permissions($data) {
+        return $this->db->insert_batch('wd_users_perm', $data);
+    }
+
+    public function delete_permissions($id_user) {
+        return $this->db->delete('wd_users_perm', array('fk_user' => $id_user));
     }
 
     public function update($data) {
@@ -79,7 +90,7 @@ class Users_model extends CI_Model {
             'about' => $data['about'],
             'root' => $data['root']
         ];
-        $where = ['loginn' => $data['login_old']];
+        $where = ['login' => $data['login_old']];
         return $this->db->update('wd_users', $set, $where);
     }
 

@@ -1,5 +1,5 @@
 $(function(){
-    var elem = document.querySelector('.js-switch');
+    var elem = document.querySelector('#allow_dev');
     elem.onchange = function() {
         var dev;
         if(elem.checked){

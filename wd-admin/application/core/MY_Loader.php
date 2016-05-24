@@ -34,16 +34,6 @@ class MY_Loader extends CI_Loader {
         return $dir;
     }
 
-    private function filter_model($models) {
-        $dir = '';
-        if (!is_array($models)) {
-            $dir = $this->config_load('models', $models);
-            $models = $dir . $models;
-        }
-
-        return $models;
-    }
-
     public function view($template, $vars = array(), $return = false, $path_default = false) {
         if ($path_default) {
             $dir = '';
@@ -53,9 +43,20 @@ class MY_Loader extends CI_Loader {
         return $this->_ci_load(array('_ci_view' => $dir . $template, '_ci_vars' => $this->_ci_object_to_array($vars), '_ci_return' => $return));
     }
 
-    public function model($model, $name = '', $db_conn = FALSE, $path_default = false) {
-        if (!$path_default) {
-            $model = $this->filter_model($model);
+    public function library_app($library, $app = APP, $params = NULL, $object_name = NULL) {
+        if (!empty($app)) {
+            if (strpos($app, '/') === false) {
+                $library = '../apps/' . $app . '/libraries/' . $library;
+            }else{
+                $library = '../apps/' . $app . $library;
+            }
+        }
+        parent::library($library, $params, $object_name);
+    }
+
+    public function model_app($model, $app = APP, $name = '', $db_conn = FALSE) {
+        if (!empty($app)) {
+            $model = '../apps/' . $app . '/models/' . $model;
         }
         parent::model($model, $name, $db_conn);
     }

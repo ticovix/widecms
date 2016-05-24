@@ -10,7 +10,7 @@ class Config_page {
     private $path_view_project;
 
     public function __construct() {
-        $this->path_view_project = 'application/' . APP_PATH . 'views/project/';
+        $this->path_view_project = 'application/apps/projects/views/project/';
     }
 
     /*
@@ -26,7 +26,6 @@ class Config_page {
         $input[] = ['name' => 'Password', 'value' => 'password'];
         $input[] = ['name' => 'Checkbox', 'value' => 'checkbox'];
         $input[] = ['name' => 'Select', 'value' => 'select'];
-        $input[] = ['name' => 'Radio', 'value' => 'radio'];
         $input[] = ['name' => 'Hidden', 'value' => 'hidden'];
         return $input;
     }
@@ -66,7 +65,9 @@ class Config_page {
                 $column = $field['column'];
                 $type = $field['type'];
                 $limit = $field['limit'];
-                $plugin = $field['plugin'];
+                $plugins = $field['plugins'];
+                $observation = $field['observation'];
+                $attributes = $field['attributes'];
                 $required = $field['required'];
                 $unique = $field['unique'];
                 $options = $field['options'];
@@ -81,8 +82,14 @@ class Config_page {
                 $attr['@unique'] = $unique;
                 $attr['@limit'] = $limit;
                 $attr['@column'] = $column;
-                if (!empty($plugin)) {
-                    $attr['@plugin'] = $plugin;
+                if (!empty($observation)) {
+                    $attr['@observation'] = $observation;
+                }
+                if (!empty($attributes)) {
+                    $attr['@attributes'] = htmlentities($attributes);
+                }
+                if (!empty($plugins)) {
+                    $attr['@plugins'] = $plugins;
                 }
                 if (!empty($options)) {
                     $attr['@options'] = $options;
@@ -107,10 +114,7 @@ class Config_page {
      * Método para carregar o arquivo xml
      */
 
-    public function load_config($project, $page, $section) {
-        $dir_project = $project;
-        $dir_page = $page;
-        $dir_section = $section;
+    public function load_config($dir_project, $dir_page, $dir_section) {
         $path = $this->path_view_project . $dir_project . '/' . $dir_page . '/' . $dir_section . '/config.xml';
         if (is_file($path)) {
             $xml = simplexml_load_file($path, 'SimpleXMLElement');
@@ -138,7 +142,9 @@ class Config_page {
                     $required = (string) $attr->required;
                     $unique = (string) $attr->unique;
                     $limit = (string) $attr->limit;
-                    $plugin = (string) $attr->plugin;
+                    $plugins = (string) $attr->plugins;
+                    $observation = (string) $attr->observation;
+                    $attributes = (string) $attr->attributes;
                     $options = (string) $attr->options;
                     $label_options = (string) $attr->label_options;
                     $trigger_select = (string) $attr->trigger_select;
@@ -149,12 +155,7 @@ class Config_page {
                             'type' => $type,
                             'column' => $column,
                             'type_column' => $type_column,
-                            'list_registers' => $list_registers,
-                            'required' => $required,
-                            'options' => $options,
-                            'label_options' => $label_options,
-                            'plugin' => $plugin,
-                            'limit' => $limit
+                            'list_registers' => $list_registers
                         );
                     }
                     $config['fields'][] = array(
@@ -165,7 +166,9 @@ class Config_page {
                         'list_registers' => $list_registers,
                         'required' => $required,
                         'unique' => $unique,
-                        'plugin' => $plugin,
+                        'plugins' => $plugins,
+                        'observation' => $observation,
+                        'attributes' => $attributes,
                         'options' => $options,
                         'label_options' => $label_options,
                         'trigger_select' => $trigger_select,
@@ -188,13 +191,19 @@ class Config_page {
     public function fields_template($fields, $post = null) {
         $CI = & get_instance();
         $this->fields = $fields;
+        if (check_method('upload', 'gallery')) {
+            add_css(array(
+                '../../../../assets/plugins/dropzone/css/dropzone.css'
+            ));
+            add_js(array(
+                '../../../../assets/plugins/dropzone/js/dropzone.js'
+            ));
+        }
         add_css(array(
             '../../../../assets/plugins/fancybox/css/jquery.fancybox.css',
-            '../../../../assets/plugins/fancybox/css/jquery.fancybox-buttons.css',
-            '../../../../assets/plugins/dropzone/css/dropzone.css'
+            '../../../../assets/plugins/fancybox/css/jquery.fancybox-buttons.css'
         ));
         add_js(array(
-            '../../../../assets/plugins/dropzone/js/dropzone.js',
             '../../../../assets/plugins/fancybox/js/jquery.fancybox.pack.js',
             '../../../../assets/plugins/fancybox/js/jquery.fancybox-buttons.js',
             '../../../../assets/plugins/embeddedjs/ejs.js',
@@ -205,19 +214,23 @@ class Config_page {
             // Lista os campos do formulário
             $this->attr = array();
             $this->field = $field;
+            if (isset($field['attributes']) && strpos($field['attributes'], '{') !== false) {
+                $this->attributes = $field['attributes'];
+            }
             $this->type = strtolower($field['type']);
             $this->column = $field['column'];
             $this->required = $field['required'];
             // Recebe os dados da máscara do formulário
-            $this->plugin = $this->get_plugin($field['plugin']);
+            $this->plugins = $this->get_plugins($field['plugins']);
             // Seta o label do arquivo, se for obrigatóro insere asterísco
             $this->label = ($this->required) ? $field['label'] . '<span>*</span>' : $field['label'];
             $this->value = (!empty($post)) ? $post[$this->column] : '';
             $this->post = $post;
 
-            if ($this->plugin) {
-                $plugin_added = $this->add_plugin();
+            if ($this->plugins) {
+                $this->add_plugins();
             }
+            $this->treat_attributes();
             switch ($this->type) {
                 case 'file':
                 case 'multifile':
@@ -240,6 +253,9 @@ class Config_page {
                     break;
             }
             $new_field['column'] = $this->column;
+            if (isset($field['observation'])) {
+                $new_field['observation'] = $field['observation'];
+            }
             $form[] = $new_field;
         }
         return $form;
@@ -249,30 +265,63 @@ class Config_page {
      * Método para alterar valor do input, caso tenha algum método para tratar a saida do valor do banco de dados
      */
 
-    private function add_plugin() {
-        $plugin = $this->plugin;
-        //Se o campo possuir mascara, seta as chaves que existem no array
-        $this->attr = (isset($plugin['attr'])) ? $plugin['attr'] : array();
-        $js = (isset($plugin['js_form'])) ? $this->change_path($plugin['js_form'], $plugin) : false;
-        $css = (isset($plugin['css_form'])) ? $this->change_path($plugin['css_form'], $plugin) : false;
-        $class = ucfirst($plugin['plugin']);
-        $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
-        if ($js) {
-            add_js($js);
-        }
-        if ($css) {
-            add_css($css);
-        }
-        if (is_file($class_plugin)) {
-            // Se houver um método de saida
-            $CI = & get_instance();
-            $CI->load->library('../' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php');
-            if (method_exists($class, 'output')) {
-                $class = strtolower($class);
-                // Se o método existir, aciona e seta o novo valor
-                $this->value = $CI->$class->output($this->value, $this->field, $this->fields);
+    private function add_plugins() {
+        $plugins = $this->plugins;
+        if ($plugins) {
+            $this->attr = array();
+            foreach ($plugins as $plugin) {
+                //Se o campo possuir mascara, seta as chaves que existem no array
+                if (isset($plugin['attr'])) {
+                    $this->attr[] = $plugin['attr'];
+                }
+                $js = (isset($plugin['js_form'])) ? $this->change_path($plugin['js_form'], $plugin) : false;
+                $css = (isset($plugin['css_form'])) ? $this->change_path($plugin['css_form'], $plugin) : false;
+                $class = ucfirst($plugin['plugin']);
+                $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
+                if ($js) {
+                    add_js($js);
+                }
+                if ($css) {
+                    add_css($css);
+                }
+                if (is_file($class_plugin)) {
+                    // Se houver um método de saida
+                    $CI = & get_instance();
+                    $CI->load->library('../' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php');
+                    if (method_exists($class, 'output')) {
+                        $class = strtolower($class);
+                        // Se o método existir, aciona e seta o novo valor
+                        $this->value = $CI->$class->output($this->value, $this->field, $this->fields);
+                    }
+                }
             }
         }
+    }
+
+    private function treat_attributes() {
+        if (isset($this->attributes)) {
+            $attr = (array) json_decode($this->attributes);
+            $arr_attr = array();
+            if ($attr) {
+                foreach ($attr as $obj) {
+                    $arr_attr = array_merge($arr_attr, (array) $obj);
+                }
+            }
+            if ($arr_attr) {
+                $this->attr[] = $arr_attr;
+            }
+        }
+        $attributes = $this->attr;
+        $result_attr = array();
+        if (is_array($attributes) && count($attributes) > 0) {
+            foreach ($attributes as $attr) {
+                if (isset($attr["class"]) && isset($result_attr["class"])) {
+                    $result_attr["class"] .= " " . $attr["class"];
+                }
+                $result_attr = array_merge($attr, $result_attr);
+            }
+        }
+        $this->attr = $result_attr;
     }
 
     private function change_path($path, $plugin) {
@@ -538,7 +587,7 @@ class Config_page {
                     $type = strtolower($field[0]['type']);
                     if (isset($field[0]['plugin'])) {
                         // Se houver um parametro mask setado
-                        $value = $this->plugin_output($field[0]['plugin'], $value, $field[0], $data);
+                        $value = $this->plugins_output($field[0]['plugin'], $value, $field[0], $data);
                     }
                     switch ($type) {
                         case 'select':
@@ -560,9 +609,9 @@ class Config_page {
         return $list;
     }
 
-    private function plugin_output($plugin, $value, $field, $fields) {
+    private function plugins_output($plugins, $value, $field, $fields) {
         $type = $field['type'];
-        $plugin = $this->get_plugin($plugin);
+        $plugins = $this->get_plugins($plugins);
         $CI = & get_instance();
         $class = ucfirst($plugin['plugin']);
         $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
@@ -650,8 +699,8 @@ class Config_page {
             }
         }
         closedir($opendir);
-        asort($this->plugins);
-        return $this->plugins;
+        asort($this->list_plugins);
+        return $this->list_plugins;
     }
 
     /*
@@ -669,7 +718,7 @@ class Config_page {
                 $config['name'] = $config['plugin'];
             }
             $config['name'] = ucfirst(strtolower($config['name']));
-            return $this->plugins[] = $config;
+            return $this->list_plugins[] = $config;
         }
     }
 
@@ -678,19 +727,27 @@ class Config_page {
      * return String
      */
 
-    public function get_plugin($plugin) {
-        if (!empty($plugin)) {
-            $plugins = $this->plugins;
-            if (empty($plugins)) {
-                $plugins = $this->list_plugins();
-            }
-            if ($plugins) {
-                $plugin = search($plugins, 'plugin', $plugin);
-                if (isset($plugin[0])) {
-                    return $plugin[0];
+    public function get_plugins($plugins) {
+        $plugins = explode("|", $plugins);
+        $arr_plugins = array();
+        if ($plugins) {
+            foreach ($plugins as $plugin) {
+                if (!empty($plugin)) {
+                    if (!isset($this->list_plugins)) {
+                        $plugins = $this->list_plugins();
+                    } else {
+                        $plugins = $this->list_plugins;
+                    }
+                    if ($plugins) {
+                        $plugin = search($plugins, 'plugin', $plugin);
+                        if (isset($plugin[0])) {
+                            $arr_plugins[] = $plugin[0];
+                        }
+                    }
                 }
             }
         }
+        return $arr_plugins;
     }
 
 }

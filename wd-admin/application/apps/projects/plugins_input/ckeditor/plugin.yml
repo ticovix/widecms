@@ -3,5 +3,4 @@ js_form:
     - ckeditor/ckeditor.js
     - gallery/js/upload.js
 attr:
-    alt: ckeditor
     class: ckeditor

@@ -5,7 +5,7 @@ if (!defined('BASEPATH')) {
 ?>
 <ul class="breadcrumb">
     <li><a href="<?php echo base_url() ?>">Home</a></li>
-    <li><a href="<?php echo base_url_app() ?>users">Usuários</a></li>
+    <li><a href="<?php echo base_url_app() ?>">Usuários</a></li>
     <li class="active"><?php echo $title ?></li>
 </ul>
 <div class="row">
@@ -114,6 +114,64 @@ if (!defined('BASEPATH')) {
                             </div>
                         </div>
                     </div>
+                    <?php
+                    if ($permissions && check_method('edit-permission') && $id_user != $PROFILE['id'] && ($PROFILE['root']!='1' OR $id_user != $PROFILE['id'])) {
+                        ?>
+                        <br>
+                        <div class="x_title">
+                            <h2>Gerenciar permissões dos aplicativos</h2>
+                            <div class="clearfix"></div>
+                        </div>
+                        <?php
+                        foreach ($permissions as $app) {
+                            $name = $app['name'];
+                            $dir_app = $app['app'];
+                            $permissions_app = (isset($app['permissions']) ? $app['permissions'] : array());
+                            ?>
+                            <table class="table table-responsive table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th><?php echo $name; ?></th>
+                                        <td width="60" align="center"><input type="checkbox" data-app="true" name="<?php echo $dir_app ?>" value="1" checked="checked" class="check-permission"></td>
+                                    </tr>
+                                </thead>
+                                <tbody id="<?php echo $dir_app ?>-list">
+                                    <?php
+                                    foreach ($permissions_app as $page => $arr) {
+                                        foreach ($arr as $key => $value) {
+                                            $method = $key;
+                                            $label = $value;
+                                            if (!is_array($value)) {
+                                                if (check_method($method, $dir_app) or $PROFILE['root']==1) {
+                                                    ?>
+                                                    <tr>
+                                                        <td><?php echo $label ?></td>
+                                                        <td align="center"><input type="checkbox" data-page="<?php echo $dir_app . '/' . $page ?>" name="<?php echo $dir_app . '-' . $method ?>" value="1" <?php if($this->uri->segment(3)=='create' or check_method($method, $dir_app, $id_user)){?>checked="checked"<?php }?> class="check-permission"></td>
+                                                    </tr>
+                                                    <?php
+                                                }
+                                            } else {
+                                                foreach ($value as $method => $label) {
+                                                    $label = '&nbsp; - ' . $label;
+                                                    if (check_method($method, $dir_app) or $PROFILE['root']==1) {
+                                                        ?>
+                                                        <tr>
+                                                            <td><?php echo $label ?></td>
+                                                            <td align="center"><input type="checkbox" name="<?php echo $dir_app . '-' . $method ?>" data-sub="<?php echo $dir_app . '/' . $page ?>" value="1" <?php if($this->uri->segment(3)=='create' or check_method($method, $dir_app, $id_user)){?>checked="checked"<?php }?> class="check-permission"></td>
+                                                        </tr>
+                                                        <?php
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                            <?php
+                        }
+                    }
+                    ?>
 
                     <div class="form-group text-right">
                         <input class="btn btn-primary" value="Salvar" name="send" type="submit">

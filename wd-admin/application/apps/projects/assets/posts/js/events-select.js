@@ -5,9 +5,10 @@ $(function () {
     $(".trigger-select").change(function () {
         var name = $(this).attr("name");
         var value = $(this).val();
+        var index = $(".trigger-select").index(this);
 
         if ($("select").hasClass("trigger-" + name)) {
-            var select = $(".trigger-" + name);
+            var select = $(".trigger-" + name).not($(this).eq(index));
             var name_destination = select.attr("name");
 
             select.html($("<option>").val("").html("Carregando.."));

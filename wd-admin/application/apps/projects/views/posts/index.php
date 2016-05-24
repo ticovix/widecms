@@ -32,11 +32,17 @@ if (!defined('BASEPATH')) {
                         <button type="submit" class="btn btn-sm btn-primary"> Buscar</button> 
                     </span>
                 </div>
-                <div class="btn-toolbar">
-                    <a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> Novo</a>
-                    <div class="btn-group"></div>
-                </div>
-                <?php echo form_close(); ?>
+                <?php
+                if (check_method($method . '-create')) {
+                    ?>
+                    <div class="btn-toolbar">
+                        <a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> Novo</a>
+                        <div class="btn-group"></div>
+                    </div>
+                    <?php
+                }
+                echo form_close();
+                ?>
                 <table class="table table-striped table-responsive table-bordered">
                     <thead>
                         <tr>
@@ -69,8 +75,8 @@ if (!defined('BASEPATH')) {
                                     }
                                     ?>
                                     <td>
-                                        <a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/edit/' . $id); ?>"><i class="fa fa-pencil"></i></a>
-                                        <a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/remove/' . $id); ?>" onclick="javascript: return confirm('Deseja realmente remover esse registro?')"><i class="fa fa-remove"></i></a>
+                                        <?php if (check_method($method . '-edit')) {?><a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/edit/' . $id); ?>"><i class="fa fa-pencil"></i></a><?php }?>
+                                        <?php if (check_method($method . '-remove')) {?><a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/remove/' . $id); ?>" onclick="javascript: return confirm('Deseja realmente remover esse registro?')"><i class="fa fa-remove"></i></a><?php }?>
                                     </td>
                                 </tr>
                                 <?php

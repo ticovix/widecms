@@ -379,4 +379,3 @@ if (!function_exists('wd_base_url')) {
     }
 
 }
-

@@ -120,31 +120,54 @@ if (!defined('BASEPATH')) {
 <div class="modal fade" id="gallery" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
+
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="myModalLabel">Envie ou selecione arquivos</h4>
             </div>
             <div class="modal-body">
-                <?php echo form_open_multipart('apps/gallery/upload', ['id' => 'dropzone_gallery', 'class' => 'dropzone form-group']) ?>
-                <div class="dropzone-previews"></div>
-                <div class="dz-default dz-message"></div>
-                <?php echo form_close() ?>
-                <?php echo form_open(null, ['method' => 'get', 'class' => 'form-group', 'id' => 'search-files']); ?>
-                <div class="input-group">
-                    <input type="text" name="search" id="search-field" value="<?php echo $this->input->get('search') ?>" placeholder="Procurar arquivo" class="input-sm form-control"> 
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-sm btn-primary"> Buscar</button> 
-                    </span>
-                </div>
-                <?php echo form_close(); ?>
-                <div class="row" id="files-content">
-                    <!--EJS -->
-                </div>
+                <?php
+                if (check_app('gallery')) {
+                    if (check_method('upload', 'gallery')) {
+                        echo form_open_multipart('apps/gallery/upload', ['id' => 'dropzone_gallery', 'class' => 'dropzone form-group']);
+                        ?>
+                        <div class="dropzone-previews"></div>
+                        <div class="dz-default dz-message"></div>
+                        <?php
+                        echo form_close();
+                    }
+                    if (check_method('view-files', 'gallery')) {
+                        ?>
+                        <?php echo form_open(null, ['method' => 'get', 'class' => 'form-group', 'id' => 'search-files']); ?>
+                        <div class="input-group">
+                            <input type="text" name="search" id="search-field" value="<?php echo $this->input->get('search') ?>" placeholder="Procurar arquivo" class="input-sm form-control"> 
+                            <span class="input-group-btn">
+                                <button type="submit" class="btn btn-sm btn-primary"> Buscar</button> 
+                            </span>
+                        </div>
+                        <?php echo form_close(); ?>
+                        <div class="row" id="files-content">
+                            <!--EJS -->
+                        </div>
+                        <?php
+                    }
+                } else {
+                    ?>
+                    <div class="alert alert-danger">Você não tem permissão para acessar essa área.</div>
+                    <?php
+                }
+                ?>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btn-save-change">Salvar</button>
-            </div>
+            <?php
+            if (check_app('gallery')) {
+                ?>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="btn-save-change">Salvar</button>
+                </div>
+                <?php
+            }
+            ?>
         </div>
     </div>
 </div>

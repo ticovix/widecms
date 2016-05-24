@@ -1,11 +1,11 @@
 name: Mascarar Data e hora
 js_form:
-    - ../../js/masks/js/jquery.meio.js
-    - ../../js/masks/js/masks.js
-    - ../../../../plugins/jquery-ui/jquery-ui.min.js
-    - ../../js/masks/js/datetimepicker.js
+    - ../../../assets/js/masks/js/jquery.meio.js
+    - ../../../assets/js/masks/js/masks.js
+    - ../../../../../plugins/jquery-ui/jquery-ui.min.js
+    - ../../../assets/js/masks/js/datetimepicker.js
 css_form:
-    - ../../../../plugins/jquery-ui/jquery-ui.css
+    - ../../../../../plugins/jquery-ui/jquery-ui.css
 attr:
     alt: datetime
     class: add-mask datetime-mod

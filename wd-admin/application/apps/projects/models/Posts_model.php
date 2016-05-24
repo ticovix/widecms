@@ -33,23 +33,24 @@ class Posts_model extends CI_Model {
     }
 
     public function list_posts_select($table, $column, $data_trigger = null) {
-        $this->db->select($table . '.id value, ' . $table . '.' . $column.' label');
+        $this->db->select('t1.id value, t1.' . $column . ' label');
         if ($data_trigger) {
             $table_trigger = $data_trigger['table'];
             $column_trigger = $data_trigger['column'];
             $value = $data_trigger['value'];
-            $this->db->join($table_trigger, $table_trigger . '.id=' . $table . '.' . $column_trigger);
-            $this->db->where($table . '.' . $column_trigger, $value);
+            $this->db->join($table_trigger . ' t2', 't2.id=t1.' . $column_trigger);
+            $this->db->where('t1.' . $column_trigger, $value);
         }
-        return $this->db->get($table)->result_array();
+        return $this->db->get($table . ' t1')->result_array();
     }
+
     public function list_posts_checkbox($table, $column) {
-        $this->db->select($table . '.id value, ' . $table . '.' . $column.' label');
+        $this->db->select($table . '.id value, ' . $table . '.' . $column . ' label');
         return $this->db->get($table)->result_array();
     }
-    
-    public function list_options_checked($table, $column, $value){
-        $this->db->select($column.' value');
+
+    public function list_options_checked($table, $column, $value) {
+        $this->db->select($column . ' value');
         $this->db->where_in('id', $value);
         return $this->db->get($table)->result_array();
     }

@@ -13,7 +13,7 @@ class Posts extends MY_Controller {
 
     public function __construct() {
         parent::__construct();
-        $this->load->model('posts_model');
+        $this->load->model_app('posts_model');
     }
 
     /*
@@ -28,7 +28,7 @@ class Posts extends MY_Controller {
             $dir_section = $section['directory'];
             $name = $section['name'];
             $table = $section['table'];
-            $this->load->library('../' . APP_PATH . 'libraries/config_page');
+            $this->load->library_app('config_page');
             // Carrega config xml
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
             $this->load->setVars(array(
@@ -78,7 +78,7 @@ class Posts extends MY_Controller {
         $this->form_edit_post($data_fields, $section, $post);
 
         // Gera o template baseado nos campos do config xml
-        $this->load->library('../' . APP_PATH . 'libraries/config_page');
+        $this->load->library_app('config_page');
         $fields = $this->config_page->fields_template($data_fields, $post);
         $vars = array(
             'title' => $section['name'],
@@ -89,7 +89,8 @@ class Posts extends MY_Controller {
             'slug_page' => $page['slug'],
             'name_section' => $section['name'],
             'name_page' => $page['name'],
-            'name_project' => $project['name']
+            'name_project' => $project['name'],
+            'method' => $project['slug'] . '-' . $page['slug'] . '-' . $section['slug']
         );
         $this->load->template('posts/form-post', $vars);
     }
@@ -99,7 +100,7 @@ class Posts extends MY_Controller {
      */
 
     private function mount_list($data, $section, $project, $page) {
-        $this->load->library('../' . APP_PATH . 'libraries/config_page');
+        $this->load->library_app('config_page');
         add_css(array(
             'posts/css/posts-list.css'
         ));
@@ -120,7 +121,8 @@ class Posts extends MY_Controller {
             'name_page' => $page['name'],
             'name_project' => $project['name'],
             'pagination' => $pagination,
-            'total' => $total_rows
+            'total' => $total_rows,
+            'method' => $project['slug'] . '-' . $page['slug'] . '-' . $section['slug']
         );
         $this->load->template('posts/index', $vars);
     }
@@ -189,7 +191,7 @@ class Posts extends MY_Controller {
             $value = (int) $this->input->post('id_post');
             $name_trigger = $this->input->post('name_trigger');
             $name_destination = $this->input->post('name_destination');
-            $this->load->library('../' . APP_PATH . 'libraries/config_page');
+            $this->load->library_app('config_page');
             $data = $this->config_page->load_config($project, $page, $section);
             if ($data) {
                 $field_trigger = search($data, 'column', $name_trigger);
@@ -217,17 +219,19 @@ class Posts extends MY_Controller {
 
     private function set_value($value, $field, $fields) {
         $type = strtolower($field['type']);
-        $plugin = $this->config_page->get_plugin($field['plugin']);
-        if ($plugin) {
-            $class = ucfirst($plugin['plugin']);
-            $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
-            if (is_file($class_plugin)) {
-                // Se o campo possui método de entrada
-                $this->load->library('../' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php');
-                if (method_exists($class, 'input')) {
-                    $class = strtolower($class);
-                    // Se o método existir, aciona e modifica o valor
-                    $value = $this->$class->input($value, $field, $fields);
+        $plugins = $this->config_page->get_plugins($field['plugins']);
+        if ($plugins) {
+            foreach ($plugins as $plugin) {
+                $class = ucfirst($plugin['plugin']);
+                $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
+                if (is_file($class_plugin)) {
+                    // Se o campo possui método de entrada
+                    $this->load->library_app($class, '/plugins_input/' . $plugin['plugin'] . '/');
+                    if (method_exists($class, 'input')) {
+                        $class = strtolower($class);
+                        // Se o método existir, aciona e modifica o valor
+                        $value = $this->$class->input($value, $field, $fields);
+                    }
                 }
             }
         }
@@ -254,7 +258,7 @@ class Posts extends MY_Controller {
                 'posts/css/post-form.css'
             ));
 
-            $this->load->library('../' . APP_PATH . 'libraries/config_page');
+            $this->load->library_app('config_page');
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
             $data_fields = $data['fields'];
             $this->form_create_post($data_fields, $project, $page, $section);
@@ -270,7 +274,8 @@ class Posts extends MY_Controller {
                 'name_section' => $section['name'],
                 'name_page' => $page['name'],
                 'name_project' => $project['name'],
-                'dev_mode' => $this->data_user['dev_mode']
+                'dev_mode' => $this->data_user['dev_mode'],
+                'method' => $project['slug'] . '-' . $page['slug'] . '-' . $section['slug']
             );
             $this->load->template('posts/form-post', $vars);
         } else {
@@ -336,7 +341,7 @@ class Posts extends MY_Controller {
             'posts/css/post-form.css'
         ));
         if ($section && $project && $page && $post) {
-            $this->load->library('../' . APP_PATH . 'libraries/config_page');
+            $this->load->library_app('config_page');
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
             $data_fields = $data['fields'];
             $this->form_edit_post($data_fields, $section, $post);
@@ -352,7 +357,8 @@ class Posts extends MY_Controller {
                 'name_section' => $section['name'],
                 'name_page' => $page['name'],
                 'name_project' => $project['name'],
-                'dev_mode' => $this->data_user['dev_mode']
+                'dev_mode' => $this->data_user['dev_mode'],
+                'method' => $project['slug'] . '-' . $page['slug'] . '-' . $section['slug']
             );
             $this->load->template('posts/form-post', $vars);
         } else {

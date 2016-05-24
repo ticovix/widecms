@@ -1,5 +1,7 @@
 <?php
 
-$permission['upload'] = 'Enviar arquivo';
-$permission['view_files'] = 'Ver arquivos';
-$permission['search'] = 'Pesquisar arquivos';
+// Permissão de métodos
+$permission['/']['upload'] = 'Enviar arquivos';
+$permission['/']['view-files'] = 'Ver arquivos';
+$permission['/']['remove'] = 'Remover arquivos';
+$permission['/']['edit'] = 'Editar arquivos';

@@ -13,7 +13,7 @@ class Users extends MY_Controller {
 
     public function __construct() {
         parent::__construct();
-        $this->load->model('users_model');
+        $this->load->model_app('users_model');
     }
 
     /*
@@ -90,9 +90,15 @@ class Users extends MY_Controller {
      */
 
     public function create() {
-        $this->form_create();
+        $permissions = $this->apps->list_apps_permissions();
+        $this->form_create($permissions);
+        $this->load->library('apps');
         add_js([
+            '../../../../assets/plugins/switchery/js/switchery.js',
             'js/form.js'
+        ]);
+        add_css([
+            '../../../../assets/plugins/switchery/css/switchery.css'
         ]);
         $vars = [
             'title' => 'Novo usuário',
@@ -104,7 +110,9 @@ class Users extends MY_Controller {
             'status' => null,
             'root' => null,
             'allow_dev' => null,
-            'about' => null
+            'about' => null,
+            'permissions' => $permissions,
+            'id_user' => ''
         ];
         $this->load->template('form', $vars);
     }
@@ -113,7 +121,7 @@ class Users extends MY_Controller {
      * Método para criação de usuário
      */
 
-    private function form_create() {
+    private function form_create($permissions) {
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
         $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]|valid_email');
         $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]|min_length[3]');
@@ -124,7 +132,7 @@ class Users extends MY_Controller {
             $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
             $root = $this->input->post('root');
             $allow_dev = $this->input->post('allow_dev');
-            if($this->data_user['root']!='1'){
+            if ($this->data_user['root'] != '1') {
                 $root = 0;
                 $allow_dev = 0;
             }
@@ -139,8 +147,63 @@ class Users extends MY_Controller {
                 'root' => $root,
                 'allow_dev' => $allow_dev
             ];
-            $this->users_model->create($data);
+            $user = $this->users_model->create($data);
+            if ($user) {
+                $this->create_permissions($permissions, $user);
+            }
+            add_history('Criou o usuário ' . $this->input->post('name') . ' ' . $this->input->post('lastname'));
             redirect_app('users');
+        }
+    }
+
+    private function create_permissions($permissions, $id_user) {
+        if ($permissions) {
+            $data = array();
+            foreach ($permissions as $app) {
+                $name = $app['name'];
+                $dir_app = $app['app'];
+                $is_check = (int) $this->input->post($dir_app);
+                $permissions_app = (isset($app['permissions']) ? $app['permissions'] : array());
+                $data[] = array(
+                    'fk_user' => $id_user,
+                    'app' => $dir_app,
+                    'page' => '',
+                    'method' => '',
+                    'status' => $is_check
+                );
+                foreach ($permissions_app as $page => $arr) {
+                    foreach ($arr as $key => $value) {
+                        $method = $key;
+                        $label = $value;
+                        if (!is_array($label)) {
+                            $is_check = (int) $this->input->post($dir_app . '-' . $method);
+                            if ($page == '/') {
+                                $page = '';
+                            }
+                            $data[] = array(
+                                'fk_user' => $id_user,
+                                'app' => $dir_app,
+                                'page' => $page,
+                                'method' => $method,
+                                'status' => $is_check
+                            );
+                        } else {
+                            foreach ($value as $method => $label) {
+                                $page = $key;
+                                $is_check = (int) $this->input->post($dir_app . '-' . $method);
+                                $data[] = array(
+                                    'fk_user' => $id_user,
+                                    'app' => $dir_app,
+                                    'page' => $page,
+                                    'method' => $method,
+                                    'status' => $is_check
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+            $this->users_model->create_permissions($data);
         }
     }
 
@@ -153,14 +216,15 @@ class Users extends MY_Controller {
         if (!$user) {
             redirect_app('users');
         }
-
-        $this->form_edit($user);
+        $permissions = $this->apps->list_apps_permissions();
+        $this->form_edit($user, $permissions);
 
         add_js([
             'js/form.js'
         ]);
         $vars = [
             'title' => 'Editar usuário',
+            'id_user' => $user['id'],
             'name' => $user['name'],
             'last_name' => $user['last_name'],
             'email' => $user['email'],
@@ -169,6 +233,7 @@ class Users extends MY_Controller {
             'root' => $user['root'],
             'allow_dev' => $user['allow_dev'],
             'about' => $user['about'],
+            'permissions' => $permissions
         ];
         $this->load->template('form', $vars);
     }
@@ -177,19 +242,19 @@ class Users extends MY_Controller {
      * Método para edição de usuário
      */
 
-    private function form_edit($user) {
+    private function form_edit($user, $permissions) {
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-        if($this->input->post('email')!=$user['email']){
+        if ($this->input->post('email') != $user['email']) {
             $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]|valid_email');
         }
-        if($this->input->post('login')!=$user['login']){
+        if ($this->input->post('login') != $user['login']) {
             $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]|min_length[3]');
         }
         if ($this->form_validation->run()) {
-            if($user['root']){
+            if ($user['root']) {
                 $root = $this->input->post('root');
                 $allow_dev = $this->input->post('allow_dev');
-            }else{
+            } else {
                 $root = $user['root'];
                 $allow_dev = $user['allow_dev'];
             }
@@ -213,7 +278,9 @@ class Users extends MY_Controller {
                 $data['password'] = $user['password'];
             }
             $this->users_model->update($data);
-            die();
+            $this->users_model->delete_permissions($user['id']);
+            $this->create_permissions($permissions, $user['id']);
+            add_history('Editou o usuário ' . $this->input->post('name'));
             redirect_app('users');
         }
     }
@@ -227,6 +294,8 @@ class Users extends MY_Controller {
         if ($del > 1) {
             $this->users_model->delete($del);
         }
+        $user = $this->users_model->get_user($del);
+        add_history('Removeu o usuário ' . $user['name']);
         redirect_app('users');
     }
 
@@ -240,6 +309,20 @@ class Users extends MY_Controller {
             $dev = $this->input->post('dev');
             $this->users_model->change_mode(['dev' => $dev, 'id_user' => $this->data_user['id']]);
         }
+    }
+    
+    public function profile($login) {
+        $user = $this->users_model->get_user_edit($login);
+        $vars = array(
+            'title' => $user['name'].' '.$user['last_name'],
+            'name' => $user['name'],
+            'login' => $user['login'],
+            'last_name' => $user['last_name'],
+            'email' => $user['email'],
+            'image' => $user['image'],
+            'about' => $user['about'],
+        );
+        $this->load->template('profile', $vars);
     }
 
 }

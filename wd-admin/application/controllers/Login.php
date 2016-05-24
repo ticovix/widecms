@@ -5,13 +5,13 @@ if (!defined('BASEPATH'))
 
 class Login extends CI_Controller {
 
-    private $max_attempts = 10;
+    private $max_attempts = 3;
     private $path_captcha = 'assets/captcha/';
 
     public function __construct() {
         parent::__construct();
         // Carrega a model login
-        $this->load->model('../apps/users/models/users_model', null, null, true);
+        $this->load->model_app('users_model', 'users');
     }
 
     /*
@@ -76,7 +76,7 @@ class Login extends CI_Controller {
 
     public function check_captcha($str) {
         $attempts = $this->session->userdata('attempts');
-        // Maximo de 10 tentativas para exibir o captcha
+        // Maximo de 3 tentativas para exibir o captcha
         if ($attempts > $this->max_attempts) {
             $word = $this->session->userdata('captchaWord');
             if (strcmp(strtoupper($str), strtoupper($word)) == 0) {

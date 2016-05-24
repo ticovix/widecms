@@ -17,7 +17,7 @@ class Gallery extends MY_Controller {
 
     public function __construct() {
         parent::__construct();
-        $this->load->model('files_model');
+        $this->load->model_app('files_model');
     }
 
     /*
@@ -28,8 +28,15 @@ class Gallery extends MY_Controller {
         $search = $this->form_search();
         $files = $search['files'];
         $total = $search['total'];
+        if (check_method('upload')) {
+            add_js(array(
+                '../../../../assets/plugins/dropzone/js/dropzone.js'
+            ));
+            add_css(array(
+                '../../../../assets/plugins/dropzone/css/dropzone.css',
+            ));
+        }
         add_js(array(
-            '../../../../assets/plugins/dropzone/js/dropzone.js',
             '../../../../assets/plugins/fancybox/js/jquery.fancybox-buttons.js',
             '../../../../assets/plugins/fancybox/js/jquery.fancybox.pack.js',
             '../../../../assets/plugins/embeddedjs/ejs.js',
@@ -38,7 +45,6 @@ class Gallery extends MY_Controller {
         add_css(array(
             '../../../../assets/plugins/fancybox/css/jquery.fancybox.css',
             '../../../../assets/plugins/fancybox/css/jquery.fancybox-buttons.css',
-            '../../../../assets/plugins/dropzone/css/dropzone.css',
             'css/style.css'
         ));
         $vars = array(
@@ -136,6 +142,7 @@ class Gallery extends MY_Controller {
                 $file = $data['file_name'];
                 chmod($path . $file, 0755);
                 $insert = $this->files_model->insert_file($file);
+                add_history('Inseriu um novo arquivo "' . $file . '"');
             }
         }
         if (!$upload) {
@@ -210,6 +217,7 @@ class Gallery extends MY_Controller {
         $path = PATH_UPLOAD;
         @unlink($path . $file);
         $this->files_model->delete($file);
+        add_history('Removeu o arquivo "' . $file . '"');
     }
 
     /*
@@ -246,6 +254,11 @@ class Gallery extends MY_Controller {
                     'name' => $name
                 );
                 $this->files_model->edit_file($data);
+                if ($file != $new_file) {
+                    add_history('Renomeou o arquivo de "' . $file . '" para "' . $new_file . '"');
+                } else {
+                    add_history('Alterou o título do arquivo para "' . $name . '"');
+                }
                 echo json_encode(array('message' => 'Arquivo editado com sucesso!', 'error' => 0, 'change_file' => $new_file));
             } else {
                 echo json_encode(array('message' => 'Não foi possível renomear o arquivo, você não possui permissões suficiente.', 'error' => 1));

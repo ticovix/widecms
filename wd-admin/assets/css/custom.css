@@ -149,10 +149,6 @@
     min-width: inherit;
     color: #C4CFDA;
 }
-.active a span.fa {
-    text-align: right !important;
-    margin-right: 4px;
-}
 .nav-sm .menu_section {
     margin: 0;
 }

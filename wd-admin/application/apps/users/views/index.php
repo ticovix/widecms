@@ -24,12 +24,18 @@ if (!defined('BASEPATH')) {
                         <button type="submit" class="btn btn-sm btn-primary"> Buscar</button> 
                     </span>
                 </div>
-                <div class="btn-toolbar">
-                    <a href="<?php echo base_url_app('create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> Novo usuário</a>
-                    <div class="btn-group"></div>
-                </div>
-                <?php echo form_close(); ?>
-                <?php echo form_open('users/delete') ?>
+                <?php
+                if (check_method('create')) {
+                    ?>
+                    <div class="btn-toolbar">
+                        <a href="<?php echo base_url_app('create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> Novo usuário</a>
+                        <div class="btn-group"></div>
+                    </div>
+                    <?php
+                }
+                echo form_close();
+                echo form_open('users/delete');
+                ?>
                 <!-- Modal -->
                 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                     <div class="modal-dialog modal-sm" role="document">
@@ -69,12 +75,12 @@ if (!defined('BASEPATH')) {
                                 <tr>
                                     <td width="10"><input type="checkbox" name="del[]" <?php if ($user['id'] == '1') { ?>disabled=""<?php } ?> value="<?php echo $user['id']; ?>" class="multiple_delete"></td>
                                     <td>
-                                        <?php echo $user["name"] ?> <?php echo $user["last_name"] ?>
+                                        <a href="<?php echo base_url_app('profile/'.$user['login'])?>"><?php echo $user["name"] ?> <?php echo $user["last_name"] ?></a>
                                     </td>
-                                    <td><?php echo $user["login"] ?></td>
-                                    <td><?php echo $user["email"] ?></td>
+                                    <td><a href="<?php echo base_url_app('profile/'.$user['login'])?>"><?php echo $user["login"] ?></a></td>
+                                    <td><a href="<?php echo base_url_app('profile/'.$user['login'])?>"><?php echo $user["email"] ?></a></td>
                                     <td>
-                                        <?php if ($root != '1' or $user_logged['root'] == '1') { ?><a href="<?php echo base_url_app('edit/' . $user["login"]); ?>"><i class="fa fa-pencil"></i></a><?php } ?>
+                                        <?php if ($root != '1' && check_method('edit') or $user_logged['root'] == '1') { ?><a href="<?php echo base_url_app('edit/' . $user["login"]); ?>"><i class="fa fa-pencil"></i></a><?php } ?>
                                     </td>
                                 </tr>
                                 <?php

@@ -168,5 +168,12 @@ class Sections_model extends CI_Model {
         }
         return $col;
     }
+    
+    public function list_sections_permissions($id_page){
+        $this->db->select('id, name, slug, directory');
+        $this->db->where('fk_page', $id_page);
+        $this->db->where('status',1);
+        return $this->db->get('wd_sections')->result_array();
+    }
 
 }

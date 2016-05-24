@@ -15,7 +15,7 @@ class Sections extends MY_Controller {
     public function __construct() {
         parent::__construct();
         func_only_dev();
-        $this->load->model('sections_model');
+        $this->load->model_app('sections_model');
         $this->path_view_project = 'application/' . APP_PATH . 'views/project/';
     }
 
@@ -99,10 +99,10 @@ class Sections extends MY_Controller {
         $project = get_project();
         $page = get_page();
         $section = $this->sections_model->get_section($slug_section);
-        $this->load->library('../' . APP_PATH . 'libraries/config_page');
+        $this->load->library_app('config_page');
         // Carrega os campos da seção
         $config = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
-        $selects = '';
+        $selects = array();
         if ($config) {
             // Se carregado corretamente, carrega o formulário de edição
             $fields = $this->treat_fields($config['fields']);
@@ -115,10 +115,13 @@ class Sections extends MY_Controller {
         }
 
         add_js(array(
-            '../../../../assets/plugins/masks/js/jquery.meio.js',
+            '../../../../assets/plugins/embeddedjs/ejs.js',
+            '../../../../assets/plugins/jquery-ui/jquery-ui.min.js',
+            'js/masks/js/jquery.meio.js',
             'project/js/form-section.js'
         ));
         add_css(array(
+            '../../../../assets/plugins/jquery-ui/jquery-ui.css',
             'project/css/form-section.css'
         ));
         $vars = array(
@@ -133,12 +136,18 @@ class Sections extends MY_Controller {
             'page' => $page,
             'section' => $section,
             'selects' => $selects,
-            'sections' => $this->sections_model->list_sections_select($section['id']),
+            'sections' => $this->list_options($section['id']),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
             'plugins_input' => $this->config_page->list_plugins()
         );
         $this->load->template('dev-project/form-section', $vars);
+    }
+    
+    private function list_options($id_section=null){
+        $options = $this->sections_model->list_sections_select($id_section);
+        $options[] = array('table' => 'wd_users', 'name' => 'Usuários');
+        return $options;
     }
 
     /*
@@ -160,14 +169,18 @@ class Sections extends MY_Controller {
             $column_field = $this->input->post('column_field');
             $type_field = $this->input->post('type_field');
             $limit_field = $this->input->post('limit_field');
-            $plugin_field = $this->input->post('plugin_field');
+            $plugins_field = $this->input->post('plugins_field');
+            $observation_field = $this->input->post('observation_field');
+            $attributes_field = $this->input->post('attributes_field');
             $required_field = $this->input->post('required_field');
             $unique_field = $this->input->post('unique_field');
             $remove_field = $this->input->post('remove_field');
             $options_field = $this->input->post('options_field');
             $label_options_field = $this->input->post('label_options_field');
             $trigger_select_field = $this->input->post('trigger_select_field');
+            $position = $this->input->post('position');
             $table = $project['preffix'] . $table;
+
             $data = [
                 'old_config' => $config,
                 'old_section' => $section,
@@ -185,13 +198,16 @@ class Sections extends MY_Controller {
                 'column_field' => $column_field,
                 'type_field' => $type_field,
                 'limit_field' => $limit_field,
-                'plugin_field' => $plugin_field,
+                'plugins_field' => $plugins_field,
                 'required_field' => $required_field,
                 'unique_field' => $unique_field,
+                'observation_field' => $observation_field,
+                'attributes_field' => $attributes_field,
                 'remove_field' => $remove_field,
                 'options_field' => $options_field,
                 'label_options_field' => $label_options_field,
-                'trigger_select_field' => $trigger_select_field
+                'trigger_select_field' => $trigger_select_field,
+                'position' => $position,
             ];
             $dir = $this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/';
             if ($section['directory'] != $directory && \rename($dir . $section['directory'], $dir . $directory) == false) {
@@ -226,6 +242,7 @@ class Sections extends MY_Controller {
             $new_config = array();
             foreach ($fields as $field) {
                 // Lista os campos a ser atualizado
+                $position = $field['position'];
                 $column = $field['column'];
                 $type = $field['type'];
                 $limit = $field['limit'];
@@ -273,10 +290,11 @@ class Sections extends MY_Controller {
                 }
                 if (!$remove) {
                     // Se o campo de remoção não for selecionado, inclui no novo xml
-                    $new_config[] = $data_mod;
+                    $new_config[$position] = $data_mod;
                 }
                 $x++;
             }
+            ksort($new_config);
             return $this->save_edit_config($data, $new_config);
         }
     }
@@ -287,7 +305,7 @@ class Sections extends MY_Controller {
 
     private function save_edit_config($data, $new_config) {
         if ($new_config) {
-            $this->load->library('../' . APP_PATH . 'libraries/config_page');
+            $this->load->library_app('config_page');
             // Gera uma nova estrutura xml com os novos campos
             $config_xml = $this->config_page->create_config_xml($new_config);
             if ($config_xml) {
@@ -353,15 +371,18 @@ class Sections extends MY_Controller {
      */
 
     public function create() {
-        $this->load->library('../' . APP_PATH . 'libraries/config_page');
+        $this->load->library_app('config_page');
         $project = get_project();
         $page = get_page();
         $this->form_create_section($project, $page);
         add_js(array(
-            '../../../../assets/plugins/masks/js/jquery.meio.js',
+            '../../../../assets/plugins/embeddedjs/ejs.js',
+            '../../../../assets/plugins/jquery-ui/jquery-ui.min.js',
+            'js/masks/js/jquery.meio.js',
             'project/js/form-section.js'
         ));
         add_css(array(
+            '../../../../assets/plugins/jquery-ui/jquery-ui.css',
             'project/css/form-section.css'
         ));
         $vars = [
@@ -374,7 +395,7 @@ class Sections extends MY_Controller {
             'preffix' => $project['preffix'],
             'project' => $project,
             'page' => $page,
-            'sections' => $this->sections_model->list_sections_select(),
+            'sections' => $this->list_options(),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
             'plugins_input' => $this->config_page->list_plugins()
@@ -401,12 +422,15 @@ class Sections extends MY_Controller {
             $column_field = $this->input->post('column_field');
             $type_field = $this->input->post('type_field');
             $limit_field = $this->input->post('limit_field');
-            $plugin_field = $this->input->post('plugin_field');
+            $plugins_field = $this->input->post('plugins_field');
+            $observation_field = $this->input->post('observation_field');
+            $attributes_field = $this->input->post('attributes_field');
             $required_field = $this->input->post('required_field');
             $unique_field = $this->input->post('unique_field');
             $options_field = $this->input->post('options_field');
             $label_options_field = $this->input->post('label_options_field');
             $trigger_select_field = $this->input->post('trigger_select_field');
+            $position = $this->input->post('position');
             $table = $project['preffix'] . $table;
             $data = [
                 'project_directory' => $project['directory'],
@@ -423,12 +447,15 @@ class Sections extends MY_Controller {
                 'column_field' => $column_field,
                 'type_field' => $type_field,
                 'limit_field' => $limit_field,
-                'plugin_field' => $plugin_field,
+                'plugin_field' => $plugins_field,
                 'required_field' => $required_field,
                 'unique_field' => $unique_field,
+                'observation_field' => $observation_field,
+                'attributes_field' => $attributes_field,
                 'options_field' => $options_field,
                 'label_options_field' => $label_options_field,
-                'trigger_select_field' => $trigger_select_field
+                'trigger_select_field' => $trigger_select_field,
+                'position' => $position,
             ];
             if (!$this->sections_model->create_table($table)) {
                 // Se a tabela não for inserida no banco de dados
@@ -489,7 +516,7 @@ class Sections extends MY_Controller {
         // Filtra os campos do arquivo xml
         $fields = $this->filter_fields($data);
         if (is_array($fields) && count($fields) > 0) {
-            $this->load->library('../' . APP_PATH . 'libraries/config_page');
+            $this->load->library_app('config_page');
             // Cria estrutura xml do array
             $config_xml = $this->config_page->create_config_xml($fields);
             $path_config_xml = $this->path_view_project . $data['project_directory'] . '/' . $data['page_directory'] . '/' . $data['directory'];
@@ -518,7 +545,7 @@ class Sections extends MY_Controller {
     protected function filter_fields($data) {
         $total = count($data['name_field']);
         if ($total) {
-            $this->load->library('../' . APP_PATH . 'libraries/config_page');
+            $this->load->library_app('config_page');
             $fields = array();
             // Recebe os campos que foram selecionados para ser removido
             $remove_field = (isset($data['remove_field'])) ? $data['remove_field'] : array();
@@ -531,10 +558,13 @@ class Sections extends MY_Controller {
                 $limit_field = $data['limit_field'][$i];
                 $required_field = $data['required_field'][$i];
                 $unique_field = $data['unique_field'][$i];
-                $plugin_field = $data['plugin_field'][$i];
+                $plugins_field = $data['plugins_field'][$i];
+                $observation_field = $data['observation_field'][$i];
+                $attributes_field = $data['attributes_field'][$i];
                 $options_field = $data['options_field'][$i];
                 $label_options_field = $data['label_options_field'][$i];
                 $trigger_select_field = $data['trigger_select_field'][$i];
+                $position = $data['position'][$i];
                 $remove = (is_array($remove_field) && in_array($i, $remove_field));
                 // Verifica se os campos seguem os requisitos do sistema
                 $verify = $this->verify_fields([
@@ -570,13 +600,16 @@ class Sections extends MY_Controller {
                         'column' => $column_field,
                         'type' => $type_field,
                         'limit' => $limit_field,
-                        'plugin' => $plugin_field,
+                        'plugins' => $plugins_field,
+                        'observation' => $observation_field,
+                        'attributes' => $attributes_field,
                         'required' => $required_field,
                         'unique' => $unique_field,
                         'options' => $options_field,
                         'remove' => $remove,
                         'label_options' => $label_options_field,
-                        'trigger_select' => $trigger_select_field
+                        'trigger_select' => $trigger_select_field,
+                        'position' => $position,
                     ];
                 }
             }
@@ -633,7 +666,7 @@ class Sections extends MY_Controller {
     private function get_page() {
         $page = $this->uri->segment(3);
         if (empty($this->page)) {
-            $this->load->model('pages_model');
+            $this->load->model_app('pages_model');
             return $this->page = $this->pages_model->get_page($page);
         } else {
             return $this->page;

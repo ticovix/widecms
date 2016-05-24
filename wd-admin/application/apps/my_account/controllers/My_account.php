@@ -11,6 +11,9 @@ class My_account extends MY_Controller {
 
     public function index() {
         $user = $this->data_user;
+        if(!check_method('edit')){
+            redirect('apps/users/profile/'.$user['login']);
+        }
         $this->form_edit();
 
         add_js([
@@ -74,8 +77,9 @@ class My_account extends MY_Controller {
             } else {
                 $data['password'] = $user['password'];
             }
-            $this->load->model('user_model');
+            $this->load->model_app('user_model');
             $this->user_model->update($data);
+            add_history('Atualizou o perfil');
             redirect(current_url());
         }
     }
