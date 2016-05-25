@@ -94,11 +94,11 @@ class Users extends MY_Controller {
         $this->form_create($permissions);
         $this->load->library('apps');
         add_js([
-            '../../../../assets/plugins/switchery/js/switchery.js',
+            '/plugins/switchery/js/switchery.js',
             'js/form.js'
         ]);
         add_css([
-            '../../../../assets/plugins/switchery/css/switchery.css'
+            '/plugins/switchery/css/switchery.css'
         ]);
         $vars = [
             'title' => 'Novo usuário',
@@ -313,6 +313,19 @@ class Users extends MY_Controller {
     
     public function profile($login) {
         $user = $this->users_model->get_user_edit($login);
+        if(!$user){
+            redirect();
+        }
+        $offset = (int) $this->input->get('per_page');
+        add_css('css/profile.css');
+        $history = read_history(array(
+            'limit' => 10,
+            'offset' => $offset,
+            'order_by' => 'id DESC',
+            'where' => array(
+                'wd_users.login' => $login
+            )
+        ));
         $vars = array(
             'title' => $user['name'].' '.$user['last_name'],
             'name' => $user['name'],
@@ -321,8 +334,35 @@ class Users extends MY_Controller {
             'email' => $user['email'],
             'image' => $user['image'],
             'about' => $user['about'],
+            'history' => $history,
+            'total_history' => $history['total'],
+            'pagination' => $this->pagination_history($history['total'])
         );
         $this->load->template('profile', $vars);
+    }
+    
+    private function pagination_history($total_rows) {
+        $this->load->library('pagination');
+        $config['total_rows'] = $total_rows;
+        $config['per_page'] = 10;
+        $config['page_query_string'] = true;
+        $config['reuse_query_string'] = true;
+        $config['num_tag_open'] = '<li>';
+        $config['num_tag_close'] = '</li>';
+        $config['cur_tag_open'] = '<li class="active"><a>';
+        $config['cur_tag_close'] = '</a></li>';
+        $config['prev_tag_open'] = '<li>';
+        $config['prev_tag_close'] = '</li>';
+        $config['next_tag_open'] = '<li>';
+        $config['next_tag_close'] = '</li>';
+        $config['last_tag_open'] = '<li>';
+        $config['last_tag_close'] = '</li>';
+        $config['first_tag_open'] = '<li>';
+        $config['first_tag_open'] = '</li>';
+        $config['first_url'] = '?per_page=0';
+
+        $this->pagination->initialize($config);
+        return $this->pagination->create_links();
     }
 
 }

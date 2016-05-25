@@ -193,20 +193,20 @@ class Config_page {
         $this->fields = $fields;
         if (check_method('upload', 'gallery')) {
             add_css(array(
-                '../../../../assets/plugins/dropzone/css/dropzone.css'
+                '/plugins/dropzone/css/dropzone.css'
             ));
             add_js(array(
-                '../../../../assets/plugins/dropzone/js/dropzone.js'
+                '/plugins/dropzone/js/dropzone.js'
             ));
         }
         add_css(array(
-            '../../../../assets/plugins/fancybox/css/jquery.fancybox.css',
-            '../../../../assets/plugins/fancybox/css/jquery.fancybox-buttons.css'
+            '/plugins/fancybox/css/jquery.fancybox.css',
+            '/plugins/fancybox/css/jquery.fancybox-buttons.css'
         ));
         add_js(array(
-            '../../../../assets/plugins/fancybox/js/jquery.fancybox.pack.js',
-            '../../../../assets/plugins/fancybox/js/jquery.fancybox-buttons.js',
-            '../../../../assets/plugins/embeddedjs/ejs.js',
+            '/plugins/fancybox/js/jquery.fancybox.pack.js',
+            '/plugins/fancybox/js/jquery.fancybox-buttons.js',
+            '/plugins/embeddedjs/ejs.js',
             'posts/js/load_gallery.js'
         ));
         foreach ($fields as $field) {

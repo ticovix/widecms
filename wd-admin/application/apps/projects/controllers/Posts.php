@@ -37,12 +37,12 @@ class Posts extends MY_Controller {
             if ($data) {
                 if (isset($data['list'])) {
                     add_css(array(
-                        '../../../../assets/plugins/fancybox/css/jquery.fancybox.css',
-                        '../../../../assets/plugins/fancybox/css/jquery.fancybox-buttons.css',
+                        '/plugins/fancybox/css/jquery.fancybox.css',
+                        '/plugins/fancybox/css/jquery.fancybox-buttons.css',
                     ));
                     add_js(array(
-                        '../../../../assets/plugins/fancybox/js/jquery.fancybox.pack.js',
-                        '../../../../assets/plugins/fancybox/js/jquery.fancybox-buttons.js',
+                        '/plugins/fancybox/js/jquery.fancybox.pack.js',
+                        '/plugins/fancybox/js/jquery.fancybox-buttons.js',
                         'posts/js/load_gallery.js'
                     ));
                     // Se algum campo estiver para ser listado, significa que o administrador pode inserir mais de um registro

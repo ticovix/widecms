@@ -379,3 +379,34 @@ if (!function_exists('wd_base_url')) {
     }
 
 }
+
+if (!function_exists('diffDateToday')) {
+
+    function diffDateToday($dateSql) {
+        $datetime1 = new DateTime($dateSql);
+        $datetime2 = new DateTime('now');
+        $interval = $datetime1->diff($datetime2);
+        $days = $interval->days;
+        $month = $interval->m;
+        $year = $interval->y;
+        $hours = $interval->h;
+        $result = '';
+        $h = ($hours > 1) ? ' horas' : ' hora';
+        $d = ($days > 1) ? ' dias' : ' dia';
+        $m = ($month > 1) ? ' meses' : ' mês';
+        $a = ($year > 1) ? ' anos' : ' ano';
+        if ($days == 0 && $hours == 0) {
+            $result = 'Agora';
+        } elseif ($days == 0) {
+            $result = 'Há ' . $hours . $h;
+        } elseif ($month == 0) {
+            $result = 'Há ' . $days . $d;
+        } elseif ($month > 0 && $year == 0) {
+            $result = $datetime1->format('d') . ' de ' . monthName($datetime1->format('m'));
+        } elseif ($year > 0) {
+            $result = $datetime1->format('d') . ' de ' . monthName($datetime1->format('m')) . ' de ' . $datetime1->format('Y');
+        }
+        return $result;
+    }
+
+}

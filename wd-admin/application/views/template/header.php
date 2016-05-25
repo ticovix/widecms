@@ -48,7 +48,7 @@ if (!defined('BASEPATH')) {
                         <div class="profile">
                             <div class="profile_pic">
                                 <img src="<?php
-                                if (is_file('../wd-content/upload/'.$PROFILE['image'])) {
+                                if (is_file('../wd-content/upload/' . $PROFILE['image'])) {
                                     echo wd_base_url('wd-content/upload/' . $PROFILE['image']);
                                 } else {
                                     echo base_url('assets/images/user.png');
@@ -71,27 +71,30 @@ if (!defined('BASEPATH')) {
                                 <ul class="nav side-menu">
                                     <?php
                                     foreach ($APPS as $menu) {
-                                        $app = $menu["app"];
-                                        $name = $menu["name"];
-                                        $icon = $menu["icon"];
-                                        ?>
-                                        <li class="<?php echo is_nav_active($this->uri->segment(2), $app, "current-page"); ?>">
-                                            <a href="<?php echo base_url('apps/' . $app); ?>"> 
-                                                <?php
-                                                if (strpos($icon, '/') == false && strpos($icon, 'fa-') >= 0) {
-                                                    ?>
-                                                    <i class="fa <?php echo $icon ?>"></i>
+                                        $app = $menu['app'];
+                                        $name = $menu['name'];
+                                        $icon = (isset($menu['icon'])) ? $menu['icon'] : 'fa-exclamation-triangle';
+                                        $show = (isset($menu['show_nav'])) ? $menu['show_nav'] : 1;
+                                        if ($show) {
+                                            ?>
+                                            <li class="<?php echo is_nav_active($this->uri->segment(2), $app, "current-page"); ?>">
+                                                <a href="<?php echo base_url('apps/' . $app); ?>"> 
                                                     <?php
-                                                } else {
+                                                    if (strpos($icon, '/') == false && strpos($icon, 'fa-') >= 0) {
+                                                        ?>
+                                                        <i class="fa <?php echo $icon ?>"></i>
+                                                        <?php
+                                                    } else {
+                                                        ?>
+                                                        <img src="<?php echo base_url('application/apps/' . $app . '/assets/' . $icon) ?>" class="fa">
+                                                        <?php
+                                                    }
+                                                    echo $name;
                                                     ?>
-                                                    <img src="<?php echo base_url('application/apps/' . $app . '/assets/' . $icon) ?>" class="fa">
-                                                    <?php
-                                                }
-                                                echo $name;
-                                                ?>
-                                            </a>
-                                        </li>
-                                        <?php
+                                                </a>
+                                            </li>
+                                            <?php
+                                        }
                                     }
                                     ?>
                                 </ul>
@@ -115,7 +118,7 @@ if (!defined('BASEPATH')) {
                                 <li class="">
                                     <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                         <img src="<?php
-                                        if (is_file('../wd-content/upload/'.$PROFILE['image'])) {
+                                        if (is_file('../wd-content/upload/' . $PROFILE['image'])) {
                                             echo wd_base_url('wd-content/upload/' . $PROFILE['image']);
                                         } else {
                                             echo base_url('assets/images/user.png');
@@ -131,7 +134,7 @@ if (!defined('BASEPATH')) {
                                 </li>
 
                                 <li class="dev-mode">
-                                    <?php if ($PROFILE['allow_dev']) { ?>Modo desenvolvedor <input type="checkbox" id="allow_dev" class="js-switch" <?php if ($PROFILE['dev_mode']) { ?>checked<?php } ?> /> <?php } ?>
+                                    <?php if ($PROFILE['allow_dev']) { ?>Modo desenvolvedor <input type="checkbox" id="allow_dev" <?php if ($PROFILE['dev_mode']) { ?>checked<?php } ?> /> <?php } ?>
                                 </li>
                             </ul>
                         </nav>

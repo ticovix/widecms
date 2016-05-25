@@ -636,7 +636,6 @@ a:hover, a:focus {
 }
 .panel_toolbox {
     float: right;
-    min-width: 70px;
 }
 .panel_toolbox>li {
     float: left;
@@ -4779,4 +4778,14 @@ ul.notifications {
 }
 .btn-primary:hover{
     background-color: #720C0C;
+}
+.pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover{
+    background-color: #840D0D;
+    border-color:#720C0C;
+}
+.pagination>li>a, .pagination>li>span{
+    color:#888;
+}
+.pagination>li>a:focus, .pagination>li>a:hover, .pagination>li>span:focus, .pagination>li>span:hover{
+    color:#840D0D;
 }

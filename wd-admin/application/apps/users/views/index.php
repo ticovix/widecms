@@ -73,7 +73,15 @@ if (!defined('BASEPATH')) {
                                 $root = $user['root'];
                                 ?>
                                 <tr>
-                                    <td width="10"><input type="checkbox" name="del[]" <?php if ($user['id'] == '1') { ?>disabled=""<?php } ?> value="<?php echo $user['id']; ?>" class="multiple_delete"></td>
+                                    <td width="10">
+                                        <?php
+                                        if(check_method('delete')){
+                                        ?>
+                                        <input type="checkbox" name="del[]" <?php if ($user['id'] == '1') { ?>disabled=""<?php } ?> value="<?php echo $user['id']; ?>" class="multiple_delete">
+                                        <?php
+                                        }
+                                        ?>
+                                    </td>
                                     <td>
                                         <a href="<?php echo base_url_app('profile/'.$user['login'])?>"><?php echo $user["name"] ?> <?php echo $user["last_name"] ?></a>
                                     </td>

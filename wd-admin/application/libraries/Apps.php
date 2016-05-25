@@ -78,8 +78,20 @@ class Apps {
                 if (is_dir($path)) {
                     $opendir = \opendir($path);
                     while (false !== ($widget = readdir($opendir))) {
-                        if (is_file($path.$widget) && strpos($widget, '.php') !== false) {
-                            $CI->load->library_app($widget, $dir_app.'/widgets/dashboard/');
+                        if (is_file($path . $widget) && strpos($widget, '.php') !== false) {
+                            ob_start();
+                            $CI->load->library_app($widget, $dir_app . '/widgets/dashboard/');
+                            $class = strtolower(str_replace('.php', '', $widget));
+                            $name = $CI->$class->name;
+                            $content = ob_get_contents();
+                            ob_end_clean();
+                            if (!empty($name) && !empty($content)) {
+                                $widgets[] = array(
+                                    'title' => $name,
+                                    'content' => $content,
+                                    'app' => $app
+                                );
+                            }
                         }
                     }
                 }

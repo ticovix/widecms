@@ -36,7 +36,7 @@ if (!defined('BASEPATH')) {
                                 } else {
                                     echo base_url('assets/images/user.png');
                                 }
-                                ?>" alt="Avatar" class="img-circle profile_img" id="img-profile" height="109">
+                                ?>" alt="Avatar" class="img-circle profile_img" id="img-profile">
                             </a>
                         </div>
                         <div class="col-sm-10">
@@ -67,6 +67,55 @@ if (!defined('BASEPATH')) {
                     </div>
                 </div>
                 <?php echo form_close(); ?>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Atividades</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div class="row">
+                    <?php
+                    if (isset($history['result']) && count($history['result']) > 0) {
+                        foreach ($history['result'] as $arr) {
+                            $login = $arr['login'];
+                            $name = $arr['name'];
+                            $last_name = $arr['last_name'];
+                            $image = $arr['image'];
+                            $message = $arr['message'];
+                            $date = diffDateToday($arr['date']);
+                            ?>
+                            <div class="col-sm-12">
+                                <a href="<?php echo base_url('apps/users/profile/' . $login) ?>" class="pull-left"><img src="<?php
+                                    if (is_file('../wd-content/upload/' . $image)) {
+                                        echo wd_base_url('wd-content/upload/' . $image);
+                                    } else {
+                                        echo base_url('assets/images/user.png');
+                                    }
+                                    ?>" alt="<?php echo $name ?>" class="img-circle img-thumbnail img-profile-history" height="56"></a> 
+                                <strong><a href="<?php echo base_url('apps/users/profile/' . $login) ?>"><?php echo $name ?></a></strong> <br><?php echo $message; ?><br>
+                                <small><?php echo $date; ?></small>
+                                <hr>
+                            </div>
+                            <?php
+                        }
+                    } else {
+                        echo "<div class='col-sm-12'>Nenhuma atividade recente.</div>";
+                    }
+                    ?>
+                </div>
+                <?php
+                if ($total_history > 10) {
+                    ?>
+                    <ul class="pagination">
+                        <?php echo $pagination; ?>
+                    </ul>
+                    <?php
+                }
+                ?>
             </div>
         </div>
     </div>

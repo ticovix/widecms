@@ -115,13 +115,13 @@ class Sections extends MY_Controller {
         }
 
         add_js(array(
-            '../../../../assets/plugins/embeddedjs/ejs.js',
-            '../../../../assets/plugins/jquery-ui/jquery-ui.min.js',
+            '/plugins/embeddedjs/ejs.js',
+            '/plugins/jquery-ui/jquery-ui.min.js',
             'js/masks/js/jquery.meio.js',
             'project/js/form-section.js'
         ));
         add_css(array(
-            '../../../../assets/plugins/jquery-ui/jquery-ui.css',
+            '/plugins/jquery-ui/jquery-ui.css',
             'project/css/form-section.css'
         ));
         $vars = array(
@@ -376,13 +376,13 @@ class Sections extends MY_Controller {
         $page = get_page();
         $this->form_create_section($project, $page);
         add_js(array(
-            '../../../../assets/plugins/embeddedjs/ejs.js',
-            '../../../../assets/plugins/jquery-ui/jquery-ui.min.js',
+            '/plugins/embeddedjs/ejs.js',
+            '/plugins/jquery-ui/jquery-ui.min.js',
             'js/masks/js/jquery.meio.js',
             'project/js/form-section.js'
         ));
         add_css(array(
-            '../../../../assets/plugins/jquery-ui/jquery-ui.css',
+            '/plugins/jquery-ui/jquery-ui.css',
             'project/css/form-section.css'
         ));
         $vars = [

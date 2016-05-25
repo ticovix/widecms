@@ -16,21 +16,21 @@ class My_account extends MY_Controller {
         }
         $this->form_edit();
 
-        add_js([
-            '../../../../assets/plugins/dropzone/js/dropzone.js',
-            '../../../../assets/plugins/fancybox/js/jquery.fancybox.pack.js',
-            '../../../../assets/plugins/fancybox/js/jquery.fancybox-buttons.js',
-            '../../../../assets/plugins/embeddedjs/ejs.js',
+        add_js(array(
+            '/plugins/dropzone/js/dropzone.js',
+            '/plugins/fancybox/js/jquery.fancybox.pack.js',
+            '/plugins/fancybox/js/jquery.fancybox-buttons.js',
+            '/plugins/embeddedjs/ejs.js',
             'js/load_gallery.js',
             'js/upload.js',
             'js/form.js'
-        ]);
-        add_css([
-            '../../../../assets/plugins/fancybox/css/jquery.fancybox.css',
-            '../../../../assets/plugins/fancybox/css/jquery.fancybox-buttons.css',
-            '../../../../assets/plugins/dropzone/css/dropzone.css',
+        ));
+        add_css(array(
+            '/plugins/fancybox/css/jquery.fancybox.css',
+            '/plugins/fancybox/css/jquery.fancybox-buttons.css',
+            '/plugins/dropzone/css/dropzone.css',
             'css/style.css'
-        ]);
+        ));
         
 
         $vars = array(

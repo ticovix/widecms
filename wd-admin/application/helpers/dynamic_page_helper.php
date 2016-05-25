@@ -4,10 +4,24 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
+if (!function_exists('path_assets')) {
+
+    function path_assets($file, $app) {
+        if ($file[0] == '/') {
+            $path = 'assets';
+        } elseif (!empty($app)) {
+            $path = 'application/apps/' . $app . '/assets/';
+        } else {
+            $path = 'assets/';
+        }
+        return $path;
+    }
+
+}
+
 if (!function_exists('add_js')) {
 
-    function add_js($file = '', $path = '') {
-        $str = '';
+    function add_js($file = '', $app = APP) {
         $ci = &get_instance();
         $footer_js = $ci->config->item('add_js');
         if (empty($file)) {
@@ -19,12 +33,13 @@ if (!function_exists('add_js')) {
                 return;
             }
             foreach ($file as $item) {
-                $footer_js[] = $item;
+                $path = path_assets($item, $app);
+                $footer_js[] = $path . $item;
             }
             $ci->config->set_item('add_js', $footer_js);
         } else {
-            $str = $file;
-            $footer_js[] = $str;
+            $path = path_assets($file, $app);
+            $footer_js[] = $path . $file;
             $ci->config->set_item('add_js', $footer_js);
         }
     }
@@ -32,8 +47,7 @@ if (!function_exists('add_js')) {
 }
 if (!function_exists('add_css')) {
 
-    function add_css($file = '', $path = '') {
-        $str = '';
+    function add_css($file = '', $app = APP) {
         $ci = &get_instance();
         $header_css = $ci->config->item('add_css');
         if (empty($file)) {
@@ -45,12 +59,13 @@ if (!function_exists('add_css')) {
                 return;
             }
             foreach ($file as $item) {
-                $header_css[] = $item;
+                $path = path_assets($item, $app);
+                $header_css[] = $path . $item;
             }
             $ci->config->set_item('add_css', $header_css);
         } else {
-            $str = $file;
-            $header_css[] = $str;
+            $path = path_assets($file, $app);
+            $header_css[] = $path . $file;
             $ci->config->set_item('add_css', $header_css);
         }
     }
@@ -63,17 +78,14 @@ if (!function_exists('put_css')) {
         $str = '';
         $ci = &get_instance();
         $header_css = $ci->config->item('add_css');
-        $path_asset = $ci->config->item('path_asset');
 
         if ($header_css) {
             $header_css = array_unique($header_css);
             foreach ($header_css AS $item) {
                 if (strpos($item, '//')) {
                     $href = $item;
-                } elseif (defined('APP_ASSETS')) {
-                    $href = base_url(APP_ASSETS . $item);
                 } else {
-                    $href = base_url($path_asset . '/' . $item);
+                    $href = base_url($item);
                 }
                 $str .= '<link rel="stylesheet" href="' . $href . '" type="text/css" />' . "\n";
             }
@@ -90,16 +102,13 @@ if (!function_exists('put_js')) {
         $str = '';
         $ci = &get_instance();
         $footer_js = $ci->config->item('add_js');
-        $path_asset = $ci->config->item('path_asset');
         if ($footer_js) {
             $footer_js = array_unique($footer_js);
             foreach ($footer_js AS $item) {
                 if (strpos($item, '//')) {
                     $src = $item;
-                } elseif (defined('APP_ASSETS')) {
-                    $src = base_url(APP_ASSETS . $item);
                 } else {
-                    $src = base_url($path_asset . '/' . $item);
+                    $src = base_url($item);
                 }
                 $str .= '<script type="text/javascript" src="' . $src . '"></script>' . "\n";
             }

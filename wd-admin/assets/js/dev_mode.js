@@ -1,5 +1,6 @@
 $(function(){
     var elem = document.querySelector('#allow_dev');
+    new Switchery(elem, {size:'small'});
     elem.onchange = function() {
         var dev;
         if(elem.checked){

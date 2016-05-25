@@ -43,11 +43,22 @@ class MY_Loader extends CI_Loader {
         return $this->_ci_load(array('_ci_view' => $dir . $template, '_ci_vars' => $this->_ci_object_to_array($vars), '_ci_return' => $return));
     }
 
+    public function view_app($template, $app = APP, $vars = array(), $return = false, $path_default = false) {
+        if (!empty($app)) {
+            if (strpos($app, '/') === false) {
+                $template = '../apps/' . $app . '/views/' . $template;
+            } else {
+                $template = '../apps/' . $app . $template;
+            }
+        }
+        return $this->_ci_load(array('_ci_view' => $template, '_ci_vars' => $this->_ci_object_to_array($vars), '_ci_return' => $return));
+    }
+
     public function library_app($library, $app = APP, $params = NULL, $object_name = NULL) {
         if (!empty($app)) {
             if (strpos($app, '/') === false) {
                 $library = '../apps/' . $app . '/libraries/' . $library;
-            }else{
+            } else {
                 $library = '../apps/' . $app . $library;
             }
         }
