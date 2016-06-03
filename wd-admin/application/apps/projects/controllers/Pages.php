@@ -40,10 +40,10 @@ class Pages extends MY_Controller {
         ];
         if ($dev_mode) {
             // Template modo desenvolvedor
-            $this->load->template('dev-project/pages', $vars);
+            $this->load->template_app('dev-project/pages', $vars);
         } else {
             // Template modo cliente
-            $this->load->template('project/index', $vars);
+            $this->load->template_app('project/index', $vars);
         }
     }
 
@@ -120,7 +120,7 @@ class Pages extends MY_Controller {
             'name' => '',
             'status' => ''
         ];
-        $this->load->template('dev-project/form-page', $vars);
+        $this->load->template_app('dev-project/form-page', $vars);
     }
 
     /*
@@ -134,7 +134,7 @@ class Pages extends MY_Controller {
             $name = $this->input->post('name');
             $status = $this->input->post('status');
             $slug = slug($name);
-            $dir_page = $this->path_view_project . $project['slug'] . '/';
+            $dir_page = $this->path_view_project . $project['directory'] . '/';
             //Tenta criar o novo diretório
             if (is_writable($dir_page)) {
                 // Caso o diretório seja criado, os valores são inseridos no banco de dados
@@ -176,7 +176,7 @@ class Pages extends MY_Controller {
             'name' => $page['name'],
             'status' => $page['status']
         ];
-        $this->load->template('dev-project/form-page', $vars);
+        $this->load->template_app('dev-project/form-page', $vars);
     }
 
     /*

@@ -40,7 +40,7 @@ class Sections extends MY_Controller {
             'page' => $page
         ];
 
-        $this->load->template('dev-project/sections', $vars);
+        $this->load->template_app('dev-project/sections', $vars);
     }
 
     /*
@@ -141,10 +141,10 @@ class Sections extends MY_Controller {
             'types' => $this->config_page->types(),
             'plugins_input' => $this->config_page->list_plugins()
         );
-        $this->load->template('dev-project/form-section', $vars);
+        $this->load->template_app('dev-project/form-section', $vars);
     }
-    
-    private function list_options($id_section=null){
+
+    private function list_options($id_section = null) {
         $options = $this->sections_model->list_sections_select($id_section);
         $options[] = array('table' => 'wd_users', 'name' => 'Usuários');
         return $options;
@@ -159,73 +159,91 @@ class Sections extends MY_Controller {
         $this->form_validation->set_rules('directory', 'Diretório', 'trim|required');
         $this->form_validation->set_rules('table', 'Tabela', 'trim|required|callback_verify_table');
         if ($this->form_validation->run()) {
-            $name = $this->input->post('name');
-            $directory = slug($this->input->post('directory'));
-            $table = $this->input->post('table');
-            $status = $this->input->post('status');
-            $name_field = $this->input->post('name_field');
-            $input_field = $this->input->post('input_field');
-            $list_reg_field = $this->input->post('list_registers_field');
-            $column_field = $this->input->post('column_field');
-            $type_field = $this->input->post('type_field');
-            $limit_field = $this->input->post('limit_field');
-            $plugins_field = $this->input->post('plugins_field');
-            $observation_field = $this->input->post('observation_field');
-            $attributes_field = $this->input->post('attributes_field');
-            $required_field = $this->input->post('required_field');
-            $unique_field = $this->input->post('unique_field');
-            $remove_field = $this->input->post('remove_field');
-            $options_field = $this->input->post('options_field');
-            $label_options_field = $this->input->post('label_options_field');
-            $trigger_select_field = $this->input->post('trigger_select_field');
-            $position = $this->input->post('position');
-            $table = $project['preffix'] . $table;
+            $dir_project = $project['directory'];
+            $slug_project = $project['slug'];
+            $dir_page = $page['directory'];
+            $slug_page = $page['slug'];
+            $dir_section = $section['directory'];
+            /* Array com todos os os campos enviados pelo método post */
+            $data = $this->get_post_data($project, $page, $section);
+            $data['old_config'] = $config;
+            $directory = $data['directory'];
+            $table = $data['table'];
 
-            $data = [
-                'old_config' => $config,
-                'old_section' => $section,
-                'project_directory' => $project['directory'],
-                'page_directory' => $page['directory'],
-                'page' => $page['id'],
-                'name' => $name,
-                'slug' => slug($directory),
-                'directory' => $directory,
-                'table' => $table,
-                'status' => $status,
-                'name_field' => $name_field,
-                'input_field' => $input_field,
-                'list_reg_field' => $list_reg_field,
-                'column_field' => $column_field,
-                'type_field' => $type_field,
-                'limit_field' => $limit_field,
-                'plugins_field' => $plugins_field,
-                'required_field' => $required_field,
-                'unique_field' => $unique_field,
-                'observation_field' => $observation_field,
-                'attributes_field' => $attributes_field,
-                'remove_field' => $remove_field,
-                'options_field' => $options_field,
-                'label_options_field' => $label_options_field,
-                'trigger_select_field' => $trigger_select_field,
-                'position' => $position,
-            ];
-            $dir = $this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/';
-            if ($section['directory'] != $directory && \rename($dir . $section['directory'], $dir . $directory) == false) {
+            $dir = $this->path_view_project . $dir_project . '/' . $dir_page . '/';
+            if ($section['directory'] != $directory && \rename($dir . $dir_section, $dir . $directory) == false) {
                 // Se houver erro para renomear o diretório
                 setError('rename_dir', 'Não foi possível renomear o diretório para "' . $directory . '", já existe ou você não possui permissões suficiente.');
             } elseif ($table != $section['table'] && $this->sections_model->check_table_exists($table)) {
-                // Se o nome da tabela já existir no banco de dados
+                // Se o nome da tabela já existir no banco de dados, seta um erro
                 setError('rename_dir', 'O nome dessa tabela já existe, tente outro nome.');
-            } elseif ($this->sections_model->edit($data)) {
-                // Se a seção for atualizada no banco de dados
-                if ($this->edit_fields($data)) {
-                    // Se o xml dos campos for atualizado corretamente
-                    redirect_app('project/' . $project['directory'] . '/' . $page['directory']);
-                }
+            } elseif ($this->sections_model->edit($data) && $this->edit_fields($data)) {
+                // Se a seção for atualizada corretamente, redireciona o usuário
+                redirect_app('project/' . $slug_project . '/' . $slug_page);
             }
         } else {
             setError(null, validation_errors());
         }
+    }
+
+    /*
+     * Método para armazenar em array todos os posts dos métodos de criação e edição da seção
+     */
+
+    private function get_post_data($project, $page, $section=null) {
+        $name = $this->input->post('name');
+        $directory = slug($this->input->post('directory'));
+        $table = $this->input->post('table');
+        $status = $this->input->post('status');
+        $name_field = $this->input->post('name_field');
+        $input_field = $this->input->post('input_field');
+        $list_reg_field = $this->input->post('list_registers_field');
+        $column_field = $this->input->post('column_field');
+        $type_field = $this->input->post('type_field');
+        $limit_field = $this->input->post('limit_field');
+        $plugins_field = $this->input->post('plugins_field');
+        $observation_field = $this->input->post('observation_field');
+        $attributes_field = $this->input->post('attributes_field');
+        $required_field = $this->input->post('required_field');
+        $unique_field = $this->input->post('unique_field');
+        $default_field = $this->input->post('default_field');
+        $comment_field = $this->input->post('comment_field');
+        $remove_field = $this->input->post('remove_field');
+        $options_field = $this->input->post('options_field');
+        $label_options_field = $this->input->post('label_options_field');
+        $trigger_select_field = $this->input->post('trigger_select_field');
+        $position = $this->input->post('position');
+        $table = $project['preffix'] . $table;
+
+        return array(
+            'old_section' => $section,
+            'project_directory' => $project['directory'],
+            'page_directory' => $page['directory'],
+            'page' => $page['id'],
+            'name' => $name,
+            'slug' => slug($directory),
+            'directory' => $directory,
+            'table' => $table,
+            'status' => $status,
+            'name_field' => $name_field,
+            'input_field' => $input_field,
+            'list_reg_field' => $list_reg_field,
+            'column_field' => $column_field,
+            'type_field' => $type_field,
+            'limit_field' => $limit_field,
+            'plugins_field' => $plugins_field,
+            'required_field' => $required_field,
+            'unique_field' => $unique_field,
+            'default_field' => $default_field,
+            'comment_field' => $comment_field,
+            'observation_field' => $observation_field,
+            'attributes_field' => $attributes_field,
+            'remove_field' => $remove_field,
+            'options_field' => $options_field,
+            'label_options_field' => $label_options_field,
+            'trigger_select_field' => $trigger_select_field,
+            'position' => $position
+        );
     }
 
     /*
@@ -246,26 +264,32 @@ class Sections extends MY_Controller {
                 $column = $field['column'];
                 $type = $field['type'];
                 $limit = $field['limit'];
+                $default = $field['default'];
+                $comment = $field['comment'];
                 $remove = (boolean) $field['remove'];
                 $data_mod = array();
                 $data_mod['table'] = $data['table'];
                 $data_mod = array_merge($field, $data_mod);
+                // Verifica se o campo existe no xml atual
                 if (isset($old_fields[$x])) {
-                    // Verifica se o campo existe no xml atual
+
                     $old_column = $old_fields[$x]['column'];
                     $old_type = strtolower($old_fields[$x]['type_column']);
-                    $old_limit = $old_fields[$x]['limit'];
+                    $old_limit = (isset($old_fields[$x]['limit'])) ? $old_fields[$x]['limit'] : '';
+                    $old_default = (isset($old_fields[$x]['default'])) ? $old_fields[$x]['default'] : '';
+                    $old_comment = (isset($old_fields[$x]['comment'])) ? $old_fields[$x]['comment'] : '';
                     $data_mod['old_column'] = $old_column;
                     $data_mod['old_limit'] = $old_limit;
+
                     if ($remove) {
                         // Se a opção para remover o campo for selecionada
-                        // Remove a coluna
-                        $remove = $this->sections_model->remove_column($data_mod);
-                        if (!$remove) {
-                            // Se a coluna não for removida
-                            setError('remove_col', 'Não foi possível remover a coluna ' . $old_column . ', você não tem permissões suficiente.');
-                        }
-                    } elseif ($old_column != $column or $old_type != $type) {
+                        $this->remove_field($data_mod);
+                    } elseif ($old_column != $column or
+                            $old_type != $type or
+                            $old_limit != $limit or
+                            $old_default != $default or
+                            $old_comment != $comment) {
+
                         // Se houver atualizações no nome da coluna ou no tipo da coluna
                         // atualiza a coluna com os novos dados
                         $modify = $this->sections_model->modify_column($data_mod);
@@ -274,19 +298,14 @@ class Sections extends MY_Controller {
                             $data_mod['column'] = $old_column;
                             $data_mod['type'] = $old_type;
                             $data_mod['limit'] = $old_limit;
+                            $data_mod['default'] = $old_default;
+                            $data_mod['comment'] = $old_comment;
                             setError('rename_col', 'Não foi possível modificar a coluna ' . $old_column . ', já existe ou você não possui permissões suficiente.');
                         }
                     }
                 } else {
-                    // Se o campo não existir
-                    $field_insert = array();
-                    $field_insert[] = array(
-                        'column' => $column,
-                        'type' => $type,
-                        'limit' => $limit
-                    );
-                    // Cria a coluna no banco de dados
-                    $insert = $this->sections_model->create_columns($data['table'], $field_insert);
+                    // Se o campo não existir, insere no banco de dados
+                    $this->insert_field($data_mod);
                 }
                 if (!$remove) {
                     // Se o campo de remoção não for selecionado, inclui no novo xml
@@ -297,6 +316,36 @@ class Sections extends MY_Controller {
             ksort($new_config);
             return $this->save_edit_config($data, $new_config);
         }
+    }
+
+    /*
+     * Método para remover coluna do banco de dados
+     */
+
+    private function remove_field($data) {
+        // Remove a coluna
+        $remove = $this->sections_model->remove_column($data);
+        if (!$remove) {
+            // Se a coluna não for removida
+            setError('remove_col', 'Não foi possível remover a coluna ' . $data['old_column'] . ', você não tem permissões suficiente.');
+        }
+    }
+
+    /*
+     * Método para inserir campo no banco de dados 
+     */
+
+    private function insert_field($data) {
+        $field_insert = array();
+        $field_insert[] = array(
+            'column' => $data['column'],
+            'type' => $data['type'],
+            'limit' => $data['limit'],
+            'default' => $data['default'],
+            'comment' => $data['comment']
+        );
+        // Cria a coluna no banco de dados
+        $this->sections_model->create_columns($data['table'], $field_insert);
     }
 
     /*
@@ -400,7 +449,7 @@ class Sections extends MY_Controller {
             'types' => $this->config_page->types(),
             'plugins_input' => $this->config_page->list_plugins()
         ];
-        $this->load->template('dev-project/form-section', $vars);
+        $this->load->template_app('dev-project/form-section', $vars);
     }
 
     /*
@@ -412,72 +461,33 @@ class Sections extends MY_Controller {
         $this->form_validation->set_rules('directory', 'Diretório', 'trim|required|is_unique[wd_sections.directory]|callback_verify_dir_create');
         $this->form_validation->set_rules('table', 'Tabela', 'trim|required|is_unique[wd_sections.table]|callback_verify_table');
         if ($this->form_validation->run()) {
-            $name = $this->input->post('name');
-            $directory = slug($this->input->post('directory'));
-            $table = $this->input->post('table');
-            $status = $this->input->post('status');
-            $name_field = $this->input->post('name_field');
-            $input_field = $this->input->post('input_field');
-            $list_reg_field = $this->input->post('list_registers_field');
-            $column_field = $this->input->post('column_field');
-            $type_field = $this->input->post('type_field');
-            $limit_field = $this->input->post('limit_field');
-            $plugins_field = $this->input->post('plugins_field');
-            $observation_field = $this->input->post('observation_field');
-            $attributes_field = $this->input->post('attributes_field');
-            $required_field = $this->input->post('required_field');
-            $unique_field = $this->input->post('unique_field');
-            $options_field = $this->input->post('options_field');
-            $label_options_field = $this->input->post('label_options_field');
-            $trigger_select_field = $this->input->post('trigger_select_field');
-            $position = $this->input->post('position');
-            $table = $project['preffix'] . $table;
-            $data = [
-                'project_directory' => $project['directory'],
-                'page_directory' => $page['directory'],
-                'page' => $page['id'],
-                'name' => $name,
-                'slug' => slug($directory),
-                'directory' => $directory,
-                'table' => $table,
-                'status' => $status,
-                'name_field' => $name_field,
-                'input_field' => $input_field,
-                'list_reg_field' => $list_reg_field,
-                'column_field' => $column_field,
-                'type_field' => $type_field,
-                'limit_field' => $limit_field,
-                'plugin_field' => $plugins_field,
-                'required_field' => $required_field,
-                'unique_field' => $unique_field,
-                'observation_field' => $observation_field,
-                'attributes_field' => $attributes_field,
-                'options_field' => $options_field,
-                'label_options_field' => $label_options_field,
-                'trigger_select_field' => $trigger_select_field,
-                'position' => $position,
-            ];
+            $dir_project = $project['directory'];
+            $slug_project = $project['slug'];
+            $dir_page = $page['directory'];
+            $slug_page = $page['slug'];
+            /* Array com todos os os campos enviados pelo método post */
+            $data = $this->get_post_data($project, $page);
+            $directory = $data['directory'];
+            $table = $data['table'];
+
             if (!$this->sections_model->create_table($table)) {
                 // Se a tabela não for inserida no banco de dados
                 setError('verify_table', 'Não foi possível criar a tabela ' . $table . ', a tabela existe ou você não tem permissões suficientes.');
+            } elseif (mkdir($this->path_view_project . $dir_project . '/' . $dir_page . '/' . $directory, 0755) && $this->create_fields($data)) {
+                redirect_app('project/' . $slug_project . '/' . $slug_page);
             } else {
-
-                // Cria diretório
-                mkdir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $directory, 0755);
-                if ($this->create_fields($data)) {
-                    // Se os campos xml forem criados com sucesso
-                    redirect_app('project/' . $project['directory'] . '/' . $page['directory']);
-                } else {
-                    // Se os campos não forem criados, remove a tabela e o diretório criado
-                    $this->sections_model->remove_table($table);
-                    forceRemoveDir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $directory);
-                }
+                // Se os campos não forem criados, remove a tabela e o diretório criado
+                $this->sections_model->remove_table($table);
+                forceRemoveDir($this->path_view_project . $dir_project . '/' . $dir_page . '/' . $directory);
             }
         } else {
             setError(null, validation_errors());
         }
     }
 
+    /*
+     * Método para verificar se é possível criar o diretório onde ficará a seção
+     */
     public function verify_dir_create($directory) {
         $project = get_project();
         $page = get_page();
@@ -558,6 +568,8 @@ class Sections extends MY_Controller {
                 $limit_field = $data['limit_field'][$i];
                 $required_field = $data['required_field'][$i];
                 $unique_field = $data['unique_field'][$i];
+                $default_field = $data['default_field'][$i];
+                $comment_field = $data['comment_field'][$i];
                 $plugins_field = $data['plugins_field'][$i];
                 $observation_field = $data['observation_field'][$i];
                 $attributes_field = $data['attributes_field'][$i];
@@ -565,7 +577,7 @@ class Sections extends MY_Controller {
                 $label_options_field = $data['label_options_field'][$i];
                 $trigger_select_field = $data['trigger_select_field'][$i];
                 $position = $data['position'][$i];
-                $remove = (is_array($remove_field) && in_array($i, $remove_field));
+                $remove = (is_array($remove_field) && array_key_exists($i, $remove_field));
                 // Verifica se os campos seguem os requisitos do sistema
                 $verify = $this->verify_fields([
                     'table' => $data['table'],
@@ -605,6 +617,8 @@ class Sections extends MY_Controller {
                         'attributes' => $attributes_field,
                         'required' => $required_field,
                         'unique' => $unique_field,
+                        'default' => $default_field,
+                        'comment' => $comment_field,
                         'options' => $options_field,
                         'remove' => $remove,
                         'label_options' => $label_options_field,
@@ -674,7 +688,7 @@ class Sections extends MY_Controller {
     }
 
     /*
-     * Método que retorna listagem de colunas em json
+     * Método para retornar listagem de colunas em json
      */
 
     public function list_columns_json() {

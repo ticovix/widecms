@@ -40,6 +40,7 @@ class MY_Controller extends CI_Controller {
                 }
             }
         }
+        $this->session->set_userdata('redirect', current_url());
         redirect('login');
     }
     

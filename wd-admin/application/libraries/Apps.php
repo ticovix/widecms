@@ -74,13 +74,13 @@ class Apps {
             $status = $app['status'];
             $dir_app = $app['app'];
             if ($status === 1) {
-                $path = $this->path . $dir_app . '/widgets/dashboard/';
+                $path = $this->path . $dir_app . '/libraries/widgets/';
                 if (is_dir($path)) {
                     $opendir = \opendir($path);
                     while (false !== ($widget = readdir($opendir))) {
-                        if (is_file($path . $widget) && strpos($widget, '.php') !== false) {
+                        if (is_file($path . $widget) && strpos($widget, '_dashboard.php') !== false) {
                             ob_start();
-                            $CI->load->library_app($widget, $dir_app . '/widgets/dashboard/');
+                            $CI->load->library_app('widgets/'.$widget, $dir_app);
                             $class = strtolower(str_replace('.php', '', $widget));
                             $name = $CI->$class->name;
                             $content = ob_get_contents();

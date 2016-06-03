@@ -39,14 +39,17 @@ class Config_page {
         $input[] = ['type' => 'integer', 'constraint' => 11];
         $input[] = ['type' => 'char', 'constraint' => 128];
         $input[] = ['type' => 'varchar', 'constraint' => 255];
-        $input[] = ['type' => 'mediumText'];
+        $input[] = ['type' => 'tinytext'];
         $input[] = ['type' => 'text'];
+        $input[] = ['type' => 'mediumText'];
         $input[] = ['type' => 'longtext'];
         $input[] = ['type' => 'date', 'constraint' => ''];
         $input[] = ['type' => 'datetime', 'constraint' => ''];
-        $input[] = ['type' => 'time', 'constraint' => ''];
         $input[] = ['type' => 'year', 'constraint' => ''];
+        $input[] = ['type' => 'time', 'constraint' => ''];
+        $input[] = ['type' => 'timestamp', 'constraint' => ''];
         $input[] = ['type' => 'float', 'constraint' => ''];
+        $input[] = ['type' => 'double', 'constraint' => ''];
         return $input;
     }
 
@@ -70,6 +73,8 @@ class Config_page {
                 $attributes = $field['attributes'];
                 $required = $field['required'];
                 $unique = $field['unique'];
+                $default = $field['default'];
+                $comment = $field['comment'];
                 $options = $field['options'];
                 $label_options = $field['label_options'];
                 $trigger_select = $field['trigger_select'];
@@ -81,6 +86,8 @@ class Config_page {
                 $attr['@required'] = $required;
                 $attr['@unique'] = $unique;
                 $attr['@limit'] = $limit;
+                $attr['@default'] = $default;
+                $attr['@comment'] = $comment;
                 $attr['@column'] = $column;
                 if (!empty($observation)) {
                     $attr['@observation'] = $observation;
@@ -141,6 +148,8 @@ class Config_page {
                     $list_registers = (string) $attr->list_registers;
                     $required = (string) $attr->required;
                     $unique = (string) $attr->unique;
+                    $default = (string) $attr->default;
+                    $comment = (string) $attr->comment;
                     $limit = (string) $attr->limit;
                     $plugins = (string) $attr->plugins;
                     $observation = (string) $attr->observation;
@@ -155,7 +164,9 @@ class Config_page {
                             'type' => $type,
                             'column' => $column,
                             'type_column' => $type_column,
-                            'list_registers' => $list_registers
+                            'list_registers' => $list_registers,
+                            'options' => $options,
+                            'label_options' => $label_options,
                         );
                     }
                     $config['fields'][] = array(
@@ -172,7 +183,9 @@ class Config_page {
                         'options' => $options,
                         'label_options' => $label_options,
                         'trigger_select' => $trigger_select,
-                        'limit' => $limit
+                        'limit' => $limit,
+                        'default' => $default,
+                        'comment' => $comment
                     );
                 }
             } else {
@@ -287,7 +300,7 @@ class Config_page {
                 if (is_file($class_plugin)) {
                     // Se houver um método de saida
                     $CI = & get_instance();
-                    $CI->load->library('../' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php');
+                    $CI->load->library_app('../plugins_input/' . $plugin['plugin'] . '/' . $class);
                     if (method_exists($class, 'output')) {
                         $class = strtolower($class);
                         // Se o método existir, aciona e seta o novo valor
@@ -581,13 +594,15 @@ class Config_page {
         foreach ($posts as $row) {
             foreach ($row as $key => $value) {
                 // Busca a coluna nos campos do config xml
-                $field = search($data, 'column', $key);
+                $field = search($data['fields'], 'column', $key);
                 if (isset($field[0])) {
+                    $field = $field[0];
                     // Se o campo for encontrada, faz diversas filtragens no valor da coluna
-                    $type = strtolower($field[0]['type']);
-                    if (isset($field[0]['plugin'])) {
+                    $type = strtolower($field['type']);
+                    if (isset($field['plugins']) && !empty($field['plugins'])) {
                         // Se houver um parametro mask setado
-                        $value = $this->plugins_output($field[0]['plugin'], $value, $field[0], $data);
+                        $plugins = $field['plugins'];
+                        $value = $this->plugins_output($plugins, $value, $field, $data);
                     }
                     switch ($type) {
                         case 'select':
@@ -612,16 +627,21 @@ class Config_page {
     private function plugins_output($plugins, $value, $field, $fields) {
         $type = $field['type'];
         $plugins = $this->get_plugins($plugins);
-        $CI = & get_instance();
-        $class = ucfirst($plugin['plugin']);
-        $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
-        if (is_file($class_plugin)) {
-            $CI->load->library('../' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php');
-            // Verifica se possui um método de saida
-            if (method_exists($class, 'output')) {
-                $class = strtolower($class);
-                // Se o método de saída existir, aciona
-                $value = $CI->$class->output($value, $field, $fields);
+        if ($plugins) {
+            foreach ($plugins as $arr) {
+                $CI = & get_instance();
+                $plugin = $arr['plugin'];
+                $class = ucfirst($plugin);
+                $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin . '/' . $class . '.php';
+                if (is_file($class_plugin)) {
+                    $CI->load->library_app('../plugins_input/' . $plugin . '/' . $class . '.php');
+                    // Verifica se possui um método de saida
+                    if (method_exists($class, 'output')) {
+                        $class = strtolower($class);
+                        // Se o método de saída existir, aciona
+                        $value = $CI->$class->output($value, $field, $fields);
+                    }
+                }
             }
         }
         switch ($type) {
@@ -643,6 +663,7 @@ class Config_page {
             default:
                 break;
         }
+
         return $value;
     }
 
@@ -651,10 +672,9 @@ class Config_page {
             // Se o valor da coluna não estiver vazio
             $CI = & get_instance();
             $CI->load->model('posts_model');
-            $field = $field[0];
+            $field = $field;
             $table = (isset($field['options'])) ? $field['options'] : '';
             $column = (isset($field['label_options'])) ? $field['label_options'] : '';
-
             if ($table && $column) {
                 // Se tabela e coluna existir, lista o valor selecionado pelo campo
                 $val = $CI->posts_model->get_post_selected($table, $column, $value);

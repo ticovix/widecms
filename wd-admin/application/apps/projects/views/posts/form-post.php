@@ -42,7 +42,7 @@ if (!defined('BASEPATH')) {
                     <div id="data-project" data-project="<?php echo $slug_project ?>" data-page="<?php echo $slug_page ?>" data-section="<?php echo $slug_section ?>">
                         <?php
                         echo getErrors();
-                        echo form_open();
+                        echo form_open('', array('class' => 'form-horizontal'));
                         if ($fields) {
                             foreach ($fields as $field) {
                                 $type = (isset($field['label'])) ? $field['type'] : '';
@@ -52,15 +52,18 @@ if (!defined('BASEPATH')) {
                                 $column = $field['column'];
                                 ?>
                                 <div class="form-group <?php if (empty($label)) { ?>hide<?php } ?>">
-                                    <label class="label-field" data-field="<?php echo $column ?>" id="label_<?php echo $column; ?>"><?php echo $label; ?></label>
-                                    <?php echo $input; ?>
-                                    <?php
-                                    if (!empty($observation)) {
-                                        ?>
-                                        <div class="observation"><?php echo $observation ?></div>    
+                                    <label for="<?php echo $column?>_field" class="label-field col-sm-2 col-xs-12 control-label" data-field="<?php echo $column ?>" id="label_<?php echo $column; ?>"><?php echo $label; ?></label>
+                                    <div class="col-sm-9 col-xs-12 content-field">
+                                        <?php echo $input; ?>
                                         <?php
-                                    }
-                                    ?>
+                                        if (!empty($observation)) {
+                                            ?>
+                                            <div class="observation"><?php echo $observation ?></div>    
+                                            <?php
+                                        }
+                                        ?>
+                                        <div class="clearfix"></div>
+                                    </div>
                                 </div>
                                 <?php
                             }

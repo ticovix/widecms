@@ -42,7 +42,7 @@ class My_account extends MY_Controller {
             'image' => $user['image'],
             'about' => $user['about'],
         );
-        $this->load->template('index', $vars);
+        $this->load->template_app('index', $vars);
     }
 
     /*

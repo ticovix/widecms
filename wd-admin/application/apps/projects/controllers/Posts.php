@@ -92,7 +92,7 @@ class Posts extends MY_Controller {
             'name_project' => $project['name'],
             'method' => $project['slug'] . '-' . $page['slug'] . '-' . $section['slug']
         );
-        $this->load->template('posts/form-post', $vars);
+        $this->load->template_app('posts/form-post', $vars);
     }
 
     /*
@@ -124,7 +124,7 @@ class Posts extends MY_Controller {
             'total' => $total_rows,
             'method' => $project['slug'] . '-' . $page['slug'] . '-' . $section['slug']
         );
-        $this->load->template('posts/index', $vars);
+        $this->load->template_app('posts/index', $vars);
     }
 
     /*
@@ -226,7 +226,7 @@ class Posts extends MY_Controller {
                 $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
                 if (is_file($class_plugin)) {
                     // Se o campo possui método de entrada
-                    $this->load->library_app($class, '/plugins_input/' . $plugin['plugin'] . '/');
+                    $this->load->library_app('../plugins_input/' . $plugin['plugin'] . '/' . $class);
                     if (method_exists($class, 'input')) {
                         $class = strtolower($class);
                         // Se o método existir, aciona e modifica o valor
@@ -277,7 +277,7 @@ class Posts extends MY_Controller {
                 'dev_mode' => $this->data_user['dev_mode'],
                 'method' => $project['slug'] . '-' . $page['slug'] . '-' . $section['slug']
             );
-            $this->load->template('posts/form-post', $vars);
+            $this->load->template_app('posts/form-post', $vars);
         } else {
             redirect_app();
         }
@@ -360,7 +360,7 @@ class Posts extends MY_Controller {
                 'dev_mode' => $this->data_user['dev_mode'],
                 'method' => $project['slug'] . '-' . $page['slug'] . '-' . $section['slug']
             );
-            $this->load->template('posts/form-post', $vars);
+            $this->load->template_app('posts/form-post', $vars);
         } else {
             redirect_app();
         }

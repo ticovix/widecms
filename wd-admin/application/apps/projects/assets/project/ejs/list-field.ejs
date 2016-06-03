@@ -14,13 +14,15 @@
         <input type="hidden" class="attributes-val" name="attributes_field[<%=index%>]" value='<%=attributes%>'>
         <input type="hidden" class="unique-val" name="unique_field[<%=index%>]" value="<%=unique%>">
         <input type="hidden" class="limit-val" name="limit_field[<%=index%>]" value="<%=limit_column%>">
+        <input type="hidden" class="comment-val" name="comment_field[<%=index%>]" value="<%=comment_column%>">
+        <input type="hidden" class="default-val" name="default_field[<%=index%>]" value="<%=default_column%>">
         <input type="hidden" class="position-val" name="position[<%=index%>]" value="<%=index%>">
         <input type="hidden" class="options-selected" name="options_selected[<%=index%>]" value='<%=options_selected%>'>
 
         <%=name%>
     </td>
     <td><%=input%></td>
-    <td><i class="fa fa-<% if(list_registers){%>check<% } else{%>remove<% } %>"></i></td>
+    <td><i class="fa fa-<% if(list_registers=='1'){%>check<% } else{%>remove<% } %>"></i></td>
     <td><%=column%></td>
     <td><%=type_column%></td>
     <td align="center"><input type="checkbox" name="remove_field[<%=index%>]" title="Remover campo"> </td>

@@ -47,7 +47,7 @@ if ($projects) {
                             }
                         } else {
                             $file_permissions = $path_modules . $dir_project . '/' . $dir_page . '/' . $dir_section . '/config/permissions.php';
-                            if (is_file($path_permissions)) {
+                            if (is_file($file_permissions)) {
                                 require($file_permissions);
                             }
                         }

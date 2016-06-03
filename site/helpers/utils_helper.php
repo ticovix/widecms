@@ -6,6 +6,8 @@ if (!defined('BASEPATH')) {
 
 if (!function_exists('list_files')) {
 
+    if (!function_exists('list_files')) {
+
     function list_files($json, $limit = null, $offset = 0) {
         if (empty($json)) {
             return false;
@@ -26,8 +28,7 @@ if (!function_exists('list_files')) {
             } else {
                 $file = (array) array_shift($files);
             }
-
-            if (is_file(getcwd() . '/wd-content/upload/' . $file['file'])) {
+            if (is_file('wd-content/upload/' . $file['file'])) {
                 return $file;
             } else {
                 return false;
@@ -47,7 +48,7 @@ if (!function_exists('list_files')) {
                 $title = (isset($file->title)) ? $file->title : '';
                 $name_file = (isset($file->file)) ? $file->file : '';
                 // Seta imagens que o caminho exista e que não seja o arquivo principal
-                if (!empty($name_file) && is_file(getcwd() . '/wd-content/upload/' . $name_file) && $checked == '0') {
+                if (!empty($name_file) && is_file('wd-content/upload/' . $name_file) && $checked == '0') {
                     $arr_file[] = array('file' => $name_file, 'title' => $title, 'checked' => $checked);
                 }
             }
@@ -68,6 +69,8 @@ if (!function_exists('list_files')) {
             return $final_files;
         }
     }
+
+}
 
 }
 

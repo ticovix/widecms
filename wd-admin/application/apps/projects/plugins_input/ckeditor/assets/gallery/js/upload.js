@@ -36,7 +36,7 @@ $(function () {
         var field = $(".label-field").eq(index).data("field");
         if ($(".input-field").eq(index).hasClass("ckeditor")) {
             $("#btn-save-change").addClass("hide");
-            $(".form-group").eq(index).prepend(
+            $(".content-field").eq(index).prepend(
                     $("<a>").attr({"href": "javascript:void(0);", "data-field": field})
                     .attr({"data-toggle": "modal", "data-target": "#gallery"})
                     .html('<i class="fa fa-file-image-o"></i> Inserir arquivos')

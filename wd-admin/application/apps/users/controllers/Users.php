@@ -36,7 +36,7 @@ class Users extends MY_Controller {
         add_js([
             'js/index.js'
         ]);
-        $this->load->template('index', $data);
+        $this->load->template_app('index', $data);
     }
 
     /*
@@ -114,7 +114,7 @@ class Users extends MY_Controller {
             'permissions' => $permissions,
             'id_user' => ''
         ];
-        $this->load->template('form', $vars);
+        $this->load->template_app('form', $vars);
     }
 
     /*
@@ -235,7 +235,7 @@ class Users extends MY_Controller {
             'about' => $user['about'],
             'permissions' => $permissions
         ];
-        $this->load->template('form', $vars);
+        $this->load->template_app('form', $vars);
     }
 
     /*
@@ -338,7 +338,7 @@ class Users extends MY_Controller {
             'total_history' => $history['total'],
             'pagination' => $this->pagination_history($history['total'])
         );
-        $this->load->template('profile', $vars);
+        $this->load->template_app('profile', $vars);
     }
     
     private function pagination_history($total_rows) {

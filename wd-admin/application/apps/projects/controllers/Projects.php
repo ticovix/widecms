@@ -37,10 +37,10 @@ class Projects extends MY_Controller {
         ];
         if ($this->data_user['dev_mode']) {
             // Template modo desenvolvedor
-            $this->load->template('dev-projects/index', $vars);
+            $this->load->template_app('dev-projects/index', $vars);
         } else {
             // Template modo cliente
-            $this->load->template('projects/index', $vars);
+            $this->load->template_app('projects/index', $vars);
         }
     }
 
@@ -107,7 +107,7 @@ class Projects extends MY_Controller {
             'status' => '',
             'preffix' => ''
         ];
-        $this->load->template('dev-projects/form', $vars);
+        $this->load->template_app('dev-projects/form', $vars);
     }
 
     /*
@@ -169,7 +169,7 @@ class Projects extends MY_Controller {
             'status' => $project['status'],
             'main' => $project['main']
         ];
-        $this->load->template('dev-projects/form', $vars);
+        $this->load->template_app('dev-projects/form', $vars);
     }
 
     /*
@@ -344,7 +344,7 @@ class Projects extends MY_Controller {
             'title' => 'Remover projeto',
             'project' => $project
         ];
-        $this->load->template('dev-projects/delete', $vars);
+        $this->load->template_app('dev-projects/delete', $vars);
     }
 
     /*

@@ -48,7 +48,7 @@ $(function () {
             url: URL,
             dataType: "json",
             type: "POST",
-            data: {limit: 12},
+            data: {limit: 6},
             success: function (data) {
                 var template = new EJS({url: app_assets + "ejs/gallery_dashboard/list-files.ejs"}).render({data: data, url: url, app_path: app_path, edit: edit_file, remove: remove_file});
                 content.html(template);

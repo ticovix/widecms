@@ -69,11 +69,15 @@ class Sections_model extends CI_Model {
             $column = $field['column'];
             $type = $field['type'];
             $limit = $field['limit'];
+            $default = $field['default'];
+            $comment = $field['comment'];
             $set = array();
-            $set[$column] = [
+            $set[$column] = array(
                 'type' => $type,
-                'constraint' => $limit
-            ];
+                'constraint' => $limit,
+                'default' => $default,
+                'comment' => $comment
+            );
             $this->dbforge->add_column($table, $set);
         }
     }
@@ -81,13 +85,13 @@ class Sections_model extends CI_Model {
     public function create_table($table) {
         $this->load->dbforge();
         /* Columns default */
-        $fields['id'] = [
+        $fields['id'] = array(
             'type' => 'INT',
             'auto_increment' => TRUE
-        ];
-        $fields['order'] = [
+        );
+        $fields['order'] = array(
             'type' => 'INT'
-        ];
+        );
         $this->dbforge->add_field($fields);
         $this->dbforge->add_key('id', TRUE);
         $stmt = $this->dbforge->create_table($table, TRUE, ['engine' => 'InnoDB']);
@@ -113,12 +117,16 @@ class Sections_model extends CI_Model {
         $old_column = $data['old_column'];
         $type = $data['type'];
         $limit = $data['limit'];
+        $default = $data['default'];
+        $comment = $data['comment'];
         $this->load->dbforge();
         $fields = array(
             $old_column => array(
                 'name' => $column,
                 'type' => $type,
-                'constraint' => $limit
+                'constraint' => $limit,
+                'default' => $default,
+                'comment' => $comment
             ),
         );
 

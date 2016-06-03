@@ -178,6 +178,8 @@ $(function () {
         var column = $("#column_field");
         var type_column = $("#type_field");
         var limit_column = $("#limit_column_field");
+        var default_column = $("#default_field");
+        var comment_column = $("#comment_field");
         var unique = $("#unique_field");
         var plugins = $(".plugin_field");
         var table = $("#table_name");
@@ -241,6 +243,8 @@ $(function () {
                 column: column.val(),
                 type_column: type_column.val(),
                 limit_column: limit_column.val(),
+                default_column: default_column.val(),
+                comment_column: comment_column.val(),
                 unique: unique.val(),
                 plugin: plugins_input,
                 index: index,
@@ -280,7 +284,10 @@ $(function () {
             var require_val = $(".require-val").eq(index).val();
             var observation_val = $(".observation-val").eq(index).val();
             var attributes_val = $(".attributes-val").eq(index).val();
+            var limit_val = $(".limit-val").eq(index).val();
             var unique_val = $(".unique-val").eq(index).val();
+            var default_val = $(".default-val").eq(index).val();
+            var comment_val = $(".comment-val").eq(index).val();
             var options_selected = $(".options-selected").eq(index).val();
 
             if(plugins_val!=''){
@@ -309,7 +316,6 @@ $(function () {
                 }
             }
             if(options_selected != "" && options_selected != "[]" && options_selected != undefined){
-                console.log(options_selected);
                 options_selected = $.parseJSON(options_selected);
                 $("#label_options_field").html("");
                 if(options_selected.length>0){
@@ -330,8 +336,10 @@ $(function () {
             $("#observation_field").val(observation_val);
             $("#column_field").val(column_val);
             $("#type_field").val(type_val);
-            $("#limit_column_field").val();
+            $("#limit_column_field").val(limit_val);
             $("#unique_field").val(unique_val);
+            $("#default_field").val(default_val);
+            $("#comment_field").val(comment_val);
             if_input_select();
         }
     });

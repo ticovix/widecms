@@ -52,7 +52,7 @@ class Gallery extends MY_Controller {
             'title' => 'Galeria',
             'files' => $files
         );
-        $this->load->template('index', $vars);
+        $this->load->template_app('index', $vars);
     }
 
     /*

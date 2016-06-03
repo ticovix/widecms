@@ -92,6 +92,8 @@ if (!defined('BASEPATH')) {
                                 $limit = (isset($fields[$i]['limit'])) ? $fields[$i]['limit'] : '';
                                 $required = (isset($fields[$i]['required'])) ? $fields[$i]['required'] : '';
                                 $unique = (isset($fields[$i]['unique'])) ? $fields[$i]['unique'] : '';
+                                $default = (isset($fields[$i]['default'])) ? $fields[$i]['default'] : '';
+                                $comment = (isset($fields[$i]['comment'])) ? $fields[$i]['comment'] : '';
                                 $remove = (isset($fields[$i]['remove'])) ? $fields[$i]['remove'] : '';
                                 $plugin_field = (isset($fields[$i]['plugins'])) ? $fields[$i]['plugins'] : '';
                                 $options_field = (isset($fields[$i]['options'])) ? $fields[$i]['options'] : '';
@@ -117,6 +119,8 @@ if (!defined('BASEPATH')) {
                                         <input type="hidden" class="attributes-val" name="attributes_field[<?php echo $i ?>]" value='<?php echo set_value('attributes_field[' . $i . ']', $attributes) ?>'>
                                         <input type="hidden" class="unique-val" name="unique_field[<?php echo $i ?>]" value="<?php echo set_value('unique_field[' . $i . ']', $unique) ?>">
                                         <input type="hidden" class="limit-val" name="limit_field[<?php echo $i ?>]" value="<?php echo set_value('limit_field[' . $i . ']', $limit) ?>">
+                                        <input type="hidden" class="comment-val" name="comment_field[<?php echo $i ?>]" value="<?php echo set_value('comment_field[' . $i . ']', $comment) ?>">
+                                        <input type="hidden" class="default-val" name="default_field[<?php echo $i ?>]" value="<?php echo set_value('default_field[' . $i . ']', $default) ?>">
                                         <input type="hidden" class="options-selected" name="options_selected[<?php echo $i ?>]" value="<?php echo set_value('options_selected[' . $i . ']', json_encode($label_options)) ?>">
                                         <input type="hidden" class="position-val" name="position[<?php echo $i ?>]" value='<?php echo set_value('position[' . $i . ']', $i) ?>'>
                                         <?php echo set_value('name_field[' . $i . ']', $name_field) ?>
@@ -342,6 +346,20 @@ if (!defined('BASEPATH')) {
                                                             <option value="0">Não</option>
                                                             <option value="1">Sim</option>
                                                         </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>Padrão</label>
+                                                        <input type="text" id="default_field" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>Comentário</label>
+                                                        <input type="text" id="comment_field" class="form-control">
                                                     </div>
                                                 </div>
                                             </div>
