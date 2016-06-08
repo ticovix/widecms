@@ -13,7 +13,7 @@ $(function () {
         return str;
     };
 
-    $("#slug").keyup(function () {
+    $(".slug").keyup(function () {
         var val = $(this).val();
         $(this).val(slug(val, '-'));
     });

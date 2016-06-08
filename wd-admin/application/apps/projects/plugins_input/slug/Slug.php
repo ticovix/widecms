@@ -4,7 +4,7 @@ class Slug {
 
     public function input($value, $field, $fields) {
         $CI = &get_instance();
-        $field_trigger = search($fields, 'plugin', 'slug_trigger');
+        $field_trigger = search($fields, 'plugins', 'slug_trigger.+?', true);
         if (isset($field_trigger[0])) {
             $field_trigger = $field_trigger[0];
             $value_trigger = $CI->input->post($field_trigger['column']);
@@ -20,7 +20,7 @@ class Slug {
         $slug_ = slug($value);
         $CI = &get_instance();
         $id_post = $CI->uri->segment(8);
-        $CI->load->model('crud_model');
+        $CI->load->model_app('crud_model');
         $x = 0;
         $exists = true;
         $column = $field['column'];

@@ -565,7 +565,13 @@ class Config_page {
         $ctt = '<div class="content-files">';
         if ($files) {
             $path = PATH_UPLOAD;
+            if(isset($files['file'])){
+                $files = array($files);
+            }
             foreach ($files as $file) {
+                if(!is_object($file)){
+                    $file = (object) $file;
+                }
                 $file_ = $file->file;
                 $checked = $file->checked;
                 if (!empty($file)) {

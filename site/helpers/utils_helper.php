@@ -4,18 +4,23 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
+/*
+ * Método para listar arquivos de uma coluna json do banco de dados
+ * param @json: JSON com os arquivos salvos da coluna no banco de dados
+ * param @limit: limita a quantidade de listagem de arquivos
+ * param @offset: chave que o ponteiro começará a contar
+ * param @order_by_check: define se a ordem da listagem, iniciando pela capa, padrão: true (a capa sempre aparecerá primeiro, exceto se alterado para false)
+ */
 if (!function_exists('list_files')) {
 
-    if (!function_exists('list_files')) {
-
-    function list_files($json, $limit = null, $offset = 0) {
+    function list_files($json, $limit = null, $offset = 0, $order_by_check = true) {
         if (empty($json)) {
             return false;
         }
         // Decodifica o json para object
         $files = \json_decode($json);
         // Verifica se foi decodificado
-        if (is_object($files)) {
+        if (is_object($files) or is_array($files)) {
             $files = (array) $files;
         } else {
             return false;
@@ -39,7 +44,7 @@ if (!function_exists('list_files')) {
             // Busca o arquivo principal
             $search_checked = search($files, 'checked', 1);
             // Caso encontre, seta no array de arquivos
-            if (isset($search_checked[0])) {
+            if (isset($search_checked[0]) && $order_by_check == true) {
                 $arr_file[] = array('file' => $search_checked[0]['file'], 'title' => $search_checked[0]['title'], 'checked' => 1);
             }
             // Lista os arquivos do objeto
@@ -48,7 +53,7 @@ if (!function_exists('list_files')) {
                 $title = (isset($file->title)) ? $file->title : '';
                 $name_file = (isset($file->file)) ? $file->file : '';
                 // Seta imagens que o caminho exista e que não seja o arquivo principal
-                if (!empty($name_file) && is_file('wd-content/upload/' . $name_file) && $checked == '0') {
+                if (!empty($name_file) && is_file('wd-content/upload/' . $name_file) && ($checked == '0' or ! $order_by_check)) {
                     $arr_file[] = array('file' => $name_file, 'title' => $title, 'checked' => $checked);
                 }
             }
@@ -72,18 +77,106 @@ if (!function_exists('list_files')) {
 
 }
 
+/*
+ * Método para inserir arquivos no json
+ */
+if (!function_exists('insert_files')) {
+    function insert_files($json, $add_files = array()){
+        // Decodifica o json para object
+        $files = \json_decode($json);
+        // Verifica se foi decodificado
+        if (is_object($files) or is_array($files)) {
+            $files = (array) $files;
+        } else {
+            return false;
+        }
+        if (!isset($add_files[0])) {
+            $add_files = array($add_files);
+        }
+        $count = count($files);
+        foreach ($add_files as $arr) {
+            $file = $arr['file'];
+            $checked = (isset($arr['checked']))?$arr['checked']:'';
+            $title = (isset($arr['title']))?$arr['title']:'';
+            $files[] = array('file' => $file, 'checked' => $checked, 'title' => $title);
+            if($checked==true){
+                $encode = json_encode($files);
+                $files = json_decode(check_file($encode, $count));
+            }
+            $count++;
+        }
+        return json_encode($files);
+        
+    }
+}
+/*
+ * Método para alterar o arquivo principal
+ */
+
+if (!function_exists('check_file')) {
+
+    function check_file($json, $key) {
+        // Decodifica o json para object
+        $files = \json_decode($json);
+        // Verifica se foi decodificado
+        if (is_object($files) or is_array($files)) {
+            $files = (array) $files;
+        } else {
+            return false;
+        }
+
+        foreach ($files as $k => $file) {
+            if ($k == $key) {
+                $file->checked = true;
+            } else {
+                $file->checked = false;
+            }
+            $arr[] = $file;
+        }
+        return json_encode($arr);
+    }
+
+}
+
+/*
+ * Método para remover multiplos arquivos
+ */
+if (!function_exists('remove_files')) {
+
+    function remove_files($json, $keys, $remove_files = false) {
+        // Decodifica o json para object
+        $files = \json_decode($json);
+        // Verifica se foi decodificado
+        if (is_object($files) or is_array($files)) {
+            $files = (array) $files;
+        } else {
+            return false;
+        }
+        if (!is_array($keys)) {
+            $keys = array($keys);
+        }
+        foreach ($files as $k => $file) {
+            if (!in_array($k, $keys)) {
+                $arr[] = $file;
+            } elseif ($remove_files) {
+                @unlink('wd-content/upload/' . $file['file']);
+            }
+        }
+        return json_encode($arr);
+    }
+
 }
 
 if (!function_exists('search')) {
 
-    function search($array, $key, $value) {
+    function search($array, $key, $value, $regex = false) {
         $results = array();
         if (is_array($value) && is_array($array)) {
             foreach ($value as $val) {
-                $results = array_merge($results, search($array, $key, $val));
+                $results = array_merge($results, search($array, $key, $val, $regex));
             }
         } elseif (is_array($array) && !is_array($value)) {
-            if (isset($array[$key]) && $array[$key] == $value) {
+            if ((isset($array[$key]) && $array[$key] == $value) or ($regex==true && isset($array[$key]) && preg_match('/'.$value.'/', $array[$key])>0)) {
                 $results[] = $array;
             }
 
@@ -91,7 +184,7 @@ if (!function_exists('search')) {
                 if (is_object($subarray)) {
                     $subarray = (array) $subarray;
                 }
-                $results = array_merge($results, search($subarray, $key, $value));
+                $results = array_merge($results, search($subarray, $key, $value, $regex));
             }
         }
         return $results;

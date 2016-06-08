@@ -75,9 +75,11 @@ class Sections_model extends CI_Model {
             $set[$column] = array(
                 'type' => $type,
                 'constraint' => $limit,
-                'default' => $default,
                 'comment' => $comment
             );
+            if(!empty($default)){
+                $set[$column]['default'] = $default;
+            }
             $this->dbforge->add_column($table, $set);
         }
     }

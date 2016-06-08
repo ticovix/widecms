@@ -165,6 +165,10 @@ $(function () {
             var new_list = new Object();
             var total = Object.keys(list).length;
             var x = 0;
+            if (typeof list[0] == 'undefined') {
+                list = new Array(list);
+                total = 1;
+            }
             for (var i = 0; i < total; i++) {
                 var file = list[i].file;
                 var checked = list[i].checked;
@@ -182,6 +186,10 @@ $(function () {
         if (list != undefined) {
             var new_list = new Object();
             var total = Object.keys(list).length;
+            if (typeof list[0] == 'undefined') {
+                list = new Array(list);
+                total = 1;
+            }
             for (var i = 0; i < total; i++) {
                 var file = list[i].file;
                 var checked = false;
@@ -201,6 +209,10 @@ $(function () {
         if (list != undefined) {
             var new_list = new Object();
             var total = Object.keys(list).length;
+            if (typeof list[0] == 'undefined') {
+                list = new Array(list);
+                total = 1;
+            }
             for (var i = 0; i < total; i++) {
                 var file = list[i].file;
                 var checked = list[i].checked;

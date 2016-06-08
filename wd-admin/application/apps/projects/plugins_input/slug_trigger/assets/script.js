@@ -17,9 +17,9 @@ $(function () {
         return str;
     };
 
-    $("#slug-trigger").keyup(function () {
+    $(".slug-trigger").keyup(function () {
         var val = $(this).val();
-        $("#slug").val(slug(val, '-'));
+        $(".slug").val(slug(val, '-'));
     });
 
 });

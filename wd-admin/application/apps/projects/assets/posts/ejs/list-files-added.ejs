@@ -2,6 +2,11 @@
     <%
     var total_files = Object.keys(files).length;
     if(total_files>0){
+        if(typeof files[0] == 'undefined'){
+            files = new Array(files);
+            total_files = 1;
+        }
+        
         for(var i=0; i < total_files; i++){
             var file = files[i].file;
             var checked = files[i].checked;

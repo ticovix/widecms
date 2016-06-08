@@ -34,7 +34,7 @@ if (!defined('BASEPATH')) {
                     <?php
                 }
                 echo form_close();
-                echo form_open('users/delete');
+                echo form_open(base_url_app('delete'));
                 ?>
                 <!-- Modal -->
                 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">

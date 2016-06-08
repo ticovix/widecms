@@ -294,8 +294,6 @@ class Users extends MY_Controller {
         if ($del > 1) {
             $this->users_model->delete($del);
         }
-        $user = $this->users_model->get_user($del);
-        add_history('Removeu o usuário ' . $user['name']);
         redirect_app('users');
     }
 
