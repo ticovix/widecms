@@ -146,7 +146,7 @@ if (!defined('BASEPATH')) {
                                                     ?>
                                                     <tr>
                                                         <td><?php echo $label ?></td>
-                                                        <td align="center"><input type="checkbox" data-page="<?php echo $dir_app . '/' . $page ?>" name="<?php echo $dir_app . '-' . $method ?>" value="1" <?php if($this->uri->segment(3)=='create' or check_method($method, $dir_app, $id_user)){?>checked="checked"<?php }?> class="check-permission"></td>
+                                                        <td align="center"><input type="checkbox" data-page="<?php echo $dir_app . '/' . $page ?>" name="<?php echo $dir_app . '-' . $method ?>" value="1" <?php if($this->uri->segment(3)=='create' or check_method($method, $dir_app, $id_user)){ echo 'checked="checked"'; }?> class="check-permission"></td>
                                                     </tr>
                                                     <?php
                                                 }
@@ -157,7 +157,7 @@ if (!defined('BASEPATH')) {
                                                         ?>
                                                         <tr>
                                                             <td><?php echo $label ?></td>
-                                                            <td align="center"><input type="checkbox" name="<?php echo $dir_app . '-' . $method ?>" data-sub="<?php echo $dir_app . '/' . $page ?>" value="1" <?php if($this->uri->segment(3)=='create' or check_method($method, $dir_app, $id_user)){?>checked="checked"<?php }?> class="check-permission"></td>
+                                                            <td align="center"><input type="checkbox" name="<?php echo $dir_app . '-' . $method ?>" data-sub="<?php echo $dir_app . '/' . $page ?>" value="1" <?php if($this->uri->segment(3)=='create' or check_method($method, $dir_app, $id_user)){ echo 'checked="checked"'; } if(!check_method($key, $dir_app, $id_user)){ echo 'disabled readonly'; }?> class="check-permission"></td>
                                                         </tr>
                                                         <?php
                                                     }

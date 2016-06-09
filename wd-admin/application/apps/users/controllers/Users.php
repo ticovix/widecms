@@ -124,7 +124,7 @@ class Users extends MY_Controller {
     private function form_create($permissions) {
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
         $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]|valid_email');
-        $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]|min_length[3]');
+        $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]|min_length[3]|alpha_numeric');
         $this->form_validation->set_rules('password', 'Senha', 'trim|required');
 
         if ($this->form_validation->run()) {
@@ -248,7 +248,7 @@ class Users extends MY_Controller {
             $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]|valid_email');
         }
         if ($this->input->post('login') != $user['login']) {
-            $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]|min_length[3]');
+            $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]|min_length[3]|alpha_numeric');
         }
         if ($this->form_validation->run()) {
             if ($user['root']) {
