@@ -66,7 +66,7 @@ class Pages_model extends CI_Model {
     public function remove($page) {
         $sections = $this->db->get_where('wd_sections', array('fk_page' => $page))->result_array();
         if ($sections) {
-            $this->load->model('sections_model');
+            $this->load->model_app('sections_model');
             foreach ($sections as $section) {
                 $table = $section['table'];
                 $id = $section['id'];
