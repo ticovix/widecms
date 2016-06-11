@@ -146,253 +146,6 @@ if (!defined('BASEPATH')) {
                             ?>
                         </tbody>
                     </table>
-                    <!-- Modal -->
-                    <div class="modal fade" id="modal-new-field" data-index="" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title" id="myModalLabel">Configurar campo</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <!-- Nav tabs -->
-                                    <ul class="nav nav-tabs" role="tablist">
-                                        <li role="presentation" class="nav-tab active"><a href="#html" aria-controls="html" role="tab" data-toggle="tab">HTML</a></li>
-                                        <li role="presentation" class="nav-tab"><a href="#database" aria-controls="database" role="tab" data-toggle="tab">Banco de dados</a></li>
-                                        <li role="presentation" class="nav-tab"><a href="#plugins" aria-controls="plugins" role="tab" data-toggle="tab">Plugins</a></li>
-                                    </ul>
-
-                                    <!-- Tab panes -->
-                                    <div class="tab-content">
-                                        <div role="tabpanel" class="tab-pane active" id="html">
-                                            <h4>Configurações html do input</h4>
-                                            <div class="row">
-                                                <div class="col-sm-6">
-                                                    <div class="form-group">
-                                                        <label>Nome*</label>
-                                                        <input type="text" id="name_field" maxlength="45" class="form-control dig_name">
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="form-group">
-                                                        <label>Input*</label>
-                                                        <select id="input_field" class="form-control select-input">
-                                                            <option value="">Selecione</option>
-                                                            <?php
-                                                            if (count($inputs)) {
-                                                                foreach ($inputs as $input) {
-                                                                    ?>
-                                                                    <option value="<?php echo $input['value']; ?>"><?php echo $input['name'] ?></option>        
-                                                                    <?php
-                                                                }
-                                                            }
-                                                            ?>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-sm-6">
-                                                    <div class="form-group">
-                                                        <label>Listagem</label>
-                                                        <select id="list_registers_field" class="form-control">
-                                                            <option value="0">Não</option>
-                                                            <option value="1">Sim</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="form-group">
-                                                        <label>Obrigatório</label>
-                                                        <select id="required_field" class="form-control">
-                                                            <option value="0">Não</option>
-                                                            <option value="1">Sim</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-4 options-field hide">
-                                                    <div class="form-group">
-                                                        <label>Opções <span class="fa fa-question-circle fa-fw" title="Opções para seleção"></span></label>
-                                                        <select id="options_field" class="form-control select-options">
-                                                            <option value="">Selecione</option>
-                                                            <?php
-                                                            if ($sections) {
-                                                                foreach ($sections as $arr) {
-                                                                    ?>
-                                                                    <option value="<?php echo $arr['table'] ?>"><?php echo $arr['name'] ?> (<?php echo $arr['table'] ?>)</option>
-                                                                    <?php
-                                                                }
-                                                            }
-                                                            ?>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-4 label-options-field hide">
-                                                    <div class="form-group">
-                                                        <label>Rótulo <span class="fa fa-question-circle fa-fw" title="Nome da coluna onde estão localizado os labels para exibir no campo de seleção"></span></label>
-                                                        <select id="label_options_field" class="form-control select-label">
-                                                            <?php
-                                                            if ($label_options) {
-                                                                ?>
-                                                                <option value="">Selecione</option>    
-                                                                <?php
-                                                                foreach ($label_options as $col) {
-                                                                    ?>
-                                                                    <option value="<?php echo $col ?>"><?php echo $col ?></option>    
-                                                                    <?php
-                                                                }
-                                                            } else {
-                                                                ?>
-                                                                <option value="">Selecione a opção</option>    
-                                                                <?php
-                                                            }
-                                                            ?>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-4 trigger-field hide">
-                                                    <div class="form-group">
-                                                        <label>Select Gatilho <span class="fa fa-question-circle fa-fw" title="Serão listado as opções quanto o select indicado for selecionado."></span></label>
-                                                        <select id="trigger_select_field" class="form-control">
-                                                            <option value="">Selecione</option>
-                                                            <?php
-                                                            if ($selects) {
-                                                                foreach ($selects as $select) {
-                                                                    $col = $select['column'];
-                                                                    $label = $select['label'];
-                                                                    ?>
-                                                                    <option value="<?php echo $col ?>" <?php echo set_select('select_trigger_field[' . $i . ']', $col, ($select_trigger_field == $col)) ?>><?php echo $label ?> (<?php echo $col ?>)</option>
-                                                                    <?php
-                                                                }
-                                                            }
-                                                            ?>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <hr>
-                                            <div class="row">
-                                                <div class="col-sm-6">
-                                                    <h4>Atributos adicionais do input</h4>
-                                                    <div id="attributes">
-                                                        <div class="row attr-current">
-                                                            <div class="col-sm-6">
-                                                                <div class="form-group">
-                                                                    <input type="text" value="" class="form-control param_attr_field" placeholder="Atributo">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <div class="form-group">
-                                                                    <input type="text" value="" class="form-control value_attr_field" placeholder="Valor">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <button type="button" id="add-attr" class="btn"><i class="fa fa-fw fa-plus"></i> Mais</button>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <h4>Adicionais</h4>
-                                                    <div class="row">
-                                                        <div class="col-sm-12">
-                                                            <div class="form-group">
-                                                                <label>Observações</label>
-                                                                <textarea class="form-control" id="observation_field"></textarea>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div role="tabpanel" class="tab-pane" id="database">
-                                            <h4>Configurações do campo no banco de dados</h4>
-                                            <div class="row">
-                                                <div class="col-sm-6">
-                                                    <div class="form-group">
-                                                        <label>Coluna*</label>
-                                                        <input type="text" id="column_field" class="form-control">
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="form-group">
-                                                        <label>Tipo*</label>
-                                                        <select id="type_field" class="form-control">
-                                                            <option value="">Selecione</option>
-                                                            <?php
-                                                            if (count($types)) {
-                                                                foreach ($types as $type) {
-                                                                    ?>
-                                                                    <option value="<?php echo $type['type']; ?>"><?php echo $type['type'] ?></option>        
-                                                                    <?php
-                                                                }
-                                                            }
-                                                            ?>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-sm-6">
-                                                    <div class="form-group">
-                                                        <label>Limite</label>
-                                                        <input type="text" id="limit_column_field" class="form-control">
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="form-group">
-                                                        <label>Valor único</label>
-                                                        <select id="unique_field" class="form-control">
-                                                            <option value="0">Não</option>
-                                                            <option value="1">Sim</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-sm-6">
-                                                    <div class="form-group">
-                                                        <label>Padrão</label>
-                                                        <input type="text" id="default_field" class="form-control">
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="form-group">
-                                                        <label>Comentário</label>
-                                                        <input type="text" id="comment_field" class="form-control">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div role="tabpanel" class="tab-pane" id="plugins">
-                                            <h4>Plugins</h4>
-                                            <div class="list-group">
-                                                <?php
-                                                if (count($plugins_input)) {
-                                                    foreach ($plugins_input as $plugin) {
-                                                        ?>
-                                                        <div class="list-group-item">
-                                                            <label>
-                                                                <input type="checkbox" class="plugin_field" value="<?php echo $plugin['plugin']; ?>"> <?php echo $plugin['name'] ?>       
-                                                            </label>
-                                                        </div>
-                                                        <?php
-                                                    }
-                                                }
-                                                ?>
-                                            </div>
-                                        </div>
-                                        <div id="msg-modal" class="hide alert alert-danger"></div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-                                    <button type="button" class="btn btn-primary" id="btn-save" data-dismiss="modal">Salvar</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="form-group text-right">
@@ -404,6 +157,252 @@ if (!defined('BASEPATH')) {
                     echo form_close();
                 }
                 ?>
+                <!-- Modal -->
+                <div class="modal fade" id="modal-new-field" data-index="" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">Configurar campo</h4>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Nav tabs -->
+                                <ul class="nav nav-tabs" role="tablist">
+                                    <li role="presentation" class="nav-tab active"><a href="#html" aria-controls="html" role="tab" data-toggle="tab">HTML</a></li>
+                                    <li role="presentation" class="nav-tab"><a href="#database" aria-controls="database" role="tab" data-toggle="tab">Banco de dados</a></li>
+                                    <li role="presentation" class="nav-tab"><a href="#plugins" aria-controls="plugins" role="tab" data-toggle="tab">Plugins</a></li>
+                                </ul>
+
+                                <!-- Tab panes -->
+                                <div class="tab-content">
+                                    <div role="tabpanel" class="tab-pane active" id="html">
+                                        <h4>Configurações html do input</h4>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Nome*</label>
+                                                    <input type="text" id="name_field" maxlength="45" class="form-control dig_name">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Input*</label>
+                                                    <select id="input_field" class="form-control select-input">
+                                                        <option value="">Selecione</option>
+                                                        <?php
+                                                        if (count($inputs)) {
+                                                            foreach ($inputs as $input) {
+                                                                ?>
+                                                                <option value="<?php echo $input['value']; ?>"><?php echo $input['name'] ?></option>        
+                                                                <?php
+                                                            }
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Listagem</label>
+                                                    <select id="list_registers_field" class="form-control">
+                                                        <option value="0">Não</option>
+                                                        <option value="1">Sim</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Obrigatório</label>
+                                                    <select id="required_field" class="form-control">
+                                                        <option value="0">Não</option>
+                                                        <option value="1">Sim</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4 options-field hide">
+                                                <div class="form-group">
+                                                    <label>Opções <span class="fa fa-question-circle fa-fw" title="Opções para seleção"></span></label>
+                                                    <select id="options_field" class="form-control select-options">
+                                                        <option value="">Selecione</option>
+                                                        <?php
+                                                        if ($sections) {
+                                                            foreach ($sections as $arr) {
+                                                                ?>
+                                                                <option value="<?php echo $arr['table'] ?>"><?php echo $arr['name'] ?> (<?php echo $arr['table'] ?>)</option>
+                                                                <?php
+                                                            }
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 label-options-field hide">
+                                                <div class="form-group">
+                                                    <label>Rótulo <span class="fa fa-question-circle fa-fw" title="Nome da coluna onde estão localizado os labels para exibir no campo de seleção"></span></label>
+                                                    <select id="label_options_field" class="form-control select-label">
+                                                        <?php
+                                                        if ($label_options) {
+                                                            ?>
+                                                            <option value="">Selecione</option>    
+                                                            <?php
+                                                            foreach ($label_options as $col) {
+                                                                ?>
+                                                                <option value="<?php echo $col ?>"><?php echo $col ?></option>    
+                                                                <?php
+                                                            }
+                                                        } else {
+                                                            ?>
+                                                            <option value="">Selecione a opção</option>    
+                                                            <?php
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 trigger-field hide">
+                                                <div class="form-group">
+                                                    <label>Select Gatilho <span class="fa fa-question-circle fa-fw" title="Serão listado as opções quanto o select indicado for selecionado."></span></label>
+                                                    <select id="trigger_select_field" class="form-control">
+                                                        <option value="">Selecione</option>
+                                                        <?php
+                                                        if ($selects) {
+                                                            foreach ($selects as $select) {
+                                                                $col = $select['column'];
+                                                                $label = $select['label'];
+                                                                ?>
+                                                                <option value="<?php echo $col ?>" <?php echo set_select('select_trigger_field[' . $i . ']', $col, ($select_trigger_field == $col)) ?>><?php echo $label ?> (<?php echo $col ?>)</option>
+                                                                <?php
+                                                            }
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <h4>Atributos adicionais do input</h4>
+                                                <div id="attributes">
+                                                    <div class="row attr-current">
+                                                        <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                <input type="text" value="" class="form-control param_attr_field" placeholder="Atributo">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                <input type="text" value="" class="form-control value_attr_field" placeholder="Valor">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button type="button" id="add-attr" class="btn"><i class="fa fa-fw fa-plus"></i> Mais</button>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <h4>Adicionais</h4>
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <label>Observações</label>
+                                                            <textarea class="form-control" id="observation_field"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div role="tabpanel" class="tab-pane" id="database">
+                                        <h4>Configurações do campo no banco de dados</h4>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Coluna*</label>
+                                                    <input type="text" id="column_field" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Tipo*</label>
+                                                    <select id="type_field" class="form-control">
+                                                        <option value="">Selecione</option>
+                                                        <?php
+                                                        if (count($types)) {
+                                                            foreach ($types as $type) {
+                                                                ?>
+                                                                <option value="<?php echo $type['type']; ?>"><?php echo $type['type'] ?></option>        
+                                                                <?php
+                                                            }
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Limite</label>
+                                                    <input type="text" id="limit_column_field" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Valor único</label>
+                                                    <select id="unique_field" class="form-control">
+                                                        <option value="0">Não</option>
+                                                        <option value="1">Sim</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Padrão</label>
+                                                    <input type="text" id="default_field" class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Comentário</label>
+                                                    <input type="text" id="comment_field" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div role="tabpanel" class="tab-pane" id="plugins">
+                                        <h4>Plugins</h4>
+                                        <div class="list-group">
+                                            <?php
+                                            if (count($plugins_input)) {
+                                                foreach ($plugins_input as $plugin) {
+                                                    ?>
+                                                    <div class="list-group-item">
+                                                        <label>
+                                                            <input type="checkbox" class="plugin_field" value="<?php echo $plugin['plugin']; ?>"> <?php echo $plugin['name'] ?>       
+                                                        </label>
+                                                    </div>
+                                                    <?php
+                                                }
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                    <div id="msg-modal" class="hide alert alert-danger"></div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                                <button type="button" class="btn btn-primary" id="btn-save" data-dismiss="modal">Salvar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

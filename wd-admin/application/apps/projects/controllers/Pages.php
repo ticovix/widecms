@@ -194,14 +194,13 @@ class Pages extends MY_Controller {
             $name = $this->input->post('name');
             $status = $this->input->post('status');
             $slug = slug($name);
-            $dir_project = $this->path_view_project . $project['slug'] . '/';
-
+            $dir_project = $this->path_view_project . $project['directory'] . '/';
             if ($slug != $page['slug']) {
                 //Se o slug da página estiver diferente do slug atual
                 if (is_dir($dir_project . $slug)) {
                     // Se já existir uma pasta com o slug atual
                     setError('editPage', 'Não foi possível renomear a página, esse nome (diretório) já existe.');
-                } elseif (!\rename($dir_project . $page['slug'], $dir_project . $slug)) {
+                } elseif (!@rename($dir_project . $page['directory'], $dir_project . $slug)) {
                     // Se a nova pasta não for renomeada
                     setError('editPage', 'Não foi possível renomear a página, você não possui privilégios.');
                     $name = $page['name'];
