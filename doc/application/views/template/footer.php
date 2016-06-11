@@ -1,6 +1,6 @@
 <footer>
     <div class="container">
-        <p>Code licensed <a rel="license" href="https://github.com/twbs/bootstrap/blob/master/LICENSE" target="_blank">MIT</a>, docs <a rel="license" href="https://creativecommons.org/licenses/by/3.0/" target="_blank">CC BY 3.0</a>.</p>
+        <p>Code licensed <a rel="license" href="https://github.com/wide-develop/cmswide/tree/master/LICENSE" target="_blank">MIT</a>, docs <a rel="license" href="http://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.</p>
     </div>
 </footer>
 
