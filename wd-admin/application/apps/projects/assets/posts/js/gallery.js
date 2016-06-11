@@ -101,7 +101,7 @@ $(function () {
             type: "POST",
             data: {file: file},
             success: function (data) {
-                var template = new EJS({url: url + "application/apps/gallery/assets/ejs/gallery/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
+                var template = new EJS({url: app_assets + "posts/ejs/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });
@@ -265,7 +265,7 @@ $(function () {
         var content = $("#modal-edit .modal-content");
 
         content.attr("data-index", index);
-        var template = new EJS({url: url + "application/apps/gallery/assets/ejs/posts/file-edit.ejs"}).render({file: file, url: url, app_path: app_path});
+        var template = new EJS({url: app_assets + "posts/ejs/file-edit.ejs"}).render({file: file, url: url, app_path: app_path});
         content.html(template);
     });
 
