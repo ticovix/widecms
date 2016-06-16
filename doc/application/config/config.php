@@ -504,3 +504,4 @@ $config['proxy_ips'] = '';
  */
 $config['footer_js'] = '';
 $config['header_css'] = '';
+$config['path_asset'] = 'assets/';

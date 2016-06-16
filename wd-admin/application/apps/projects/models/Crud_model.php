@@ -9,11 +9,11 @@ class Crud_model extends CI_Model {
     public function dynamic_query($where = null, $join = null) {
 
         if (is_array($join) && count($join) > 0) {
-            foreach ($join as $table => $where) {
-                if (is_array($where)) {
-                    $this->db->join($table, $where[0], $where[1]);
+            foreach ($join as $table => $where_) {
+                if (is_array($where_)) {
+                    $this->db->join($table, $where_[0], $where_[1]);
                 } else {
-                    $this->db->join($table, $where);
+                    $this->db->join($table, $where_);
                 }
             }
         }
@@ -49,7 +49,7 @@ class Crud_model extends CI_Model {
     }
 
     public function get_total_read($table) {
-        $this->db->select('count(id) as total');
+        $this->db->select('count(' . $table . '.id) as total');
         $row = $this->db->get($table)->row();
         if ($row) {
             $total = $row->total;
