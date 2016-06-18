@@ -37,19 +37,22 @@ if (!function_exists('verify_permission')) {
 
 if (!function_exists('search')) {
 
-    function search($array, $key, $value) {
+    function search($array, $key, $value, $regex = false) {
         $results = array();
         if (is_array($value) && is_array($array)) {
             foreach ($value as $val) {
-                $results = array_merge($results, search($array, $key, $val));
+                $results = array_merge($results, search($array, $key, $val, $regex));
             }
         } elseif (is_array($array) && !is_array($value)) {
-            if (isset($array[$key]) && $array[$key] == $value) {
+            if ((isset($array[$key]) && $array[$key] == $value) or ($regex==true && isset($array[$key]) && preg_match('/'.$value.'/', $array[$key])>0)) {
                 $results[] = $array;
             }
 
             foreach ($array as $subarray) {
-                $results = array_merge($results, search($subarray, $key, $value));
+                if (is_object($subarray)) {
+                    $subarray = (array) $subarray;
+                }
+                $results = array_merge($results, search($subarray, $key, $value, $regex));
             }
         }
         return $results;
@@ -246,7 +249,7 @@ if (!function_exists('get_project')) {
         $CI = & get_instance();
         if (!isset($CI->project)) {
             $slug_project = $CI->uri->segment(4);
-            $CI->load->model('../apps/projects/models/projects_model', null, null, true);
+            $CI->load->model_app('projects_model', 'projects');
             return $CI->project = $CI->projects_model->get_project($slug_project);
         } else {
             return $CI->project;
@@ -263,7 +266,7 @@ if (!function_exists('get_page')) {
         $CI = & get_instance();
         $page = $CI->uri->segment(5);
         if (empty($CI->page)) {
-            $CI->load->model('../apps/projects/models/pages_model', null, null, true);
+            $CI->load->model_app('pages_model', 'projects');
             return $CI->page = $CI->pages_model->get_page($page);
         } else {
             return $CI->page;
@@ -280,7 +283,7 @@ if (!function_exists('get_section')) {
         $CI = & get_instance();
         $section = $CI->uri->segment(6);
         if (empty($CI->section)) {
-            $CI->load->model('../apps/projects/models/sections_model', null, null, true);
+            $CI->load->model_app('sections_model', 'projects');
             return $CI->section = $CI->sections_model->get_section($section);
         } else {
             return $CI->section;

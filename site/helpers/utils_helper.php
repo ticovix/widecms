@@ -176,6 +176,7 @@ if (!function_exists('search')) {
                 $results = array_merge($results, search($array, $key, $val, $regex));
             }
         } elseif (is_array($array) && !is_array($value)) {
+            var_dump(preg_match('/'.$value.'/', $array[$key]));die();
             if ((isset($array[$key]) && $array[$key] == $value) or ($regex==true && isset($array[$key]) && preg_match('/'.$value.'/', $array[$key])>0)) {
                 $results[] = $array;
             }

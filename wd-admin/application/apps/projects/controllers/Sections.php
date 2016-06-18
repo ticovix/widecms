@@ -171,7 +171,7 @@ class Sections extends MY_Controller {
             $table = $data['table'];
 
             $dir = $this->path_view_project . $dir_project . '/' . $dir_page . '/';
-            if ($section['directory'] != $directory && \rename($dir . $dir_section, $dir . $directory) == false) {
+            if ($section['directory'] != $directory && @rename($dir . $dir_section, $dir . $directory) == false) {
                 // Se houver erro para renomear o diretório
                 setError('rename_dir', 'Não foi possível renomear o diretório para "' . $directory . '", já existe ou você não possui permissões suficiente.');
             } elseif ($table != $section['table'] && $this->sections_model->check_table_exists($table)) {
