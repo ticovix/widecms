@@ -25,7 +25,7 @@ if (!defined('BASEPATH')) {
 </ul>
 
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-xs-12">
         <div class="x_panel">
             <div class="x_title">
                 <h2>
@@ -35,7 +35,7 @@ if (!defined('BASEPATH')) {
                 </h2>
                 <div class="clearfix"></div>
             </div>
-            <div class="x_content">
+            <div class="x_content row">
                 <?php
                 if (check_method($method . '-edit')) {
                     ?>
@@ -52,7 +52,7 @@ if (!defined('BASEPATH')) {
                                 $column = $field['column'];
                                 ?>
                                 <div class="form-group <?php if (empty($label)) { ?>hide<?php } ?>">
-                                    <label for="<?php echo $column?>_field" class="label-field col-sm-2 col-xs-12 control-label" data-field="<?php echo $column ?>" id="label_<?php echo $column; ?>"><?php echo $label; ?></label>
+                                    <label for="<?php echo $column ?>_field" class="label-field col-sm-2 col-xs-12 control-label" data-field="<?php echo $column ?>" id="label_<?php echo $column; ?>"><?php echo $label; ?></label>
                                     <div class="col-sm-9 col-xs-12 content-field">
                                         <?php echo $input; ?>
                                         <?php
@@ -69,12 +69,14 @@ if (!defined('BASEPATH')) {
                             }
                             ?>
                             <div class="form-group text-right">
-                                <a href="<?php
-                                if ($dev_mode) {
-                                    echo base_url_app('project/' . $slug_project);
-                                }
-                                ?>" class="btn btn-default">Cancelar</a>
-                                <input type="submit" value="Salvar" class="btn btn-primary">
+                                <div class="col-sm-11">
+                                    <a href="<?php
+                                    if ($dev_mode) {
+                                        echo base_url_app('project/' . $slug_project);
+                                    }
+                                    ?>" onclick="return confirm('Tem certeza que deseja cancelar?');" class="btn btn-default">Cancelar</a>
+                                    <input type="submit" value="Salvar" class="btn btn-primary">
+                                </div>
                             </div>
                             <?php
                         }

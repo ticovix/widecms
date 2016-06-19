@@ -37,8 +37,8 @@ class Config_page {
     public function types() {
         $input = array();
         $input[] = ['type' => 'integer', 'constraint' => 11];
-        $input[] = ['type' => 'char', 'constraint' => 128];
-        $input[] = ['type' => 'varchar', 'constraint' => 255];
+        $input[] = ['type' => 'char', 'constraint' => 255];
+        $input[] = ['type' => 'varchar', 'constraint' => 4000];
         $input[] = ['type' => 'tinytext'];
         $input[] = ['type' => 'text'];
         $input[] = ['type' => 'mediumText'];

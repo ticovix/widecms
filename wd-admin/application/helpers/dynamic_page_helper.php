@@ -34,12 +34,22 @@ if (!function_exists('add_js')) {
             }
             foreach ($file as $item) {
                 $path = path_assets($item, $app);
-                $footer_js[] = $path . $item;
+                if (!strpos($item, '//')) {
+                    $url = base_url($path . $item);
+                } else {
+                    $url = $path . $item;
+                }
+                $footer_js[] = treat_url_($url);
             }
             $ci->config->set_item('add_js', $footer_js);
         } else {
             $path = path_assets($file, $app);
-            $footer_js[] = $path . $file;
+            if (!strpos($file, '//')) {
+                $url = base_url($path . $file);
+            } else {
+                $url = $path . $file;
+            }
+            $footer_js[] = treat_url_($url);
             $ci->config->set_item('add_js', $footer_js);
         }
     }
@@ -105,16 +115,31 @@ if (!function_exists('put_js')) {
         if ($footer_js) {
             $footer_js = array_unique($footer_js);
             foreach ($footer_js AS $item) {
-                if (strpos($item, '//')) {
-                    $src = $item;
-                } else {
-                    $src = base_url($item);
-                }
-                $str .= '<script type="text/javascript" src="' . $src . '"></script>' . "\n";
+                $str .= '<script type="text/javascript" src="' . $item . '"></script>' . "\n";
             }
         }
 
         return $str;
+    }
+
+}
+
+if (!function_exists('treat_url')) {
+
+    function treat_url_($url) {
+        $line = array();
+        if (is_array($url)) {
+            foreach ($url as $url_cur) {
+                $line[] = treat_url_($url_cur);
+            }
+        } else {
+            $line = $url;
+            while (strpos($line, '..')>0) {
+                $line = preg_replace('/\/[a-z0-9_-]*\/\.\./i', '', $line);
+            }
+            $line = str_replace('./', '', $line);
+        }
+        return $line;
     }
 
 }
