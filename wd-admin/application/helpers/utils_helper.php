@@ -44,7 +44,7 @@ if (!function_exists('search')) {
                 $results = array_merge($results, search($array, $key, $val, $regex));
             }
         } elseif (is_array($array) && !is_array($value)) {
-            if ((isset($array[$key]) && $array[$key] == $value) or ($regex==true && isset($array[$key]) && preg_match('/'.$value.'/', $array[$key])>0)) {
+            if ((isset($array[$key]) && $array[$key] == $value) or ( $regex == true && isset($array[$key]) && preg_match('/' . $value . '/', $array[$key]) > 0)) {
                 $results[] = $array;
             }
 
@@ -383,7 +383,39 @@ if (!function_exists('wd_base_url')) {
 
 }
 
-if (!function_exists('diffDateToday')) {
+if (!function_exists('diffDateToday') && !function_exists('month_name')) {
+
+    function month_name($value) {
+        switch ($value) {
+            case '1': $month = "Janeiro";
+                break;
+            case '2': $month = "Fevereiro";
+                break;
+            case '3': $month = "Março";
+                break;
+            case '4': $month = "Abril";
+                break;
+            case '5': $month = "Maio";
+                break;
+            case '6': $month = "Junho";
+                break;
+            case '7': $month = "Julho";
+                break;
+            case '8': $month = "Agosto";
+                break;
+            case '9': $month = "Setembro";
+                break;
+            case '10': $month = "Outubro";
+                break;
+            case '11': $month = "Novembro";
+                break;
+            case '12': $month = "Dezembro";
+                break;
+            default: $month = "ERROR";
+                break;
+        }
+        return $month;
+    }
 
     function diffDateToday($dateSql) {
         $datetime1 = new DateTime($dateSql);
@@ -405,9 +437,9 @@ if (!function_exists('diffDateToday')) {
         } elseif ($month == 0) {
             $result = 'Há ' . $days . $d;
         } elseif ($month > 0 && $year == 0) {
-            $result = $datetime1->format('d') . ' de ' . monthName($datetime1->format('m'));
+            $result = $datetime1->format('d') . ' de ' . month_name($datetime1->format('m'));
         } elseif ($year > 0) {
-            $result = $datetime1->format('d') . ' de ' . monthName($datetime1->format('m')) . ' de ' . $datetime1->format('Y');
+            $result = $datetime1->format('d') . ' de ' . month_name($datetime1->format('m')) . ' de ' . $datetime1->format('Y');
         }
         return $result;
     }
