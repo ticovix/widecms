@@ -13,8 +13,8 @@ class Apps {
             if ($app != '.' && $app != '..') {
                 if (is_dir($path_apps . $app)) {
                     $CI = &get_instance();
-                    if (is_file($path_apps . $app . '/app.yaml') && check_app($app)) {
-                        $this->set_app($path_apps . $app . '/app.yaml', $app);
+                    if (is_file($path_apps . $app . '/app.yml') && check_app($app)) {
+                        $this->set_app($path_apps . $app . '/app.yml', $app);
                     }
                 }
             }
