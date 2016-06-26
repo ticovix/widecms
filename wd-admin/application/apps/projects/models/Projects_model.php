@@ -71,6 +71,7 @@ class Projects_model extends CI_Model {
         $this->db->select('wd_sections.table');
         $this->db->join('wd_pages', 'wd_pages.id=wd_sections.fk_page');
         $this->db->join('wd_projects', 'wd_projects.id=wd_pages.fk_project');
+        $this->db->where('wd_projects.id', $id);
         $sections = $this->db->get('wd_sections')->result_array();
         if ($sections) {
             $this->load->dbforge();
@@ -81,10 +82,10 @@ class Projects_model extends CI_Model {
         }
         return $this->db->delete('wd_projects', ['id' => $id]);
     }
-    
-    public function list_projects_permissions(){
+
+    public function list_projects_permissions() {
         $this->db->select('id, name, slug, directory');
-        $this->db->where('status',1);
+        $this->db->where('status', 1);
         return $this->db->get('wd_projects')->result_array();
     }
 
