@@ -116,16 +116,22 @@ class Projects extends MY_Controller {
 
     private function form_create() {
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-        $this->form_validation->set_rules('preffix', 'Prefixo', 'trim|required|max_length[6]');
+        $this->form_validation->set_rules('preffix', 'Prefixo', 'trim');
         $this->form_validation->set_rules('dir', 'Diretório', 'trim|required|callback_verify_dir');
+        if (!$this->input->post('main')) {
+            $this->form_validation->set_rules('preffix', 'Prefixo', 'required|max_length[6]');
+        }
         if ($this->form_validation->run()) {
             $name = $this->input->post('name');
             $slug = $this->slug($name);
             $dir = slug($this->input->post('dir'));
             $main = $this->input->post('main');
-            $preffix = str_replace('_', '', $this->input->post('preffix')) . '_';
+            $extract_ci = $this->input->post('extract_ci');
+            $preffix = $this->input->post('preffix');
+            if (!empty($preffix)) {
+                $preffix = str_replace('_', '', $preffix) . '_';
+            }
             $status = $this->input->post('status');
-            $create_db = false;
 
             $user = $this->data_user;
             $data = [
@@ -135,11 +141,12 @@ class Projects extends MY_Controller {
                 'id_user' => $user['id'],
                 'preffix' => $preffix,
                 'main' => $main,
+                'extract_ci' => $extract_ci,
                 'status' => $status
             ];
-            $this->createDir($dir, $main);
+            $this->createDir($data);
             $create = $this->projects_model->create($data);
-            if ($create) {
+            if ($create && $extract_ci) {
                 // Se o projeto for criado com sucesso, é extraido um projeto em codeigniter na pasta inicial
                 $this->extractProject($data);
             }
@@ -231,18 +238,18 @@ class Projects extends MY_Controller {
      * Método para criar diretórios
      */
 
-    protected function createDir($dir, $main) {
-        $dir_project = '../' . $dir;
-        $dir_admin = $this->path_view_project . $dir;
-
-        if (!@mkdir($dir_admin, 0755)) {
-            return false;
-        } elseif (!@mkdir($dir_project, 0755)) {
-            \unlink($dir_admin);
-            return false;
+    protected function createDir($data) {
+        $dir = $data['dir'];
+        $extract_ci = $data['extract_ci'];
+        $dir_project = '../';
+        $dir_admin = $this->path_view_project;
+        if (is_writable($dir_admin)) {
+            mkdir($dir_admin . $dir, 0755);
+            if (is_writable($dir_project) && $extract_ci) {
+                mkdir($dir_project . $dir, 0755);
+            }
+            return true;
         }
-
-        return true;
     }
 
     /*
@@ -251,7 +258,6 @@ class Projects extends MY_Controller {
 
     protected function extractProject($data) {
         $dir = $data['dir'];
-        $main = $data['main'];
         $dir_project = '../' . $dir;
 
         $file = getcwd() . '/application/' . APP_PATH . 'files_project/project_default.zip';
@@ -280,7 +286,7 @@ class Projects extends MY_Controller {
         if ($main) {
             // As configurações mudam, caso seja o projeto principal
             $dir_system = DIR_ADMIN_DEFAULT . 'system';
-            $dir_application = $dir_project;
+            $dir_application = $dir_project . '/application';
         }
 
         // Config index.php
@@ -299,13 +305,13 @@ class Projects extends MY_Controller {
         if ($main) {
             rename($path_index, '../index.php');
 
-            $dir_application_from = '../' . $dir_application . '/application';
-            $dir_application_to = '../' . $dir_application . '/';
-            $list_dir = dir($dir_application_from);
-            while ($file = $list_dir->read()) {
-                rename($dir_application_from . $file, $dir_application_to . $file);
-            }
-            rmdir($dir_application_from);
+            /* $dir_application_from = '../' . $dir_application . '/application';
+              $dir_application_to = '../' . $dir_application . '/';
+              $list_dir = dir($dir_application_from);
+              while ($file = $list_dir->read()) {
+              rename($dir_application_from . $file, $dir_application_to . $file);
+              }
+              rmdir($dir_application_from); */
         }
     }
 
@@ -352,21 +358,18 @@ class Projects extends MY_Controller {
      */
 
     private function form_delete($project) {
+        $this->form_validation->set_rules('password', 'Sua senha', 'required|callback_verify_password');
         $this->form_validation->set_rules('project', 'Projeto', 'trim|required|integer');
         if ($this->form_validation->run()) {
             if ($project['id'] == $this->input->post('project')) {
                 $delete_all = $this->input->post('delete_all');
                 $this->projects_model->delete($project['id']);
                 $dir_project = $project['directory'];
+                $main = $project['main'];
                 // Remove todos controllers
                 $dir_module = getcwd() . '/application/' . APP_PATH . 'modules/' . $dir_project;
                 if (is_dir($dir_module)) {
                     forceRemoveDir($dir_module);
-                }
-                // Remove todos arquivos de assets
-                $dir_mudule_assets = getcwd() . '/' . APP_ASSETS . 'modules/' . $dir_project;
-                if (is_dir($dir_mudule_assets)) {
-                    forceRemoveDir($dir_mudule_assets);
                 }
                 // Remove todos arquivos de views
                 $dir_views_project = $this->path_view_project . $dir_project;
@@ -378,10 +381,29 @@ class Projects extends MY_Controller {
                     if (is_dir('../' . $dir_project)) {
                         forceRemoveDir('../' . $dir_project);
                     }
+                    if ($main) {
+                        unlink('../index.php');
+                    }
                 }
                 redirect_app();
             }
         }
+    }
+    /*
+     * Método para verificar senha
+     */
+    public function verify_password($v_pass){
+        $pass_user = $this->data_user['password'];
+        // Inicia helper PasswordHash
+        $this->load->helper('passwordhash');
+        $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
+        // Verifica se a senha está errada
+        if (!$PasswordHash->CheckPassword($v_pass, $pass_user)) {
+            $this->form_validation->set_message('verify_password','A senha informada está incorreta.');
+            return false;
+        }
+        
+        return true;
     }
 
 }
