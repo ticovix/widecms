@@ -67,7 +67,7 @@ if (!defined('BASEPATH')) {
                             <tr><td colspan="5"><strong>Foram encontrados <?php echo $total ?> projetos.</strong></td></tr>
                             <?php
                         } else {
-                            echo '<tr><td colspan="5">Nenhum projeto encontrado.</td></tr>';
+                            echo '<tr><td colspan="5">Nenhum projeto encontrado. <a href="'.base_url_app('create').'">Crie</a> seu primeiro projeto!</td></tr>';
                         }
                         ?>
                     </tbody>
