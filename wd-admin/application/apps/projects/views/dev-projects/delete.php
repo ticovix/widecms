@@ -27,7 +27,13 @@ if (!defined('BASEPATH')) {
                     <h4>Deseja realmente remover o projeto <?php echo $project['name'] ?>?</h4>
                     <p><strong>Atenção:</strong> A remoção será permanente, sem possibilidade de restaurar o projeto.</p>
                 </div>
-                <input type="checkbox" value="1" name="delete_all" <?php echo set_checkbox('main') ?>> Remover todos os arquivos do projeto do diretório <strong>/<?php echo $project['directory']; ?></strong>.<br>
+                <div class="form-group">
+                    <label><input type="checkbox" value="1" name="delete_all" <?php echo set_checkbox('main') ?>> Remover todos os arquivos do projeto do diretório <strong>/<?php echo $project['directory']; ?></strong> (caso exista).</label>
+                </div>
+                <div class="form-group">
+                    <label>Informe sua senha para confirmar a remoção:</label>
+                    <input type="password" class="form-control" name="password">
+                </div>
                 <div class="form-group text-right">
                     <input class="btn btn-danger" value="Remover" name="send" type="submit">
                 </div>
