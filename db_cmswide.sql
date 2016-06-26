@@ -30,7 +30,7 @@ CREATE TABLE `wd_files` (
   `name` varchar(45) DEFAULT NULL,
   `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -39,7 +39,7 @@ CREATE TABLE `wd_files` (
 
 LOCK TABLES `wd_files` WRITE;
 /*!40000 ALTER TABLE `wd_files` DISABLE KEYS */;
-INSERT INTO `wd_files` VALUES (5,'-love-linux.png',NULL,NULL);
+INSERT INTO `wd_files` VALUES (5,'-love-linux.png','Perfil',NULL);
 /*!40000 ALTER TABLE `wd_files` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -51,13 +51,15 @@ DROP TABLE IF EXISTS `wd_history`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wd_history` (
-  `id` int(11) NOT NULL,
-  `message` varchar(255) DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `message` varchar(255) NOT NULL,
   `app` varchar(45) DEFAULT NULL,
-  `fk_user` int(11) DEFAULT NULL,
+  `fk_user` int(11) NOT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`id`),
+  KEY `fk_wd_history_1_idx` (`fk_user`),
+  CONSTRAINT `fk_wd_history_1` FOREIGN KEY (`fk_user`) REFERENCES `wd_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -66,6 +68,7 @@ CREATE TABLE `wd_history` (
 
 LOCK TABLES `wd_history` WRITE;
 /*!40000 ALTER TABLE `wd_history` DISABLE KEYS */;
+INSERT INTO `wd_history` VALUES (2,'Atualizou o perfil.','my_account',1,'2016-05-16 22:57:47'),(3,'Inseriu um novo arquivo aptura_de_tela_de_2016-05-15_213609.png','gallery',1,'2016-05-16 23:01:23'),(4,'Removeu o arquivo aptura_de_tela_de_2016-05-15_213609.png','gallery',1,'2016-05-16 23:02:08'),(5,'Alterou o título do arquivo para Perfil','gallery',1,'2016-05-16 23:05:11'),(6,'Criou o usuário Patrick Oliveira','users',1,'2016-05-22 14:31:08'),(7,'Atualizou o perfil','my_account',4,'2016-05-23 11:55:04'),(8,'Atualizou o perfil','my_account',4,'2016-05-23 11:55:06'),(9,'Editou o usuário Patrick','users',1,'2016-05-23 13:37:34'),(10,'Editou o usuário Patrick','users',1,'2016-05-23 13:38:34'),(11,'Editou o usuário Patrick','users',1,'2016-05-23 13:39:28'),(12,'Editou o usuário Patrick','users',1,'2016-05-23 13:40:49'),(13,'Editou o usuário Rooot','users',1,'2016-05-23 13:42:13'),(14,'Editou o usuário Root','users',1,'2016-05-23 13:42:19'),(15,'Editou o usuário Patrick','users',1,'2016-05-23 14:54:25'),(16,'Editou o usuário Patrick','users',1,'2016-05-23 14:58:07'),(17,'Editou o usuário Patrick','users',1,'2016-05-23 15:29:47'),(18,'Editou o usuário Patrick','users',1,'2016-05-23 16:12:10'),(19,'Atualizou o perfil','my_account',1,'2016-05-23 22:28:06'),(20,'Inseriu um novo arquivo \"aptura_de_tela_de_2016-05-08_185039.png\"','gallery',1,'2016-05-24 19:15:36'),(21,'Removeu o arquivo \"aptura_de_tela_de_2016-05-08_185039.png\"','gallery',1,'2016-05-24 19:17:32');
 /*!40000 ALTER TABLE `wd_history` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -90,7 +93,7 @@ CREATE TABLE `wd_pages` (
   KEY `fk_wd_pages_1_idx` (`fk_project`),
   KEY `fk_wd_pages_1_id` (`fk_project`),
   CONSTRAINT `fk_wd_pages_1` FOREIGN KEY (`fk_project`) REFERENCES `wd_projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -99,6 +102,7 @@ CREATE TABLE `wd_pages` (
 
 LOCK TABLES `wd_pages` WRITE;
 /*!40000 ALTER TABLE `wd_pages` DISABLE KEYS */;
+INSERT INTO `wd_pages` VALUES (10,'Teste','teste','teste',1,23,'2016-06-26 22:12:43',0,1);
 /*!40000 ALTER TABLE `wd_pages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -120,18 +124,9 @@ CREATE TABLE `wd_projects` (
   `status` int(11) DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `wd_projects`
---
-
-LOCK TABLES `wd_projects` WRITE;
-/*!40000 ALTER TABLE `wd_projects` DISABLE KEYS */;
-INSERT INTO `wd_projects` VALUES (11,'Site principal','site',1,'site-principal',1,'',1);
-/*!40000 ALTER TABLE `wd_projects` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `wd_sections`
@@ -153,17 +148,8 @@ CREATE TABLE `wd_sections` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `fk_wd_sections_1_idx` (`fk_page`),
   CONSTRAINT `fk_wd_sections_1` FOREIGN KEY (`fk_page`) REFERENCES `wd_pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `wd_sections`
---
-
-LOCK TABLES `wd_sections` WRITE;
-/*!40000 ALTER TABLE `wd_sections` DISABLE KEYS */;
-/*!40000 ALTER TABLE `wd_sections` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `wd_users`
@@ -210,27 +196,18 @@ DROP TABLE IF EXISTS `wd_users_perm`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wd_users_perm` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `app` varchar(200) NOT NULL,
   `fk_user` int(11) NOT NULL,
   `page` varchar(100) DEFAULT NULL,
-  `name` varchar(100) DEFAULT NULL,
+  `method` varchar(100) DEFAULT NULL,
   `status` int(11) NOT NULL COMMENT '1 = yes\n0 = no',
   PRIMARY KEY (`id`),
-  KEY `fk_wd_nav_perm_1_idx` (`app`),
-  KEY `fk_wd_nav_perm_2_idx` (`fk_user`),
-  CONSTRAINT `fk_wd_nav_perm_2` FOREIGN KEY (`fk_user`) REFERENCES `wd_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `fk_wd_nav_perm_1_idx` (`app`)
+) ENGINE=InnoDB AUTO_INCREMENT=197 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `wd_users_perm`
---
-
-LOCK TABLES `wd_users_perm` WRITE;
-/*!40000 ALTER TABLE `wd_users_perm` DISABLE KEYS */;
-/*!40000 ALTER TABLE `wd_users_perm` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -241,4 +218,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-05-11 23:35:12
+-- Dump completed on 2016-06-26 19:24:46

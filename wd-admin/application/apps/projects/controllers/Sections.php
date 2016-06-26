@@ -40,7 +40,7 @@ class Sections extends MY_Controller {
             'page' => $page
         ];
 
-        $this->load->template_app('dev-project/sections', $vars);
+        $this->load->template_app('dev-sections/sections', $vars);
     }
 
     /*
@@ -141,7 +141,7 @@ class Sections extends MY_Controller {
             'types' => $this->config_page->types(),
             'plugins_input' => $this->config_page->list_plugins()
         );
-        $this->load->template_app('dev-project/form-section', $vars);
+        $this->load->template_app('dev-sections/form', $vars);
     }
 
     private function list_options($id_section = null) {
@@ -449,7 +449,7 @@ class Sections extends MY_Controller {
             'types' => $this->config_page->types(),
             'plugins_input' => $this->config_page->list_plugins()
         ];
-        $this->load->template_app('dev-project/form-section', $vars);
+        $this->load->template_app('dev-sections/form', $vars);
     }
 
     /*

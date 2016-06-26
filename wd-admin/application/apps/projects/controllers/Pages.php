@@ -40,10 +40,10 @@ class Pages extends MY_Controller {
         ];
         if ($dev_mode) {
             // Template modo desenvolvedor
-            $this->load->template_app('dev-project/pages', $vars);
+            $this->load->template_app('dev-pages/index', $vars);
         } else {
             // Template modo cliente
-            $this->load->template_app('project/index', $vars);
+            $this->load->template_app('projects/project', $vars);
         }
     }
 
@@ -120,7 +120,7 @@ class Pages extends MY_Controller {
             'name' => '',
             'status' => ''
         ];
-        $this->load->template_app('dev-project/form-page', $vars);
+        $this->load->template_app('dev-pages/form', $vars);
     }
 
     /*
@@ -151,7 +151,7 @@ class Pages extends MY_Controller {
                 $this->pages_model->create($data);
                 redirect_app('project/' . $project['slug']);
             } else {
-                setError('createPage', 'Você não possui privilégios suficiente para criar um diretório em '.$dir_page.'.');
+                setError('createPage', 'Você não possui privilégios suficiente para criar um diretório em "'.$dir_page.'" ou esse diretório não existe.');
             }
         } else {
             setError('createPage', validation_errors());
@@ -176,7 +176,7 @@ class Pages extends MY_Controller {
             'name' => $page['name'],
             'status' => $page['status']
         ];
-        $this->load->template_app('dev-project/form-page', $vars);
+        $this->load->template_app('dev-pages/form', $vars);
     }
 
     /*
