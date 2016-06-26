@@ -50,7 +50,7 @@ if (!defined('BASEPATH')) {
                                        }
                                 ?>>
                             </div>
-<?php if ($main == 1) { ?><strong>Obs: Projeto principal não possui prefixo.</strong><?php } ?>
+                            <?php if ($main == 1) { ?><strong>Obs: Projeto principal não possui prefixo.</strong><?php } ?>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
@@ -62,6 +62,18 @@ if (!defined('BASEPATH')) {
                             </div>
                         </div>
                     </div>
+                    <?php
+                    if ($this->uri->segment('3') == 'create') {
+                    ?>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label><input type="checkbox" value="1" name="extract_ci"> Criar pasta com a estrutura do Codeigniter?</label><br>
+                            <label><input type="checkbox" value="1" name="main"> Projeto principal?</label>
+                        </div>
+                    </div>
+                    <?php
+                    }
+                    ?>
 
                     <div class="form-group text-right">
                         <input class="btn btn-primary" value="Salvar" name="send" type="submit">
