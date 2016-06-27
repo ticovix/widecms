@@ -691,10 +691,6 @@ class Sections extends MY_Controller {
             // Se o nome da coluna for id
             setError('error_column', 'O campo "id" é criado automaticamente pelo sistema, informe outro nome.');
             return false;
-        } elseif ($column_field == 'order') {
-            // Se o nome da coluna for order
-            setError('error_column', 'O campo "order" é criado automaticamente pelo sistema, informe outro nome.');
-            return false;
         } elseif ($column_field == $table) {
             // Se o nome da coluna for igual da tabela
             setError('error_column', 'O nome da coluna não pode ser igual ao da tabela.');
