@@ -13,7 +13,7 @@ class Sections_model extends CI_Model {
     public function search_sections($page, $keyword = null, $total = null, $offset = null) {
         $this->db->like('name', $keyword);
         $this->db->limit($total, $offset);
-        $this->db->order_by('order, name');
+        $this->db->order_by('id DESC');
         $this->db->where('fk_page', $page);
         return $this->db->get('wd_sections')->result_array();
     }
@@ -26,7 +26,7 @@ class Sections_model extends CI_Model {
     }
 
     public function list_sections_select($section = null) {
-        $this->db->order_by('order, name');
+        $this->db->order_by('id DESC');
         //$this->db->where('fk_page', $page);
         if ($section) {
             $this->db->where('id!=', $section);
@@ -90,9 +90,6 @@ class Sections_model extends CI_Model {
         $fields['id'] = array(
             'type' => 'INT',
             'auto_increment' => TRUE
-        );
-        $fields['order'] = array(
-            'type' => 'INT'
         );
         $this->dbforge->add_field($fields);
         $this->dbforge->add_key('id', TRUE);
