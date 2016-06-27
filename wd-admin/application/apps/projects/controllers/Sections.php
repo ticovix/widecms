@@ -40,7 +40,7 @@ class Sections extends MY_Controller {
             'page' => $page
         ];
 
-        $this->load->template_app('dev-sections/sections', $vars);
+        $this->load->template_app('dev-sections/index', $vars);
     }
 
     /*
@@ -190,7 +190,7 @@ class Sections extends MY_Controller {
      * Método para armazenar em array todos os posts dos métodos de criação e edição da seção
      */
 
-    private function get_post_data($project, $page, $section=null) {
+    private function get_post_data($project, $page, $section = null) {
         $name = $this->input->post('name');
         $directory = slug($this->input->post('directory'));
         $table = $this->input->post('table');
@@ -398,21 +398,63 @@ class Sections extends MY_Controller {
      */
 
     public function remove($slug_section) {
+        func_only_dev();
         $section = $this->sections_model->get_section($slug_section);
+        if (!$section) {
+            redirect_app();
+        }
         $project = get_project();
         $page = get_page();
-        if ($section && $project && $page) {
-            $dir_section = $section['directory'];
-            $table = $section['table'];
-            $id_section = $section['id'];
-            if ($this->sections_model->remove($table, $id_section)) {
-                // Se tudo relacionado a seção for removida do banco de dados, remove o diretório com as config xml dos formulárioss
-                forceRemoveDir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $dir_section);
+        $this->form_remove($section, $project, $page);
+        $vars = array(
+            'title' => 'Remover a seção ' . $section['name'],
+            'project' => $project,
+            'section' => $section,
+            'page' => $page
+        );
+        $this->load->template_app('dev-sections/remove', $vars);
+    }
+
+    /*
+     * Método com configuração dos requisitos para remover projeto
+     */
+
+    private function form_remove($section, $project, $page) {
+        $this->form_validation->set_rules('password', 'Senha', 'required|callback_verify_password');
+        $this->form_validation->set_rules('section', 'Seção', 'trim|required|integer');
+        if ($this->form_validation->run()) {
+            if ($section && $project && $page && $section['id'] == $this->input->post('section')) {
+                $dir_section = $section['directory'];
+                $table = $section['table'];
+                $id_section = $section['id'];
+                $remove = $this->sections_model->remove($table, $id_section);
+                if ($remove) {
+                    // Se tudo relacionado a seção for removida do banco de dados, remove o diretório com as config xml dos formulárioss
+                    forceRemoveDir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $dir_section);
+                }
+                redirect_app('project/' . $project['slug'] . '/' . $page['slug']);
+            } else {
+                redirect_app('project/' . $project['slug'] . '/' . $page['slug']);
             }
-            redirect_app('project/' . $project['slug'] . '/' . $page['slug']);
-        } else {
-            redirect_app('project/' . $project['slug'] . '/' . $page['slug']);
         }
+    }
+
+    /*
+     * Método para verificar senha
+     */
+
+    public function verify_password($v_pass) {
+        $pass_user = $this->data_user['password'];
+        // Inicia helper PasswordHash
+        $this->load->helper('passwordhash');
+        $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
+        // Verifica se a senha está errada
+        if (!$PasswordHash->CheckPassword($v_pass, $pass_user)) {
+            $this->form_validation->set_message('verify_password', 'A senha informada está incorreta.');
+            return false;
+        }
+
+        return true;
     }
 
     /*
@@ -488,6 +530,7 @@ class Sections extends MY_Controller {
     /*
      * Método para verificar se é possível criar o diretório onde ficará a seção
      */
+
     public function verify_dir_create($directory) {
         $project = get_project();
         $page = get_page();
