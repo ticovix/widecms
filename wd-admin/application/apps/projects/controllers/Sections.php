@@ -400,11 +400,11 @@ class Sections extends MY_Controller {
     public function remove($slug_section) {
         func_only_dev();
         $section = $this->sections_model->get_section($slug_section);
-        if (!$section) {
-            redirect_app();
-        }
         $project = get_project();
         $page = get_page();
+        if (!$section or !$project or !$page ) {
+            redirect_app();
+        }
         $this->form_remove($section, $project, $page);
         $vars = array(
             'title' => 'Remover a seção ' . $section['name'],
@@ -423,7 +423,7 @@ class Sections extends MY_Controller {
         $this->form_validation->set_rules('password', 'Senha', 'required|callback_verify_password');
         $this->form_validation->set_rules('section', 'Seção', 'trim|required|integer');
         if ($this->form_validation->run()) {
-            if ($section && $project && $page && $section['id'] == $this->input->post('section')) {
+            if ($section['id'] == $this->input->post('section')) {
                 $dir_section = $section['directory'];
                 $table = $section['table'];
                 $id_section = $section['id'];

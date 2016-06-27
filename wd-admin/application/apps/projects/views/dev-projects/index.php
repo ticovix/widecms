@@ -58,7 +58,7 @@ if (!defined('BASEPATH')) {
                                         ?>"></td>
                                     <td>
                                         <a href="<?php echo base_url_app('edit/' . $arr["slug"]); ?>"><i class="fa fa-pencil"></i></a>
-                                        <a href="<?php echo base_url_app('delete/' . $arr["slug"]); ?>"><i class="fa fa-remove"></i></a>
+                                        <a href="<?php echo base_url_app('remove/' . $arr["slug"]); ?>"><i class="fa fa-remove"></i></a>
                                     </td>
                                 </tr>
                                 <?php

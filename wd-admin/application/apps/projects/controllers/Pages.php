@@ -151,7 +151,7 @@ class Pages extends MY_Controller {
                 $this->pages_model->create($data);
                 redirect_app('project/' . $project['slug']);
             } else {
-                setError('createPage', 'Você não possui privilégios suficiente para criar um diretório em "'.$dir_page.'" ou esse diretório não existe.');
+                setError('createPage', 'Você não possui privilégios suficiente para criar um diretório em "' . $dir_page . '" ou esse diretório não existe.');
             }
         } else {
             setError('createPage', validation_errors());
@@ -229,20 +229,58 @@ class Pages extends MY_Controller {
     public function remove($slug_page) {
         func_only_dev();
         $project = get_project();
-        $slug_project = $project['slug'];
         $page = $this->pages_model->get_page($slug_page);
-        if ($page) {
-            $dir_project = $project['directory'];
-            $dir_page = $page['directory'];
-            $id_page = $page['id'];
-            if ($this->pages_model->remove($id_page)) {
-                // Se a página for removida do banco de dados, todos os arquivos incluindo a pasta são removidos.
-                forceRemoveDir($this->path_view_project . $dir_project . '/' . $dir_page);
-            }
-            redirect_app('project/' . $slug_project);
-        } else {
-            redirect_app('project/' . $slug_project . '/' . $slug_page);
+        if (!$page or !$project) {
+            redirect_app();
         }
+        $this->form_remove($page, $project);
+        $vars = array(
+            'title' => 'Remover a página '.$page['name'],
+            'project' => $project,
+            'page' => $page
+        );
+        $this->load->template_app('dev-pages/remove', $vars);
+    }
+
+    private function form_remove($page, $project) {
+        $this->form_validation->set_rules('password', 'Senha', 'required|callback_verify_password');
+        $this->form_validation->set_rules('page', 'Página', 'trim|required|integer');
+        if ($this->form_validation->run()) {
+            $slug_project = $project['slug'];
+            $slug_page = $page['slug'];
+            
+            if ($page['id'] == $this->input->post('page')) {
+                $dir_project = $project['directory'];
+                $dir_page = $page['directory'];
+                $id_page = $page['id'];
+                $remove = $this->pages_model->remove($id_page);
+                if ($remove) {
+                    // Se a página for removida do banco de dados, todos os arquivos incluindo a pasta são removidos.
+                    forceRemoveDir($this->path_view_project . $dir_project . '/' . $dir_page);
+                }
+                redirect_app('project/' . $slug_project);
+            } else {
+                redirect_app('project/' . $slug_project . '/' . $slug_page);
+            }
+        }
+    }
+    
+    /*
+     * Método para verificar senha
+     */
+
+    public function verify_password($v_pass) {
+        $pass_user = $this->data_user['password'];
+        // Inicia helper PasswordHash
+        $this->load->helper('passwordhash');
+        $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
+        // Verifica se a senha está errada
+        if (!$PasswordHash->CheckPassword($v_pass, $pass_user)) {
+            $this->form_validation->set_message('verify_password', 'A senha informada está incorreta.');
+            return false;
+        }
+
+        return true;
     }
 
 }
