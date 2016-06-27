@@ -339,26 +339,26 @@ class Projects extends MY_Controller {
      * Método para remover projeto
      */
 
-    public function delete($slug_project) {
+    public function remove($slug_project) {
         func_only_dev();
         $project = $this->projects_model->get_project($slug_project);
         if (!$project) {
             redirect_app();
         }
-        $this->form_delete($project);
+        $this->form_remove($project);
         $vars = [
-            'title' => 'Remover projeto',
+            'title' => 'Remover o projeto '.$project['name'],
             'project' => $project
         ];
-        $this->load->template_app('dev-projects/delete', $vars);
+        $this->load->template_app('dev-projects/remove', $vars);
     }
 
     /*
      * Método com configuração dos requisitos para remover projeto
      */
 
-    private function form_delete($project) {
-        $this->form_validation->set_rules('password', 'Sua senha', 'required|callback_verify_password');
+    private function form_remove($project) {
+        $this->form_validation->set_rules('password', 'Senha', 'required|callback_verify_password');
         $this->form_validation->set_rules('project', 'Projeto', 'trim|required|integer');
         if ($this->form_validation->run()) {
             if ($project['id'] == $this->input->post('project')) {
