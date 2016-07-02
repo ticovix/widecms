@@ -1,5 +1,5 @@
-CREATE DATABASE  IF NOT EXISTS `cmswide` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `cmswide`;
+CREATE DATABASE  IF NOT EXISTS `[[database]]` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `[[database]]`;
 -- MySQL dump 10.13  Distrib 5.5.49, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: cmswide
@@ -30,7 +30,7 @@ CREATE TABLE `wd_files` (
   `name` varchar(45) DEFAULT NULL,
   `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -39,7 +39,7 @@ CREATE TABLE `wd_files` (
 
 LOCK TABLES `wd_files` WRITE;
 /*!40000 ALTER TABLE `wd_files` DISABLE KEYS */;
-INSERT INTO `wd_files` VALUES (5,'-love-linux.png','Perfil',NULL);
+INSERT INTO `wd_files` VALUES (1,'-love-linux.png','Perfil',NULL);
 /*!40000 ALTER TABLE `wd_files` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -59,18 +59,8 @@ CREATE TABLE `wd_history` (
   PRIMARY KEY (`id`),
   KEY `fk_wd_history_1_idx` (`fk_user`),
   CONSTRAINT `fk_wd_history_1` FOREIGN KEY (`fk_user`) REFERENCES `wd_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `wd_history`
---
-
-LOCK TABLES `wd_history` WRITE;
-/*!40000 ALTER TABLE `wd_history` DISABLE KEYS */;
-INSERT INTO `wd_history` VALUES (2,'Atualizou o perfil.','my_account',1,'2016-05-16 22:57:47'),(3,'Inseriu um novo arquivo aptura_de_tela_de_2016-05-15_213609.png','gallery',1,'2016-05-16 23:01:23'),(4,'Removeu o arquivo aptura_de_tela_de_2016-05-15_213609.png','gallery',1,'2016-05-16 23:02:08'),(5,'Alterou o título do arquivo para Perfil','gallery',1,'2016-05-16 23:05:11'),(6,'Criou o usuário Patrick Oliveira','users',1,'2016-05-22 14:31:08'),(9,'Editou o usuário Patrick','users',1,'2016-05-23 13:37:34'),(10,'Editou o usuário Patrick','users',1,'2016-05-23 13:38:34'),(11,'Editou o usuário Patrick','users',1,'2016-05-23 13:39:28'),(12,'Editou o usuário Patrick','users',1,'2016-05-23 13:40:49'),(13,'Editou o usuário Rooot','users',1,'2016-05-23 13:42:13'),(14,'Editou o usuário Root','users',1,'2016-05-23 13:42:19'),(15,'Editou o usuário Patrick','users',1,'2016-05-23 14:54:25'),(16,'Editou o usuário Patrick','users',1,'2016-05-23 14:58:07'),(17,'Editou o usuário Patrick','users',1,'2016-05-23 15:29:47'),(18,'Editou o usuário Patrick','users',1,'2016-05-23 16:12:10'),(19,'Atualizou o perfil','my_account',1,'2016-05-23 22:28:06'),(20,'Inseriu um novo arquivo \"aptura_de_tela_de_2016-05-08_185039.png\"','gallery',1,'2016-05-24 19:15:36'),(21,'Removeu o arquivo \"aptura_de_tela_de_2016-05-08_185039.png\"','gallery',1,'2016-05-24 19:17:32');
-/*!40000 ALTER TABLE `wd_history` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `wd_pages`
@@ -93,17 +83,8 @@ CREATE TABLE `wd_pages` (
   KEY `fk_wd_pages_1_idx` (`fk_project`),
   KEY `fk_wd_pages_1_id` (`fk_project`),
   CONSTRAINT `fk_wd_pages_1` FOREIGN KEY (`fk_project`) REFERENCES `wd_projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `wd_pages`
---
-
-LOCK TABLES `wd_pages` WRITE;
-/*!40000 ALTER TABLE `wd_pages` DISABLE KEYS */;
-/*!40000 ALTER TABLE `wd_pages` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `wd_projects`
@@ -123,17 +104,8 @@ CREATE TABLE `wd_projects` (
   `status` int(11) DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `wd_projects`
---
-
-LOCK TABLES `wd_projects` WRITE;
-/*!40000 ALTER TABLE `wd_projects` DISABLE KEYS */;
-/*!40000 ALTER TABLE `wd_projects` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `wd_sections`
@@ -155,17 +127,8 @@ CREATE TABLE `wd_sections` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `fk_wd_sections_1_idx` (`fk_page`),
   CONSTRAINT `fk_wd_sections_1` FOREIGN KEY (`fk_page`) REFERENCES `wd_pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `wd_sections`
---
-
-LOCK TABLES `wd_sections` WRITE;
-/*!40000 ALTER TABLE `wd_sections` DISABLE KEYS */;
-/*!40000 ALTER TABLE `wd_sections` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `wd_users`
@@ -191,7 +154,7 @@ CREATE TABLE `wd_users` (
   `recovery_token` varchar(255) DEFAULT NULL,
   `limit_recovery_token` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -200,7 +163,7 @@ CREATE TABLE `wd_users` (
 
 LOCK TABLES `wd_users` WRITE;
 /*!40000 ALTER TABLE `wd_users` DISABLE KEYS */;
-INSERT INTO `wd_users` VALUES (1,'root','contato@widedevelop.com','$2a$08$sjADIB0xPHbiEQuDYqDUN.RuI9g1JBZl.UpCZoW.g5ED4APUxUpRO',1,'Root','','2013-01-16 02:00:00','-love-linux.png',1,1,1,'tester','','0000-00-00 00:00:00');
+INSERT INTO `wd_users` VALUES (1,'[[login_user]]','[[email_user]]','[[password_user]]',1,'[[name_user]]','',now(),'-love-linux.png',1,1,1,'','','0000-00-00 00:00:00');
 /*!40000 ALTER TABLE `wd_users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -221,18 +184,9 @@ CREATE TABLE `wd_users_perm` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `fk_wd_nav_perm_1_idx` (`app`)
-) ENGINE=InnoDB AUTO_INCREMENT=197 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `wd_users_perm`
---
-
-LOCK TABLES `wd_users_perm` WRITE;
-/*!40000 ALTER TABLE `wd_users_perm` DISABLE KEYS */;
-INSERT INTO `wd_users_perm` VALUES (107,'gallery',1,'','',0),(108,'gallery',1,'','upload',0),(109,'gallery',1,'','view_files',0),(110,'users',1,'','',0),(111,'users',1,'edit/.*','edit',0),(112,'users',1,'0','edit-permission',0),(113,'users',1,'create','create',0),(114,'users',1,'delete','delete',0),(115,'projects',1,'','',0),(116,'projects',1,'site/teste/teste','site-teste-teste',0),(117,'projects',1,'site/teste/teste/edit','site-teste-teste-edit',0),(118,'projects',1,'site/teste/tester','site-teste-tester',0),(119,'projects',1,'site/teste/tester/edit','site-teste-tester-edit',0),(120,'projects',1,'site/teste/tester/create','site-teste-tester-create',0),(121,'projects',1,'site/teste/tester/tester/remove','site-teste-tester-remove',0),(122,'my_account',1,'','',0),(123,'my_account',1,'','edit',0),(179,'gallery',4,'','',1),(180,'gallery',4,'','upload',0),(181,'gallery',4,'','view-files',1),(182,'gallery',4,'','remove',1),(183,'gallery',4,'','edit',0),(184,'users',4,'','',1),(185,'users',4,'edit/.*','edit',0),(186,'users',4,'0','edit-permission',0),(187,'users',4,'create','create',1),(188,'users',4,'delete','delete',1),(189,'projects',4,'','',1),(190,'projects',4,'project/site/teste/teste','site-teste-teste',0),(191,'projects',4,'project/site/teste/tester','site-teste-tester',1),(192,'projects',4,'project/site/teste/tester/create','site-teste-tester-create',1),(193,'projects',4,'project/site/teste/tester/edit/.*','site-teste-tester-edit',1),(194,'projects',4,'project/site/teste/tester/tester/remove/.*','site-teste-tester-remove',1),(195,'my_account',4,'','',1),(196,'my_account',4,'','edit',1);
-/*!40000 ALTER TABLE `wd_users_perm` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
