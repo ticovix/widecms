@@ -1,7 +1,7 @@
 <?php
 
-if(is_file('../install.php')){
-    header('Location: ../install.php');
+if(is_file('install.php')){
+    header('Location: install.php');
     die();
 }
 
