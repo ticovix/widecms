@@ -140,7 +140,7 @@ require_once('install/action.php');
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label for="password_user">Senha *</label>
-                                        <input type="text" id="password_user" name="password_user" value="<?php echo $password_user ?>" class="form-control" placeholder="">
+                                        <input type="password" id="password_user" name="password_user" value="<?php echo $password_user ?>" class="form-control" placeholder="">
                                     </div>
                                 </div>
                             </div>
