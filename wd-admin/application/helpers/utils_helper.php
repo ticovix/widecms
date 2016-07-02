@@ -1,9 +1,5 @@
 <?php
 
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
-
 if (!function_exists('only_number')) {
 
     function only_numbers($str) {
