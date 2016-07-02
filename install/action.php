@@ -70,7 +70,7 @@ try {
         }
 
         $config_database = file_get_contents($dir_database);
-        $config_database = str_replace(array('[[hostname]]', '[[login]]', '[[password]]', '[[database]]'), array($host, $login, $password, $database), $config);
+        $config_database = str_replace(array('[[hostname]]', '[[login]]', '[[password]]', '[[database]]'), array($host, $login, $password, $database), $config_database);
         $save_config_database = file_put_contents($dir_database, $config_database);
         if (!$save_config_database) {
             $error .= '* Não foi possível criar uma chave única para o arquivo database.php em "' . $dir_database . '"<br>';
