@@ -30,7 +30,9 @@ class Login extends CI_Controller {
             $this->session->set_userdata('attempts', 0);
             $url = $this->session->redirect;
             redirect($url);
-        } elseif (!empty(validation_errors())) {
+        }
+        $validation_errors = validation_errors();
+        if (!empty($validation_errors)) {
             $captcha = $this->protection_brute_force();
         }
         $data = [
