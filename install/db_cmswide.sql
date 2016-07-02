@@ -30,7 +30,7 @@ CREATE TABLE `wd_files` (
   `name` varchar(45) DEFAULT NULL,
   `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -83,7 +83,7 @@ CREATE TABLE `wd_pages` (
   KEY `fk_wd_pages_1_idx` (`fk_project`),
   KEY `fk_wd_pages_1_id` (`fk_project`),
   CONSTRAINT `fk_wd_pages_1` FOREIGN KEY (`fk_project`) REFERENCES `wd_projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -104,7 +104,7 @@ CREATE TABLE `wd_projects` (
   `status` int(11) DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -127,7 +127,7 @@ CREATE TABLE `wd_sections` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `fk_wd_sections_1_idx` (`fk_page`),
   CONSTRAINT `fk_wd_sections_1` FOREIGN KEY (`fk_page`) REFERENCES `wd_pages` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -139,14 +139,14 @@ DROP TABLE IF EXISTS `wd_users`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `wd_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `login` varchar(45) CHARACTER SET latin1 NOT NULL,
-  `email` varchar(100) CHARACTER SET latin1 NOT NULL,
-  `password` varchar(100) CHARACTER SET latin1 NOT NULL,
+  `login` varchar(45) CHARACTER SET utf8 NOT NULL,
+  `email` varchar(100) CHARACTER SET utf8 NOT NULL,
+  `password` varchar(100) CHARACTER SET utf8 NOT NULL,
   `status` tinyint(1) NOT NULL COMMENT '0 = disabled\n1 = enabled\n2 = root',
-  `name` varchar(45) CHARACTER SET latin1 NOT NULL,
-  `last_name` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+  `name` varchar(45) CHARACTER SET utf8 NOT NULL,
+  `last_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `image` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+  `image` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `dev_mode` int(11) NOT NULL DEFAULT '0' COMMENT '1 = true\n0 = false',
   `allow_dev` int(11) NOT NULL DEFAULT '0',
   `root` int(11) NOT NULL DEFAULT '0',
@@ -184,7 +184,7 @@ CREATE TABLE `wd_users_perm` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `fk_wd_nav_perm_1_idx` (`app`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
