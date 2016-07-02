@@ -1,14 +1,9 @@
 <?php
 
-/*
- * ---------------------------------------------------------------
- * WIDE INSTALL DIRECTORY
- * ---------------------------------------------------------------
- *
- * This is the directory path to the wide installation folder
- *
- */
-//define('INSTALL_ROOT', str_replace('\\', '/', realpath(dirname(__FILE__))).'/wide/');
+if(is_file('../install.php')){
+    header('Location: ../install.php');
+    die();
+}
 
 /*
  * ---------------------------------------------------------------
