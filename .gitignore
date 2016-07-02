@@ -6,3 +6,7 @@
 */cache/!.htaccess
 nbproject
 vagrant
+install
+install.php
+index.php
+wd-admin/application/config
