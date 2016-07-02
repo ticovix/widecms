@@ -5,4 +5,4 @@ if(is_file('install.php')){
     die();
 }
 
-echo "<h1>Parece que ocorreu tudo bem com a instalação :] <br> Crie um projeto.</h1>";
+echo utf8_decode('<h1>Parece que ocorreu tudo bem com a instalação :] <br> <a href="wd-admin">Crie um projeto.</a></h1>');
