@@ -54,8 +54,10 @@ class Apps {
                 $path_permissions = $this->path . $dir_app . '/config/permissions.php';
                 if (is_file($path_permissions)) {
                     require($path_permissions);
-                    $app['permissions'] = $permission;
-                    unset($permission);
+                    if (isset($permission)) {
+                        $app['permissions'] = $permission;
+                        unset($permission);
+                    }
                 }
                 $config_permissions[] = $app;
             }
@@ -80,7 +82,7 @@ class Apps {
                     while (false !== ($widget = readdir($opendir))) {
                         if (is_file($path . $widget) && strpos($widget, '_dashboard.php') !== false) {
                             ob_start();
-                            $CI->load->library_app('widgets/'.$widget, $dir_app);
+                            $CI->load->library_app('widgets/' . $widget, $dir_app);
                             $class = strtolower(str_replace('.php', '', $widget));
                             $name = $CI->$class->name;
                             $content = ob_get_contents();
