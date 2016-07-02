@@ -1,5 +1,4 @@
 # CMS WIDE
-## Seja bem vindo ao CMS Wide
 Esse CMS é indispensável para todos desenvolvedores que buscam desenvolver seus projetos sem perder tempo com a parte administrativa, mantendo a organização do banco de dados da forma que achar melhor.
 
 ## Banco de dados organizado
