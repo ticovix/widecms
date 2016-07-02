@@ -45,9 +45,9 @@ if (!defined('BASEPATH')) {
                             <div class="form-group">
                                 <label>Prefixo para criação de tabelas*</label>
                                 <input type="text" name="preffix" id="preffix" maxlength="6" value="<?php echo set_value('preffix', $preffix) ?>" class="form-control" <?php
-                                       if ($this->uri->segment('3') == 'edit') {
-                                           echo 'disabled';
-                                       }
+                                if ($this->uri->segment('3') == 'edit') {
+                                    echo 'disabled';
+                                }
                                 ?>>
                             </div>
                             <?php if ($main == 1) { ?><strong>Obs: Projeto principal não possui prefixo.</strong><?php } ?>
@@ -64,14 +64,14 @@ if (!defined('BASEPATH')) {
                     </div>
                     <?php
                     if ($this->uri->segment('3') == 'create') {
-                    ?>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label><input type="checkbox" value="1" name="extract_ci"> Criar pasta com a estrutura do Codeigniter?</label><br>
-                            <label><input type="checkbox" value="1" name="main"> Projeto principal?</label>
+                        ?>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label><input type="checkbox" value="1" name="extract_ci" <?php echo set_checkbox('extract_ci', '1') ?>> Criar pasta com a estrutura do Codeigniter?</label><br>
+                                <label><input type="checkbox" value="1" name="main" <?php echo set_checkbox('main', '1') ?>> Projeto principal?</label>
+                            </div>
                         </div>
-                    </div>
-                    <?php
+                        <?php
                     }
                     ?>
 
@@ -79,7 +79,7 @@ if (!defined('BASEPATH')) {
                         <input class="btn btn-primary" value="Salvar" name="send" type="submit">
                     </div>
                 </div>
-<?php echo form_close(); ?>
+                <?php echo form_close(); ?>
             </div>
         </div>
     </div>
