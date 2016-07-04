@@ -73,7 +73,7 @@ class Posts_model extends CI_Model {
         if ($data) {
             $set = $data;
         } else {
-            $set = array('order' => 1);
+            $set = array('id' => 'auto_increment');
         }
         $insert = $this->db->insert($section['table'], $set);
         return $insert;
