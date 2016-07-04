@@ -156,8 +156,8 @@ class Sections extends MY_Controller {
 
     private function form_edit_section($project, $page, $section, $config) {
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-        $this->form_validation->set_rules('directory', 'Diretório', 'trim|required');
-        $this->form_validation->set_rules('table', 'Tabela', 'trim|required|callback_verify_table');
+        $this->form_validation->set_rules('directory', 'Diretório', 'trim|required|callback_verify_dir_edit');
+        $this->form_validation->set_rules('table', 'Tabela', 'trim|required|callback_verify_table_edit');
         if ($this->form_validation->run()) {
             $dir_project = $project['directory'];
             $slug_project = $project['slug'];
@@ -168,22 +168,56 @@ class Sections extends MY_Controller {
             $data = $this->get_post_data($project, $page, $section);
             $data['old_config'] = $config;
             $directory = $data['directory'];
-            $table = $data['table'];
 
             $dir = $this->path_view_project . $dir_project . '/' . $dir_page . '/';
-            if ($section['directory'] != $directory && @rename($dir . $dir_section, $dir . $directory) == false) {
-                // Se houver erro para renomear o diretório
-                setError('rename_dir', 'Não foi possível renomear o diretório para "' . $directory . '", já existe ou você não possui permissões suficiente.');
-            } elseif ($table != $section['table'] && $this->sections_model->check_table_exists($table)) {
-                // Se o nome da tabela já existir no banco de dados, seta um erro
-                setError('rename_dir', 'O nome dessa tabela já existe, tente outro nome.');
-            } elseif ($this->sections_model->edit($data) && $this->edit_fields($data)) {
-                // Se a seção for atualizada corretamente, redireciona o usuário
-                redirect_app('project/' . $slug_project . '/' . $slug_page);
-            }
+            rename($dir . $dir_section, $dir . $directory);
+            $this->sections_model->edit($data);
+            $this->edit_fields($data);
+            // Se a seção for atualizada corretamente, redireciona o usuário
+            redirect_app('project/' . $slug_project . '/' . $slug_page);
         } else {
             setError(null, validation_errors());
         }
+    }
+
+    public function verify_dir_edit($directory) {
+        $project = get_project();
+        $page = get_page();
+        $section = get_section($this->uri->segment(7));
+        $dir_project = $project['directory'];
+        $dir_page = $page['directory'];
+        $dir_section = $section['directory'];
+        $dir = $this->path_view_project . $dir_project . '/' . $dir_page . '/';
+        if ($section['directory'] != $directory) {
+            if (!is_writable($dir . $dir_section)) {
+                $this->form_validation->set_message('verify_dir_edit', 'Não foi possível renomear o diretório para "' . $directory . '", já existe ou você não possui permissões suficiente.');
+                return false;
+            }
+        }
+    }
+
+    /*
+     * Método para verificar regras que devem ser seguidas para editar uma tabela
+     */
+
+    public function verify_table_edit($table) {
+        $project = get_project();
+        $section = get_section($this->uri->segment(7));
+        if ($table != $section['table']) {
+            $check_table = $this->sections_model->check_table_exists($table);
+            if ($check_table) {
+                $this->form_validation->set_message('verify_table_edit', 'A tabela ' . $table . ' já existe no banco de dados');
+                return false;
+            }
+
+            $preffix = substr($project['preffix'] . $table, 0, 3);
+            if ($preffix == 'wd_' && !$import) {
+                $this->form_validation->set_message('verify_table_edit', 'Nomes iniciados por "wd_" são reservados pelo sistema. ');
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /*
@@ -504,21 +538,26 @@ class Sections extends MY_Controller {
     private function form_create_section($project, $page) {
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
         $this->form_validation->set_rules('directory', 'Diretório', 'trim|required|is_unique[wd_sections.directory]|callback_verify_dir_create');
-        $this->form_validation->set_rules('table', 'Tabela', 'trim|required|is_unique[wd_sections.table]|callback_verify_table');
+        $this->form_validation->set_rules('table', 'Tabela', 'trim|required|is_unique[wd_sections.table]|callback_verify_table_create');
         if ($this->form_validation->run()) {
-            $import = $this->input->post('import');
+            $import = ($this->input->post('import') == 'true');
             $dir_project = $project['directory'];
             $slug_project = $project['slug'];
             $dir_page = $page['directory'];
             $slug_page = $page['slug'];
-            /* Array com todos os os campos enviados pelo método post */
+            // Array com todos os os campos enviados pelo método post
             $data = $this->get_post_data($project, $page);
             $data['import'] = $import;
             $directory = $data['directory'];
             $table = $data['table'];
-            $create = $this->sections_model->create_table($table);
-            $create_dir = mkdir($this->path_view_project . $dir_project . '/' . $dir_page . '/' . $directory, 0755);
-            $create_fields = $this->create_fields($data);
+            if (!$import) {
+                // Se não for uma importação de tabela, a tabela é criada no banco de dados
+                $this->sections_model->create_table($table);
+            }
+            // Cria o diretório da seção
+            mkdir($this->path_view_project . $dir_project . '/' . $dir_page . '/' . $directory, 0755);
+            // Cria os campos no arquivo config.xml e no banco de dados (caso não seja importação de tabela)
+            $this->create_fields($data);
             redirect_app('project/' . $slug_project . '/' . $slug_page);
         } else {
             setError(null, validation_errors());
@@ -532,11 +571,13 @@ class Sections extends MY_Controller {
     public function verify_dir_create($directory) {
         $project = get_project();
         $page = get_page();
-        if (is_dir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $directory)) {
+        $is_dir_section = is_dir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $directory);
+        if ($is_dir_section) {
             $this->form_validation->set_message('verify_dir_create', 'Já existe um diretório com o nome ' . $directory . '.');
             return false;
         }
-        if (!is_writable($this->path_view_project . $project['directory'] . '/' . $page['directory'])) {
+        $is_writable_section = is_writable($this->path_view_project . $project['directory'] . '/' . $page['directory']);
+        if (!$is_writable_section) {
             $this->form_validation->set_message('verify_dir_create', 'Voce não tem permissões suficiente para criar esse diretório.');
             return false;
         }
@@ -544,19 +585,24 @@ class Sections extends MY_Controller {
     }
 
     /*
-     * Método para verificar se a tabela possui o sufixo wd_, protegida pelo sistema
+     * Método para verificar regras que devem ser seguidas para criar uma tabela
      */
 
-    public function verify_table($table) {
+    public function verify_table_create($table) {
         $project = get_project();
-        $page = get_page();
-        $directory = slug($this->input->post('directory'));
-        if (substr($project['preffix'] . $table, 0, 3) == 'wd_') {
-            $this->form_validation->set_message('verify_table', 'Nomes iniciados por "wd_" são reservados pelo sistema. ');
+        $import = $this->input->post('import');
+        $check_table = $this->sections_model->check_table_exists($table);
+        if ($check_table && !$import) {
+            $this->form_validation->set_message('verify_table_create', 'A tabela ' . $table . ' já existe no banco de dados');
             return false;
-        } else {
-            return true;
         }
+        $preffix = substr($project['preffix'] . $table, 0, 3);
+        if ($preffix == 'wd_' && !$import) {
+            $this->form_validation->set_message('verify_table_create', 'Nomes iniciados por "wd_" são reservados pelo sistema. ');
+            return false;
+        }
+
+        return true;
     }
 
     /*
