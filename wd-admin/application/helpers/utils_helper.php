@@ -275,9 +275,11 @@ if (!function_exists('get_page')) {
  */
 if (!function_exists('get_section')) {
 
-    function get_section() {
+    function get_section($section=null) {
         $CI = & get_instance();
-        $section = $CI->uri->segment(6);
+        if (!$section) {
+            $section = $CI->uri->segment(6);
+        }
         if (empty($CI->section)) {
             $CI->load->model_app('sections_model', 'projects');
             return $CI->section = $CI->sections_model->get_section($section);
