@@ -343,5 +343,64 @@ $(function () {
             if_input_select();
         }
     });
+    
+    $("#form-import").submit(function(){
+        var fields = $("#fields");
+        var table = $("#table-value").val();
+        $.ajax({
+            url: app_path+"sections/list-columns-import",
+            type : "POST",
+            dataType: "json",
+            data : $(this).serialize(),
+            success : function(data){
+                if(data.error){
+                    $("#msg-import").html("<div class='alert alert-danger'>"+data.message+"</div>");
+                }else{
+                    var columns = data.columns;
+                    var total_columns = columns.length;
+                    $("#dig_name, #dir_name, #table_name").val(table).attr('readonly','');
+                    if(total_columns>0){
+                        $(".msg-is-empty, .field-current, #btn-add-field").remove();
+                        for(var i = 0; i<total_columns; i++){
+                            var col_name = columns[i].Field;
+                            var col_type = columns[i].Type;
+                            var col_limit = columns[i].Limit;
+                            var col_default = columns[i].Default;
+                            var primary = columns[i].Key;
+                            if(primary != 'PRI'){
+                                var index = $("#fields .field-current").length;
+                                var field = new EJS({url: app_assets + "project/ejs/list-field.ejs"}).render({
+                                    name: col_name,
+                                    input: "text",
+                                    list_registers: 0,
+                                    required: 0,
+                                    options: '',
+                                    label_options: '',
+                                    trigger_select: '',
+                                    attributes: '',
+                                    observation: '',
+                                    column: col_name,
+                                    type_column: col_type,
+                                    limit_column: col_limit,
+                                    default_column: col_default,
+                                    comment_column: '',
+                                    unique: '',
+                                    plugin: '',
+                                    index: index,
+                                    options_selected: ''
+                                });
+                                fields.append(field);
+                            }
+                        }
+                    }
+                    $("#column_field, #type_field, #limit_column_field, #default_field, #comment_field").attr('readonly','');
+                    $(".field-current input[type=checkbox]").attr('disabled','');
+                    $("#modal-import").modal('toggle');
+                    $("#import-value").val("true");
+                }
+            }
+        });
+        return false;
+    });
 
 });

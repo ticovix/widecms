@@ -402,7 +402,7 @@ class Sections extends MY_Controller {
         $section = $this->sections_model->get_section($slug_section);
         $project = get_project();
         $page = get_page();
-        if (!$section or !$project or !$page ) {
+        if (!$section or ! $project or ! $page) {
             redirect_app();
         }
         $this->form_remove($section, $project, $page);
@@ -487,9 +487,12 @@ class Sections extends MY_Controller {
             'project' => $project,
             'page' => $page,
             'sections' => $this->list_options(),
+            'tables_import' => $this->sections_model->list_tables_import(),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
-            'plugins_input' => $this->config_page->list_plugins()
+            'plugins_input' => $this->config_page->list_plugins(),
+            'label_options' => '',
+            'selects' => ''
         ];
         $this->load->template_app('dev-sections/form', $vars);
     }
@@ -503,25 +506,20 @@ class Sections extends MY_Controller {
         $this->form_validation->set_rules('directory', 'Diretório', 'trim|required|is_unique[wd_sections.directory]|callback_verify_dir_create');
         $this->form_validation->set_rules('table', 'Tabela', 'trim|required|is_unique[wd_sections.table]|callback_verify_table');
         if ($this->form_validation->run()) {
+            $import = $this->input->post('import');
             $dir_project = $project['directory'];
             $slug_project = $project['slug'];
             $dir_page = $page['directory'];
             $slug_page = $page['slug'];
             /* Array com todos os os campos enviados pelo método post */
             $data = $this->get_post_data($project, $page);
+            $data['import'] = $import;
             $directory = $data['directory'];
             $table = $data['table'];
-
-            if (!$this->sections_model->create_table($table)) {
-                // Se a tabela não for inserida no banco de dados
-                setError('verify_table', 'Não foi possível criar a tabela ' . $table . ', a tabela existe ou você não tem permissões suficientes.');
-            } elseif (mkdir($this->path_view_project . $dir_project . '/' . $dir_page . '/' . $directory, 0755) && $this->create_fields($data)) {
-                redirect_app('project/' . $slug_project . '/' . $slug_page);
-            } else {
-                // Se os campos não forem criados, remove a tabela e o diretório criado
-                $this->sections_model->remove_table($table);
-                forceRemoveDir($this->path_view_project . $dir_project . '/' . $dir_page . '/' . $directory);
-            }
+            $create = $this->sections_model->create_table($table);
+            $create_dir = mkdir($this->path_view_project . $dir_project . '/' . $dir_page . '/' . $directory, 0755);
+            $create_fields = $this->create_fields($data);
+            redirect_app('project/' . $slug_project . '/' . $slug_page);
         } else {
             setError(null, validation_errors());
         }
@@ -579,8 +577,10 @@ class Sections extends MY_Controller {
             \fclose($fp);
             \chmod($path_config_xml . '/config.xml', 0640);
             if ($fp) {
-                // Se o arquivo for criado, cria colunas dos campos no banco de dados
-                $this->sections_model->create_columns($data['table'], $fields);
+                // Se o arquivo for criado e não for uma importação de tabelas, cria colunas dos campos no banco de dados
+                if (!$data['import']) {
+                    $this->sections_model->create_columns($data['table'], $fields);
+                }
             } else {
                 setError('create_config', 'Não foi possível criar o arquivo config.xml em ' . $path_config_xml);
                 return false;
@@ -770,6 +770,60 @@ class Sections extends MY_Controller {
             $new_fields[] = $field;
         }
         return $new_fields;
+    }
+
+    public function list_columns_import() {
+        func_only_dev();
+        $this->form_validation->set_rules('table', 'Tabela', 'required');
+        try {
+            if ($this->form_validation->run()) {
+                $table = $this->input->post('table');
+                $columns = $this->treat_columns($this->sections_model->list_columns_import($table));
+                $col_primary = search($columns, 'Key', 'PRI');
+                if (!$col_primary) {
+                    throw new Exception('Para importar uma tabela é necessário que exista uma coluna "id" com chave primária.');
+                }
+                $col_primary = $col_primary[0];
+                if ($col_primary['Field'] != 'id') {
+                    throw new Exception('O nome da coluna com chave primaria é "' . $col_primary['Field'] . '", altere o nome para "id" para conseguir importar a tabela.');
+                }
+                echo json_encode(array('error' => false, 'columns' => $columns));
+            } else {
+                $validation_errors = validation_errors();
+                throw new Exception($validation_errors);
+            }
+        } catch (Exception $e) {
+            echo json_encode(array('error' => true, 'message' => $e->getMessage()));
+        }
+    }
+
+    private function treat_columns($columns) {
+        if ($columns) {
+            $this->load->library_app('config_page');
+            $types = $this->config_page->types();
+            $cols = array();
+            foreach ($columns as $col) {
+                $type = $col['Type'];
+                $type_current = $this->treat_type(preg_replace('/\(.+?\)/', '', $type));
+                $limit_current = preg_replace('/.+?\((.+?)\)/', '$1', $type);
+                $verify_type = search($types, 'type', $type_current);
+                if (!$verify_type) {
+                    throw new Exception('A coluna "' . $col['Field'] . '" possui o tipo de entrada "' . $type_current . '", o CMS não possui esse tipo de entrada por padrão. <br>Para corrigir altere o tipo de entrada no banco de dados ou insira no arquivo "wd-admin/application/apps/projects/libraries/Config_page.php", método <strong>types()</strong>.');
+                }
+                $col['Type'] = $type_current;
+                $col['Limit'] = $limit_current;
+                $cols[] = $col;
+            }
+            $columns = $cols;
+        }
+        return $columns;
+    }
+
+    private function treat_type($type) {
+        if ($type == 'int') {
+            $type = 'integer';
+        }
+        return $type;
     }
 
 }

@@ -77,7 +77,7 @@ class Sections_model extends CI_Model {
                 'constraint' => $limit,
                 'comment' => $comment
             );
-            if(!empty($default)){
+            if (!empty($default)) {
                 $set[$column]['default'] = $default;
             }
             $this->dbforge->add_column($table, $set);
@@ -175,12 +175,25 @@ class Sections_model extends CI_Model {
         }
         return $col;
     }
-    
-    public function list_sections_permissions($id_page){
+
+    public function list_sections_permissions($id_page) {
         $this->db->select('id, name, slug, directory');
         $this->db->where('fk_page', $id_page);
-        $this->db->where('status',1);
+        $this->db->where('status', 1);
         return $this->db->get('wd_sections')->result_array();
+    }
+
+    public function list_tables_import() {
+        $db = $this->db->database;
+        $this->db->select('information_schema.tables.*');
+        $this->db->not_like('TABLE_NAME', 'wd_');
+        $this->db->join('wd_sections', 'wd_sections.table=information_schema.tables.TABLE_NAME', 'left');
+        $this->db->where('wd_sections.id IS NULL');
+        return $this->db->get_where('information_schema.tables', array('table_schema' => $db))->result_array();
+    }
+
+    public function list_columns_import($table) {
+        return $this->db->query('SHOW COLUMNS FROM ' . $table)->result_array();
     }
 
 }

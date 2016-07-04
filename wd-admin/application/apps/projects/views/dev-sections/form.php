@@ -15,6 +15,13 @@ if (!defined('BASEPATH')) {
     <div class="col-md-12">
         <div class="x_panel">
             <div class="x_title">
+                <?php
+                if ($this->uri->segment('6') == 'create') {
+                    ?>
+                    <a href="#modal-import" class="btn btn-primary pull-right" data-toggle="modal"><span class="fa fa-fw fa-arrow-down"></span> Importar tabela</a>
+                    <?php
+                }
+                ?>
                 <h2><?php echo $title ?></h2>
                 <div class="clearfix"></div>
             </div>
@@ -24,6 +31,7 @@ if (!defined('BASEPATH')) {
                 if ($this->uri->segment('4') != 'edit-section' or $this->uri->segment('4') == 'edit-section' && $fields) {
                     echo form_open(null);
                     ?>
+                <input type="hidden" name="import" id="import-value" value="false">
                     <h3>Dados básicos da seção</h3>
                     <p>Dados para configuração da página e tabela do banco de dados.</p>
                     <div class="row">
@@ -403,6 +411,48 @@ if (!defined('BASEPATH')) {
                         </div>
                     </div>
                 </div>
+                <?php
+                if ($this->uri->segment('6') == 'create') {
+                    ?>
+                    <!-- Modal -->
+                    <div class="modal fade" id="modal-import" data-index="" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                        <div class="modal-dialog" role="document">
+                            <?php echo form_open(null, array('id' => 'form-import')); ?>
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myModalLabel">Importar tabela</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="alert alert-warning">Atenção: Ao importar uma tabela, todos os campos criados anteriormente serão apagados.</div>
+                                    <div class="form-group">
+                                        <label for="table">Selecione a tabela</label>
+                                        <select name="table" id="table-value" class="form-control">
+                                            <option value="">Selecione</option>
+                                            <?php
+                                            if (count($tables_import) > 0) {
+                                                foreach ($tables_import as $arr) {
+                                                    ?>
+                                                    <option class="<?php echo $arr['TABLE_NAME'] ?>"><?php echo $arr['TABLE_NAME'] ?></option>
+                                                    <?php
+                                                }
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div id="msg-import"></div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                                    <button type="submit" class="btn btn-primary" id="btn-save-import">Selecionar</button>
+                                </div>
+                            </div>
+                            <?php echo form_close(); ?>
+                        </div>
+                    </div>
+                    <?php
+                }
+                ?>
             </div>
         </div>
     </div>
