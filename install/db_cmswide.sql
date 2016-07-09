@@ -28,6 +28,7 @@ CREATE TABLE `wd_files` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `file` varchar(100) NOT NULL,
   `name` varchar(45) DEFAULT NULL,
+  `thumbnails` varchar(4000) DEFAULT NULL,
   `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
@@ -39,7 +40,7 @@ CREATE TABLE `wd_files` (
 
 LOCK TABLES `wd_files` WRITE;
 /*!40000 ALTER TABLE `wd_files` DISABLE KEYS */;
-INSERT INTO `wd_files` VALUES (1,'-love-linux.png','Perfil',NULL);
+INSERT INTO `wd_files` VALUES (1,'-love-linux.png','Perfil',NULL, NULL);
 /*!40000 ALTER TABLE `wd_files` ENABLE KEYS */;
 UNLOCK TABLES;
 
