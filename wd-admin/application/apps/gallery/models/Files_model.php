@@ -6,8 +6,8 @@ if (!defined('BASEPATH')) {
 
 class Files_model extends CI_Model {
 
-    public function insert_file($file) {
-        return $this->db->insert('wd_files', array('file' => $file));
+    public function insert_file($file, $thumbs) {
+        return $this->db->insert('wd_files', array('file' => $file, 'thumbnails'=> json_encode($thumbs)));
     }
 
     public function search($keyword = null, $total = null, $offset = null) {

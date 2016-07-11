@@ -2,7 +2,7 @@ $(function () {
     /*
      * Dropzone
      */
-    if (typeof myDropzone == "function") {
+    if (typeof Dropzone == "function") {
         myDropzone.on("complete", function (file) {
             if ($("#files-content").data('gallery') == "posts") {
                 files_list({});
@@ -20,15 +20,17 @@ $(function () {
     $("#data-project").on("click", ".btn-gallery", function () {
         index_field_upload = $(".btn-gallery").index(this);
         field = $(this).data("field");
+        var config = $(this).data("config");
         var field_list = $("#" + field + "_field").val();
         if (field_list.indexOf('{') != '-1') {
             list = $.parseJSON(field_list);
         } else {
             list = new Object();
         }
+        $("#input_config").val(config);
         if ($("#files-content").data('gallery') != "posts") {
             var template = new EJS({url: app_assets + "posts/ejs/base-files.ejs"}).render();
-            $("#files-content").data("gallery", "posts").html(template);
+            $("#files-content").attr("data-gallery", "posts").html(template);
             $("#btn-save-change").removeClass("hide");
             content_files_added = $("#files-list-added");
         }
@@ -91,8 +93,7 @@ $(function () {
      * View file in modal
      */
     modal.on("click", ".btn-view-file", function () {
-        var index = $(".btn-view-file").index(this);
-        var file = $(".file").eq(index).data("file");
+        var file = $(this).data("file");
         var content = $("#details .modal-content");
         content.html('<div class="modal-body">Aguarde..</div>');
         $.ajax({
@@ -101,7 +102,7 @@ $(function () {
             type: "POST",
             data: {file: file},
             success: function (data) {
-                var template = new EJS({url: app_assets + "posts/ejs/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
+                var template = new EJS({url: url +"application/apps/gallery/assets/ejs/gallery/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
             }
         });
@@ -120,7 +121,7 @@ $(function () {
     modal.on("click", ".btn-add-file", function () {
         var is_multiple = ($("#" + field + "_field").attr("multiple") !== undefined);
         var index = $(".btn-add-file").index(this);
-        var file = $(".file").eq(index).data('file');
+        var file = $(".file").eq(index).children().children(".btn-view-file").data('file');
         if (is_multiple || list !== undefined && Object.keys(list).length < 1) {
             add_file(file);
         } else {

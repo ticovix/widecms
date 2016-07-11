@@ -75,43 +75,96 @@ class Config_page {
                 $unique = $field['unique'];
                 $default = $field['default'];
                 $comment = $field['comment'];
-                $options = $field['options'];
-                $label_options = $field['label_options'];
-                $trigger_select = $field['trigger_select'];
+
                 $new_field = array();
                 $attr = array();
                 $attr['@type'] = $input;
-                $attr['@type_column'] = $type;
-                $attr['@list_registers'] = $list_reg;
                 $attr['@required'] = $required;
-                $attr['@unique'] = $unique;
-                $attr['@limit'] = $limit;
-                $attr['@default'] = $default;
-                $attr['@comment'] = $comment;
-                $attr['@column'] = $column;
                 if (!empty($observation)) {
                     $attr['@observation'] = $observation;
                 }
-                if (!empty($attributes)) {
-                    $attr['@attributes'] = htmlentities($attributes);
-                }
+                $new_field['input']["label"] = $name;
+                $new_field['input']["list_registers"] = $list_reg;
                 if (!empty($plugins)) {
-                    $attr['@plugins'] = $plugins;
+                    $new_field['input']["plugins"] = $plugins;
                 }
-                if (!empty($options)) {
-                    $attr['@options'] = $options;
+                if (!empty($attributes)) {
+                    $new_field['input']["attributes"] = htmlentities($attributes);
                 }
-                if (!empty($label_options)) {
-                    $attr['@label_options'] = $label_options;
+                $new_field['input']["database"] = array(
+                    'column' => $column,
+                    'type_column' => $type,
+                    'unique' => $unique,
+                    'default' => $default,
+                    'limit' => $limit,
+                    'comment' => $comment,
+                );
+                if ($input == 'select' or $input == 'checkbox') {
+                    $options_table = $field['options_table'];
+                    $options_label = $field['options_label'];
+                    $options_trigger_select = $field['options_trigger_select'];
+                    if (!empty($options_table)) {
+                        $new_field['input']['options']["table"] = $options_table;
+                    }
+                    if (!empty($options_label)) {
+                        $new_field['input']['options']["label_options"] = $options_label;
+                    }
+                    if (!empty($options_trigger_select)) {
+                        $new_field['input']['options']["trigger_select"] = $options_trigger_select;
+                    }
+                } elseif ($input == 'file' or $input == 'multifile') {
+                    // Campos de upload
+                    $extensions_allowed = $field['extensions_allowed'];
+                    $image_resize = $field['image_resize'];
+                    $image_x = $field['image_x'];
+                    $image_y = $field['image_y'];
+                    $image_ratio = $field['image_ratio'];
+                    $image_ratio_x = $field['image_ratio_x'];
+                    $image_ratio_y = $field['image_ratio_y'];
+                    $image_ratio_crop = $field['image_ratio_crop'];
+                    $image_ratio_fill = $field['image_ratio_fill'];
+                    $image_background_color = $field['image_background_color'];
+                    $image_convert = $field['image_convert'];
+                    $image_text = $field['image_text'];
+                    $image_text_color = $field['image_text_color'];
+                    $image_text_background = $field['image_text_background'];
+                    $image_text_opacity = $field['image_text_opacity'];
+                    $image_text_background_opacity = $field['image_text_background_opacity'];
+                    $image_text_padding = $field['image_text_padding'];
+                    $image_text_position = $field['image_text_position'];
+                    $image_text_direction = $field['image_text_direction'];
+                    $image_text_x = $field['image_text_x'];
+                    $image_text_y = $field['image_text_y'];
+                    $image_thumbnails = $field['image_thumbnails'];
+                    $new_field['input']['upload'] = array(
+                        'extensions_allowed' => $extensions_allowed,
+                        'image_resize' => $image_resize,
+                        'image_x' => $image_x,
+                        'image_y' => $image_y,
+                        'image_ratio' => $image_ratio,
+                        'image_ratio_x' => $image_ratio_x,
+                        'image_ratio_y' => $image_ratio_y,
+                        'image_ratio_crop' => $image_ratio_crop,
+                        'image_ratio_fill' => $image_ratio_fill,
+                        'image_background_color' => $image_background_color,
+                        'image_convert' => $image_convert,
+                        'image_text' => $image_text,
+                        'image_text_color' => $image_text_color,
+                        'image_text_background' => $image_text_background,
+                        'image_text_opacity' => $image_text_opacity,
+                        'image_text_background_opacity' => $image_text_background_opacity,
+                        'image_text_padding' => $image_text_padding,
+                        'image_text_position' => $image_text_position,
+                        'image_text_direction' => $image_text_direction,
+                        'image_text_x' => $image_text_x,
+                        'image_text_y' => $image_text_y,
+                        'image_thumbnails' => $image_thumbnails,
+                    );
                 }
-                if (!empty($trigger_select)) {
-                    $attr['@trigger_select'] = $trigger_select;
-                }
-                $new_field['input'] = $name;
                 $config['page']['form'][] = array_merge($attr, $new_field);
             }
             $xml = arrayToXML($config);
-            return $xml;
+            return format_xml_string($xml);
         } else {
             return false;
         }
@@ -141,22 +194,77 @@ class Config_page {
             if ($fields) {
                 foreach ($fields as $field) {
                     $attr = $field->attributes();
-                    $label = (string) $field;
+                    $label = (string) $field->label;
                     $type = (string) $attr->type;
-                    $column = (string) $attr->column;
-                    $type_column = (string) $attr->type_column;
-                    $list_registers = (string) $attr->list_registers;
                     $required = (string) $attr->required;
-                    $unique = (string) $attr->unique;
-                    $default = (string) $attr->default;
-                    $comment = (string) $attr->comment;
-                    $limit = (string) $attr->limit;
-                    $plugins = (string) $attr->plugins;
                     $observation = (string) $attr->observation;
-                    $attributes = (string) $attr->attributes;
-                    $options = (string) $attr->options;
-                    $label_options = (string) $attr->label_options;
-                    $trigger_select = (string) $attr->trigger_select;
+                    $column = (string) $field->database->column;
+                    $type_column = (string) $field->database->type_column;
+                    $list_registers = (string) $field->list_registers;
+                    $unique = (string) $field->database->unique;
+                    $default = (string) $field->database->default;
+                    $comment = (string) $field->database->comment;
+                    $limit = (string) $field->database->limit;
+                    $plugins = (string) $field->plugins;
+                    $attributes = (string) $field->attributes;
+                    if (isset($field->options)) {
+                        $options = (string) $field->options->table;
+                        $label_options = (string) $field->options->label_options;
+                        $trigger_select = (string) $field->options->trigger_select;
+                    } else {
+                        $options = '';
+                        $label_options = '';
+                        $trigger_select = '';
+                    }
+
+                    if (isset($field->upload)) {
+                        $extensions_allowed = (string) $field->upload->extensions_allowed;
+                        $image_resize = (string) $field->upload->image_resize;
+                        $image_x = (string) $field->upload->image_x;
+                        $image_y = (string) $field->upload->image_y;
+                        $image_ratio = (string) $field->upload->image_ratio;
+                        $image_ratio_x = (string) $field->upload->image_ratio_x;
+                        $image_ratio_y = (string) $field->upload->image_ratio_y;
+                        $image_ratio_crop = (string) $field->upload->image_ratio_crop;
+                        $image_ratio_fill = (string) $field->upload->image_ratio_fill;
+                        $image_background_color = (string) $field->upload->image_background_color;
+                        $image_convert = (string) $field->upload->image_convert;
+                        $image_text = (string) $field->upload->image_text;
+                        $image_text_color = (string) $field->upload->image_text_color;
+                        $image_text_background = (string) $field->upload->image_text_background;
+                        $image_text_opacity = (string) $field->upload->image_text_opacity;
+                        $image_text_background_opacity = (string) $field->upload->image_text_background_opacity;
+                        $image_text_padding = (string) $field->upload->image_text_padding;
+                        $image_text_position = (string) $field->upload->image_text_position;
+                        $image_text_direction = (string) $field->upload->image_text_direction;
+                        $image_text_x = (string) $field->upload->image_text_x;
+                        $image_text_y = (string) $field->upload->image_text_y;
+                        $image_thumbnails = (string) $field->upload->image_thumbnails;
+                    } else {
+                        $extensions_allowed = '';
+                        $image_resize = '';
+                        $image_x = '';
+                        $image_y = '';
+                        $image_ratio = '';
+                        $image_ratio_x = '';
+                        $image_ratio_y = '';
+                        $image_ratio_crop = '';
+                        $image_ratio_fill = '';
+                        $image_background_color = '';
+                        $image_convert = '';
+                        $image_text = '';
+                        $image_text_color = '';
+                        $image_text_background = '';
+                        $image_text_opacity = '';
+                        $image_text_background_opacity = '';
+                        $image_text_padding = '';
+                        $image_text_position = '';
+                        $image_text_direction = '';
+                        $image_text_x = '';
+                        $image_text_y = '';
+                        $image_thumbnails = '';
+                    }
+
                     if ($list_registers == '1') {
                         $config['select_query'][] = $column;
                         $config['list'][] = array(
@@ -180,12 +288,36 @@ class Config_page {
                         'plugins' => $plugins,
                         'observation' => $observation,
                         'attributes' => $attributes,
-                        'options' => $options,
-                        'label_options' => $label_options,
-                        'trigger_select' => $trigger_select,
                         'limit' => $limit,
                         'default' => $default,
-                        'comment' => $comment
+                        'comment' => $comment,
+                        // Campos de configuração do select
+                        'options_table' => $options,
+                        'options_label' => $label_options,
+                        'options_trigger_select' => $trigger_select,
+                        // Campos de upload
+                        'extensions_allowed' => $extensions_allowed,
+                        'image_resize' => $image_resize,
+                        'image_x' => $image_x,
+                        'image_y' => $image_y,
+                        'image_ratio' => $image_ratio,
+                        'image_ratio_x' => $image_ratio_x,
+                        'image_ratio_y' => $image_ratio_y,
+                        'image_ratio_crop' => $image_ratio_crop,
+                        'image_ratio_fill' => $image_ratio_fill,
+                        'image_background_color' => $image_background_color,
+                        'image_convert' => $image_convert,
+                        'image_text' => $image_text,
+                        'image_text_color' => $image_text_color,
+                        'image_text_background' => $image_text_background,
+                        'image_text_opacity' => $image_text_opacity,
+                        'image_text_background_opacity' => $image_text_background_opacity,
+                        'image_text_padding' => $image_text_padding,
+                        'image_text_position' => $image_text_position,
+                        'image_text_direction' => $image_text_direction,
+                        'image_text_x' => $image_text_x,
+                        'image_text_y' => $image_text_y,
+                        'image_thumbnails' => $image_thumbnails,
                     );
                 }
             } else {
@@ -370,6 +502,7 @@ class Config_page {
         $this->attr['data-toggle'] = 'modal';
         $this->attr['data-target'] = '#gallery';
         $this->attr['type'] = 'button';
+        $this->attr['data-config'] = $this->config_upload();
         $new_field['input'] = $this->list_files($files);
         $new_field['input'] .= form_button($this->attr, '<span class="fa fa-file-image-o"></span> Inserir / gerenciar arquivos');
 
@@ -383,6 +516,42 @@ class Config_page {
         $attr['class'] = 'input-field';
         $new_field['input'] .= form_input($attr, set_value($this->column, $this->value, false));
         return $new_field;
+    }
+
+    /*
+     * Método para criar atributo de configuração do campo upload
+     */
+
+    private function config_upload() {
+        $field = $this->field;
+        $config_upload = array(
+            'extensions_allowed' => $field['extensions_allowed'],
+            'image_resize' => $field['image_resize'],
+            'image_x' => $field['image_x'],
+            'image_y' => $field['image_y'],
+            'image_ratio' => $field['image_ratio'],
+            'image_ratio_x' => $field['image_ratio_x'],
+            'image_ratio_y' => $field['image_ratio_y'],
+            'image_ratio_crop' => $field['image_ratio_crop'],
+            'image_ratio_fill' => $field['image_ratio_fill'],
+            'image_background_color' => $field['image_background_color'],
+            'image_convert' => $field['image_convert'],
+            'image_text' => $field['image_text'],
+            'image_text_color' => $field['image_text_color'],
+            'image_text_background' => $field['image_text_background'],
+            'image_text_opacity' => $field['image_text_opacity'],
+            'image_text_background_opacity' => $field['image_text_background_opacity'],
+            'image_text_padding' => $field['image_text_padding'],
+            'image_text_position' => $field['image_text_position'],
+            'image_text_direction' => $field['image_text_direction'],
+            'image_text_x' => $field['image_text_x'],
+            'image_text_y' => $field['image_text_y'],
+            'image_thumbnails' => str_replace('\'', '"', $field['image_thumbnails']),
+        );
+        $config_upload = array_filter($config_upload, function($val) {
+            return (!empty($val));
+        });
+        return str_replace('"', '\'', json_encode($config_upload));
     }
 
     /*
@@ -565,11 +734,11 @@ class Config_page {
         $ctt = '<div class="content-files">';
         if ($files) {
             $path = PATH_UPLOAD;
-            if(isset($files['file'])){
+            if (isset($files['file'])) {
                 $files = array($files);
             }
             foreach ($files as $file) {
-                if(!is_object($file)){
+                if (!is_object($file)) {
                     $file = (object) $file;
                 }
                 $file_ = $file->file;

@@ -108,11 +108,13 @@ if (!defined('BASEPATH')) {
                     if (check_method('upload', 'gallery')) {
                         echo form_open_multipart('apps/gallery/upload', ['id' => 'dropzone_gallery', 'class' => 'dropzone form-group']);
                         ?>
+                        <input type="hidden" name="config_upload" id="input_config">
                         <div class="dropzone-previews"></div>
                         <div class="dz-default dz-message"></div>
                         <?php
+                        echo form_close();
                     }
-                    echo form_close();
+
                     if (check_method('view-files', 'gallery')) {
                         echo form_open(null, ['method' => 'get', 'class' => 'form-group', 'id' => 'search-files']);
                         ?>

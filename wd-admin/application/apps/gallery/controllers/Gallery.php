@@ -36,7 +36,7 @@ class Gallery extends MY_Controller {
                 '/plugins/dropzone/css/dropzone.css',
             ));
         }
-        
+
         add_js(array(
             '/plugins/fancybox/js/jquery.fancybox-buttons.js',
             '/plugins/fancybox/js/jquery.fancybox.pack.js',
@@ -130,19 +130,32 @@ class Gallery extends MY_Controller {
         $insert = false;
         $path = PATH_UPLOAD;
         if (isset($_FILES['file']['name'])) {
-            $name = $_FILES['file']['name'];
-            $config['file_name'] = preg_replace("/[^a-z0-9_\s-\._\-]/", "", $name);
+            $name = substr(preg_replace("/[^a-z0-9_\s-\._\-]/", "", $_FILES['file']['name']), 0, 40);
+            $config_upload = $this->input->post('config_upload');
+            if (!empty($config_upload)) {
+                $config_upload = json_decode(str_replace('\'', '"', $config_upload));
+                $name = $this->create_file_unique($name, $config_upload);
+            }
+            $config['file_name'] = $name;
             $config['upload_path'] = PATH_UPLOAD;
             $config['file_ext_tolower'] = TRUE;
             $config['remove_spaces'] = TRUE;
-            $config['allowed_types'] = $this->allowed_types;
+            if (isset($config_upload->extensions_allowed) && !empty($config_upload->extensions_allowed)) {
+                $config['allowed_types'] = str_replace(array(',', '.'), array('|', ''), $config_upload->extensions_allowed);
+            } else {
+                $config['allowed_types'] = $this->allowed_types;
+            }
             $this->load->library('upload', $config);
             $upload = $this->upload->do_upload('file');
             if ($upload) {
                 $data = $this->upload->data();
                 $file = $data['file_name'];
                 chmod($path . $file, 0755);
-                $insert = $this->files_model->insert_file($file);
+                $thumbs = array();
+                if ($config_upload && $data['is_image']) {
+                    $thumbs = $this->config_upload($config_upload, $file);
+                }
+                $insert = $this->files_model->insert_file($file, $thumbs);
                 add_history('Inseriu um novo arquivo "' . $file . '"');
             }
         }
@@ -160,6 +173,145 @@ class Gallery extends MY_Controller {
             }
             header("HTTP/1.0 404 Not Found");
         }
+    }
+
+    private function create_file_unique($file, $config) {
+        $image_thumbnails = (isset($config->image_thumbnails) && strpos($config->image_thumbnails, '{') !== false) ? json_decode($config->image_thumbnails) : array();
+        $exists = false;
+        $new_file = $file;
+        $i = 0;
+
+        while ($exists == true) {
+            if ($i == 0) {
+                $i = '';
+            }
+            $new_file = $file . $i;
+            if (is_file($new_file)) {
+                $exists = true;
+            } elseif (count($image_thumbnails) > 0) {
+                foreach ($image_thumbnails as $thumb) {
+                    $preffix = $thumb->preffix;
+                    if (is_file($preffix . $new_file)) {
+                        $exists = true;
+                    }
+                }
+            }
+            $i++;
+        }
+        return $file;
+    }
+
+    private function config_upload($data, $file) {
+        $image_resize = (isset($data->image_resize)) ? $data->image_resize : '';
+        $image_y = (isset($data->image_y)) ? $data->image_y : '';
+        $image_x = (isset($data->image_x)) ? $data->image_x : '';
+        $image_ratio = (isset($data->image_ratio)) ? $data->image_ratio : '';
+        $image_ratio_x = (isset($data->image_ratio_x)) ? $data->image_ratio_x : '';
+        $image_ratio_y = (isset($data->image_ratio_y)) ? $data->image_ratio_y : '';
+        $image_ratio_crop = (isset($data->image_ratio_crop)) ? $data->image_ratio_crop : '';
+        $image_ratio_fill = (isset($data->image_ratio_fill)) ? $data->image_ratio_fill : '';
+        $image_background_color = (isset($data->image_background_color)) ? $data->image_background_color : '';
+        $image_convert = (isset($data->image_convert)) ? $data->image_convert : '';
+        $image_text = (isset($data->image_text)) ? $data->image_text : '';
+        $image_text_color = (isset($data->image_text_color)) ? $data->image_text_color : '';
+        $image_text_background = (isset($data->image_text_background)) ? $data->image_text_background : '';
+        $image_text_opacity = (isset($data->image_text_opacity)) ? $data->image_text_opacity : '';
+        $image_text_background_opacity = (isset($data->image_text_background_opacity)) ? $data->image_text_background_opacity : '';
+        $image_text_padding = (isset($data->image_text_padding)) ? $data->image_text_padding : '';
+        $image_text_position = (isset($data->image_text_position)) ? $data->image_text_position : '';
+        $image_text_direction = (isset($data->image_text_direction)) ? $data->image_text_direction : '';
+        $image_text_x = (isset($data->image_text_x)) ? $data->image_text_x : '';
+        $image_text_y = (isset($data->image_text_y)) ? $data->image_text_y : '';
+        $image_thumbnails = (isset($data->image_thumbnails) && strpos($data->image_thumbnails, '{') !== false) ? json_decode($data->image_thumbnails) : array();
+        $thumbs = array();
+        $this->load->library('upload_verot');
+        $upload = new Upload_verot(PATH_UPLOAD . $file);
+        if (!empty($image_resize)) {
+            $upload->image_resize = $image_resize;
+        }
+        if (!empty($image_y)) {
+            $upload->image_y = $image_y;
+        }
+        if (!empty($image_x)) {
+            $upload->image_x = $image_x;
+        }
+        if (!empty($image_ratio)) {
+            $upload->image_ratio = $image_ratio;
+        }
+        if (!empty($image_ratio_x)) {
+            $upload->image_ratio_x = $image_ratio_x;
+        }
+        if (!empty($image_ratio_y)) {
+            $upload->image_ratio_y = $image_ratio_y;
+        }
+        if (!empty($image_ratio_crop)) {
+            $upload->image_ratio_crop = $image_ratio_crop;
+        }
+        if (!empty($image_ratio_fill)) {
+            $upload->image_ratio_fill = $image_ratio_fill;
+        }
+        if (!empty($image_background_color)) {
+            $upload->image_background_color = $image_background_color;
+        }
+        if (!empty($image_convert)) {
+            $upload->image_convert = $image_convert;
+        }
+        if (!empty($image_text)) {
+            $upload->image_text = $image_text;
+        }
+        if (!empty($image_text_color)) {
+            $upload->image_text_color = $image_text_color;
+        }
+        if (!empty($image_text_background)) {
+            $upload->image_text_background = $image_text_background;
+        }
+        if (!empty($image_text_opacity)) {
+            $upload->image_text_opacity = $image_text_opacity;
+        }
+        if (!empty($image_text_background_opacity)) {
+            $upload->image_text_background_opacity = $image_text_background_opacity;
+        }
+        if (!empty($image_text_padding)) {
+            $upload->image_text_padding = $image_text_padding;
+        }
+        if (!empty($image_text_position)) {
+            $upload->image_text_position = $image_text_position;
+        }
+        if (!empty($image_text_direction)) {
+            $upload->image_text_direction = $image_text_direction;
+        }
+        if (!empty($image_text_x)) {
+            $upload->image_text_x = $image_text_x;
+        }
+        if (!empty($image_text_y)) {
+            $upload->image_text_y = $image_text_y;
+        }
+        $upload->file_overwrite = true;
+        $upload->file_auto_rename = false;
+        $upload->process(PATH_UPLOAD);
+
+        if (count($image_thumbnails) > 0) {
+            foreach ($image_thumbnails as $thumb) {
+                $preffix = $thumb->preffix;
+                $width = $thumb->width;
+                $height = $thumb->height;
+                $crop = $thumb->crop;
+                $upload->file_name_body_pre = $preffix;
+                $upload->image_resize = true;
+                $upload->image_x = $width;
+                if (empty($height)) {
+                    $upload->image_ratio_y = true;
+                }
+                if (!empty($crop)) {
+                    $upload->image_ratio_crop = $crop;
+                }
+                $upload->process(PATH_UPLOAD);
+                if ($upload->processed) {
+                    $thumbs[] = $upload->file_dst_name;
+                }
+            }
+        }
+        return $thumbs;
     }
 
     /*
@@ -215,10 +367,24 @@ class Gallery extends MY_Controller {
 
     public function delete() {
         $file = $this->input->post('file');
+        $get_file = $this->files_model->file($file);
+        if(!$get_file){
+            redirect_app();
+        }
         $path = PATH_UPLOAD;
         @unlink($path . $file);
         $this->files_model->delete($file);
         add_history('Removeu o arquivo "' . $file . '"');
+        // Verifica a existencia de miniaturas e remove
+        $thumbnails = $get_file['thumbnails'];
+        if(!empty($thumbnails) && strpos($thumbnails, '[') !== false){
+            $thumbs = json_decode($thumbnails);
+            if(count($thumbs)>0){
+                foreach($thumbs as $thumb){
+                    @unlink($path . $thumb);
+                }
+            }
+        }
     }
 
     /*

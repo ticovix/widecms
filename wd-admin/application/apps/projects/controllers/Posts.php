@@ -25,9 +25,6 @@ class Posts extends MY_Controller {
         $project = get_project();
         $page = get_page();
         if ($section && $page) {
-            $dir_section = $section['directory'];
-            $name = $section['name'];
-            $table = $section['table'];
             $this->load->library_app('config_page');
             // Carrega config xml
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
@@ -200,13 +197,13 @@ class Posts extends MY_Controller {
                     $field_trigger = $field_trigger[0];
                     $field_destination = $field_destination[0];
                     $data_trigger = array(
-                        'table' => $field_trigger['options'],
+                        'table' => $field_trigger['options_table'],
                         'column' => $field_trigger['column'],
                         'value' => $value,
                         'label' => $field_trigger['label']
                     );
                     // Lista os registros do campo
-                    $posts = $this->posts_model->list_posts_select($field_destination['options'], $field_destination['label_options'], $data_trigger);
+                    $posts = $this->posts_model->list_posts_select($field_destination['options_table'], $field_destination['options_label'], $data_trigger);
                 }
             }
         }
@@ -296,8 +293,8 @@ class Posts extends MY_Controller {
                 $required = $field['required'];
                 $unique = $field['unique'];
                 $label = $field['label'];
-
-                $value = $this->set_value($this->input->post($column), $field, $data_fields);
+                $input_col = $this->input->post($column);
+                $value = $this->set_value($input_col, $field, $data_fields);
                 $current_field["$column"] = $value;
                 $rules = array();
                 if ($required == '1') {
@@ -381,7 +378,8 @@ class Posts extends MY_Controller {
                 $required = $field['required'];
                 $unique = $field['unique'];
                 $label = $field['label'];
-                $value = $this->set_value($this->input->post($column), $field, $data_fields);
+                $input_col = $this->input->post($column);
+                $value = $this->set_value($input_col, $field, $data_fields);
                 $current_field["$column"] = $value;
                 $rules = array();
                 if ($required == '1') {

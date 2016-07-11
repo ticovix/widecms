@@ -275,7 +275,7 @@ if (!function_exists('get_page')) {
  */
 if (!function_exists('get_section')) {
 
-    function get_section($section=null) {
+    function get_section($section = null) {
         $CI = & get_instance();
         if (!$section) {
             $section = $CI->uri->segment(6);
@@ -381,7 +381,7 @@ if (!function_exists('wd_base_url')) {
 
 }
 
-if (!function_exists('diffDateToday') && !function_exists('month_name')) {
+if (!function_exists('diff_date_today') && !function_exists('month_name')) {
 
     function month_name($value) {
         switch ($value) {
@@ -415,7 +415,7 @@ if (!function_exists('diffDateToday') && !function_exists('month_name')) {
         return $month;
     }
 
-    function diffDateToday($dateSql) {
+    function diff_date_today($dateSql) {
         $datetime1 = new DateTime($dateSql);
         $datetime2 = new DateTime('now');
         $interval = $datetime1->diff($datetime2);
@@ -443,3 +443,32 @@ if (!function_exists('diffDateToday') && !function_exists('month_name')) {
     }
 
 }
+
+if (!function_exists('format_xml_string')) {
+
+    function format_xml_string($xml) {
+        $xml = preg_replace('/(>)(<)(\/*)/', "$1\n$2$3", $xml);
+        $token = strtok($xml, "\n");
+        $result = '';
+        $pad = 0;
+        $matches = array();
+        while ($token !== false) :
+            if (preg_match('/.+<\/\w[^>]*>$/', $token, $matches)) :
+                $indent = 0;
+            elseif (preg_match('/^<\/\w/', $token, $matches)) :
+                $pad--;
+                $indent = 0;
+            elseif (preg_match('/^<\w[^>]*[^\/]>.*$/', $token, $matches)) :
+                $indent = 1;
+            else :
+                $indent = 0;
+            endif;
+            $line = str_pad($token, strlen($token) + $pad, ' ', STR_PAD_LEFT);
+            $result .= $line . "\n";
+            $token = strtok("\n");
+            $pad += $indent;
+        endwhile;
+        return $result;
+    }
+
+}    

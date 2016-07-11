@@ -247,6 +247,30 @@ class Sections extends MY_Controller {
         $label_options_field = $this->input->post('label_options_field');
         $trigger_select_field = $this->input->post('trigger_select_field');
         $position = $this->input->post('position');
+        // Campos de upload
+        $extensions_allowed = $this->input->post('extensions_allowed');
+        $image_resize = $this->input->post('image_resize');
+        $image_x = $this->input->post('image_x');
+        $image_y = $this->input->post('image_y');
+        $image_ratio = $this->input->post('image_ratio');
+        $image_ratio_x = $this->input->post('image_ratio_x');
+        $image_ratio_y = $this->input->post('image_ratio_y');
+        $image_ratio_crop = $this->input->post('image_ratio_crop');
+        $image_ratio_fill = $this->input->post('image_ratio_fill');
+        $image_background_color = $this->input->post('image_background_color');
+        $image_convert = $this->input->post('image_convert');
+        $image_text = $this->input->post('image_text');
+        $image_text_color = $this->input->post('image_text_color');
+        $image_text_background = $this->input->post('image_text_background');
+        $image_text_opacity = $this->input->post('image_text_opacity');
+        $image_text_background_opacity = $this->input->post('image_text_background_opacity');
+        $image_text_padding = $this->input->post('image_text_padding');
+        $image_text_position = $this->input->post('image_text_position');
+        $image_text_direction = $this->input->post('image_text_direction');
+        $image_text_x = $this->input->post('image_text_x');
+        $image_text_y = $this->input->post('image_text_y');
+        $image_thumbnails = $this->input->post('image_thumbnails');
+
         $table = $project['preffix'] . $table;
 
         return array(
@@ -273,10 +297,34 @@ class Sections extends MY_Controller {
             'observation_field' => $observation_field,
             'attributes_field' => $attributes_field,
             'remove_field' => $remove_field,
-            'options_field' => $options_field,
-            'label_options_field' => $label_options_field,
-            'trigger_select_field' => $trigger_select_field,
-            'position' => $position
+            'position' => $position,
+            // Campos para configurar select
+            'options_table' => $options_field,
+            'options_label' => $label_options_field,
+            'options_trigger_select' => $trigger_select_field,
+            // Campos de upload
+            'extensions_allowed' => $extensions_allowed,
+            'image_resize' => $image_resize,
+            'image_x' => $image_x,
+            'image_y' => $image_y,
+            'image_ratio' => $image_ratio,
+            'image_ratio_x' => $image_ratio_x,
+            'image_ratio_y' => $image_ratio_y,
+            'image_ratio_crop' => $image_ratio_crop,
+            'image_ratio_fill' => $image_ratio_fill,
+            'image_background_color' => $image_background_color,
+            'image_convert' => $image_convert,
+            'image_text' => $image_text,
+            'image_text_color' => $image_text_color,
+            'image_text_background' => $image_text_background,
+            'image_text_opacity' => $image_text_opacity,
+            'image_text_background_opacity' => $image_text_background_opacity,
+            'image_text_padding' => $image_text_padding,
+            'image_text_position' => $image_text_position,
+            'image_text_direction' => $image_text_direction,
+            'image_text_x' => $image_text_x,
+            'image_text_y' => $image_text_y,
+            'image_thumbnails' => $image_thumbnails,
         );
     }
 
@@ -662,11 +710,35 @@ class Sections extends MY_Controller {
                 $plugins_field = $data['plugins_field'][$i];
                 $observation_field = $data['observation_field'][$i];
                 $attributes_field = $data['attributes_field'][$i];
-                $options_field = $data['options_field'][$i];
-                $label_options_field = $data['label_options_field'][$i];
-                $trigger_select_field = $data['trigger_select_field'][$i];
                 $position = $data['position'][$i];
                 $remove = (is_array($remove_field) && array_key_exists($i, $remove_field));
+                // Campos para configurar select
+                $options_field = $data['options_table'][$i];
+                $label_options_field = $data['options_label'][$i];
+                $trigger_select_field = $data['options_trigger_select'][$i];
+                // Campos de upload
+                $extensions_allowed = $data['extensions_allowed'][$i];
+                $image_resize = $data['image_resize'][$i];
+                $image_x = $data['image_x'][$i];
+                $image_y = $data['image_y'][$i];
+                $image_ratio = $data['image_ratio'][$i];
+                $image_ratio_x = $data['image_ratio_x'][$i];
+                $image_ratio_y = $data['image_ratio_y'][$i];
+                $image_ratio_crop = $data['image_ratio_crop'][$i];
+                $image_ratio_fill = $data['image_ratio_fill'][$i];
+                $image_background_color = $data['image_background_color'][$i];
+                $image_convert = $data['image_convert'][$i];
+                $image_text = $data['image_text'][$i];
+                $image_text_color = $data['image_text_color'][$i];
+                $image_text_background = $data['image_text_background'][$i];
+                $image_text_opacity = $data['image_text_opacity'][$i];
+                $image_text_background_opacity = $data['image_text_background_opacity'][$i];
+                $image_text_padding = $data['image_text_padding'][$i];
+                $image_text_position = $data['image_text_position'][$i];
+                $image_text_direction = $data['image_text_direction'][$i];
+                $image_text_x = $data['image_text_x'][$i];
+                $image_text_y = $data['image_text_y'][$i];
+                $image_thumbnails = $data['image_thumbnails'][$i];
                 // Verifica se os campos seguem os requisitos do sistema
                 $verify = $this->verify_fields([
                     'table' => $data['table'],
@@ -708,11 +780,35 @@ class Sections extends MY_Controller {
                         'unique' => $unique_field,
                         'default' => $default_field,
                         'comment' => $comment_field,
-                        'options' => $options_field,
                         'remove' => $remove,
-                        'label_options' => $label_options_field,
-                        'trigger_select' => $trigger_select_field,
                         'position' => $position,
+                        // Campos para configurar select
+                        'options_table' => $options_field,
+                        'options_label' => $label_options_field,
+                        'options_trigger_select' => $trigger_select_field,
+                        // Campos de upload
+                        'extensions_allowed' => $extensions_allowed,
+                        'image_resize' => $image_resize,
+                        'image_x' => $image_x,
+                        'image_y' => $image_y,
+                        'image_ratio' => $image_ratio,
+                        'image_ratio_x' => $image_ratio_x,
+                        'image_ratio_y' => $image_ratio_y,
+                        'image_ratio_crop' => $image_ratio_crop,
+                        'image_ratio_fill' => $image_ratio_fill,
+                        'image_background_color' => $image_background_color,
+                        'image_convert' => $image_convert,
+                        'image_text' => $image_text,
+                        'image_text_color' => $image_text_color,
+                        'image_text_background' => $image_text_background,
+                        'image_text_opacity' => $image_text_opacity,
+                        'image_text_background_opacity' => $image_text_background_opacity,
+                        'image_text_padding' => $image_text_padding,
+                        'image_text_position' => $image_text_position,
+                        'image_text_direction' => $image_text_direction,
+                        'image_text_x' => $image_text_x,
+                        'image_text_y' => $image_text_y,
+                        'image_thumbnails' => $image_thumbnails,
                     ];
                 }
             }
@@ -780,8 +876,11 @@ class Sections extends MY_Controller {
         $table = $this->input->post('table');
         $cols = array();
         if (!empty($table)) {
-            // Lista todas as colunas do banco de dados de uma determinada tabela
-            $cols = $this->sections_model->list_columns($table);
+            $verify_table = $this->sections_model->check_table_exists($table);
+            if ($verify_table) {
+                // Lista todas as colunas do banco de dados de uma determinada tabela
+                $cols = $this->sections_model->list_columns($table);
+            }
         }
         echo json_encode($cols);
     }
@@ -793,8 +892,11 @@ class Sections extends MY_Controller {
     private function list_columns($table) {
         $cols = array();
         if (!empty($table)) {
-            // Lista todas as colunas do banco de dados de uma determinada tabela
-            $cols = $this->sections_model->list_columns($table);
+            $verify_table = $this->sections_model->check_table_exists($table);
+            if ($verify_table) {
+                // Lista todas as colunas do banco de dados de uma determinada tabela
+                $cols = $this->sections_model->list_columns($table);
+            }
         }
         return $cols;
     }
@@ -806,8 +908,8 @@ class Sections extends MY_Controller {
     private function treat_fields($fields) {
         $new_fields = array();
         foreach ($fields as $field) {
-            if (isset($field['options']) && !empty($field['options'])) {
-                $table = $field['options'];
+            if (isset($field['options_table']) && !empty($field['options_table'])) {
+                $table = $field['options_table'];
                 if ($table) {
                     $field['label_options_'] = $this->list_columns($table);
                 }
@@ -841,6 +943,93 @@ class Sections extends MY_Controller {
         } catch (Exception $e) {
             echo json_encode(array('error' => true, 'message' => $e->getMessage()));
         }
+    }
+
+    public function image_example() {
+        $image_y = $this->input->get("image_y");
+        $image_x = $this->input->get("image_x");
+        $image_resize = $this->input->get("image_resize");
+        $image_ratio = $this->input->get("image_ratio");
+        $image_ratio_x = $this->input->get("image_ratio_x");
+        $image_ratio_y = $this->input->get("image_ratio_y");
+        $image_ratio_crop = $this->input->get("image_ratio_crop");
+        $image_ratio_fill = $this->input->get("image_ratio_fill");
+        $image_background_color = $this->input->get("image_background_color");
+        $image_convert = $this->input->get("image_convert");
+        $image_text = $this->input->get("image_text");
+        $image_text_color = $this->input->get("image_text_color");
+        $image_text_background = $this->input->get("image_text_background");
+        $image_text_opacity = $this->input->get("image_text_opacity");
+        $image_text_background_opacity = $this->input->get("image_text_background_opacity");
+        $image_text_padding = $this->input->get("image_text_padding");
+        $image_text_position = $this->input->get("image_text_position");
+        $image_text_direction = $this->input->get("image_text_direction");
+        $image_text_x = $this->input->get("image_text_x");
+        $image_text_y = $this->input->get("image_text_y");
+        $this->load->library('upload_verot');
+        $tmp = new Upload_verot(APP_ASSETS . 'images/test.png');
+        if (!empty($image_resize)) {
+            $tmp->image_resize = $image_resize;
+        }
+        if (!empty($image_y)) {
+            $tmp->image_y = $image_y;
+        }
+        if (!empty($image_x)) {
+            $tmp->image_x = $image_x;
+        }
+        if (!empty($image_ratio)) {
+            $tmp->image_ratio = $image_ratio;
+        }
+        if (!empty($image_ratio_x)) {
+            $tmp->image_ratio_x = $image_ratio_x;
+        }
+        if (!empty($image_ratio_y)) {
+            $tmp->image_ratio_y = $image_ratio_y;
+        }
+        if (!empty($image_ratio_crop)) {
+            $tmp->image_ratio_crop = $image_ratio_crop;
+        }
+        if (!empty($image_ratio_fill)) {
+            $tmp->image_ratio_fill = $image_ratio_fill;
+        }
+        if (!empty($image_background_color)) {
+            $tmp->image_background_color = $image_background_color;
+        }
+        if (!empty($image_convert)) {
+            $tmp->image_convert = $image_convert;
+        }
+        if (!empty($image_text)) {
+            $tmp->image_text = $image_text;
+        }
+        if (!empty($image_text_color)) {
+            $tmp->image_text_color = $image_text_color;
+        }
+        if (!empty($image_text_background)) {
+            $tmp->image_text_background = $image_text_background;
+        }
+        if (!empty($image_text_opacity)) {
+            $tmp->image_text_opacity = $image_text_opacity;
+        }
+        if (!empty($image_text_background_opacity)) {
+            $tmp->image_text_background_opacity = $image_text_background_opacity;
+        }
+        if (!empty($image_text_padding)) {
+            $tmp->image_text_padding = $image_text_padding;
+        }
+        if (!empty($image_text_position)) {
+            $tmp->image_text_position = $image_text_position;
+        }
+        if (!empty($image_text_direction)) {
+            $tmp->image_text_direction = $image_text_direction;
+        }
+        if (!empty($image_text_x)) {
+            $tmp->image_text_x = $image_text_x;
+        }
+        if (!empty($image_text_y)) {
+            $tmp->image_text_y = $image_text_y;
+        }
+        header('Content-type: ' . $tmp->file_src_mime);
+        echo $tmp->Process();
     }
 
     private function treat_columns($columns) {
