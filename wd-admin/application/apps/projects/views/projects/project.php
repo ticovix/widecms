@@ -32,28 +32,36 @@ if (!defined('BASEPATH')) {
                         $x = 0;
                         foreach ($pages as $arr) {
                             $sections = $arr['sections'];
-                            if (count($sections) > 0) {
+                            $total_sections = count($sections);
+                            $name_page = $arr['name'];
+                            $slug_project = $project['slug'];
+                            $slug_page = $arr['slug'];
+                            if ($total_sections > 0) {
                                 $exists = true;
+                                $first_name_section = $sections[0]['name'];
+                                $first_slug_section = $sections[0]['slug'];
                                 ?>
                                 <a href="<?php
-                                if (count($sections) == 1 && $sections[0]['name'] == $arr['name']) {
-                                    echo base_url_app('project/' . $project['slug'] . '/' . $arr['slug'] . '/' . $sections[0]['slug']);
+                                if ($total_sections == 1 && $first_name_section == $name_page) {
+                                    echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $first_slug_section);
                                 } else {
                                     echo '#collapse' . $x;
                                 }
-                                ?>" class="page-current list-group-item" <?php if (count($sections) > 1) { ?>data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse<?php echo $x; ?>"<?php } ?>>
-                                   <?php echo $arr["name"] ?>
-                                    <?php if (count($sections) > 1) { ?><span class="fa fa-caret-down pull-right"></span><?php } ?>
+                                ?>" class="page-current list-group-item" <?php if ($total_sections > 1 or $total_sections == 1 && $first_name_section != $name_page) { ?>data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse<?php echo $x; ?>"<?php } ?>>
+                                   <?php echo $name_page ?>
+                                    <?php if ($total_sections > 1 or $total_sections == 1 && $first_name_section != $name_page) { ?><span class="fa fa-caret-down pull-right"></span><?php } ?>
                                 </a>
-                                <?php if (count($sections) > 1 or count($sections) == 1 && $sections[0]['name'] != $arr['name']) { ?>
+                                <?php if ($total_sections > 1 or $total_sections == 1 && $first_name_section != $name_page) { ?>
                                     <div id="collapse<?php echo $x; ?>" class="panel-collapse collapse" role="tabpanel">
                                         <?php
-                                        if (count($sections)) {
+                                        if ($total_sections) {
                                             foreach ($sections as $section) {
-                                                if (check_method($project['slug'] . '-' . $arr['slug'] . '-' . $section['slug'])) {
+                                                $slug_section = $section['slug'];
+                                                $name_section = $section['name'];
+                                                if (check_method($slug_project . '-' . $slug_page . '-' . $slug_section)) {
                                                     ?>
-                                                    <a class="list-group-item" href="<?php echo base_url_app('project/' . $project['slug'] . '/' . $arr['slug'] . '/' . $section['slug']) ?>">
-                                                        &nbsp;&nbsp; <?php echo $section['name'] ?>                                                
+                                                    <a class="list-group-item" href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section) ?>">
+                                                        &nbsp;&nbsp; <?php echo $name_section ?>                                                
                                                     </a>
                                                     <?php
                                                 }
