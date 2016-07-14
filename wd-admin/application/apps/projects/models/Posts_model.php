@@ -11,7 +11,7 @@ class Posts_model extends CI_Model {
         $select = implode(',', $data['select_query']);
         $this->db->select('id,' . $select);
         $this->db->limit($total, $offset);
-        $this->db->order_by('order, id DESC');
+        $this->db->order_by('id DESC');
         if ($keyword) {
             $x = 0;
             foreach ($data['fields'] as $arr) {
