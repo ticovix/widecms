@@ -402,7 +402,7 @@ if (!defined('BASEPATH')) {
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-                                <button type="button" class="btn btn-primary" id="btn-save" data-dismiss="modal">Salvar</button>
+                                <button type="button" class="btn btn-primary" id="btn-save">Salvar</button>
                             </div>
                         </div>
                     </div>

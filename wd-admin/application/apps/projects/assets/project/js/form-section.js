@@ -244,6 +244,7 @@ $(function () {
         }
         clean_inputs();
         $(".msg-is-empty").remove();
+        modal_new_field.modal("toggle");
     });
     
     $("#add-attr").click(function () {
