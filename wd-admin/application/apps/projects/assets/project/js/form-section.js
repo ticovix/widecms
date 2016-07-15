@@ -251,7 +251,7 @@ $(function () {
     });
     
     fields.on("click", ".btn-edit", function () {
-        var index = btn_edit.index(this);
+        var index = $(".btn-edit").index(this);
         var id = $(this).data("index");
         var id_current = modal_new_field.data("index");
         if (id_current !== id) {
