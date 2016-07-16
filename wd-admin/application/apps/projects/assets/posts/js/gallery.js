@@ -48,11 +48,12 @@ $(function () {
             URL = url + "apps/gallery/files-list";
         }
         content.html("Carregando..");
+        var config = $("#input_config").val();
         $.ajax({
             url: URL,
             dataType: "json",
             type: "POST",
-            data: {limit: 12},
+            data: {limit: 12, config:config},
             success: function (data) {
                 var template = new EJS({url: app_assets + "posts/ejs/list-files.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);

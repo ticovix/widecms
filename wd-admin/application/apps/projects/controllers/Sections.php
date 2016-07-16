@@ -303,7 +303,7 @@ class Sections extends MY_Controller {
             'options_label' => $label_options_field,
             'options_trigger_select' => $trigger_select_field,
             // Campos de upload
-            'extensions_allowed' => $extensions_allowed,
+            'extensions_allowed' => preg_replace("/[^a-z0-9,]/", '',str_replace(array('|'), array(','), $extensions_allowed)),
             'image_resize' => $image_resize,
             'image_x' => $image_x,
             'image_y' => $image_y,

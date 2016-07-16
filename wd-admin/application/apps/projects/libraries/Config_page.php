@@ -491,6 +491,7 @@ class Config_page {
         add_js(array(
             'posts/js/gallery.js'
         ));
+        $field = $this->field;
         $new_field = array();
         $new_field['type'] = $this->type;
         $new_field['label'] = $this->label;
@@ -505,7 +506,12 @@ class Config_page {
         $this->attr['data-config'] = $this->config_upload();
         $new_field['input'] = $this->list_files($files);
         $new_field['input'] .= form_button($this->attr, '<span class="fa fa-file-image-o"></span> Inserir / gerenciar arquivos');
-
+        if(isset($field['extensions_allowed']) && !empty($field['extensions_allowed'])){
+             $txt_extensions = str_replace(',',', ',$field['extensions_allowed']);
+        }else{
+            $txt_extensions = 'TODAS';
+        }
+        $new_field['input'] .= '<strong>Extensões permitidas:</strong> '.$txt_extensions;
         $attr = array();
         if ($this->type == 'multifile') {
             $attr['multiple'] = "true";

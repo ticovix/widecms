@@ -82,11 +82,20 @@ class Gallery extends MY_Controller {
         $per_page = (int) $this->input->get('per_page') or 0;
         $keyword = $this->input->get('search');
         $limit = $this->input->post('limit');
+        $config = $this->input->post('config');
+        $filter_extensions = null;
+        if (strpos($config, '{') !== false) {
+            $json_config = json_decode(str_replace('\'','"',$config));
+            if (is_object($json_config) && isset($json_config->extensions_allowed)) {
+                $extensions = $json_config->extensions_allowed;
+                $filter_extensions = explode(',', $extensions);
+            }
+        }
         if (empty($limit)) {
             $limit = $this->limit;
         }
-        $files = $this->files_model->search($keyword, $limit, $per_page);
-        $total = $this->files_model->search_total_rows($keyword);
+        $files = $this->files_model->search($keyword, $filter_extensions, $limit, $per_page);
+        $total = $this->files_model->search_total_rows($keyword, $filter_extensions);
         $pagination = $this->pagination($total, $limit);
         echo json_encode(array('files' => $files, 'total' => $total, 'pagination' => $pagination));
     }
@@ -141,7 +150,7 @@ class Gallery extends MY_Controller {
             $config['file_ext_tolower'] = TRUE;
             $config['remove_spaces'] = TRUE;
             if (isset($config_upload->extensions_allowed) && !empty($config_upload->extensions_allowed)) {
-                $config['allowed_types'] = str_replace(array(',', '.'), array('|', ''), $config_upload->extensions_allowed);
+                $config['allowed_types'] = str_replace(array(','), array('|'), $config_upload->extensions_allowed);
             } else {
                 $config['allowed_types'] = $this->allowed_types;
             }
@@ -368,7 +377,7 @@ class Gallery extends MY_Controller {
     public function delete() {
         $file = $this->input->post('file');
         $get_file = $this->files_model->file($file);
-        if(!$get_file){
+        if (!$get_file) {
             redirect_app();
         }
         $path = PATH_UPLOAD;
@@ -377,10 +386,10 @@ class Gallery extends MY_Controller {
         add_history('Removeu o arquivo "' . $file . '"');
         // Verifica a existencia de miniaturas e remove
         $thumbnails = $get_file['thumbnails'];
-        if(!empty($thumbnails) && strpos($thumbnails, '[') !== false){
+        if (!empty($thumbnails) && strpos($thumbnails, '[') !== false) {
             $thumbs = json_decode($thumbnails);
-            if(count($thumbs)>0){
-                foreach($thumbs as $thumb){
+            if (count($thumbs) > 0) {
+                foreach ($thumbs as $thumb) {
                     @unlink($path . $thumb);
                 }
             }
