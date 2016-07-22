@@ -6,7 +6,7 @@
  *
  * This content is released under the MIT License (MIT)
  *
- * Copyright (c) 2014 - 2015, British Columbia Institute of Technology
+ * Copyright (c) 2014 - 2016, British Columbia Institute of Technology
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,10 +28,10 @@
  *
  * @package	CodeIgniter
  * @author	EllisLab Dev Team
- * @copyright	Copyright (c) 2008 - 2014, EllisLab, Inc. (http://ellislab.com/)
- * @copyright	Copyright (c) 2014 - 2015, British Columbia Institute of Technology (http://bcit.ca/)
+ * @copyright	Copyright (c) 2008 - 2014, EllisLab, Inc. (https://ellislab.com/)
+ * @copyright	Copyright (c) 2014 - 2016, British Columbia Institute of Technology (http://bcit.ca/)
  * @license	http://opensource.org/licenses/MIT	MIT License
- * @link	http://codeigniter.com
+ * @link	https://codeigniter.com
  * @since	Version 1.0.0
  * @filesource
  */
@@ -46,7 +46,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @subpackage	Libraries
  * @category	Libraries
  * @author		EllisLab Dev Team
- * @link		http://codeigniter.com/user_guide/general/routing.html
+ * @link		https://codeigniter.com/user_guide/general/routing.html
  */
 class CI_Router {
 
@@ -83,7 +83,7 @@ class CI_Router {
 	 *
 	 * @var	string
 	 */
-	public $directory =	'';
+	public $directory;
 
 	/**
 	 * Default controller (and method if specific)
@@ -105,7 +105,7 @@ class CI_Router {
 	/**
 	 * Enable query strings flag
 	 *
-	 * Determines wether to use GET parameters or segment URIs
+	 * Determines whether to use GET parameters or segment URIs
 	 *
 	 * @var	bool
 	 */
@@ -118,32 +118,25 @@ class CI_Router {
 	 *
 	 * Runs the route mapping function.
 	 *
+	 * @param	array	$routing
 	 * @return	void
 	 */
 	public function __construct($routing = NULL)
 	{
 		$this->config =& load_class('Config', 'core');
 		$this->uri =& load_class('URI', 'core');
-                
+
 		$this->enable_query_strings = ( ! is_cli() && $this->config->item('enable_query_strings') === TRUE);
+
+		// If a directory override is configured, it has to be set before any dynamic routing logic
+		is_array($routing) && isset($routing['directory']) && $this->set_directory($routing['directory']);
 		$this->_set_routing();
+
 		// Set any routing overrides that may exist in the main index file
 		if (is_array($routing))
 		{
-                   
-			if (isset($routing['directory']))
-			{
-				$this->set_directory($routing['directory']);
-			}
-			if ( ! empty($routing['controller']))
-			{
-				$this->set_class($routing['controller']);
-			}
-
-			if ( ! empty($routing['function']))
-			{
-				$this->set_method($routing['function']);
-			}
+			empty($routing['controller']) OR $this->set_class($routing['controller']);
+			empty($routing['function'])   OR $this->set_method($routing['function']);
 		}
 
 		log_message('info', 'Router Class Initialized');
@@ -161,48 +154,9 @@ class CI_Router {
 	 */
 	protected function _set_routing()
 	{
-		// Are query strings enabled in the config file? Normally CI doesn't utilize query strings
-		// since URI segments are more search-engine friendly, but they can optionally be used.
-		// If this feature is enabled, we will gather the directory/class/method a little differently
-		if ($this->enable_query_strings)
-		{
-                    
-			$_d = $this->config->item('directory_trigger');
-			$_d = isset($_GET[$_d]) ? trim($_GET[$_d], " \t\n\r\0\x0B/") : '';
-			if ($_d !== '')
-			{
-				$this->uri->filter_uri($_d);
-				$this->set_directory($_d);
-			}
-
-			$_c = trim($this->config->item('controller_trigger'));
-			if ( ! empty($_GET[$_c]))
-			{
-				$this->uri->filter_uri($_GET[$_c]);
-				$this->set_class($_GET[$_c]);
-
-				$_f = trim($this->config->item('function_trigger'));
-				if ( ! empty($_GET[$_f]))
-				{
-					$this->uri->filter_uri($_GET[$_f]);
-					$this->set_method($_GET[$_f]);
-				}
-				$this->uri->rsegments = array(
-					1 => $this->class,
-					2 => $this->method
-				);
-			}
-			else
-			{
-				$this->_set_default_controller();
-			}
-
-			// Routing rules don't apply to query strings and we don't need to detect
-			// directories, so we're done here
-			return;
-		}
-
-		// Load the routes.php file.
+		// Load the routes.php file. It would be great if we could
+		// skip this for enable_query_strings = TRUE, but then
+		// default_controller would be empty ...
 		if (file_exists(APPPATH.'config/routes.php'))
 		{
 			include(APPPATH.'config/routes.php');
@@ -220,6 +174,52 @@ class CI_Router {
 			isset($route['translate_uri_dashes']) && $this->translate_uri_dashes = $route['translate_uri_dashes'];
 			unset($route['default_controller'], $route['translate_uri_dashes']);
 			$this->routes = $route;
+		}
+
+		// Are query strings enabled in the config file? Normally CI doesn't utilize query strings
+		// since URI segments are more search-engine friendly, but they can optionally be used.
+		// If this feature is enabled, we will gather the directory/class/method a little differently
+		if ($this->enable_query_strings)
+		{
+			// If the directory is set at this time, it means an override exists, so skip the checks
+			if ( ! isset($this->directory))
+			{
+				$_d = $this->config->item('directory_trigger');
+				$_d = isset($_GET[$_d]) ? trim($_GET[$_d], " \t\n\r\0\x0B/") : '';
+
+				if ($_d !== '')
+				{
+					$this->uri->filter_uri($_d);
+					$this->set_directory($_d);
+				}
+			}
+
+			$_c = trim($this->config->item('controller_trigger'));
+			if ( ! empty($_GET[$_c]))
+			{
+				$this->uri->filter_uri($_GET[$_c]);
+				$this->set_class($_GET[$_c]);
+
+				$_f = trim($this->config->item('function_trigger'));
+				if ( ! empty($_GET[$_f]))
+				{
+					$this->uri->filter_uri($_GET[$_f]);
+					$this->set_method($_GET[$_f]);
+				}
+
+				$this->uri->rsegments = array(
+					1 => $this->class,
+					2 => $this->method
+				);
+			}
+			else
+			{
+				$this->_set_default_controller();
+			}
+
+			// Routing rules don't apply to query strings and we don't need to detect
+			// directories, so we're done here
+			return;
 		}
 
 		// Is there anything to parse?
@@ -248,7 +248,6 @@ class CI_Router {
 	protected function _set_request($segments = array())
 	{
 		$segments = $this->_validate_request($segments);
-
 		// If we don't have any segments left - try the default controller;
 		// WARNING: Directories get shifted out of the segments array!
 		if (empty($segments))
@@ -306,7 +305,8 @@ class CI_Router {
 			// This will trigger 404 later
 			return;
 		}
-    		$this->set_class($class);
+
+		$this->set_class($class);
 		$this->set_method($method);
 
 		// Assign routed segments, index starting from 1
@@ -332,6 +332,8 @@ class CI_Router {
 	protected function _validate_request($segments)
 	{
 		$c = count($segments);
+		$directory_override = isset($this->directory);
+
 		// Loop through our segments and return as soon as a controller
 		// is found or when such a directory doesn't exist
 		while ($c-- > 0)
@@ -339,7 +341,10 @@ class CI_Router {
 			$test = $this->directory
 				.ucfirst($this->translate_uri_dashes === TRUE ? str_replace('-', '_', $segments[0]) : $segments[0]);
 
-			if ( ! file_exists(APPPATH.'controllers/'.$test.'.php') && is_dir(APPPATH.'controllers/'.$this->directory.$segments[0]))
+			if ( ! file_exists(APPPATH.'controllers/'.$test.'.php')
+				&& $directory_override === FALSE
+				&& is_dir(APPPATH.'controllers/'.$this->directory.$segments[0])
+			)
 			{
 				$this->set_directory(array_shift($segments), TRUE);
 				continue;
@@ -364,35 +369,19 @@ class CI_Router {
 	 */
 	protected function _parse_routes()
 	{
-                
 		// Turn the segment array into a URI string
 		$uri = implode('/', $this->uri->segments);
+
 		// Get HTTP verb
 		$http_verb = isset($_SERVER['REQUEST_METHOD']) ? strtolower($_SERVER['REQUEST_METHOD']) : 'cli';
-
-		// Is there a literal match?  If so we're done
-		if (isset($this->routes[$uri]))
-		{
-			// Check default routes format
-			if (is_string($this->routes[$uri]))
-			{
-				$this->_set_request(explode('/', $this->routes[$uri]));
-				return;
-			}
-			// Is there a matching http verb?
-			elseif (is_array($this->routes[$uri]) && isset($this->routes[$uri][$http_verb]))
-			{
-				$this->_set_request(explode('/', $this->routes[$uri][$http_verb]));
-				return;
-			}
-		}
 
 		// Loop through the route array looking for wildcards
 		foreach ($this->routes as $key => $val)
 		{
-			// Check if route format is using http verb
+			// Check if route format is using HTTP verbs
 			if (is_array($val))
 			{
+				$val = array_change_key_case($val, CASE_LOWER);
 				if (isset($val[$http_verb]))
 				{
 					$val = $val[$http_verb];
@@ -405,6 +394,7 @@ class CI_Router {
 
 			// Convert wildcards to RegEx
 			$key = str_replace(array(':any', ':num'), array('[^/]+', '[0-9]+'), $key);
+
 			// Does the RegEx match?
 			if (preg_match('#^'.$key.'$#', $uri, $matches))
 			{
@@ -422,11 +412,12 @@ class CI_Router {
 				{
 					$val = preg_replace('#^'.$key.'$#', $val, $uri);
 				}
+
 				$this->_set_request(explode('/', $val));
 				return;
 			}
 		}
-                
+
 		// If we got this far it means we didn't encounter a
 		// matching route so we'll set the site default route
 		$this->_set_request(array_values($this->uri->segments));
@@ -490,7 +481,7 @@ class CI_Router {
 	 * Set directory name
 	 *
 	 * @param	string	$dir	Directory name
-	 * @param	bool	$appent	Whether we're appending rather then setting the full value
+	 * @param	bool	$append	Whether we're appending rather than setting the full value
 	 * @return	void
 	 */
 	public function set_directory($dir, $append = FALSE)
