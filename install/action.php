@@ -52,7 +52,7 @@ try {
         }
         require_once('wd-admin/application/helpers/passwordhash_helper.php');
         $PasswordHash = new PasswordHash(8, FALSE);
-        $encrypt_key = $PasswordHash->HashPassword(rand(99999) . time());
+        $encrypt_key = $PasswordHash->HashPassword(rand(0,99999) . time());
         $sql = file_get_contents($dir_sql_database);
         $sql = str_replace(array('[[database]]', '[[name_user]]', '[[email_user]]', '[[login_user]]', '[[password_user]]',), array($database, $name_user, $email_user, $login_user, $PasswordHash->HashPassword($password_user)), $sql);
 
