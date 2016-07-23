@@ -277,6 +277,8 @@ class Projects extends MY_Controller {
      */
 
     protected function configProject($data) {
+        $this->load->helper('passwordhash');
+        $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
         $dir_project = $data['dir'];
         $main = $data['main'];
 
@@ -289,29 +291,32 @@ class Projects extends MY_Controller {
             $dir_application = $dir_project . '/application';
         }
 
-        // Config index.php
+        // Config /index.php
         $path_index = '../' . $dir_project . '/index.php';
-        $index = file_get_contents($path_index);
-        $index = str_replace([
+        $file_index = file_get_contents($path_index);
+        $index = str_replace(array(
             '[[system_path]]',
             '[[application_folder]]'
-                ], [
+                ), array(
             $dir_system,
             $dir_application
-                ], $index);
-        file_put_contents($path_index, $index);
-
-
+                ), $file_index);
+        file_put_contents($path_index, $file_index);
+        // End config
+        // Config application/config/config.php
+        $path_config = '../' . $dir_project . '/application/config/config.php';
+        $file_config = file_get_contents($path_config);
+        
+        $encryption_key = $PasswordHash->HashPassword(rand(0,99999) . time());
+        $config = str_replace(array(
+            '[[encryption_key]]'
+        ), array(
+            $encryption_key
+        ), $file_config);
+        file_put_contents($path_config, $config);
+        // End config
         if ($main) {
             rename($path_index, '../index.php');
-
-            /* $dir_application_from = '../' . $dir_application . '/application';
-              $dir_application_to = '../' . $dir_application . '/';
-              $list_dir = dir($dir_application_from);
-              while ($file = $list_dir->read()) {
-              rename($dir_application_from . $file, $dir_application_to . $file);
-              }
-              rmdir($dir_application_from); */
         }
     }
 
@@ -347,7 +352,7 @@ class Projects extends MY_Controller {
         }
         $this->form_remove($project);
         $vars = [
-            'title' => 'Remover o projeto '.$project['name'],
+            'title' => 'Remover o projeto ' . $project['name'],
             'project' => $project
         ];
         $this->load->template_app('dev-projects/remove', $vars);
@@ -389,20 +394,22 @@ class Projects extends MY_Controller {
             }
         }
     }
+
     /*
      * Método para verificar senha
      */
-    public function verify_password($v_pass){
+
+    public function verify_password($v_pass) {
         $pass_user = $this->data_user['password'];
         // Inicia helper PasswordHash
         $this->load->helper('passwordhash');
         $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
         // Verifica se a senha está errada
         if (!$PasswordHash->CheckPassword($v_pass, $pass_user)) {
-            $this->form_validation->set_message('verify_password','A senha informada está incorreta.');
+            $this->form_validation->set_message('verify_password', 'A senha informada está incorreta.');
             return false;
         }
-        
+
         return true;
     }
 
