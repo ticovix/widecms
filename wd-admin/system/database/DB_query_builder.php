@@ -48,7 +48,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @author		EllisLab Dev Team
  * @link		https://codeigniter.com/user_guide/database/
  */
-
 abstract class CI_DB_query_builder extends CI_DB_driver {
 
 	/**
@@ -2778,5 +2777,11 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 			'qb_limit'	=> FALSE
 		));
 	}
+        
+        public function prepare($table = '', $where = NULL, $limit = NULL, $offset = NULL){
+            $get = $this->get_where($table, $where, $limit, $offset);
+            $GLOBALS['HELPER']->table = $table;
+            return $GLOBALS['HELPER']->get($get);
+        }
 
 }
