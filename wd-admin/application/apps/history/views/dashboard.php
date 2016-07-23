@@ -7,7 +7,7 @@
             $last_name = $arr['last_name'];
             $image = $arr['image'];
             $message = $arr['message'];
-            $date = diffDateToday($arr['date']);
+            $date = diff_date_today($arr['date']);
             ?>
             <div class="col-sm-12 form-group">
                 <a href="<?php echo base_url('apps/users/profile/'.$login)?>" class="pull-left"><img src="<?php
