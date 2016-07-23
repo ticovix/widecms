@@ -23,25 +23,36 @@ class CI_Helper {
 
     public function result() {
         $result = $this->stmt->result();
-        return $this->prepare_result($result, 'object');
+        $get_result = $this->prepare_result($result, 'object');
+        $this->final_result = array();
+        return $get_result;
     }
 
     public function row() {
         $result = $this->stmt->row();
-        return $this->prepare_result($result, 'object', true);
+        $get_result = $this->prepare_result($result, 'object', true);
+        $this->final_result = array();
+        return $get_result;
     }
     
     public function row_array() {
         $result = $this->stmt->row();
-        return $this->prepare_result($result, 'array', true);
+        $get_result = $this->prepare_result($result, 'array', true);
+        $this->final_result = array();
+        return $get_result;
     }
 
     public function result_array() {
         $result = $this->stmt->result();
-        return $this->prepare_result($result);
+        $get_result = $this->prepare_result($result);
+        $this->final_result = array();
+        return $get_result;
     }
 
     public function prepare_result($result, $type = 'array', $row = false) {
+        if(!$result){
+            return $result;
+        }
         $config = $this->config;
         if (is_array($result) && isset($result[0])) {
             foreach ($result as $arr) {
