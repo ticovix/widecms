@@ -296,7 +296,7 @@ class Posts extends MY_Controller {
                 $input_col = $this->input->post($column);
                 $value = $this->set_value($input_col, $field, $data_fields);
                 $current_field["$column"] = $value;
-                $rules = array();
+                $rules = array('trim');
                 if ($required == '1') {
                     $rules[] = 'required';
                 }
@@ -304,11 +304,7 @@ class Posts extends MY_Controller {
                     $rules[] = 'is_unique[' . $table . '.' . $column . ']';
                 }
                 $rules = implode('|', $rules);
-                if (empty($rules)) {
-                    $this->form_validation->set_rules($column, $label);
-                } else {
-                    $this->form_validation->set_rules($column, $label, $rules);
-                }
+                $this->form_validation->set_rules($column, $label, $rules);
             }
             if ($this->form_validation->run()) {
 
@@ -381,7 +377,7 @@ class Posts extends MY_Controller {
                 $input_col = $this->input->post($column);
                 $value = $this->set_value($input_col, $field, $data_fields);
                 $current_field["$column"] = $value;
-                $rules = array();
+                $rules = array('trim');
                 if ($required == '1') {
                     $rules[] = 'required';
                 }
@@ -389,11 +385,7 @@ class Posts extends MY_Controller {
                     $rules[] = 'is_unique[' . $table . '.' . $column . ']';
                 }
                 $rules = implode('|', $rules);
-                if (empty($rules)) {
-                    $this->form_validation->set_rules($column, $label);
-                } else {
-                    $this->form_validation->set_rules($column, $label, $rules);
-                }
+                $this->form_validation->set_rules($column, $label, $rules);
             }
             if ($this->form_validation->run()) {
                 // Se o envio for acionado e todos os campos estiverem corretos
