@@ -208,6 +208,7 @@ class Projects extends MY_Controller {
 
     public function verify_dir($dir) {
         $main = $this->input->post('main');
+        $extract = $this->input->post('extract_ci');
         $dir_project = '../';
         $dir_admin = $this->path_view_project;
         if ($main) {
@@ -217,7 +218,7 @@ class Projects extends MY_Controller {
                 return false;
             }
         }
-        if (is_dir($dir_project . $dir) or is_dir($dir_admin . $dir)) {
+        if ((is_dir($dir_project . $dir) && $extract=='1') or is_dir($dir_admin . $dir)) {
             // Se o diretório já existir no admin ou no diretório inicial
             $this->form_validation->set_message('verify_dir', 'Esse diretório já existe.');
             return false;
