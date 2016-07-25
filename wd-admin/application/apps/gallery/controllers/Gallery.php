@@ -84,18 +84,32 @@ class Gallery extends MY_Controller {
         $limit = $this->input->post('limit');
         $config = $this->input->post('config');
         $filter_extensions = null;
+        $filter_thumbs = null;
         if (strpos($config, '{') !== false) {
-            $json_config = json_decode(str_replace('\'','"',$config));
-            if (is_object($json_config) && isset($json_config->extensions_allowed)) {
-                $extensions = $json_config->extensions_allowed;
-                $filter_extensions = explode(',', $extensions);
+            $json_config = json_decode(str_replace('\'', '"', $config));
+            if (is_object($json_config)) {
+                if (isset($json_config->extensions_allowed)) {
+                    $extensions = $json_config->extensions_allowed;
+                    $filter_extensions = explode(',', $extensions);
+                }
+                if (isset($json_config->image_thumbnails)) {
+                    $thumbs = json_decode(str_replace('\'', '"', $json_config->image_thumbnails));
+                    if ($thumbs) {
+                        foreach ($thumbs as $thumb) {
+                            $preffix = $thumb->preffix;
+                            if (!empty($preffix)) {
+                                $filter_thumbs[] = $preffix;
+                            }
+                        }
+                    }
+                }
             }
         }
         if (empty($limit)) {
             $limit = $this->limit;
         }
-        $files = $this->files_model->search($keyword, $filter_extensions, $limit, $per_page);
-        $total = $this->files_model->search_total_rows($keyword, $filter_extensions);
+        $files = $this->files_model->search($keyword, $filter_extensions, $filter_thumbs, $limit, $per_page);
+        $total = $this->files_model->search_total_rows($keyword, $filter_extensions, $filter_thumbs);
         $pagination = $this->pagination($total, $limit);
         echo json_encode(array('files' => $files, 'total' => $total, 'pagination' => $pagination));
     }
@@ -139,7 +153,7 @@ class Gallery extends MY_Controller {
         $insert = false;
         $path = PATH_UPLOAD;
         if (isset($_FILES['file']['name'])) {
-            $name = substr(preg_replace("/[^a-z0-9_\s-\._\-]/", "", $_FILES['file']['name']), 0, 40);
+            $name = rand(0000000000,9999999999);
             $config_upload = $this->input->post('config_upload');
             if (!empty($config_upload)) {
                 $config_upload = json_decode(str_replace('\'', '"', $config_upload));
@@ -191,10 +205,7 @@ class Gallery extends MY_Controller {
         $i = 0;
 
         while ($exists == true) {
-            if ($i == 0) {
-                $i = '';
-            }
-            $new_file = $file . $i;
+            $new_file = rand(0000000000,9999999999);
             if (is_file($new_file)) {
                 $exists = true;
             } elseif (count($image_thumbnails) > 0) {
@@ -310,6 +321,8 @@ class Gallery extends MY_Controller {
                 $upload->image_x = $width;
                 if (empty($height)) {
                     $upload->image_ratio_y = true;
+                } else {
+                    $upload->image_y = $height;
                 }
                 if (!empty($crop)) {
                     $upload->image_ratio_crop = $crop;
@@ -407,7 +420,13 @@ class Gallery extends MY_Controller {
         $filesize = filesize($path_file);
         $get_file = $this->files_model->file($file);
         $name = $get_file['name'];
-        echo json_encode(array('file' => $file, 'name' => $name, 'path_file' => wd_base_url('wd-content/upload/' . $file), 'filesize' => FileSizeConvert($filesize)));
+        $thumbnails = $get_file['thumbnails'];
+        if(strpos($thumbnails,'[') !== FALSE){
+            $thumbnails = json_decode($thumbnails);
+        }else{
+            $thumbnails = '';
+        }
+        echo json_encode(array('file' => $file, 'name' => $name, 'path_file' => wd_base_url('wd-content/upload/' . $file), 'filesize' => FileSizeConvert($filesize), 'thumbnails' => $thumbnails));
     }
 
     /*
@@ -422,6 +441,8 @@ class Gallery extends MY_Controller {
             $file = $this->input->post('file');
             $new_file = $this->input->post('new_file');
             $name = $this->input->post('name');
+            $infors_file = $this->files_model->file();
+            
             $rename = \rename($path . $file, $path . $new_file);
             if ($rename) {
                 $data = array(

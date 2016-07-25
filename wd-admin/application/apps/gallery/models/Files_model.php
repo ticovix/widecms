@@ -10,7 +10,7 @@ class Files_model extends CI_Model {
         return $this->db->insert('wd_files', array('file' => $file, 'thumbnails'=> json_encode($thumbs)));
     }
 
-    public function search($keyword = null, $filter_extensions = null, $total = null, $offset = null) {
+    public function search($keyword = null, $filter_extensions = null, $filter_thumbs = null, $total = null, $offset = null) {
         if ($keyword) {
             $this->db->group_start();
             $this->db->like('name', $keyword);
@@ -24,12 +24,20 @@ class Files_model extends CI_Model {
             }
             $this->db->group_end();
         }
+        if(is_array($filter_thumbs)){
+            $this->db->group_start();
+            foreach($filter_thumbs as $thumb){
+                $this->db->or_like('thumbnails', '"'.$thumb);
+            }
+            $this->db->group_end();
+        }
+        
         $this->db->limit($total, $offset);
         $this->db->order_by('id DESC');
         return $this->db->get('wd_files')->result_array();
     }
 
-    public function search_total_rows($keyword = null, $filter_extensions = null) {
+    public function search_total_rows($keyword = null, $filter_extensions = null, $filter_thumbs = null) {
         $this->db->select('count(id) total');
         if ($keyword) {
             $this->db->group_start();
@@ -44,6 +52,14 @@ class Files_model extends CI_Model {
             }
             $this->db->group_end();
         }
+        if(is_array($filter_thumbs)){
+            $this->db->group_start();
+            foreach($filter_thumbs as $thumb){
+                $this->db->or_like('thumbnails', '"'.$thumb);
+            }
+            $this->db->group_end();
+        }
+        
         return $this->db->get('wd_files')->row()->total;
     }
 
