@@ -31,7 +31,28 @@ var path_file = data.path_file;
                     <td><div style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 300px;"><a href="<%=path_file%>" target="_blank"><%=file%></a></div></td>
                 </tr>
             </table>
-
+            <%
+            var total_thumbnails = thumbnails.length;
+            if(total_thumbnails>0){
+            %>
+            <h4>Miniaturas</h4>
+            <div class="row">
+                <div class="col-sm-3">
+                    <%
+                    for(var i = 0;i<total_thumbnails;i++){
+                        var thumb_file = thumbnails[i];
+                    %>
+                    <a href="<%=url+"../wd-content/upload/"+thumb_file%>" class="fancybox" rel="gallery" data-fancybox-group="gallery">
+                        <img src="<%=url%>apps/gallery/image/thumb/<%=thumb_file%>" class="img-responsive center-block">
+                    </a>
+                    <%
+                    }
+                    %>
+                </div>
+            </div>
+            <%
+            }
+            %>
         </div>
     </div>
 </div>
