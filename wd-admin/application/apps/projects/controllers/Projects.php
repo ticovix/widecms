@@ -302,7 +302,7 @@ class Projects extends MY_Controller {
             $dir_system,
             $dir_application
                 ), $file_index);
-        file_put_contents($path_index, $file_index);
+        file_put_contents($path_index, $index);
         // End config
         // Config application/config/config.php
         $path_config = '../' . $dir_project . '/application/config/config.php';
