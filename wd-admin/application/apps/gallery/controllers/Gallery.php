@@ -153,7 +153,7 @@ class Gallery extends MY_Controller {
         $insert = false;
         $path = PATH_UPLOAD;
         if (isset($_FILES['file']['name'])) {
-            $name = rand(0000000000,9999999999);
+            $name = rand(0000000000, 9999999999);
             $config_upload = $this->input->post('config_upload');
             if (!empty($config_upload)) {
                 $config_upload = json_decode(str_replace('\'', '"', $config_upload));
@@ -205,7 +205,7 @@ class Gallery extends MY_Controller {
         $i = 0;
 
         while ($exists == true) {
-            $new_file = rand(0000000000,9999999999);
+            $new_file = rand(0000000000, 9999999999);
             if (is_file($new_file)) {
                 $exists = true;
             } elseif (count($image_thumbnails) > 0) {
@@ -421,9 +421,9 @@ class Gallery extends MY_Controller {
         $get_file = $this->files_model->file($file);
         $name = $get_file['name'];
         $thumbnails = $get_file['thumbnails'];
-        if(strpos($thumbnails,'[') !== FALSE){
+        if (strpos($thumbnails, '[') !== FALSE) {
             $thumbnails = json_decode($thumbnails);
-        }else{
+        } else {
             $thumbnails = '';
         }
         echo json_encode(array('file' => $file, 'name' => $name, 'path_file' => wd_base_url('wd-content/upload/' . $file), 'filesize' => FileSizeConvert($filesize), 'thumbnails' => $thumbnails));
@@ -434,21 +434,29 @@ class Gallery extends MY_Controller {
      */
 
     public function edit_file() {
-        $this->form_validation->set_rules('name', 'Nome', 'required|callback_verify_name');
-        $this->form_validation->set_rules('file', 'Arquivo', 'required');
+        $this->form_validation->set_rules('file', 'Arquivo', 'required|callback_verify_name');
         if ($this->form_validation->run()) {
             $path = PATH_UPLOAD;
             $file = $this->input->post('file');
             $new_file = $this->input->post('new_file');
             $name = $this->input->post('name');
-            $infors_file = $this->files_model->file();
-            
+            $infors_file = $this->files_model->file($file);
+            $thumbs = array();
+            if ($infors_file && strpos($infors_file['thumbnails'], '[') !== FALSE && $thumbnails = json_decode($infors_file['thumbnails'])) {
+                foreach($thumbnails as $thumb){
+                    $preffix = str_replace($file, '', $thumb);
+                    $rename = \rename($path . $thumb, $path . $preffix.$new_file);
+                    $thumbs[] = $preffix.$new_file;
+                }
+            }
+
             $rename = \rename($path . $file, $path . $new_file);
             if ($rename) {
                 $data = array(
                     'file' => $file,
                     'new_file' => $new_file,
-                    'name' => $name
+                    'name' => $name,
+                    'thumbnails' => json_encode($thumbs)
                 );
                 $this->files_model->edit_file($data);
                 if ($file != $new_file) {

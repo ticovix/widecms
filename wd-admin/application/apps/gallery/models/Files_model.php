@@ -75,7 +75,8 @@ class Files_model extends CI_Model {
         $where = array('file' => $data['file']);
         $set = array(
             'file' => $data['new_file'],
-            'name' => $data['name']
+            'name' => $data['name'],
+            'thumbnails' => $data['thumbnails']
         );
         return $this->db->update('wd_files', $set, $where);
     }

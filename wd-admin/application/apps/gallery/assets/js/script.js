@@ -136,6 +136,9 @@ $(function () {
                     msg.html('<div class="alert alert-danger">' + data.message + '</div>');
                 } else {
                     msg.html('<div class="alert alert-success">' + data.message + '</div>');
+                    setTimeout(function(){
+                        document.location.reload();
+                    },1000);
                 }
             }
         });
