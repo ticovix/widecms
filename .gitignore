@@ -6,6 +6,9 @@
 */cache/!.htaccess
 nbproject
 vagrant
+vendor/
+/composer.lock
+/composer.phar
 install
 install.php
 index.php
