@@ -128,14 +128,15 @@ $(function () {
         var plugins_input = '';
         var options_selected = new Array();
         var id_current = modal_new_field.attr("data-index");
+        var sort_current = modal_new_field.attr("data-current");
         var msg_modal = $("#msg-modal");
         if (name_field.val() == "" || type_input_field.val() == "" || column_field.val() == "" || type_column_field == "") {
             msg_modal.removeClass("hide").text("Todos os campos com asterísco são obrigatórios.");
             return false;
-        } else if (name_exists(name_field.val(), id_current) === true) {
+        } else if (name_exists(name_field.val(), sort_current) === true) {
             msg_modal.removeClass("hide").text("O nome desse campo já existe, tente outro.");
             return false;
-        } else if (column_exists(column_field.val(), id_current) === true) {
+        } else if (column_exists(column_field.val(), sort_current) === true) {
             msg_modal.removeClass("hide").text("O nome dessa coluna já existe, tente outro.");
             return false;
         } else if (column_field.val() == table_field.val()) {
@@ -211,6 +212,7 @@ $(function () {
             unique: unique_field.val(),
             plugin: plugins_input,
             index: index,
+            position: sort_current,
             options_selected: JSON.stringify(options_selected),
             // Fields of config to upload
             extensions_allowed: extensions_allowed.val(),
@@ -236,9 +238,9 @@ $(function () {
             image_text_y: image_text_y.val(),
             image_thumbnails: thumbnails
         });
-        if (id_current === '0' || id_current >= 1) {
-            $("#fields .field-current").eq(id_current).html("");
-            $("#fields .field-current").eq(id_current).html(field.replace(/<tr.+?>/, "").replace("</tr>", ""));
+        if (sort_current === '0' || sort_current >= 1) {
+            $("#fields .field-current").eq(sort_current).html("");
+            $("#fields .field-current").eq(sort_current).html(field.replace(/<tr.+?>/, "").replace("</tr>", ""));
         } else {
             fields.append(field);
         }
@@ -258,6 +260,7 @@ $(function () {
         if (id_current !== id) {
             clean_inputs();
             modal_new_field.attr("data-index", id);
+            modal_new_field.attr("data-current", $(".btn-edit").index(this));
             var id_current = modal_new_field.data("index");
             var name_val = $(".name-val").eq(index).val();
             var input_val = $(".input-val").eq(index).val();
@@ -449,6 +452,7 @@ $(function () {
                                     unique: '',
                                     plugin: '',
                                     index: index,
+                                    position: index,
                                     options_selected: '',
                                     // Fields of config to upload
                                     extensions_allowed: '',
