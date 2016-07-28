@@ -45,7 +45,7 @@ if (!defined('BASEPATH')) {
                                 if ($total_sections == 1 && $first_name_section == $name_page) {
                                     echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $first_slug_section);
                                 } else {
-                                    echo '#';
+                                    echo '#collapse' . $x;
                                 }
                                 ?>" class="page-current list-group-item" <?php if ($total_sections > 1 or $total_sections == 1 && $first_name_section != $name_page) { ?>data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse<?php echo $x; ?>"<?php } ?>>
                                    <?php echo $name_page ?>
