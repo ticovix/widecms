@@ -118,9 +118,10 @@ $(function () {
         return target.replace(new RegExp(search, 'g'), replacement);
     };
     btn_add_field.click(function () {
-        var id_current = modal_new_field.attr("data-index");
+        var id_current = modal_new_field.attr("data-current");
         if (id_current !== "") {
             clean_inputs();
+            modal_new_field.attr("data-current","")
         }
     });
     $(".x_content").on("click","#btn-save",function () {
