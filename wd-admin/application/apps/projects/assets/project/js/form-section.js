@@ -315,7 +315,7 @@ $(function () {
             }
             if (attributes_val != '') {
                 if (attributes_val.indexOf('{') != '-1') {
-                    var attr = $.parseJSON(attributes_val);
+                    var attr = $.parseJSON(attributes_val.replaceAll("'","\""));
                 } else {
                     var attr = new Object();
                 }

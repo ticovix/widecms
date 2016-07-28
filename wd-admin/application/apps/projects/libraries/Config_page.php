@@ -89,7 +89,7 @@ class Config_page {
                     $new_field['input']["plugins"] = $plugins;
                 }
                 if (!empty($attributes)) {
-                    $new_field['input']["attributes"] = htmlentities($attributes);
+                    $new_field['input']["attributes"] = str_replace('"','\'',$attributes);
                 }
                 $new_field['input']["database"] = array(
                     'column' => $column,
@@ -445,7 +445,7 @@ class Config_page {
 
     private function treat_attributes() {
         if (isset($this->attributes)) {
-            $attr = (array) json_decode($this->attributes);
+            $attr = (array) json_decode(str_replace('\'','"',$this->attributes));
             $arr_attr = array();
             if ($attr) {
                 foreach ($attr as $obj) {
