@@ -22,6 +22,24 @@ if (!function_exists('is_nav_active')) {
 
 }
 
+if (!function_exists('to_boolean')) {
+
+    function to_boolean($value) {
+        switch (strtolower($value)) {
+            case "true":
+                return true;
+                break;
+            case "false":
+                return false;
+                break;
+            default:
+                return $value;
+                break;
+        }
+    }
+
+}
+
 if (!function_exists('verify_permission')) {
 
     function verify_permission($nav) {

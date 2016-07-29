@@ -948,14 +948,14 @@ class Sections extends MY_Controller {
     public function image_example() {
         $image_y = $this->input->get("image_y");
         $image_x = $this->input->get("image_x");
-        $image_resize = $this->input->get("image_resize");
-        $image_ratio = $this->input->get("image_ratio");
+        $image_resize = to_boolean($this->input->get("image_resize"));
+        $image_ratio = to_boolean($this->input->get("image_ratio"));
         $image_ratio_x = $this->input->get("image_ratio_x");
         $image_ratio_y = $this->input->get("image_ratio_y");
-        $image_ratio_crop = $this->input->get("image_ratio_crop");
-        $image_ratio_fill = $this->input->get("image_ratio_fill");
+        $image_ratio_crop = to_boolean($this->input->get("image_ratio_crop"));
+        $image_ratio_fill = to_boolean($this->input->get("image_ratio_fill"));
         $image_background_color = $this->input->get("image_background_color");
-        $image_convert = $this->input->get("image_convert");
+        $image_convert = to_boolean($this->input->get("image_convert"));
         $image_text = $this->input->get("image_text");
         $image_text_color = $this->input->get("image_text_color");
         $image_text_background = $this->input->get("image_text_background");
