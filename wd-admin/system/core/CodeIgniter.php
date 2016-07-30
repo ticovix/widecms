@@ -55,7 +55,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @var	string
  *
  */
-	define('CI_VERSION', '3.0.6');
+	define('CI_VERSION', '3.1.0');
 
 /*
  * ------------------------------------------------------
@@ -344,14 +344,14 @@ if ( ! is_php('5.4'))
  * ------------------------------------------------------
  */
 	$LANG =& load_class('Lang', 'core');
-        
+
 /*
  * ------------------------------------------------------
  *  Load the Helper CMS WIDE
  * ------------------------------------------------------
  */
-	$HELPER =& load_class('Helper', 'core/cmswide');        
-
+	$HELPER =& load_class('Helper', 'core/cmswide');     
+	
 /*
  * ------------------------------------------------------
  *  Load the app controller and local controller
@@ -410,7 +410,8 @@ if ( ! is_php('5.4'))
 	{
 		$e404 = TRUE;
 	}
-	else{
+	else
+	{
 		$load_app = false;
 	    if (strpos(str_replace('\\', '/', APPPATH), 'wd-admin/application') !== FALSE) {
 	        $page = $RTR->uri->segment(1);

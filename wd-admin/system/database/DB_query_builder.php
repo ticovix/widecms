@@ -48,6 +48,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @author		EllisLab Dev Team
  * @link		https://codeigniter.com/user_guide/database/
  */
+
 abstract class CI_DB_query_builder extends CI_DB_driver {
 
 	/**
@@ -1394,7 +1395,7 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 			$this->qb_orderby = NULL;
 		}
 
-		$result = ($this->qb_distinct === TRUE)
+		$result = ($this->qb_distinct === TRUE OR ! empty($this->qb_groupby))
 			? $this->query($this->_count_string.$this->protect_identifiers('numrows')."\nFROM (\n".$this->_compile_select()."\n) CI_count_all_results")
 			: $this->query($this->_compile_select($this->_count_string.$this->protect_identifiers('numrows')));
 
@@ -1497,8 +1498,10 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 		$affected_rows = 0;
 		for ($i = 0, $total = count($this->qb_set); $i < $total; $i += $batch_size)
 		{
-			$this->query($this->_insert_batch($this->protect_identifiers($table, TRUE, $escape, FALSE), $this->qb_keys, array_slice($this->qb_set, $i, $batch_size)));
-			$affected_rows += $this->affected_rows();
+			if ($this->query($this->_insert_batch($this->protect_identifiers($table, TRUE, $escape, FALSE), $this->qb_keys, array_slice($this->qb_set, $i, $batch_size))))
+			{
+				$affected_rows += $this->affected_rows();
+			}
 		}
 
 		$this->_reset_write();
@@ -1912,8 +1915,11 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 		$affected_rows = 0;
 		for ($i = 0, $total = count($this->qb_set); $i < $total; $i += $batch_size)
 		{
-			$this->query($this->_update_batch($this->protect_identifiers($table, TRUE, NULL, FALSE), array_slice($this->qb_set, $i, $batch_size), $this->protect_identifiers($index)));
-			$affected_rows += $this->affected_rows();
+			if ($this->query($this->_update_batch($this->protect_identifiers($table, TRUE, NULL, FALSE), array_slice($this->qb_set, $i, $batch_size), $this->protect_identifiers($index))))
+			{
+				$affected_rows += $this->affected_rows();
+			}
+
 			$this->qb_where = array();
 		}
 
@@ -2777,11 +2783,24 @@ abstract class CI_DB_query_builder extends CI_DB_driver {
 			'qb_limit'	=> FALSE
 		));
 	}
-        
-        public function prepare($table = '', $where = NULL, $limit = NULL, $offset = NULL){
-            $get = $this->get_where($table, $where, $limit, $offset);
-            $GLOBALS['HELPER']->table = $table;
-            return $GLOBALS['HELPER']->get($get);
-        }
+
+	/**
+	 * Prepare
+	 *
+	 * Compiles the select statement based on the other functions called
+	 * and runs the query
+	 *
+	 * @param	string	the table
+	 * @param	array	the where
+	 * @param	string	the limit clause
+	 * @param	string	the offset clause
+	 * @return	CI_DB_result
+	 */
+
+	public function prepare($table = '', $where = NULL, $limit = NULL, $offset = NULL){
+        $get = $this->get_where($table, $where, $limit, $offset);
+        $GLOBALS['HELPER']->table = $table;
+        return $GLOBALS['HELPER']->get($get);
+    }
 
 }
