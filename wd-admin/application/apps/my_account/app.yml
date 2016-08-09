@@ -1,3 +1,6 @@
-name: Minha Conta
+name:
+    portuguese-br: Minha conta
+    english: My Account
+language-default: english
 icon: fa-user
 status: 1

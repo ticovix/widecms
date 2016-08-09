@@ -1,3 +1,6 @@
-name: Usuários
+name: 
+    portuguese-br: Usuários
+    english: Users
+language-default: english
 icon: fa-users
 status: 1

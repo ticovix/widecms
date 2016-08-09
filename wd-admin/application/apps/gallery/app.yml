@@ -1,3 +1,6 @@
-name: Galeria
+name: 
+    portuguese-br: Galeria
+    english: Gallery
+language-default: english    
 icon: fa-file-photo-o
 status: 1

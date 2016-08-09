@@ -1,3 +1,6 @@
-name: Histórico
+name: 
+    portuguese-br: Histórico
+    english: History
+language-default: english
 show_nav: 0
 status: 1
