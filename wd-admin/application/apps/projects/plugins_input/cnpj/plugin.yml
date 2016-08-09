@@ -1,7 +1,0 @@
-name: Mascarar CNPJ
-js_form:
-    - ../../../assets/js/masks/js/jquery.meio.js
-    - ../../../assets/js/masks/js/masks.js
-attr:
-    alt: cnpj
-    class: add-mask

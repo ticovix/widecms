@@ -1,7 +1,0 @@
-name: Mascarar Cartão de Crédito
-js_form:
-    - ../../../assets/js/masks/js/jquery.meio.js
-    - ../../../assets/js/masks/js/masks.js
-attr:
-    alt: cc
-    class: add-mask
