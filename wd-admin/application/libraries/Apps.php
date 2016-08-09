@@ -29,9 +29,16 @@ class Apps {
         $config = $CI->spyc->loadFile($path, false);
         if (is_array($config)) {
             $config['app'] = $app;
-            if (empty($config['name'])) {
+            // Verifica se possui tradução
+            if (isset($config['name']) && is_array($config['name'])) {
+                $language = $CI->config->item('language');
+                if(isset($config['name'][$language])){
+                    $config['name'] = $config['name'][$language];
+                }
+            } elseif (empty($config['name'])) {
                 $config['name'] = $config['app'];
             }
+
             if (!isset($config['icon']) or isset($config['icon']) && empty($config['icon'])) {
                 $config['icon'] = 'fa-exclamation-triangle';
             }
@@ -71,27 +78,36 @@ class Apps {
         }
         $apps = $this->apps;
         $widgets = array();
+        
         $CI = &get_instance();
         foreach ($apps as $app) {
+            $col = 6;
             $status = $app['status'];
             $dir_app = $app['app'];
+            $name_app = $app['name'];
+            $icon_app = $app['icon'];
             if ($status === 1) {
                 $path = $this->path . $dir_app . '/libraries/widgets/';
                 if (is_dir($path)) {
                     $opendir = \opendir($path);
+                    
                     while (false !== ($widget = readdir($opendir))) {
                         if (is_file($path . $widget) && strpos($widget, '_dashboard.php') !== false) {
                             ob_start();
                             $CI->load->library_app('widgets/' . $widget, $dir_app);
                             $class = strtolower(str_replace('.php', '', $widget));
-                            $name = $CI->$class->name;
+                            if(isset($CI->$class->col) && $CI->$class->col === 12){
+                                $col = $CI->$class->col;
+                            }
                             $content = ob_get_contents();
                             ob_end_clean();
-                            if (!empty($name) && !empty($content)) {
+                            if (!empty($content)) {
                                 $widgets[] = array(
-                                    'title' => $name,
+                                    'title' => $name_app,
+                                    'icon' => $icon_app,
                                     'content' => $content,
-                                    'app' => $app
+                                    'app' => $app,
+                                    'col' => $col
                                 );
                             }
                         }
@@ -100,6 +116,15 @@ class Apps {
             }
         }
         return $widgets;
+    }
+    
+    public function data_app($app=APP){
+        $search = search($this->apps,'app',$app);
+        if($search){
+            return $search[0];
+        }else{
+            return false;
+        }
     }
 
 }
