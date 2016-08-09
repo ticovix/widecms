@@ -19,6 +19,8 @@ class Login extends CI_Controller {
      */
 
     public function index() {
+        $this->lang->load('cms/login/login');
+        
         // Validação de formulário
         $captcha = false;
         $this->form_validation->set_rules('login', 'Login', 'trim|required');
@@ -126,6 +128,7 @@ class Login extends CI_Controller {
     }
 
     public function recovery() {
+        $this->lang->load('cms/login/recovery');
         $this->form_validation->set_rules('captcha', 'Captcha', 'callback_check_captcha_recovery');
         $this->form_validation->set_rules('email', 'E-mail', 'trim|required|valid_email|callback_check_status_user');
         if ($this->form_validation->run()) {
@@ -202,6 +205,7 @@ class Login extends CI_Controller {
     }
 
     public function redefine_pass() {
+        $this->lang->load('cms/login/redefinepass');
         $token = $this->input->get('token');
         $login = $this->input->get('login');
         $send = $this->input->get('send');
