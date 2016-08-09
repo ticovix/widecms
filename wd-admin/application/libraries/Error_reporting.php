@@ -7,8 +7,8 @@ class Error_reporting {
 
     public $errors = null;
 
-    public function set_error($lang, $message) {
-        $this->errors[] = ['lang' => $lang, 'message' => $message];
+    public function set_error($message) {
+        $this->errors[] = ['message' => $message];
     }
 
     public function get_errors($prefix = '<div class="alert alert-danger">', $suffix = '</div>') {
