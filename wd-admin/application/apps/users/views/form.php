@@ -142,7 +142,8 @@ if (!defined('BASEPATH')) {
                                             $method = $key;
                                             $label = $value;
                                             if (!is_array($value)) {
-                                                if (check_method($method, $dir_app) or $PROFILE['root']==1) {
+                                                $check = check_method($method, $dir_app);
+                                                if ($check or $PROFILE['root']==1) {
                                                     ?>
                                                     <tr>
                                                         <td><?php echo $label ?></td>
@@ -153,11 +154,13 @@ if (!defined('BASEPATH')) {
                                             } else {
                                                 foreach ($value as $method => $label) {
                                                     $label = '&nbsp; - ' . $label;
-                                                    if (check_method($method, $dir_app) or $PROFILE['root']==1) {
+                                                    $check = check_method($method, $dir_app);
+                                                    if ($check or $PROFILE['root']==1) {
+                                                        $check_method = check_method($method, $dir_app, $id_user);
                                                         ?>
                                                         <tr>
                                                             <td><?php echo $label ?></td>
-                                                            <td align="center"><input type="checkbox" name="<?php echo $dir_app . '-' . $method ?>" data-sub="<?php echo $dir_app . '/' . $page ?>" value="1" <?php if($this->uri->segment(3)=='create' or check_method($method, $dir_app, $id_user)){ echo 'checked="checked"'; } if(!check_method($key, $dir_app, $id_user)){ echo 'disabled readonly'; }?> class="check-permission"></td>
+                                                            <td align="center"><input type="checkbox" name="<?php echo $dir_app . '-' . $method ?>" data-sub="<?php echo $dir_app . '/' . $page ?>" value="1" <?php if($this->uri->segment(3)=='create' or $check_method){ echo 'checked="checked"'; } if(!$check_method){ echo 'disabled readonly'; }?> class="check-permission"></td>
                                                         </tr>
                                                         <?php
                                                     }
