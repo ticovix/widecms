@@ -180,10 +180,10 @@ if (!function_exists('generateXML') && !function_exists('arrayToXML')) {
 
 if (!function_exists('setError') && !function_exists('getErrors') && !function_exists('hasError')) {
 
-    function setError($lang, $message) {
+    function setError($message) {
         $CI = & get_instance();
         if ($CI->load->is_loaded('error_reporting')) {
-            $CI->error_reporting->set_error($lang, $message);
+            $CI->error_reporting->set_error($message);
         } else {
             return false;
         }
@@ -339,12 +339,7 @@ if (!function_exists('segments')) {
 if (!function_exists('base_url_app')) {
 
     function base_url_app($uri = '', $protocol = null) {
-        $segments = segments();
-        $addslashes = '';
-        if (empty($uri)) {
-            $addslashes = '/';
-        }
-        $base_url = base_url(APP_PATH . $uri, $protocol) . $addslashes;
+        $base_url = base_url(APP_PATH . $uri, $protocol) ;
         return $base_url;
     }
 
@@ -353,7 +348,6 @@ if (!function_exists('base_url_app')) {
 if (!function_exists('redirect_app')) {
 
     function redirect_app($url, $method = 'auto', $code = null) {
-        $segments = segments();
         if (strpos($url, '://') === false) {
             $url = APP_PATH . $url;
         }
