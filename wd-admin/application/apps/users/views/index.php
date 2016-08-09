@@ -5,7 +5,7 @@ if (!defined('BASEPATH')) {
 ?>
 
 <ul class="breadcrumb">
-    <li><a href="<?php echo base_url(); ?>">Home</a></li>
+    <li><a href="<?php echo base_url(); ?>"><i class="fa fa-home"></i></a></li>
     <li class="active"><?php echo $title ?></li>
 </ul>
 <div class="row">
@@ -19,16 +19,18 @@ if (!defined('BASEPATH')) {
 
                 <?php echo form_open(null, ['method' => 'get', 'class' => 'form-group']); ?>
                 <div class="input-group">
-                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="Procurar usuário" class="input-sm form-control"> 
+                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="<?php echo $this->lang->line(APP . '_field_search'); ?>" class="input-sm form-control"> 
                     <span class="input-group-btn">
-                        <button type="submit" class="btn btn-sm btn-primary"> Buscar</button> 
+                        <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button> 
                     </span>
                 </div>
                 <?php
                 if (check_method('create')) {
                     ?>
                     <div class="btn-toolbar">
-                        <a href="<?php echo base_url_app('create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> Novo usuário</a>
+                        <a href="<?php echo base_url_app('create'); ?>" class="btn btn-primary">
+                            <i class="icon-plus"></i> <?php echo $this->lang->line(APP.'_btn_add_user')?>
+                        </a>
                         <div class="btn-group"></div>
                     </div>
                     <?php
@@ -42,28 +44,28 @@ if (!defined('BASEPATH')) {
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title" id="myModalLabel">Remoção</h4>
+                                <h4 class="modal-title" id="myModalLabel"><?php echo $this->lang->line(APP.'_title_remove_users')?></h4>
                             </div>
                             <div class="modal-body">
-                                Deseja realmente remover este(s) registro(s)?
+                                <?php echo $this->lang->line(APP.'_ask_remove_users')?>
                             </div>
                             <div class="modal-footer">
                                 <input type="hidden" login="">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Não</button>
-                                <button type="submit" class="btn btn-primary">Sim</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line(APP.'_btn_answer_no')?></button>
+                                <button type="submit" class="btn btn-primary"><?php echo $this->lang->line(APP.'_btn_answer_yes')?></button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <a href="#myModal" role="button" data-toggle="modal" class="btn btn-danger hide" id="btn-del-all"><i class="fa fa-remove remove_register"></i> Remover todos selecionados</a>
+                <a href="#myModal" role="button" data-toggle="modal" class="btn btn-danger hide" id="btn-del-all"><i class="fa fa-remove remove_register"></i> <?php echo $this->lang->line(APP.'_btn_remove_users')?></a>
                 <table class="table table-striped">
                     <thead>
                         <tr>
                             <th></th>
-                            <th>Nome</th>
-                            <th>Login</th>
-                            <th>Email</th>
-                            <th style="width: 50px;">Ação</th>
+                            <th><?php echo $this->lang->line(APP . '_label_name'); ?></th>
+                            <th><?php echo $this->lang->line(APP . '_label_login'); ?></th>
+                            <th><?php echo $this->lang->line(APP . '_label_email'); ?></th>
+                            <th style="width: 50px;"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -75,29 +77,27 @@ if (!defined('BASEPATH')) {
                                 <tr>
                                     <td width="10">
                                         <?php
-                                        if(check_method('delete')){
-                                        ?>
-                                        <input type="checkbox" name="del[]" <?php if ($user['id'] == '1') { ?>disabled=""<?php } ?> value="<?php echo $user['id']; ?>" class="multiple_delete">
-                                        <?php
+                                        if (check_method('delete')) {
+                                            ?>
+                                            <input type="checkbox" name="del[]" <?php if ($user['id'] == '1') { ?>disabled=""<?php } ?> value="<?php echo $user['id']; ?>" class="multiple_delete">
+                                            <?php
                                         }
                                         ?>
                                     </td>
                                     <td>
-                                        <a href="<?php echo base_url_app('profile/'.$user['login'])?>"><?php echo $user["name"] ?> <?php echo $user["last_name"] ?></a>
+                                        <a href="<?php echo base_url_app('profile/' . $user['login']) ?>"><?php echo $user["name"] ?> <?php echo $user["last_name"] ?></a>
                                     </td>
-                                    <td><a href="<?php echo base_url_app('profile/'.$user['login'])?>"><?php echo $user["login"] ?></a></td>
-                                    <td><a href="<?php echo base_url_app('profile/'.$user['login'])?>"><?php echo $user["email"] ?></a></td>
-                                    <td>
+                                    <td><a href="<?php echo base_url_app('profile/' . $user['login']) ?>"><?php echo $user["login"] ?></a></td>
+                                    <td><a href="<?php echo base_url_app('profile/' . $user['login']) ?>"><?php echo $user["email"] ?></a></td>
+                                    <td align="center">
                                         <?php if ($root != '1' && check_method('edit') or $user_logged['root'] == '1') { ?><a href="<?php echo base_url_app('edit/' . $user["login"]); ?>"><i class="fa fa-pencil"></i></a><?php } ?>
                                     </td>
                                 </tr>
                                 <?php
                             }
                             ?>
-                            <tr><td colspan="5"><strong>Foram encontrados <?php echo $total ?> registros.</strong></td></tr>
+                            <tr><td colspan="5"><strong><?php printf($this->lang->line(APP . '_text_users_found'), $total) ?></strong></td></tr>
                             <?php
-                        } else {
-                            echo '<tr><td colspan="5">Nenhum registro encontrado.</td></tr>';
                         }
                         ?>
                     </tbody>

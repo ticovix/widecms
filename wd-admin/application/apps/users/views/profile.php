@@ -4,8 +4,8 @@ if (!defined('BASEPATH')) {
 }
 ?>
 <ul class="breadcrumb">
-    <li><a href="<?php echo base_url(); ?>">Home</a></li>
-    <li><a href="<?php echo base_url_app(); ?>">Usuários</a></li>
+    <li><a href="<?php echo base_url(); ?>"><i class="fa fa-home"></i></a></li>
+    <li><a href="<?php echo base_url_app(); ?>"><?php echo $name_app?></a></li>
     <li class="active"><?php echo $title ?></li>
 </ul>
 
@@ -44,13 +44,13 @@ if (!defined('BASEPATH')) {
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Email*</label><br>
+                                        <label><?php echo $this->lang->line(APP . '_label_name') ?>*</label><br>
                                         <?php echo $email ?>    
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Login*</label><br>
+                                        <label><?php echo $this->lang->line(APP . '_label_login') ?>*</label><br>
                                         <?php echo $login ?>
                                     </div>
                                 </div>
@@ -58,7 +58,7 @@ if (!defined('BASEPATH')) {
                             <div class="row">
                                 <div class="col-sm-12">
                                     <div class="form-group">
-                                        <label>Sobre</label><br>
+                                        <label><?php echo $this->lang->line(APP . '_label_about') ?></label><br>
                                         <?php echo nl2br($about) ?>
                                     </div>
                                 </div>
@@ -73,7 +73,7 @@ if (!defined('BASEPATH')) {
     <div class="col-sm-12">
         <div class="x_panel">
             <div class="x_title">
-                <h2>Atividades</h2>
+                <h2><?php echo $this->lang->line(APP . '_title_activities') ?></h2>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
@@ -86,7 +86,7 @@ if (!defined('BASEPATH')) {
                             $last_name = $arr['last_name'];
                             $image = $arr['image'];
                             $message = $arr['message'];
-                            $date = diffDateToday($arr['date']);
+                            $date = diff_date_today($arr['date']);
                             ?>
                             <div class="col-sm-12">
                                 <a href="<?php echo base_url('apps/users/profile/' . $login) ?>" class="pull-left"><img src="<?php
@@ -103,7 +103,7 @@ if (!defined('BASEPATH')) {
                             <?php
                         }
                     } else {
-                        echo "<div class='col-sm-12'>Nenhuma atividade recente.</div>";
+                        echo '<div class="col-sm-12">'.$this->lang->line(APP . '_msg_activities_not_found').'</div>';
                     }
                     ?>
                 </div>

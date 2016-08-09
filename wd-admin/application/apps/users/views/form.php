@@ -4,8 +4,8 @@ if (!defined('BASEPATH')) {
 }
 ?>
 <ul class="breadcrumb">
-    <li><a href="<?php echo base_url() ?>">Home</a></li>
-    <li><a href="<?php echo base_url_app() ?>">Usuários</a></li>
+    <li><a href="<?php echo base_url() ?>"><i class="fa fa-home"></i></a></li>
+    <li><a href="<?php echo base_url_app() ?>"><?php echo $name_app?></a></li>
     <li class="active"><?php echo $title ?></li>
 </ul>
 <div class="row">
@@ -28,13 +28,13 @@ if (!defined('BASEPATH')) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Nome*</label>
+                                <label><?php echo $this->lang->line(APP.'_label_name');?>*</label>
                                 <input type="text" name="name" value="<?php echo set_value('name', $name) ?>" class="form-control">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Sobrenome</label>
+                                <label><?php echo $this->lang->line(APP.'_label_lastname');?></label>
                                 <input type="text" name="lastname" value="<?php echo set_value('lastname', $last_name) ?>" class="form-control">
                             </div>
                         </div>
@@ -43,24 +43,24 @@ if (!defined('BASEPATH')) {
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Email*</label>
+                                <label><?php echo $this->lang->line(APP.'_label_email');?>*</label>
                                 <input type="email" name="email" value="<?php echo set_value('email', $email) ?>" class="form-control">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Login*</label>
+                                <label><?php echo $this->lang->line(APP.'_label_login');?>*</label>
                                 <input type="text" name="login" value="<?php echo set_value('login', $login) ?>" class="form-control">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Senha*</label>
+                                <label><?php echo $this->lang->line(APP.'_label_password');?>*</label>
                                 <div class="input-group">
                                     <input type="password" name="password" value="<?php echo set_value('password') ?>" class="form-control input-pass"> 
-                                    <a href="#gerar-senha" class="btn btn-default generate-pass input-group-addon" data-toggle="modal">Gerar senha</a>
+                                    <a href="#rand-pass" class="btn btn-default generate-pass input-group-addon" data-toggle="modal"><?php echo $this->lang->line(APP.'_btn_gen_password');?></a>
                                 </div>
-                                <?php if ($this->uri->segment(2) == 'edit') { ?><small>* Preencha somente para alterar</small><?php } ?>
+                                <?php if ($this->uri->segment(2) == 'edit') { ?><small><?php echo $this->lang->line(APP.'_obs_password');?></small><?php } ?>
                             </div>
                         </div>
                     </div>
@@ -74,10 +74,10 @@ if (!defined('BASEPATH')) {
                         }
                         ?>">
                             <div class="form-group">
-                                <label>Status</label>
+                                <label><?php echo $this->lang->line(APP.'_label_status');?></label>
                                 <select name="status" class="form-control">
-                                    <option value="1" <?php echo set_select('status', '1', ($status == '1')) ?>>Ativado</option>
-                                    <option value="0" <?php echo set_select('status', '0', ($status == '0')) ?>>Desativado</option>
+                                    <option value="1" <?php echo set_select('status', '1', ($status == '1')) ?>><?php echo $this->lang->line(APP.'_status_option_enabled');?></option>
+                                    <option value="0" <?php echo set_select('status', '0', ($status == '0')) ?>><?php echo $this->lang->line(APP.'_status_option_disabled');?></option>
                                 </select>
                             </div>
                         </div>
@@ -86,19 +86,19 @@ if (!defined('BASEPATH')) {
                             ?>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Modo desenvolvedor</label>
+                                    <label><?php echo $this->lang->line(APP.'_label_dev_mode');?></label>
                                     <select name="allow_dev" class="form-control">
-                                        <option value="0" <?php echo set_select('allow_dev', '0', ($allow_dev == '0')) ?>>Não permitir</option>
-                                        <option value="1" <?php echo set_select('allow_dev', '1', ($allow_dev == '1')) ?>>Permitir</option>
+                                        <option value="0" <?php echo set_select('allow_dev', '0', ($allow_dev == '0')) ?>><?php echo $this->lang->line(APP.'_dev_mode_option_deny');?></option>
+                                        <option value="1" <?php echo set_select('allow_dev', '1', ($allow_dev == '1')) ?>><?php echo $this->lang->line(APP.'_dev_mode_option_allow');?></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Permissões ROOT</label>
+                                    <label><?php echo $this->lang->line(APP.'_label_permission_root');?></label>
                                     <select name="root" class="form-control">
-                                        <option value="0" <?php echo set_select('root', '0', ($root == '0')) ?>>Não</option>
-                                        <option value="1" <?php echo set_select('root', '1', ($root == '1')) ?>>Sim</option>
+                                        <option value="0" <?php echo set_select('root', '0', ($root == '0')) ?>><?php echo $this->lang->line(APP.'_permission_root_option_no');?></option>
+                                        <option value="1" <?php echo set_select('root', '1', ($root == '1')) ?>><?php echo $this->lang->line(APP.'_permission_root_option_yes');?></option>
                                     </select>
                                 </div>
                             </div>
@@ -109,7 +109,7 @@ if (!defined('BASEPATH')) {
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="form-group">
-                                <label>Sobre</label>
+                                <label><?php echo $this->lang->line(APP.'_label_about');?></label>
                                 <textarea name="about" class="form-control"><?php echo set_value('about', $about) ?></textarea>
                             </div>
                         </div>
@@ -119,7 +119,7 @@ if (!defined('BASEPATH')) {
                         ?>
                         <br>
                         <div class="x_title">
-                            <h2>Gerenciar permissões dos aplicativos</h2>
+                            <h2><?php echo $this->lang->line(APP.'_title_manage_permissions');?></h2>
                             <div class="clearfix"></div>
                         </div>
                         <?php
@@ -178,18 +178,18 @@ if (!defined('BASEPATH')) {
                     </div>
                 </div>
                 <?php echo form_close(); ?>
-                <div class="modal fade" id="gerar-senha" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal fade" id="rand-pass" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-sm">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h4 class="modal-title">Senha gerada</h4>
+                                <h4 class="modal-title"><?php echo $this->lang->line(APP . '_title_modal') ?></h4>
                             </div>
                             <div class="modal-body">
                                 <h2 class="get-password"></h2>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
-                                <button class="btn btn-primary bt-ok" data-dismiss="modal">Copiado</button>
+                                <button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo $this->lang->line(APP . '_btn_cancel') ?></button>
+                                <button class="btn btn-primary bt-ok" data-dismiss="modal"><?php echo $this->lang->line(APP . '_btn_save_password') ?></button>
                             </div>
                         </div>
                     </div>

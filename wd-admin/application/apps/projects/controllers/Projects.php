@@ -17,6 +17,7 @@ class Projects extends MY_Controller {
         parent::__construct();
         $this->load->model_app('projects_model');
         $this->path_view_project = 'application/' . APP_PATH . '/views/project/';
+        $this->data = $this->apps->data_app();
     }
 
     /*
@@ -24,13 +25,14 @@ class Projects extends MY_Controller {
      */
 
     public function index() {
+        $this->lang->load_app('projects/projects');
         $search = $this->form_search();
         $projects = $search['projects'];
         $total_rows = $search['total_rows'];
         $pagination = $this->pagination($total_rows);
 
         $vars = [
-            'title' => 'Projetos',
+            'title' => $this->data['name'],
             'projects' => $projects,
             'pagination' => $pagination,
             'total' => $total_rows
@@ -49,7 +51,7 @@ class Projects extends MY_Controller {
      */
 
     private function form_search() {
-        $this->form_validation->set_rules('search', 'Pesquisa', 'trim|required');
+        $this->form_validation->set_rules('search', $this->lang->line(APP.'_field_search'), 'trim|required');
         $this->form_validation->run();
         $dev_mode = $this->data_user['dev_mode'];
         $limit = $this->limit;
@@ -93,13 +95,15 @@ class Projects extends MY_Controller {
 
     public function create() {
         func_only_dev();
+        $this->lang->load_app('projects/form');
         $this->form_create();
 
         add_js([
             'js/form.js'
         ]);
         $vars = [
-            'title' => 'Novo projeto',
+            'title' => $this->lang->line(APP . '_title_add_project'),
+            'name_app' => $this->data['name'],
             'name' => '',
             'directory' => '',
             'database' => '',
@@ -115,9 +119,9 @@ class Projects extends MY_Controller {
      */
 
     private function form_create() {
-        $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-        $this->form_validation->set_rules('preffix', 'Prefixo', 'trim');
-        $this->form_validation->set_rules('dir', 'Diretório', 'trim|required|callback_verify_dir');
+        $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'trim|required');
+        $this->form_validation->set_rules('preffix', $this->lang->line(APP . '_label_preffix'), 'trim');
+        $this->form_validation->set_rules('dir', $this->lang->line(APP . '_label_directory'), 'trim|required|callback_verify_dir');
         if (!$this->input->post('main')) {
             $this->form_validation->set_rules('preffix', 'Prefixo', 'required|max_length[6]');
         }
@@ -152,7 +156,7 @@ class Projects extends MY_Controller {
             }
             redirect_app();
         } else {
-            setError('errors_create', validation_errors());
+            setError(validation_errors());
         }
     }
 
@@ -161,6 +165,7 @@ class Projects extends MY_Controller {
      */
 
     public function edit($slug_project) {
+        $this->lang->load_app('projects/form');
         func_only_dev();
         $project = $this->projects_model->get_project($slug_project);
         if (!$project) {
@@ -169,7 +174,8 @@ class Projects extends MY_Controller {
         $this->form_edit($project);
         $preffix = $project['preffix'];
         $vars = [
-            'title' => 'Editar projeto',
+            'title' => $this->lang->line(APP . '_title_edit_project'),
+            'name_app' => $this->data['name'],
             'name' => $project['name'],
             'directory' => $project['directory'],
             'preffix' => $preffix,
@@ -184,7 +190,7 @@ class Projects extends MY_Controller {
      */
 
     private function form_edit($project) {
-        $this->form_validation->set_rules('name', 'Nome', 'trim|required');
+        $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'trim|required');
         if ($this->form_validation->run()) {
             $name = $this->input->post('name');
             $slug = $this->slug($name, $project['id']);
@@ -198,7 +204,7 @@ class Projects extends MY_Controller {
             $this->projects_model->edit($data);
             redirect_app();
         } else {
-            setError('errors_edit', validation_errors());
+            setError(validation_errors());
         }
     }
 
@@ -214,21 +220,21 @@ class Projects extends MY_Controller {
         if ($main) {
             $mainExists = $this->projects_model->main_exists();
             if ($mainExists && is_dir('../' . $mainExists['directory'])) {
-                $this->form_validation->set_message('verify_dir', 'Já existe um diretório principal.');
+                $this->form_validation->set_message('verify_dir', $this->lang->line(APP . '_main_project_exists'));
                 return false;
             }
         }
-        if ((is_dir($dir_project . $dir) && $extract=='1') or is_dir($dir_admin . $dir)) {
+        if ((is_dir($dir_project . $dir) && $extract == '1') or is_dir($dir_admin . $dir)) {
             // Se o diretório já existir no admin ou no diretório inicial
-            $this->form_validation->set_message('verify_dir', 'Esse diretório já existe.');
+            $this->form_validation->set_message('verify_dir', $this->lang->line(APP . '_folder_exists'));
             return false;
         } elseif (!is_writable($dir_project)) {
             // Se não for possível criar o diretório do projeto
-            $this->form_validation->set_message('verify_dir', 'Você não tem permissões para criar pasta no diretório ' . $dir_project);
+            $this->form_validation->set_message('verify_dir', sprintf($this->lang->line(APP . '_only_read_permission'), $dir_project));
             return false;
         } elseif (!is_writable($dir_admin)) {
             // Se não for possível criar o diretório do projeto
-            $this->form_validation->set_message('verify_dir', 'Você não tem permissões para criar pasta no diretório ' . $dir_admin);
+            $this->form_validation->set_message('verify_dir', sprintf($this->lang->line(APP . '_only_read_permission'), $dir_admin));
             return false;
         } else {
             return true;
@@ -307,13 +313,13 @@ class Projects extends MY_Controller {
         // Config application/config/config.php
         $path_config = '../' . $dir_project . '/application/config/config.php';
         $file_config = file_get_contents($path_config);
-        
-        $encryption_key = $PasswordHash->HashPassword(rand(0,99999) . time());
+
+        $encryption_key = $PasswordHash->HashPassword(rand(0, 99999) . time());
         $config = str_replace(array(
             '[[encryption_key]]'
-        ), array(
+                ), array(
             $encryption_key
-        ), $file_config);
+                ), $file_config);
         file_put_contents($path_config, $config);
         // End config
         if ($main) {
@@ -347,13 +353,15 @@ class Projects extends MY_Controller {
 
     public function remove($slug_project) {
         func_only_dev();
+        $this->lang->load_app('projects/remove');
         $project = $this->projects_model->get_project($slug_project);
         if (!$project) {
             redirect_app();
         }
         $this->form_remove($project);
         $vars = [
-            'title' => 'Remover o projeto ' . $project['name'],
+            'title' => sprintf($this->lang->line(APP . '_title_remove_project'), $project['name']),
+            'name_app' => $this->data['name'],
             'project' => $project
         ];
         $this->load->template_app('dev-projects/remove', $vars);
@@ -364,8 +372,8 @@ class Projects extends MY_Controller {
      */
 
     private function form_remove($project) {
-        $this->form_validation->set_rules('password', 'Senha', 'required|callback_verify_password');
-        $this->form_validation->set_rules('project', 'Projeto', 'trim|required|integer');
+        $this->form_validation->set_rules('password', $this->lang->line(APP . '_field_password'), 'required|callback_verify_password');
+        $this->form_validation->set_rules('project', $this->lang->line(APP . '_field_project'), 'trim|required|integer');
         if ($this->form_validation->run()) {
             if ($project['id'] == $this->input->post('project')) {
                 $delete_all = $this->input->post('delete_all');
@@ -407,7 +415,7 @@ class Projects extends MY_Controller {
         $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
         // Verifica se a senha está errada
         if (!$PasswordHash->CheckPassword($v_pass, $pass_user)) {
-            $this->form_validation->set_message('verify_password', 'A senha informada está incorreta.');
+            $this->form_validation->set_message('verify_password', $this->lang->line(APP . '_incorrect_password'));
             return false;
         }
 

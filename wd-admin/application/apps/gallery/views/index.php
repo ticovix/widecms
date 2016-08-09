@@ -4,7 +4,7 @@ if (!defined('BASEPATH')) {
 }
 ?>
 <ul class="breadcrumb">
-    <li><a href="<?php echo base_url(); ?>">Home</a></li>
+    <li><a href="<?php echo base_url(); ?>"><i class="fa fa-home"></i></a></li>
     <li class="active"><?php echo $title ?></li>
 </ul>
 <div class="row">
@@ -30,9 +30,9 @@ if (!defined('BASEPATH')) {
                     echo form_open(null, ['method' => 'get', 'id' => 'search-files']);
                     ?>
                     <div class="input-group">
-                        <input type="text" name="search" id="search-field" value="<?php echo $this->input->get('search') ?>" placeholder="Procurar arquivo" class="input-sm form-control"> 
+                        <input type="text" name="search" id="search-field" value="<?php echo $this->input->get('search') ?>" placeholder="<?php echo $this->lang->line(APP.'_search_field')?>" class="input-sm form-control"> 
                         <span class="input-group-btn">
-                            <button type="submit" class="btn btn-sm btn-primary"> Buscar</button> 
+                            <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button> 
                         </span>
                     </div>
                     <?php
@@ -69,7 +69,7 @@ if (check_method('edit')) {
 }
 ?>
 
-    <script type="text/javascript">
-        var edit_file = "<?php echo (check_method('edit'))?>";
-        var remove_file = "<?php echo (check_method('remove'))?>";
-    </script>
+<script type="text/javascript">
+    var edit_file = "<?php echo (check_method('edit')) ?>";
+    var remove_file = "<?php echo (check_method('remove')) ?>";
+</script>

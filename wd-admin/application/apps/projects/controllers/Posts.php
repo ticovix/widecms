@@ -13,6 +13,7 @@ class Posts extends MY_Controller {
 
     public function __construct() {
         parent::__construct();
+        $this->data = $this->apps->data_app();
         $this->load->model_app('posts_model');
     }
 
@@ -25,6 +26,7 @@ class Posts extends MY_Controller {
         $project = get_project();
         $page = get_page();
         if ($section && $page) {
+            $this->lang->load_app('posts/posts');
             $this->load->library_app('config_page');
             // Carrega config xml
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
@@ -61,6 +63,10 @@ class Posts extends MY_Controller {
      */
 
     private function mount_form($data, $section, $project, $page) {
+        add_js(array(
+            'js/masks/js/jquery.meio.js',
+            'posts/js/form.js'
+        ));
         add_css(array(
             'posts/css/post-form.css'
         ));
@@ -79,6 +85,7 @@ class Posts extends MY_Controller {
         $fields = $this->config_page->fields_template($data_fields, $post);
         $vars = array(
             'title' => $section['name'],
+            'name_app' => $this->data['name'],
             'breadcrumb_section' => false,
             'fields' => $fields,
             'slug_section' => $section['slug'],
@@ -98,6 +105,9 @@ class Posts extends MY_Controller {
 
     private function mount_list($data, $section, $project, $page) {
         $this->load->library_app('config_page');
+        add_js(array(
+            'posts/js/posts.js'
+        ));
         add_css(array(
             'posts/css/posts-list.css'
         ));
@@ -108,6 +118,7 @@ class Posts extends MY_Controller {
 
         $vars = array(
             'title' => $section['name'],
+            'name_app' => $this->data['name'],
             'list' => $data['list'],
             'total_list' => (count($data['list']) + 1),
             'posts' => $this->config_page->treat_list($posts['rows'], $data),
@@ -129,7 +140,7 @@ class Posts extends MY_Controller {
      */
 
     private function form_search($data, $section) {
-        $this->form_validation->set_rules('search', 'Pesquisa', 'trim|required');
+        $this->form_validation->set_rules('search', $this->lang->line(APP . '_field_search'), 'trim|required');
         $this->form_validation->run();
         $keyword = $this->input->get('search');
         $perPage = $this->input->get('per_page');
@@ -197,13 +208,13 @@ class Posts extends MY_Controller {
                     $field_trigger = $field_trigger[0];
                     $field_destination = $field_destination[0];
                     $data_trigger = array(
-                        'table' => $field_trigger['options_table'],
+                        'table' => $field_trigger['options'],
                         'column' => $field_trigger['column'],
                         'value' => $value,
                         'label' => $field_trigger['label']
                     );
                     // Lista os registros do campo
-                    $posts = $this->posts_model->list_posts_select($field_destination['options_table'], $field_destination['options_label'], $data_trigger);
+                    $posts = $this->posts_model->list_posts_select($field_destination['options'], $field_destination['label_options'], $data_trigger);
                 }
             }
         }
@@ -262,7 +273,8 @@ class Posts extends MY_Controller {
             // Seta template para criação do formulário
             $fields = $this->config_page->fields_template($data_fields);
             $vars = array(
-                'title' => 'Novo registro',
+                'title' => $this->lang->line(APP . '_title_add_post'),
+                'name_app' => $this->data['name'],
                 'breadcrumb_section' => true,
                 'fields' => $fields,
                 'slug_section' => $section['slug'],
@@ -285,6 +297,10 @@ class Posts extends MY_Controller {
      */
 
     private function form_create_post($data_fields, $project, $page, $section) {
+        add_js(array(
+            'js/masks/js/jquery.meio.js',
+            'posts/js/form.js'
+        ));
         if ($data_fields) {
             $current_field = array();
             $table = $section['table'];
@@ -316,7 +332,7 @@ class Posts extends MY_Controller {
                     redirect_app('project/' . $project['slug'] . '/' . $page['slug'] . '/' . $section['slug']);
                 }
             } else {
-                setError(null, validation_errors());
+                setError(validation_errors());
             }
         }
     }
@@ -341,7 +357,8 @@ class Posts extends MY_Controller {
             // Seta template para criação do formulário
             $fields = $this->config_page->fields_template($data_fields, $post);
             $vars = array(
-                'title' => 'Editar registro',
+                'title' => $this->lang->line(APP . '_title_edit_post'),
+                'name_app' => $this->data['name'],
                 'breadcrumb_section' => true,
                 'fields' => $fields,
                 'slug_section' => $section['slug'],
@@ -364,8 +381,13 @@ class Posts extends MY_Controller {
      */
 
     private function form_edit_post($data_fields, $section, $post) {
+        add_js(array(
+            'js/masks/js/jquery.meio.js',
+            'posts/js/form.js'
+        ));
         $project = get_project();
         $page = get_page();
+        $list = search($data_fields, 'list_registers', '1');
         if ($data_fields) {
             $table = $section['table'];
             $current_field = array();
@@ -393,10 +415,17 @@ class Posts extends MY_Controller {
                     // Se não houver nenhum erro
                     // Edita o post no banco de dados
                     $this->posts_model->edit($current_field, $post, $section);
-                    redirect_app(current_url());
+                    if ($list) {
+                        $slug_project = $project['slug'].'/';
+                        $slug_page = $page['slug'].'/';
+                        $slug_section = $section['slug'].'/';
+                        redirect_app('project/'.$slug_project.$slug_page.$slug_section);
+                    } else {
+                        redirect_app(current_url());
+                    }
                 }
             } else {
-                setError(null, validation_errors());
+                setError(validation_errors());
             }
         }
     }
@@ -405,17 +434,78 @@ class Posts extends MY_Controller {
      * Método para remover registro
      */
 
-    public function remove($slug_project, $slug_page, $slug_section, $id_post) {
+    public function remove($slug_project, $slug_page, $slug_section) {
         $section = get_section();
         $project = get_project();
         $page = get_page();
-        $post = $this->posts_model->get_post($section, $id_post);
-        if ($section && $page && $post) {
-            $this->posts_model->remove($section, $post);
-            redirect_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section);
+        $post = $this->input->post('post');
+        $this->lang->load_app('posts/remove');
+        $this->load->library_app('config_page');
+        $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
+        if ($section && $page && $data && count($post) > 0) {
+            $posts = $this->posts_model->get_posts_remove($data, $section['table'], $post);
+            if (!$posts) {
+                redirect_app();
+            }
+
+            $this->form_remove($page, $project, $section);
+
+            add_css(array(
+                'posts/css/posts-list.css'
+            ));
+            $vars = array(
+                'title' => $this->lang->line(APP . '_title_remove'),
+                'list' => $data['list'],
+                'posts' => $this->config_page->treat_list($posts, $data),
+                'name_app' => $this->data['name'],
+                'slug_project' => $project['slug'],
+                'name_project' => $project['name'],
+                'slug_section' => $section['slug'],
+                'name_section' => $section['name'],
+                'slug_page' => $page['slug'],
+                'name_page' => $page['name'],
+                'dev_mode' => $this->data_user['dev_mode']
+            );
+            $this->load->template_app('posts/remove', $vars);
         } else {
             redirect_app();
         }
+    }
+
+    private function form_remove($page, $project, $section) {
+        $pass = $this->input->post('password');
+        if (!empty($pass)) {
+            $this->form_validation->set_rules('password', $this->lang->line(APP . '_label_password'), 'callback_verify_password');
+        }
+        if ($this->form_validation->run()) {
+            $slug_project = $project['slug'];
+            $slug_page = $page['slug'];
+            $slug_section = $section['slug'];
+            $table_section = $section['table'];
+            $posts = $this->input->post('post');
+            if (count($posts) > 0) {
+                $this->posts_model->remove($table_section, $posts);
+            }
+            redirect_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section);
+        }
+    }
+
+    /*
+     * Método para verificar senha
+     */
+
+    public function verify_password($v_pass) {
+        $pass_user = $this->data_user['password'];
+        // Inicia helper PasswordHash
+        $this->load->helper('passwordhash');
+        $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
+        // Verifica se a senha está errada
+        if (!$PasswordHash->CheckPassword($v_pass, $pass_user)) {
+            $this->form_validation->set_message('verify_password', $this->lang->line(APP . '_incorrect_password'));
+            return false;
+        }
+
+        return true;
     }
 
 }

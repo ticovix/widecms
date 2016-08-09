@@ -20,21 +20,21 @@ if (!defined('BASEPATH')) {
                 if ($this->input->get('send') === 'true') {
                     ?>
                     <div class="alert alert-success">
-                        Senha redefinida com sucesso!
+                        <?php echo $this->lang->line('redefine_message_success');?>
                     </div>    
                     <a class="reset_pass" href="<?php echo base_url('login') ?>">Login <i class="fa fa-arrow-right fa-fw"></i></a>
                     <?php
                 } else {
                     ?>
                     <div>
-                        <input type="password" name="pass" value="<?php echo set_value('pass'); ?>" class="form-control" placeholder="Digite a senha" required="" />
+                        <input type="password" name="pass" value="<?php echo set_value('pass'); ?>" class="form-control" placeholder="<?php echo $this->lang->line('redefine_password_field');?>" required="" />
                     </div>
                     <div>
-                        <input type="password" name="re_pass" value="<?php echo set_value('re_pass'); ?>" class="form-control" placeholder="Repita a senha" required="" />
+                        <input type="password" name="re_pass" value="<?php echo set_value('re_pass'); ?>" class="form-control" placeholder="<?php echo $this->lang->line('redefine_re_password_field');?>" required="" />
                     </div>
                     <div>
-                        <input value="Enviar e-mail de redefinição" name="access" class="btn btn-primary pull-right" type="submit">
-                        <a class="reset_pass" href="<?php echo base_url('login') ?>"><i class="fa fa-arrow-left fa-fw"></i> Voltar</a>
+                        <input value="<?php echo $this->lang->line('redefine_change_pass_btn');?>" name="access" class="btn btn-primary pull-right" type="submit">
+                        <a class="reset_pass" href="<?php echo base_url('login') ?>"><i class="fa fa-arrow-left fa-fw"></i> <?php echo $this->lang->line('redefine_return_btn');?></a>
                     </div>
                     <?php
                 }

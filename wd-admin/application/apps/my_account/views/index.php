@@ -4,7 +4,7 @@ if (!defined('BASEPATH')) {
 }
 ?>
 <ul class="breadcrumb">
-    <li><a href="<?php echo base_url(); ?>">Home</a></li>
+    <li><a href="<?php echo base_url(); ?>"><i class="fa fa-home"></i></a></li>
     <li class="active"><?php echo $title ?></li>
 </ul>
 
@@ -29,7 +29,7 @@ if (!defined('BASEPATH')) {
                     <div class="row">
                         <div class="col-sm-2">
                             <a href="#gallery" class=" btn-upload" data-toggle="modal">
-                                <span class="fa fa-edit icon-edit">Alterar</span>
+                                <span class="fa fa-edit icon-edit"><?php echo $this->lang->line(APP . '_btn_change_photo') ?></span>
                                 <img src="<?php
                                 if (is_file('../wd-content/upload/' . $image)) {
                                     echo wd_base_url('wd-content/upload/' . $image);
@@ -44,13 +44,13 @@ if (!defined('BASEPATH')) {
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Nome*</label>
+                                        <label><?php echo $this->lang->line(APP . '_label_name') ?>*</label>
                                         <input type="text" name="name" value="<?php echo set_value('name', $name) ?>" class="form-control">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Sobrenome</label>
+                                        <label><?php echo $this->lang->line(APP . '_label_lastname') ?></label>
                                         <input type="text" name="lastname" value="<?php echo set_value('lastname', $last_name) ?>" class="form-control">
                                     </div>
                                 </div>
@@ -59,31 +59,31 @@ if (!defined('BASEPATH')) {
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label>Email*</label>
+                                        <label><?php echo $this->lang->line(APP . '_label_email') ?>*</label>
                                         <input type="email" name="email" value="<?php echo set_value('email', $email) ?>" class="form-control">
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label>Login*</label>
+                                        <label><?php echo $this->lang->line(APP . '_label_login') ?>*</label>
                                         <input type="text" name="login" value="<?php echo set_value('login', $login) ?>" class="form-control">
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label>Senha*</label>
+                                        <label><?php echo $this->lang->line(APP . '_label_password') ?>*</label>
                                         <div class="input-group">
                                             <input type="password" name="password" value="<?php echo set_value('password') ?>" class="form-control input-pass"> 
-                                            <a href="#gerar-senha" class="btn btn-default generate-pass input-group-addon" data-toggle="modal">Gerar senha</a>
+                                            <a href="#rand-pass" class="btn btn-default generate-pass input-group-addon" data-toggle="modal"><?php echo $this->lang->line(APP . '_btn_gen_password') ?></a>
                                         </div>
-                                        <small>* Preencha somente para alterar</small>
+                                        <small><?php echo $this->lang->line(APP . '_obs_password') ?></small>
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-sm-12">
                                     <div class="form-group">
-                                        <label>Sobre</label>
+                                        <label><?php echo $this->lang->line(APP . '_label_about') ?></label>
                                         <textarea name="about" class="form-control"><?php echo set_value('about', $about) ?></textarea>
                                     </div>
                                 </div>
@@ -92,22 +92,22 @@ if (!defined('BASEPATH')) {
                     </div>
 
                     <div class="form-group text-right">
-                        <input class="btn btn-primary" value="Salvar" name="send" type="submit">
+                        <input class="btn btn-primary" value="<?php echo $this->lang->line(APP . '_btn_save') ?>" name="send" type="submit">
                     </div>
                 </div>
                 <?php echo form_close(); ?>
-                <div class="modal fade" id="gerar-senha" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal fade" id="rand-pass" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-sm">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h4 class="modal-title">Senha gerada</h4>
+                                <h4 class="modal-title"><?php echo $this->lang->line(APP . '_title_modal') ?></h4>
                             </div>
                             <div class="modal-body">
                                 <h2 class="get-password"></h2>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
-                                <button class="btn btn-primary bt-ok" data-dismiss="modal">Copiado</button>
+                                <button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo $this->lang->line(APP . '_btn_cancel') ?></button>
+                                <button class="btn btn-primary bt-ok" data-dismiss="modal"><?php echo $this->lang->line(APP . '_btn_save_password') ?></button>
                             </div>
                         </div>
                     </div>

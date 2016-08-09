@@ -96,7 +96,7 @@ $(function () {
     modal_select.on("change", ".select-options", function () {
         var option = $(this).val();
         var index = $(".select-options").index(this);
-        $(".select-label").eq(index).html($("<option>").val("").html("Carregando.."));
+        $(".select-label").eq(index).html($("<option>").val("").html(LANG.loading));
         $.ajax({
             url: app_path + "sections/list-columns-json",
             data: {table: option},
@@ -104,7 +104,7 @@ $(function () {
             type: "POST",
             success: function (data) {
                 var total = data.length;
-                $(".select-label").eq(index).html($("<option>").val("").html("Selecione"));
+                $(".select-label").eq(index).html($("<option>").val("").html(LANG.option_select));
                 for (var i = 0; i < total; i++) {
                     var column = data[i];
                     var option = $("<option>").val(column).html(column);
@@ -132,16 +132,16 @@ $(function () {
         var sort_current = modal_new_field.attr("data-current");
         var msg_modal = $("#msg-modal");
         if (name_field.val() == "" || type_input_field.val() == "" || column_field.val() == "" || type_column_field == "") {
-            msg_modal.removeClass("hide").text("Todos os campos com asterísco são obrigatórios.");
+            msg_modal.removeClass("hide").text(LANG.error_all_fields_required);
             return false;
         } else if (name_exists(name_field.val(), sort_current) === true) {
-            msg_modal.removeClass("hide").text("O nome desse campo já existe, tente outro.");
+            msg_modal.removeClass("hide").text(LANG.error_name_exists);
             return false;
         } else if (column_exists(column_field.val(), sort_current) === true) {
-            msg_modal.removeClass("hide").text("O nome dessa coluna já existe, tente outro.");
+            msg_modal.removeClass("hide").text(LANG.error_column_exists);
             return false;
         } else if (column_field.val() == table_field.val()) {
-            msg_modal.removeClass("hide").text("O nome da coluna não pode ser igual ao nome da tabela.");
+            msg_modal.removeClass("hide").text(LANG.error_column_equals_table);
             return false;
         }
         
@@ -678,7 +678,7 @@ $(function () {
             }
         });
         $("#modal-new-field select option").removeAttr('selected');
-        $("#label_options_field").html($("<option>").val("").text("Selecione a opção"));
+        $("#label_options_field").html($("<option>").val("").text(LANG.option_select));
         if_input_select();
     }
 
@@ -714,12 +714,12 @@ $(function () {
     function add_attr(param, value) {
         $(".attr-current").append('<div class="col-sm-6">' +
                 '<div class="form-group">' +
-                '<input type="text" value="' + param + '" value="" class="form-control param_attr_field" placeholder="Atributo">' +
+                '<input type="text" value="' + param + '" value="" class="form-control param_attr_field" placeholder="'+LANG.label_attribute+'">' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-sm-6">' +
                 '<div class="form-group">' +
-                '<input type="text" value="' + value + '" value="" class="form-control value_attr_field" placeholder="Valor">' +
+                '<input type="text" value="' + value + '" value="" class="form-control value_attr_field" placeholder="'+LANG.label_value+'">' +
                 '</div>' +
                 '</div>');
     }
@@ -732,24 +732,24 @@ $(function () {
         $(".thumbnails").append(
                 '<div class="row form-group">'+
                 '<div class="col-sm-3">'+
-                        '<label title="Difinir altura do efeito reflexo">Prefixo*</label>'+
+                        '<label>'+LANG.label_preffix+'*</label>'+
                         '<input type="text" class="input-large form-control image_thumb_preffix" value="'+preffix+'">'+
                     '</div>'+
                     '<div class="col-sm-3">'+
-                        '<label title="Adicionar opacidade de 0 a 100 no reflexo">Largura (px)*</label>'+
+                        '<label>'+LANG.label_width+'*</label>'+
                         '<input type="text" class="input-large form-control image_thumb_width" value="'+width+'">'+
                     '</div>'+
                     '<div class="col-sm-3">'+
-                        '<label title="Difinir altura do efeito reflexo">Altura (px)</label>'+
+                        '<label>'+LANG.label_height+'</label>'+
                         '<input type="text" class="input-large form-control image_thumb_height" value="'+height+'">'+
                     '</div>'+
                     '<div class="col-sm-3">'+
-                        '<label title="Cortar imagem por tamanho definido">Cortar imagem</label>'+
+                        '<label>'+LANG.label_crop+'</label>'+
                         '<select class="input-large form-control image_thumb_ratio_crop">'+
-                            '<option value="">Não</option>'+
-                            '<option value="true" '+((crop=="true")?'selected="selected"':'')+'>Sim, alinhar corte no centro</option>'+
-                            '<option value="L" '+((crop=="L")?'selected="selected"':'')+'>Sim, alinhar corte na esquerda</option>'+
-                            '<option value="R" '+((crop=="R")?'selected="selected"':'')+'>Sim, alinhar corte na direita</option>'+
+                            '<option value="">'+LANG.option_no+'</option>'+
+                            '<option value="true" '+((crop=="true")?'selected="selected"':'')+'>'+LANG.option_crop_center+'</option>'+
+                            '<option value="L" '+((crop=="L")?'selected="selected"':'')+'>'+LANG.option_crop_left+'</option>'+
+                            '<option value="R" '+((crop=="R")?'selected="selected"':'')+'>'+LANG.option_crop_right+'</option>'+
                         '</select>'+
                     '</div>'+
                 '</div>'

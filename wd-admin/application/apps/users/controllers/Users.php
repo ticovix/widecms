@@ -14,6 +14,7 @@ class Users extends MY_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->model_app('users_model');
+        $this->data = $this->apps->data_app();
     }
 
     /*
@@ -21,13 +22,13 @@ class Users extends MY_Controller {
      */
 
     public function index() {
-
+        $this->lang->load_app(APP);
         $search = $this->form_search();
         $users = $search['users'];
         $total_rows = $search['total_rows'];
         $pagination = $this->pagination($total_rows);
         $data = [
-            'title' => 'Usuários',
+            'title' => $this->data['name'],
             'user_logged' => $this->data_user,
             'users' => $users,
             'pagination' => $pagination,
@@ -44,7 +45,7 @@ class Users extends MY_Controller {
      */
 
     private function form_search() {
-        $this->form_validation->set_rules('search', 'Pesquisa', 'trim|required');
+        $this->form_validation->set_rules('search', 'Search', 'trim|required');
         $keyword = $this->input->get('search');
         $perPage = $this->input->get('per_page');
         $limit = $this->limit;
@@ -90,6 +91,7 @@ class Users extends MY_Controller {
      */
 
     public function create() {
+        $this->lang->load_app('form');
         $permissions = $this->apps->list_apps_permissions();
         $this->form_create($permissions);
         $this->load->library('apps');
@@ -101,7 +103,8 @@ class Users extends MY_Controller {
             '/plugins/switchery/css/switchery.css'
         ]);
         $vars = [
-            'title' => 'Novo usuário',
+            'title' => $this->lang->line(APP.'_title_add_user'),
+            'name_app' => $this->data['name'],
             'user_logged' => $this->data_user,
             'name' => null,
             'last_name' => null,
@@ -212,6 +215,7 @@ class Users extends MY_Controller {
      */
 
     public function edit($login) {
+        $this->lang->load_app('form');
         $user = $this->users_model->get_user_edit($login);
         if (!$user) {
             redirect_app('users');
@@ -223,7 +227,8 @@ class Users extends MY_Controller {
             'js/form.js'
         ]);
         $vars = [
-            'title' => 'Editar usuário',
+            'title' => $this->lang->line(APP.'_title_edit_user'),
+            'name_app' => $this->data['name'],
             'id_user' => $user['id'],
             'name' => $user['name'],
             'last_name' => $user['last_name'],
@@ -310,6 +315,7 @@ class Users extends MY_Controller {
     }
     
     public function profile($login) {
+        $this->lang->load_app('profile');
         $user = $this->users_model->get_user_edit($login);
         if(!$user){
             redirect();
@@ -326,6 +332,7 @@ class Users extends MY_Controller {
         ));
         $vars = array(
             'title' => $user['name'].' '.$user['last_name'],
+            'name_app' => $this->data['name'],
             'name' => $user['name'],
             'login' => $user['login'],
             'last_name' => $user['last_name'],

@@ -4,7 +4,7 @@ if (!defined('BASEPATH')) {
 }
 ?>
 <ul class="breadcrumb">
-    <li><a href="<?php echo base_url(); ?>">Home</a></li>
+    <li><a href="<?php echo base_url(); ?>"><i class="fa fa-home"></i></a></li>
     <li class="active"><?php echo $title ?></li>
 </ul>
 <div class="row">
@@ -17,9 +17,9 @@ if (!defined('BASEPATH')) {
             <div class="x_content">
                 <?php echo form_open(null, ['method' => 'get']); ?>
                 <div class="input-group">
-                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="Procurar projeto" class="input-sm form-control"> 
+                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="<?php echo $this->lang->line(APP . '_field_search'); ?>" class="input-sm form-control"> 
                     <span class="input-group-btn">
-                        <button type="submit" class="btn btn-sm btn-primary"> Buscar</button> 
+                        <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button> 
                     </span>
                 </div>
                 <?php echo form_close(); ?>
@@ -34,10 +34,10 @@ if (!defined('BASEPATH')) {
                             <?php
                         }
                         ?>
-                        <strong><hr>Foram encontrados <?php echo $total ?> projetos.</strong>
+                        <strong><hr><?php printf($this->lang->line(APP . '_registers_found'), $total); ?></strong>
                         <?php
                     } else {
-                        echo 'Nenhum projeto encontrado, contate o desenvolvedor.';
+                        echo $this->lang->line(APP . '_registers_not_found');
                     }
                     ?>
                 </div>

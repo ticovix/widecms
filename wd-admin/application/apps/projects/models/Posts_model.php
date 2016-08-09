@@ -69,6 +69,14 @@ class Posts_model extends CI_Model {
         return $get;
     }
 
+    public function get_posts_remove($data, $table, $posts) {
+        $select = implode(',', $data['select_query']);
+        $this->db->select('id,' . $select);
+        $this->db->where_in('id', $posts);
+        $get = $this->db->get($table)->result_array();
+        return $get;
+    }
+
     public function create($data, $section) {
         if ($data) {
             $set = $data;
@@ -85,9 +93,9 @@ class Posts_model extends CI_Model {
         return $update;
     }
 
-    public function remove($section, $post) {
-        $where = array('id' => $post['id']);
-        $delete = $this->db->delete($section['table'], $where);
+    public function remove($table, $posts) {
+        $this->db->where_in('id', $posts);
+        $delete = $this->db->delete($table);
         return $delete;
     }
 

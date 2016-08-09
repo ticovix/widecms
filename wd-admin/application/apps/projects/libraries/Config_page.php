@@ -89,7 +89,7 @@ class Config_page {
                     $new_field['input']["plugins"] = $plugins;
                 }
                 if (!empty($attributes)) {
-                    $new_field['input']["attributes"] = str_replace('"','\'',$attributes);
+                    $new_field['input']["attributes"] = str_replace('"', '\'', $attributes);
                 }
                 $new_field['input']["database"] = array(
                     'column' => $column,
@@ -107,7 +107,7 @@ class Config_page {
                         $new_field['input']['options']["table"] = $options_table;
                     }
                     if (!empty($options_label)) {
-                        $new_field['input']['options']["label_options"] = $options_label;
+                        $new_field['input']['options']["options_label"] = $options_label;
                     }
                     if (!empty($options_trigger_select)) {
                         $new_field['input']['options']["trigger_select"] = $options_trigger_select;
@@ -209,7 +209,7 @@ class Config_page {
                     $attributes = (string) $field->attributes;
                     if (isset($field->options)) {
                         $options = (string) $field->options->table;
-                        $label_options = (string) $field->options->label_options;
+                        $label_options = (string) $field->options->options_label;
                         $trigger_select = (string) $field->options->trigger_select;
                     } else {
                         $options = '';
@@ -335,6 +335,7 @@ class Config_page {
 
     public function fields_template($fields, $post = null) {
         $CI = & get_instance();
+        $CI->lang->load_app('posts/form','projects');
         $this->fields = $fields;
         if (check_method('upload', 'gallery')) {
             add_css(array(
@@ -445,7 +446,7 @@ class Config_page {
 
     private function treat_attributes() {
         if (isset($this->attributes)) {
-            $attr = (array) json_decode(str_replace('\'','"',$this->attributes));
+            $attr = (array) json_decode(str_replace('\'', '"', $this->attributes));
             $arr_attr = array();
             if ($attr) {
                 foreach ($attr as $obj) {
@@ -505,13 +506,13 @@ class Config_page {
         $this->attr['type'] = 'button';
         $this->attr['data-config'] = $this->config_upload();
         $new_field['input'] = $this->list_files($files);
-        $new_field['input'] .= form_button($this->attr, '<span class="fa fa-file-image-o"></span> Inserir / gerenciar arquivos');
-        if(isset($field['extensions_allowed']) && !empty($field['extensions_allowed'])){
-             $txt_extensions = str_replace(',',', ',$field['extensions_allowed']);
-        }else{
+        $new_field['input'] .= form_button($this->attr, '<span class="fa fa-file-image-o"></span> '.$CI->lang->line('projects_label_upload_gallery'));
+        if (isset($field['extensions_allowed']) && !empty($field['extensions_allowed'])) {
+            $txt_extensions = str_replace(',', ', ', $field['extensions_allowed']);
+        } else {
             $txt_extensions = 'TODAS';
         }
-        $new_field['input'] .= '<strong>Extensões permitidas:</strong> '.$txt_extensions;
+        $new_field['input'] .= sprintf($CI->lang->line('projects_extensions_allowed'), $txt_extensions);
         $attr = array();
         if ($this->type == 'multifile') {
             $attr['multiple'] = "true";
@@ -598,8 +599,8 @@ class Config_page {
         $CI = &get_instance();
         // Lista registros para o select
         $CI->load->model('posts_model');
-        $table = $this->field['options'];
-        $column = $this->field['label_options'];
+        $table = $this->field['options_table'];
+        $column = $this->field['options_label'];
         $posts = $CI->posts_model->list_posts_checkbox($table, $column);
         $opts_checked = array();
         if (!empty($this->value)) {
@@ -631,20 +632,24 @@ class Config_page {
 
     private function template_select() {
         add_js(array(
-            'posts/js/events-select.js'
+            '/plugins/chosen/js/chosen.jquery.min.js',
+            'posts/js/events-select.js',
+        ));
+        add_css(array(
+            '/plugins/chosen/css/chosen.css'
         ));
         $new_field = array();
         $new_field['type'] = $this->type;
         $new_field['label'] = $this->label;
-        if (isset($this->field['options']) && isset($this->field['label_options'])) {
-            $column_trigger = (isset($this->field['trigger_select'])) ? $this->field['trigger_select'] : '';
+        if (isset($this->field['options_table']) && isset($this->field['options_label'])) {
+            $column_trigger = (isset($this->field['options_trigger_select'])) ? $this->field['options_trigger_select'] : '';
             $data_trigger = null;
             if ($column_trigger) {
                 $field_trigger = search($this->fields, 'column', $column_trigger);
                 if (count($field_trigger) > 0) {
 
                     $field_trigger = $field_trigger[0];
-                    $table_trigger = $field_trigger['options'];
+                    $table_trigger = $field_trigger['options_table'];
                     $label_trigger = $field_trigger['label'];
                     $value_trigger = $this->post[$column_trigger];
                     $this->attr['class'] = (isset($this->attr['class'])) ? $this->attr['class'] : '';
@@ -660,12 +665,12 @@ class Config_page {
                 }
             }
             // Lista as opções do select
-            $array_options = $this->set_options($this->field['options'], $this->field['label_options'], $data_trigger);
+            $array_options = $this->set_options($this->field['options_table'], $this->field['options_label'], $data_trigger);
         } else {
-            $array_options = array('' => 'Nenhum opção adicionada.');
+            $array_options = array('' => $CI->lang->line('projects_options_not_found'));
         }
         $this->attr['id'] = $this->column . '_field';
-        $this->attr['class'] = 'form-control input-field trigger-select ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
+        $this->attr['class'] = 'form-control input-field trigger-select chosen-select ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
         $CI = &get_instance();
         $value = ($CI->input->post($this->column) !== null ? $CI->input->post($this->column) : $this->value);
         $new_field['input'] = form_dropdown($this->column, $array_options, $value, $this->attr);
@@ -709,7 +714,7 @@ class Config_page {
     private function set_options($table, $column, $data_trigger = null) {
         $CI = & get_instance();
         if (is_array($data_trigger) && empty($data_trigger['value'])) {
-            return array('' => 'Selecione um(a) ' . $data_trigger['label']);
+            return array('' => sprintf($CI->lang->line('projects_label_subselect'), $data_trigger['label']));
         }
         // Lista registros para o select
         $CI->load->model('posts_model');
@@ -726,7 +731,7 @@ class Config_page {
                 $options[$id] = $value;
             }
         } else {
-            $options[''] = 'Nenhuma opção encontrada.';
+            $options[''] = $CI->lang->line('projects_options_not_found');
         }
         return $options;
     }
@@ -755,7 +760,7 @@ class Config_page {
                     } else {
                         $active = '';
                     }
-                    $ctt .= '<div class="files-list thumbnail ' . $active . '"><a href="' . wd_base_url('wd-content/upload/' . $file_) . '" class="fancybox"><img src="' . base_url('apps/gallery/image/thumb/' . $file_) . '" class="img-responsive"></a></div>';
+                    $ctt .= '<div class="files-list thumbnail ' . $active . '"><img src="' . base_url('apps/gallery/image/thumb/' . $file_) . '" class="img-responsive"></div>';
                 }
             }
         }
@@ -828,8 +833,8 @@ class Config_page {
         switch ($type) {
             case 'checkbox':
                 if (!empty($value)) {
-                    $table = (isset($field['options'])) ? $field['options'] : '';
-                    $column = (isset($field['label_options'])) ? $field['label_options'] : '';
+                    $table = (isset($field['options_table'])) ? $field['options_table'] : '';
+                    $column = (isset($field['options_label'])) ? $field['options_label'] : '';
                     $opts = json_decode($value);
                     $opts_checked = $CI->posts_model->list_options_checked($table, $column, $opts);
                     if ($opts_checked) {
@@ -854,8 +859,8 @@ class Config_page {
             $CI = & get_instance();
             $CI->load->model('posts_model');
             $field = $field;
-            $table = (isset($field['options'])) ? $field['options'] : '';
-            $column = (isset($field['label_options'])) ? $field['label_options'] : '';
+            $table = (isset($field['options_table'])) ? $field['options_table'] : '';
+            $column = (isset($field['options_label'])) ? $field['options_label'] : '';
             if ($table && $column) {
                 // Se tabela e coluna existir, lista o valor selecionado pelo campo
                 $val = $CI->posts_model->get_post_selected($table, $column, $value);

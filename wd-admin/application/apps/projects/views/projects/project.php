@@ -4,8 +4,8 @@ if (!defined('BASEPATH')) {
 }
 ?>
 <ul class="breadcrumb">
-    <li><a href="<?php echo base_url(); ?>">Home</a></li>
-    <li><a href="<?php echo base_url_app(); ?>">Projetos</a></li>
+    <li><a href="<?php echo base_url(); ?>"><i class="fa fa-home"></i></a></li>
+    <li><a href="<?php echo base_url_app(); ?>"><?php echo $name_app ?></a></li>
     <li class="active"><?php echo $title ?></li>
 </ul>
 
@@ -19,9 +19,9 @@ if (!defined('BASEPATH')) {
             <div class="x_content">
                 <?php echo form_open(null, ['method' => 'get']); ?>
                 <div class="input-group">
-                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="Procurar" class="input-sm form-control"> 
+                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="<?php echo $this->lang->line(APP . '_field_search'); ?>" class="input-sm form-control"> 
                     <span class="input-group-btn">
-                        <button type="submit" class="btn btn-sm btn-primary"> Buscar</button> 
+                        <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button> 
                     </span>
                 </div>
                 <?php echo form_close(); ?>
@@ -51,7 +51,9 @@ if (!defined('BASEPATH')) {
                                    <?php echo $name_page ?>
                                     <?php if ($total_sections > 1 or $total_sections == 1 && $first_name_section != $name_page) { ?><span class="fa fa-caret-down pull-right"></span><?php } ?>
                                 </a>
-                                <?php if ($total_sections > 1 or $total_sections == 1 && $first_name_section != $name_page) { ?>
+                                <?php
+                                if ($total_sections > 1 or $total_sections == 1 && $first_name_section != $name_page) {
+                                    ?>
                                     <div id="collapse<?php echo $x; ?>" class="panel-collapse collapse" role="tabpanel">
                                         <?php
                                         if ($total_sections) {
@@ -72,7 +74,7 @@ if (!defined('BASEPATH')) {
                                     <?php
                                 } elseif (count($sections) == 0) {
                                     ?>
-                                    <ul class="nav nav-list collapse"><li class="no-sections">Nenhum seção encontrada.</li></ul>        
+                                    <ul class="nav nav-list collapse"><li class="no-sections"><?php echo $this->lang->line(APP . '_sections_not_found') ?></li></ul>        
                                     <?php
                                 }
                                 ?>
@@ -83,7 +85,7 @@ if (!defined('BASEPATH')) {
                     }
 
                     if (!$exists) {
-                        echo '<strong>Nenhuma página encontrada, contate o desenvolvedor.</strong>';
+                        echo '<strong>' . $this->lang->line(APP . '_registers_not_found') . '</strong>';
                     }
                     ?>
                 </div>

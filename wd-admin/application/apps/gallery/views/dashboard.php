@@ -13,9 +13,9 @@ if (check_method('view-files', 'gallery')) {
     echo form_open(null, ['method' => 'get', 'id' => 'search-files']);
     ?>
     <div class="input-group">
-        <input type="text" name="search" id="search-field" value="<?php echo $this->input->get('search') ?>" placeholder="Procurar arquivo" class="input-sm form-control"> 
+        <input type="text" name="search" id="search-field" value="<?php echo $this->input->get('search') ?>" placeholder="<?php echo $lang->line('gallery_search_field')?>" class="input-sm form-control"> 
         <span class="input-group-btn">
-            <button type="submit" class="btn btn-sm btn-primary"> Buscar</button> 
+            <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button> 
         </span>
     </div>
     <?php

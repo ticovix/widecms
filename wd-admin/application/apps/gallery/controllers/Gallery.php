@@ -25,6 +25,8 @@ class Gallery extends MY_Controller {
      */
 
     public function index() {
+        $this->lang->load_app(APP);
+        $data = $this->apps->data_app();
         $search = $this->form_search();
         $files = $search['files'];
         $total = $search['total'];
@@ -49,7 +51,7 @@ class Gallery extends MY_Controller {
             'css/style.css'
         ));
         $vars = array(
-            'title' => 'Galeria',
+            'title' => $data['name'],
             'files' => $files
         );
         $this->load->template_app('index', $vars);

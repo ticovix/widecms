@@ -4,8 +4,8 @@ if (!defined('BASEPATH')) {
 }
 ?>
 <ul class="breadcrumb">
-    <li><a href="<?php echo base_url(); ?>">Home</a></li>
-    <li><a href="<?php echo base_url_app(); ?>">Projetos</a></li>
+    <li><a href="<?php echo base_url(); ?>"><i class="fa fa-home"></i></a></li>
+    <li><a href="<?php echo base_url_app(); ?>"><?php echo $name_app ?></a></li>
     <li><a href="<?php echo base_url_app('project/' . $slug_project); ?>"><?php echo $name_project ?></a></li>
     <?php if ($dev_mode) { ?>
         <li><a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page); ?>"><?php echo $name_page ?></a></li>
@@ -37,7 +37,13 @@ if (!defined('BASEPATH')) {
             </div>
             <div class="x_content row">
                 <?php
-                if (check_method($method . '-edit')) {
+                $type = $this->uri->segment(7);
+                if($type === 'edit' or $type === 'create'){
+                    $check_method = check_method($method . '-' . $type);
+                }else{
+                    $check_method = check_method($method);
+                }
+                if ($check_method) {
                     ?>
                     <div id="data-project" data-project="<?php echo $slug_project ?>" data-page="<?php echo $slug_page ?>" data-section="<?php echo $slug_section ?>">
                         <?php

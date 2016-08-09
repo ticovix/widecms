@@ -15,6 +15,7 @@ class Sections extends MY_Controller {
     public function __construct() {
         parent::__construct();
         func_only_dev();
+        $this->data = $this->apps->data_app();
         $this->load->model_app('sections_model');
         $this->path_view_project = 'application/' . APP_PATH . 'views/project/';
     }
@@ -24,6 +25,7 @@ class Sections extends MY_Controller {
      */
 
     public function index() {
+        $this->lang->load_app('sections/sections');
         $project = get_project();
         $page = get_page();
         $search = $this->form_search($page);
@@ -33,6 +35,7 @@ class Sections extends MY_Controller {
 
         $vars = [
             'title' => $page['name'],
+            'name_app' => $this->data['name'],
             'sections' => $sections,
             'pagination' => $pagination,
             'total' => $total_rows,
@@ -48,7 +51,7 @@ class Sections extends MY_Controller {
      */
 
     private function form_search($page) {
-        $this->form_validation->set_rules('search', 'Pesquisa', 'trim|required');
+        $this->form_validation->set_rules('search', $this->lang->line(APP.'_field_search'), 'trim|required');
         $this->form_validation->run();
         $id_page = $page['id'];
         $keyword = $this->input->get('search');
@@ -96,6 +99,7 @@ class Sections extends MY_Controller {
      */
 
     public function edit($slug_section) {
+        $this->lang->load_app('sections/form');
         $project = get_project();
         $page = get_page();
         $section = $this->sections_model->get_section($slug_section);
@@ -111,7 +115,7 @@ class Sections extends MY_Controller {
             $selects = search($fields, 'type', 'select');
         } else {
             $fields = false;
-            setError('config_error', 'Não foi possível abrir o config.xml dessa seção, deseja <a href="javascript:window.history.go(-1)">voltar</a>?');
+            setError($this->lang->line(APP.'_open_config_fail'));
         }
 
         add_js(array(
@@ -126,7 +130,8 @@ class Sections extends MY_Controller {
         ));
         $vars = array(
             'fields' => $fields,
-            'title' => 'Editar - ' . $section['name'],
+            'title' => sprintf($this->lang->line(APP.'_title_edit_section'), $section['name']),
+            'name_app' => $this->data['name'],
             'name' => $section['name'],
             'directory' => $section['directory'],
             'table' => str_replace($project['preffix'], '', $section['table']),
@@ -146,7 +151,7 @@ class Sections extends MY_Controller {
 
     private function list_options($id_section = null) {
         $options = $this->sections_model->list_sections_select($id_section);
-        $options[] = array('table' => 'wd_users', 'name' => 'Usuários');
+        $options[] = array('table' => 'wd_users', 'name' => $this->lang->line(APP.'_option_users'));
         return $options;
     }
 
@@ -155,9 +160,9 @@ class Sections extends MY_Controller {
      */
 
     private function form_edit_section($project, $page, $section, $config) {
-        $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-        $this->form_validation->set_rules('directory', 'Diretório', 'trim|required|callback_verify_dir_edit');
-        $this->form_validation->set_rules('table', 'Tabela', 'trim|required|callback_verify_table_edit');
+        $this->form_validation->set_rules('name', $this->lang->line(APP.'_label_name'), 'trim|required');
+        $this->form_validation->set_rules('directory', $this->lang->line(APP.'_label_directory'), 'trim|required|callback_verify_dir_edit');
+        $this->form_validation->set_rules('table', $this->lang->line(APP.'_label_table'), 'trim|required|callback_verify_table_edit');
         if ($this->form_validation->run()) {
             $dir_project = $project['directory'];
             $slug_project = $project['slug'];
@@ -176,7 +181,7 @@ class Sections extends MY_Controller {
             // Se a seção for atualizada corretamente, redireciona o usuário
             redirect_app('project/' . $slug_project . '/' . $slug_page);
         } else {
-            setError(null, validation_errors());
+            setError(validation_errors());
         }
     }
 
@@ -190,10 +195,11 @@ class Sections extends MY_Controller {
         $dir = $this->path_view_project . $dir_project . '/' . $dir_page . '/';
         if ($section['directory'] != $directory) {
             if (!is_writable($dir . $dir_section)) {
-                $this->form_validation->set_message('verify_dir_edit', 'Não foi possível renomear o diretório para "' . $directory . '", já existe ou você não possui permissões suficiente.');
+                $this->form_validation->set_message('verify_dir_edit', sprintf($this->lang->line(APP.'_not_allowed_folder_rename'), $directory));
                 return false;
             }
         }
+        return true;
     }
 
     /*
@@ -206,13 +212,13 @@ class Sections extends MY_Controller {
         if ($table != $section['table']) {
             $check_table = $this->sections_model->check_table_exists($table);
             if ($check_table) {
-                $this->form_validation->set_message('verify_table_edit', 'A tabela ' . $table . ' já existe no banco de dados');
+                $this->form_validation->set_message('verify_table_edit', sprintf($this->lang->line(APP.'_table_exists'),$table));
                 return false;
             }
 
             $preffix = substr($project['preffix'] . $table, 0, 3);
             if ($preffix == 'wd_' && !$import) {
-                $this->form_validation->set_message('verify_table_edit', 'Nomes iniciados por "wd_" são reservados pelo sistema. ');
+                $this->form_validation->set_message('verify_table_edit', $this->lang->line(APP.'_not_allowed_preffix_wd'));
                 return false;
             }
         }
@@ -382,7 +388,7 @@ class Sections extends MY_Controller {
                             $data_mod['limit'] = $old_limit;
                             $data_mod['default'] = $old_default;
                             $data_mod['comment'] = $old_comment;
-                            setError('rename_col', 'Não foi possível modificar a coluna ' . $old_column . ', já existe ou você não possui permissões suficiente.');
+                            setError(sprintf($this->lang->line(APP.'_not_allowed_column_modify'),$old_column));
                         }
                     }
                 } else {
@@ -409,7 +415,7 @@ class Sections extends MY_Controller {
         $remove = $this->sections_model->remove_column($data);
         if (!$remove) {
             // Se a coluna não for removida
-            setError('remove_col', 'Não foi possível remover a coluna ' . $data['old_column'] . ', você não tem permissões suficiente.');
+            setError(sprintf($this->lang->line(APP.'_not_allowed_column_remove'),$data['old_column']));
         }
     }
 
@@ -448,14 +454,14 @@ class Sections extends MY_Controller {
                 if (!$fp) {
                     // Se não for possível editar o arquivo, restaura todas as modificações
                     $this->restore_columns($new_config);
-                    setError('change_config', 'Não foi possível salvar o novo config.xml com as alterações');
+                    setError($this->lang->line(APP.'_save_config_fail'));
                 } else {
                     return true;
                 }
             } else {
-                // Se houver errosna nova estrutura xml gerada, restaura todas as modificações
+                // Se houver erros na nova estrutura xml gerada, restaura todas as modificações
                 $this->restore_columns($new_config);
-                setError('gen_config', 'Não foi possível gerar um novo config.xml');
+                setError($this->lang->line(APP.'_generate_config_fail'));
             }
         }
     }
@@ -481,6 +487,7 @@ class Sections extends MY_Controller {
 
     public function remove($slug_section) {
         func_only_dev();
+        $this->lang->load_app('sections/remove');
         $section = $this->sections_model->get_section($slug_section);
         $project = get_project();
         $page = get_page();
@@ -489,7 +496,8 @@ class Sections extends MY_Controller {
         }
         $this->form_remove($section, $project, $page);
         $vars = array(
-            'title' => 'Remover a seção ' . $section['name'],
+            'title' => sprintf($this->lang->line(APP.'_title_remove_section'),$section['name']),
+            'name_app' => $this->data['name'],
             'project' => $project,
             'section' => $section,
             'page' => $page
@@ -502,8 +510,8 @@ class Sections extends MY_Controller {
      */
 
     private function form_remove($section, $project, $page) {
-        $this->form_validation->set_rules('password', 'Senha', 'required|callback_verify_password');
-        $this->form_validation->set_rules('section', 'Seção', 'trim|required|integer');
+        $this->form_validation->set_rules('password', $this->lang->line(APP.'_label_password'), 'required|callback_verify_password');
+        $this->form_validation->set_rules('section', $this->lang->line(APP.'_label_section'), 'trim|required|integer');
         if ($this->form_validation->run()) {
             if ($section['id'] == $this->input->post('section')) {
                 $dir_section = $section['directory'];
@@ -532,7 +540,7 @@ class Sections extends MY_Controller {
         $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
         // Verifica se a senha está errada
         if (!$PasswordHash->CheckPassword($v_pass, $pass_user)) {
-            $this->form_validation->set_message('verify_password', 'A senha informada está incorreta.');
+            $this->form_validation->set_message('verify_password', $this->lang->line(APP.'_incorrect_password'));
             return false;
         }
 
@@ -544,6 +552,7 @@ class Sections extends MY_Controller {
      */
 
     public function create() {
+        $this->lang->load_app('sections/form');
         $this->load->library_app('config_page');
         $project = get_project();
         $page = get_page();
@@ -558,8 +567,9 @@ class Sections extends MY_Controller {
             '/plugins/jquery-ui/jquery-ui.css',
             'project/css/form-section.css'
         ));
-        $vars = [
-            'title' => 'Criar nova seção em ' . $page['name'],
+        $vars = array(
+            'title' => sprintf($this->lang->line(APP.'_title_edit_section'), $page['name']),
+            'name_app' => $this->data['name'],
             'name' => '',
             'directory' => '',
             'table' => '',
@@ -575,7 +585,7 @@ class Sections extends MY_Controller {
             'plugins_input' => $this->config_page->list_plugins(),
             'label_options' => '',
             'selects' => ''
-        ];
+        );
         $this->load->template_app('dev-sections/form', $vars);
     }
 
@@ -584,9 +594,9 @@ class Sections extends MY_Controller {
      */
 
     private function form_create_section($project, $page) {
-        $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-        $this->form_validation->set_rules('directory', 'Diretório', 'trim|required|is_unique[wd_sections.directory]|callback_verify_dir_create');
-        $this->form_validation->set_rules('table', 'Tabela', 'trim|required|is_unique[wd_sections.table]|callback_verify_table_create');
+        $this->form_validation->set_rules('name', $this->lang->line(APP.'_label_name'), 'trim|required');
+        $this->form_validation->set_rules('directory', $this->lang->line(APP.'_label_directory'), 'trim|required|is_unique[wd_sections.directory]|callback_verify_dir_create');
+        $this->form_validation->set_rules('table', $this->lang->line(APP.'_label_table'), 'trim|required|is_unique[wd_sections.table]|callback_verify_table_create');
         if ($this->form_validation->run()) {
             $import = ($this->input->post('import') == 'true');
             $dir_project = $project['directory'];
@@ -608,7 +618,7 @@ class Sections extends MY_Controller {
             $this->create_fields($data);
             redirect_app('project/' . $slug_project . '/' . $slug_page);
         } else {
-            setError(null, validation_errors());
+            setError(validation_errors());
         }
     }
 
@@ -621,12 +631,12 @@ class Sections extends MY_Controller {
         $page = get_page();
         $is_dir_section = is_dir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $directory);
         if ($is_dir_section) {
-            $this->form_validation->set_message('verify_dir_create', 'Já existe um diretório com o nome ' . $directory . '.');
+            $this->form_validation->set_message('verify_dir_create', sprintf($this->lang->line(APP.'_folder_exists'), $directory));
             return false;
         }
         $is_writable_section = is_writable($this->path_view_project . $project['directory'] . '/' . $page['directory']);
         if (!$is_writable_section) {
-            $this->form_validation->set_message('verify_dir_create', 'Voce não tem permissões suficiente para criar esse diretório.');
+            $this->form_validation->set_message('verify_dir_create', $this->lang->line(APP.'_not_allowed_folder_create'));
             return false;
         }
         return true;
@@ -641,12 +651,12 @@ class Sections extends MY_Controller {
         $import = $this->input->post('import');
         $check_table = $this->sections_model->check_table_exists($table);
         if ($check_table && !$import) {
-            $this->form_validation->set_message('verify_table_create', 'A tabela ' . $table . ' já existe no banco de dados');
+            $this->form_validation->set_message('verify_table_create', sprintf($this->lang->line(APP.'_table_exists'), $table));
             return false;
         }
         $preffix = substr($project['preffix'] . $table, 0, 3);
         if ($preffix == 'wd_' && !$import) {
-            $this->form_validation->set_message('verify_table_create', 'Nomes iniciados por "wd_" são reservados pelo sistema. ');
+            $this->form_validation->set_message('verify_table_create', $this->lang->line(APP.'_not_allowed_preffix_wd'));
             return false;
         }
 
@@ -676,7 +686,7 @@ class Sections extends MY_Controller {
                     $this->sections_model->create_columns($data['table'], $fields);
                 }
             } else {
-                setError('create_config', 'Não foi possível criar o arquivo config.xml em ' . $path_config_xml);
+                setError(sprintf($this->lang->line(APP.'_create_config_fail'), $path_config_xml));
                 return false;
             }
             // Se tudo der certo, cria nova seção no banco de dados
@@ -831,23 +841,23 @@ class Sections extends MY_Controller {
         $label_options_field = $data['label_options_field'];
         if ($column_field == 'id') {
             // Se o nome da coluna for id
-            setError('error_column', 'O campo "id" é criado automaticamente pelo sistema, informe outro nome.');
+            setError($this->lang->line(APP.'_create_column_id_not_allowed'));
             return false;
         } elseif ($column_field == $table) {
             // Se o nome da coluna for igual da tabela
-            setError('error_column', 'O nome da coluna não pode ser igual ao da tabela.');
+            setError($this->lang->line(APP.'_column_equals_table'));
             return false;
         } elseif (count(search($fields, 'column', $column_field)) > 0) {
             // Se o nome da coluna estiver duplicado
-            setError('column_duplicate', 'O campo "' . $column_field . '" foi duplicado.');
+            setError(sprintf($this->lang->line(APP.'_duplicate_field_not_allowed'), $column_field));
             return false;
         } elseif (!empty($name_field) && (empty($input_field) or empty($column_field) or empty($type_field))) {
             // Se o nome do campo for preenchido e as outras informações não forem preenchidas
-            setError('fields_required', 'Ao preencher o nome do campo, os campos Input, Coluna, Tipo se tornam obrigatórios.');
+            setError($this->lang->line(APP.'_fields_required'));
             return false;
         } elseif (!empty($options_field) && empty($label_options_field)) {
             // Se o campo options for preenchido, o campo Label se torna obrigatório
-            setError('error_label', 'Ao preencher o campo "Options", o campo "Label Options" é obrigatório, selecione uma opção no campo "' . $name_field . '".');
+            setError(sprintf($this->lang->line(APP.'_options_select_required'), $name_field));
         } else {
             // Se não houver nenhum erro
             return true;
@@ -929,11 +939,11 @@ class Sections extends MY_Controller {
                 $columns = $this->treat_columns($this->sections_model->list_columns_import($table));
                 $col_primary = search($columns, 'Key', 'PRI');
                 if (!$col_primary) {
-                    throw new Exception('Para importar uma tabela é necessário que exista uma coluna "id" com chave primária.');
+                    throw new Exception($this->lang->line(APP.'_pk_required'));
                 }
                 $col_primary = $col_primary[0];
                 if ($col_primary['Field'] != 'id') {
-                    throw new Exception('O nome da coluna com chave primaria é "' . $col_primary['Field'] . '", altere o nome para "id" para conseguir importar a tabela.');
+                    throw new Exception(sprintf($this->lang->line(APP.'_pk_id_name_required'), $col_primary['Field']));
                 }
                 echo json_encode(array('error' => false, 'columns' => $columns));
             } else {
@@ -1043,7 +1053,7 @@ class Sections extends MY_Controller {
                 $limit_current = preg_replace('/.+?\((.+?)\)/', '$1', $type);
                 $verify_type = search($types, 'type', $type_current);
                 if (!$verify_type) {
-                    throw new Exception('A coluna "' . $col['Field'] . '" possui o tipo de entrada "' . $type_current . '", o CMS não possui esse tipo de entrada por padrão. <br>Para corrigir altere o tipo de entrada no banco de dados ou insira no arquivo "wd-admin/application/apps/projects/libraries/Config_page.php", método <strong>types()</strong>.');
+                    throw new Exception(sprintf($this->lang->line(APP.'_type_column_not_exists'), $col['Field'], $type_current));
                 }
                 $col['Type'] = $type_current;
                 $col['Limit'] = $limit_current;

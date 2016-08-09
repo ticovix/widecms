@@ -20,15 +20,15 @@ if (!defined('BASEPATH')) {
                 if ($this->input->get('send') === 'true') {
                     ?>
                     <div class="alert alert-info">
-                        Caso esse e-mail exista no seu cadastro você receberá um e-mail com os dados para redefinição de senha, caso não receba verifique o e-mail na caixa de spam ou na lixeira.
+                        <?php echo $this->lang->line('recovery_message_success');?>
                     </div>    
-                    <a class="reset_pass" href="<?php echo base_url('login') ?>"><i class="fa fa-arrow-left fa-fw"></i> Voltar</a>
+                    <a class="reset_pass" href="<?php echo base_url('login') ?>"><i class="fa fa-arrow-left fa-fw"></i> <?php echo $this->lang->line('recovery_return_btn');?></a>
                     <?php
                 } else {
                     ?>
-                    <p>Para maior segurança as senhas do sistema são criptografadas, não é possível recuperar, porém é possível redefinir. <strong>Digite o e-mail do seu usuário cadastrado:</strong></p>
+                    <p><?php echo $this->lang->line('recovery_text_about_recovery');?></p>
                     <div>
-                        <input type="text" name="email" value="<?php echo set_value('email'); ?>" class="form-control" placeholder="E-mail" required="" />
+                        <input type="text" name="email" value="<?php echo set_value('email'); ?>" class="form-control" placeholder="<?php echo $this->lang->line('recovery_email_field');?>" required="" />
                     </div>
                     <?php
                     if ($captcha) {
@@ -36,14 +36,14 @@ if (!defined('BASEPATH')) {
                         <div>
                             <label for="captcha"><?php echo $captcha['image']; ?></label>
                             <br>
-                            <input type="text" class="form-control" autocomplete="off" name="captcha" placeholder="Digite o texto da imagem" value="<?php echo set_value('captcha') ?>" />
+                            <input type="text" class="form-control" autocomplete="off" name="captcha" placeholder="<?php echo $this->lang->line('recovery_captcha_field');?>" value="<?php echo set_value('captcha') ?>" />
                         </div>
                         <?php
                     }
                     ?>
                     <div>
-                        <input value="Enviar e-mail de redefinição" name="access" class="btn btn-primary pull-right" type="submit">
-                        <a class="reset_pass" href="<?php echo base_url('login') ?>"><i class="fa fa-arrow-left fa-fw"></i> Voltar</a>
+                        <input value="<?php echo $this->lang->line('recovery_send_email_btn');?>" name="access" class="btn btn-primary pull-right" type="submit">
+                        <a class="reset_pass" href="<?php echo base_url('login') ?>"><i class="fa fa-arrow-left fa-fw"></i> <?php echo $this->lang->line('recovery_return_btn');?></a>
                     </div>
                     <?php
                 }

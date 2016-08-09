@@ -5,8 +5,8 @@ if (!defined('BASEPATH')) {
 ?>
 
 <ul class="breadcrumb">
-    <li><a href="<?php echo base_url() ?>">Home</a></li>
-    <li><a href="<?php echo base_url_app() ?>">Projetos</a></li>
+    <li><a href="<?php echo base_url() ?>"><i class="fa fa-home"></i></a></li>
+    <li><a href="<?php echo base_url_app() ?>"><?php echo $name_app ?></a></li>
     <li><a href="<?php echo base_url_app('project/' . $project['slug']) ?>"><?php echo $project['name'] ?></a></li>
     <li><a href="<?php echo base_url_app('project/' . $project['slug'] . '/' . $page['slug']) ?>"><?php echo $page['name'] ?></a></li>
     <li class="active"><?php echo $title ?></li>
@@ -18,7 +18,7 @@ if (!defined('BASEPATH')) {
                 <?php
                 if ($this->uri->segment('6') == 'create') {
                     ?>
-                    <a href="#modal-import" class="btn btn-primary pull-right" data-toggle="modal"><span class="fa fa-fw fa-arrow-down"></span> Importar tabela</a>
+                    <a href="#modal-import" class="btn btn-primary pull-right" data-toggle="modal"><span class="fa fa-fw fa-arrow-down"></span> <?php echo $this->lang->line(APP . '_btn_import_table') ?></a>
                     <?php
                 }
                 ?>
@@ -32,24 +32,24 @@ if (!defined('BASEPATH')) {
                     echo form_open(null);
                     ?>
                     <input type="hidden" name="import" id="import-value" value="false">
-                    <h3>Dados básicos da seção</h3>
-                    <p>Dados para configuração da página e tabela do banco de dados.</p>
+                    <h3><?php echo $this->lang->line(APP . '_subtitle_data_basic') ?></h3>
+                    <p><?php echo $this->lang->line(APP . '_text_data_basic') ?></p>
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Nome*</label>
+                                <label><?php echo $this->lang->line(APP . '_label_name') ?>*</label>
                                 <input type="text" name="name" id="dig_name" value="<?php echo set_value('name', $name) ?>" class="form-control">
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Diretório* <span class="fa fa-question-circle fa-fw" title="Diretório de configuração <?php echo APP_PATH; ?>views/project/<?php echo $project['slug'] ?>/<?php echo $page['slug'] ?>/[diretório]"></span></label>
+                                <label><?php echo $this->lang->line(APP . '_label_directory') ?>*</label>
                                 <input type="text" name="directory" id="dir_name" value="<?php echo set_value('directory', $directory) ?>" class="form-control">
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Tabela* <span class="fa fa-question-circle fa-fw" title="Nome da tabela no banco de dados"></span></label>
+                                <label><?php echo $this->lang->line(APP . '_label_table') ?>*</label>
                                 <?php if (!empty($preffix)) { ?>
                                     <div class="input-group">
                                         <div class="input-group-addon"><?php echo $preffix ?></div>
@@ -60,7 +60,7 @@ if (!defined('BASEPATH')) {
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Status* <span class="fa fa-question-circle fa-fw" title="Se desativado, a página não será exibida no modo cliente"></span></label>
+                                <label><?php echo $this->lang->line(APP . '_label_status') ?>*</label>
                                 <select name="status" class="form-control">
                                     <option value="1" <?php echo set_select('status', '1', ($status == '1')) ?>>Ativado</option>
                                     <option value="0" <?php echo set_select('status', '0', ($status == '0')) ?>>Desativado</option>
@@ -69,18 +69,18 @@ if (!defined('BASEPATH')) {
                         </div>
                     </div>
                     <hr>
-                    <h3>Configurações avançadas da seção</h3>
-                    <p>Configuração da página de listagem, edição, inserção de registros e colunas do banco de dados.</p>
-                    <button type="button" class="btn btn-default btn-primary" id="btn-add-field" data-toggle="modal" data-target="#modal-new-field"> <span class="fa fa-plus"></span> Adicionar novo campo</button>
+                    <h3><?php echo $this->lang->line(APP . '_subtitle_config_advanced') ?></h3>
+                    <p><?php echo $this->lang->line(APP . '_text_data_advanced') ?></p>
+                    <button type="button" class="btn btn-default btn-primary" id="btn-add-field" data-toggle="modal" data-target="#modal-new-field"> <span class="fa fa-plus"></span> <?php echo $this->lang->line(APP . '_btn_add_field') ?></button>
                     <table class="table table-striped table-responsive table-bordered" id="fields">
                         <thead>
                             <tr>
-                                <th>Nome</th>
-                                <th>Input</th>
-                                <th>Listagem</th>
-                                <th>Coluna</th>
-                                <th>Tipo</th>
-                                <th width="30">Del</th>
+                                <th><?php echo $this->lang->line(APP . '_label_name') ?></th>
+                                <th><?php echo $this->lang->line(APP . '_label_input') ?></th>
+                                <th><?php echo $this->lang->line(APP . '_label_column') ?></th>
+                                <th><?php echo $this->lang->line(APP . '_label_type') ?></th>
+                                <th width="30"><?php echo $this->lang->line(APP . '_label_list') ?></th>
+                                <th width="30"><?php echo $this->lang->line(APP . '_label_delete') ?></th>
                             </tr>
                         </thead>
                         <tbody id="sortable">
@@ -187,7 +187,9 @@ if (!defined('BASEPATH')) {
                                         <?php echo set_value('name_field[' . $i . ']', $name_field) ?>
                                     </td>
                                     <td><?php echo set_value('input_field[' . $i . ']', $type_field) ?></td>
-                                    <td><i class=" fa fa-<?php
+                                    <td><?php echo set_value('column_field[' . $i . ']', $column) ?></td>
+                                    <td><?php echo set_value('type_field[' . $i . ']', $type_column) ?></td>
+                                    <td align="center"><i class=" fa fa-<?php
                                         if (set_value('list_registers_field[' . $i . ']', $list_registers)) {
                                             echo 'check';
                                         } else {
@@ -195,14 +197,12 @@ if (!defined('BASEPATH')) {
                                         }
                                         ?>"></i>
                                     </td>
-                                    <td><?php echo set_value('column_field[' . $i . ']', $column) ?></td>
-                                    <td><?php echo set_value('type_field[' . $i . ']', $type_column) ?></td>
-                                    <td align="center"><input type="checkbox" class="check-remove" name="remove_field[<?php echo $i ?>]" title="Remover campo"> </td>
+                                    <td align="center"><input type="checkbox" class="check-remove" name="remove_field[<?php echo $i ?>]" title="<?php echo $this->lang->line(APP . '_title_delete')?>"> </td>
                                 </tr>
                                 <?php
                             }
                             if (!isset($name_field)) {
-                                echo '<tr class="msg-is-empty"><td colspan="6">Nenhum campo adicionado.</td></tr>';
+                                echo '<tr class="msg-is-empty"><td colspan="6">'.$this->lang->line(APP . '_fields_not_found').'</td></tr>';
                             }
                             ?>
                         </tbody>
@@ -210,7 +210,7 @@ if (!defined('BASEPATH')) {
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="form-group text-right">
-                                <input class="btn btn-primary" value="Salvar" name="send" type="submit">
+                                <input class="btn btn-primary" value="<?php echo $this->lang->line(APP . '_btn_save') ?>" name="send" type="submit">
                             </div>
                         </div>
                     </div>
@@ -224,33 +224,33 @@ if (!defined('BASEPATH')) {
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title" id="myModalLabel">Configurar campo</h4>
+                                <h4 class="modal-title" id="myModalLabel"><?php echo $this->lang->line(APP . '_title_config_field') ?></h4>
                             </div>
                             <div class="modal-body">
                                 <!-- Nav tabs -->
                                 <ul class="nav nav-tabs" role="tablist">
-                                    <li role="presentation" class="nav-tab active"><a href="#html" aria-controls="html" role="tab" data-toggle="tab">HTML</a></li>
-                                    <li role="presentation" class="nav-tab"><a href="#database" aria-controls="database" role="tab" data-toggle="tab">Banco de dados</a></li>
-                                    <li role="presentation" class="nav-tab"><a href="#plugins" aria-controls="plugins" role="tab" data-toggle="tab">Plugins</a></li>
+                                    <li role="presentation" class="nav-tab active"><a href="#html" aria-controls="html" role="tab" data-toggle="tab"><?php echo $this->lang->line(APP . '_tab_html') ?></a></li>
+                                    <li role="presentation" class="nav-tab"><a href="#database" aria-controls="database" role="tab" data-toggle="tab"><?php echo $this->lang->line(APP . '_tab_database') ?></a></li>
+                                    <li role="presentation" class="nav-tab"><a href="#plugins" aria-controls="plugins" role="tab" data-toggle="tab"><?php echo $this->lang->line(APP . '_tab_plugins') ?></a></li>
                                 </ul>
 
                                 <!-- Tab panes -->
                                 <div class="tab-content">
                                     <div role="tabpanel" class="tab-pane active" id="html">
-                                        <h4>Configurações html do input</h4>
+                                        <h4><?php echo $this->lang->line(APP . '_html_subtitle_config') ?></h4>
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label>Nome*</label>
+                                                    <label><?php echo $this->lang->line(APP . '_html_label_name') ?>*</label>
                                                     <input type="text" id="name_field" maxlength="45" class="form-control dig_name">
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label>Input*</label>
+                                                    <label><?php echo $this->lang->line(APP . '_html_label_input') ?>*</label>
                                                     <div id="content-field">
                                                         <select id="input_field" class="form-control select-input">
-                                                            <option value="">Selecione</option>
+                                                            <option value=""><?php echo $this->lang->line(APP . '_option_select') ?></option>
                                                             <?php
                                                             if (count($inputs)) {
                                                                 foreach ($inputs as $input) {
@@ -269,19 +269,19 @@ if (!defined('BASEPATH')) {
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label>Listagem</label>
+                                                    <label><?php echo $this->lang->line(APP . '_html_label_list') ?></label>
                                                     <select id="list_registers_field" class="form-control">
-                                                        <option value="0">Não</option>
-                                                        <option value="1">Sim</option>
+                                                        <option value="0"><?php echo $this->lang->line(APP . '_option_no') ?></option>
+                                                        <option value="1"><?php echo $this->lang->line(APP . '_option_yes') ?></option>
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label>Obrigatório</label>
+                                                    <label><?php echo $this->lang->line(APP . '_html_label_required') ?></label>
                                                     <select id="required_field" class="form-control">
-                                                        <option value="0">Não</option>
-                                                        <option value="1">Sim</option>
+                                                        <option value="0"><?php echo $this->lang->line(APP . '_option_no') ?></option>
+                                                        <option value="1"><?php echo $this->lang->line(APP . '_option_yes') ?></option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -290,29 +290,29 @@ if (!defined('BASEPATH')) {
                                         <hr>
                                         <div class="row">
                                             <div class="col-sm-6">
-                                                <h4>Atributos adicionais do input</h4>
+                                                <h4><?php echo $this->lang->line(APP . '_html_subtitle_additional_attributes') ?></h4>
                                                 <div id="attributes">
                                                     <div class="row attr-current">
                                                         <div class="col-sm-6">
                                                             <div class="form-group">
-                                                                <input type="text" value="" class="form-control param_attr_field" placeholder="Atributo">
+                                                                <input type="text" value="" class="form-control param_attr_field" placeholder="<?php echo $this->lang->line(APP . '_label_attribute') ?>">
                                                             </div>
                                                         </div>
                                                         <div class="col-sm-6">
                                                             <div class="form-group">
-                                                                <input type="text" value="" class="form-control value_attr_field" placeholder="Valor">
+                                                                <input type="text" value="" class="form-control value_attr_field" placeholder="<?php echo $this->lang->line(APP . '_label_value') ?>">
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <button type="button" id="add-attr" class="btn"><i class="fa fa-fw fa-plus"></i> Mais</button>
+                                                <button type="button" id="add-attr" class="btn"><i class="fa fa-fw fa-plus"></i> <?php echo $this->lang->line(APP . '_html_btn_plus') ?></button>
                                             </div>
                                             <div class="col-sm-6">
-                                                <h4>Adicionais</h4>
+                                                <h4><?php echo $this->lang->line(APP . '_html_subtitle_others') ?></h4>
                                                 <div class="row">
                                                     <div class="col-sm-12">
                                                         <div class="form-group">
-                                                            <label>Observações</label>
+                                                            <label><?php echo $this->lang->line(APP . '_html_label_observation') ?></label>
                                                             <textarea class="form-control" id="observation_field"></textarea>
                                                         </div>
                                                     </div>
@@ -321,19 +321,19 @@ if (!defined('BASEPATH')) {
                                         </div>
                                     </div>
                                     <div role="tabpanel" class="tab-pane" id="database">
-                                        <h4>Configurações do campo no banco de dados</h4>
+                                        <h4><?php echo $this->lang->line(APP . '_db_subtitle_config') ?></h4>
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label>Coluna*</label>
+                                                    <label><?php echo $this->lang->line(APP . '_db_label_column') ?>*</label>
                                                     <input type="text" id="column_field" class="form-control">
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label>Tipo*</label>
+                                                    <label><?php echo $this->lang->line(APP . '_db_label_type') ?>*</label>
                                                     <select id="type_field" class="form-control">
-                                                        <option value="">Selecione</option>
+                                                        <option value=""><?php echo $this->lang->line(APP . '_option_select') ?></option>
                                                         <?php
                                                         if (count($types)) {
                                                             foreach ($types as $type) {
@@ -350,16 +350,16 @@ if (!defined('BASEPATH')) {
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label>Limite</label>
+                                                    <label><?php echo $this->lang->line(APP . '_db_label_limit') ?></label>
                                                     <input type="text" id="limit_column_field" class="form-control">
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label>Valor único</label>
+                                                    <label><?php echo $this->lang->line(APP . '_db_label_unique') ?></label>
                                                     <select id="unique_field" class="form-control">
-                                                        <option value="0">Não</option>
-                                                        <option value="1">Sim</option>
+                                                        <option value="0"><?php echo $this->lang->line(APP . '_option_no') ?></option>
+                                                        <option value="1"><?php echo $this->lang->line(APP . '_option_yes') ?></option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -367,20 +367,20 @@ if (!defined('BASEPATH')) {
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label>Padrão</label>
+                                                    <label><?php echo $this->lang->line(APP . '_db_label_default') ?></label>
                                                     <input type="text" id="default_field" class="form-control">
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label>Comentário</label>
+                                                    <label><?php echo $this->lang->line(APP . '_db_label_comment') ?></label>
                                                     <input type="text" id="comment_field" class="form-control">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div role="tabpanel" class="tab-pane" id="plugins">
-                                        <h4>Plugins</h4>
+                                        <h4><?php echo $this->lang->line(APP . '_plugin_subtitle_config') ?></h4>
                                         <div class="list-group">
                                             <?php
                                             if (count($plugins_input)) {
@@ -401,8 +401,8 @@ if (!defined('BASEPATH')) {
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-                                <button type="button" class="btn btn-primary" id="btn-save">Salvar</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line(APP . '_btn_close') ?></button>
+                                <button type="button" class="btn btn-primary" id="btn-save"><?php echo $this->lang->line(APP . '_btn_save') ?></button>
                             </div>
                         </div>
                     </div>
@@ -413,15 +413,15 @@ if (!defined('BASEPATH')) {
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                                <h4>Configurar Select</h4>
+                                <h4><?php echo $this->lang->line(APP . '_title_config_select') ?></h4>
                             </div>
                             <div class="modal-body">
                                 <div class="row">
                                     <div class="col-md-4 options-field hide">
                                         <div class="form-group">
-                                            <label>Opções <span class="fa fa-question-circle fa-fw" title="Opções para seleção"></span></label>
+                                            <label><?php echo $this->lang->line(APP . '_label_options') ?></label>
                                             <select id="options_field" class="form-control select-options">
-                                                <option value="">Selecione</option>
+                                                <option value=""><?php echo $this->lang->line(APP . '_option_select') ?></option>
                                                 <?php
                                                 if ($sections) {
                                                     foreach ($sections as $arr) {
@@ -436,12 +436,12 @@ if (!defined('BASEPATH')) {
                                     </div>
                                     <div class="col-md-4 label-options-field hide">
                                         <div class="form-group">
-                                            <label>Rótulo <span class="fa fa-question-circle fa-fw" title="Nome da coluna onde estão localizado os labels para exibir no campo de seleção"></span></label>
+                                            <label><?php echo $this->lang->line(APP . '_label_label') ?></label>
                                             <select id="label_options_field" class="form-control select-label">
                                                 <?php
                                                 if ($label_options) {
                                                     ?>
-                                                    <option value="">Selecione</option>    
+                                                    <option value=""><?php echo $this->lang->line(APP . '_option_select') ?></option>    
                                                     <?php
                                                     foreach ($label_options as $col) {
                                                         ?>
@@ -450,7 +450,7 @@ if (!defined('BASEPATH')) {
                                                     }
                                                 } else {
                                                     ?>
-                                                    <option value="">Selecione a opção</option>    
+                                                    <option value=""><?php echo $this->lang->line(APP . '_option_select') ?></option>    
                                                     <?php
                                                 }
                                                 ?>
@@ -459,9 +459,9 @@ if (!defined('BASEPATH')) {
                                     </div>
                                     <div class="col-md-4 trigger-field hide">
                                         <div class="form-group">
-                                            <label>Select Gatilho <span class="fa fa-question-circle fa-fw" title="Serão listado as opções quanto o select indicado for selecionado."></span></label>
+                                            <label><?php echo $this->lang->line(APP . '_label_select_trigger') ?></label>
                                             <select id="trigger_select_field" class="form-control">
-                                                <option value="">Selecione</option>
+                                                <option value=""><?php echo $this->lang->line(APP . '_option_select') ?></option>
                                                 <?php
                                                 if ($selects) {
                                                     foreach ($selects as $select) {
@@ -479,8 +479,8 @@ if (!defined('BASEPATH')) {
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn" data-dismiss="modal" aria-hidden="true">Fechar</button>
-                                <button class="btn btn-primary" id="btn-save-select" data-dismiss="modal" aria-hidden="true">Salvar</button>
+                                <button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo $this->lang->line(APP . '_btn_close') ?></button>
+                                <button class="btn btn-primary" id="btn-save-select" data-dismiss="modal" aria-hidden="true"><?php echo $this->lang->line(APP . '_btn_save') ?></button>
                             </div>
                         </div>
                     </div>
@@ -491,88 +491,88 @@ if (!defined('BASEPATH')) {
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                                <h4>Configurar envio</h4>
+                                <h4><?php echo $this->lang->line(APP . '_title_config_upload') ?></h4>
                             </div>
                             <div class="modal-body">
                                 <div class="row form-group">
                                     <div class="col-sm-12">
-                                        <label title="">Extensões permitidas</label>
-                                        <input type="text" class="input-large form-control" id="extensions_allowed" placeholder="Formato de arquivos separado por virgula (Opcional)">
+                                        <label title=""><?php echo $this->lang->line(APP . '_label_extensions') ?></label>
+                                        <input type="text" class="input-large form-control" id="extensions_allowed" placeholder="<?php echo $this->lang->line(APP . '_placeholder_extensions') ?>">
                                     </div>
                                 </div>
                                 <div id="config-upload-image">
                                     <hr>
-                                    <h4 class="text-center">Redimensionamento</h4>
+                                    <h4 class="text-center"><?php echo $this->lang->line(APP . '_label_resize') ?></h4>
                                     <div class="row form-group">
                                         <div class="col-sm-12">
-                                            <label>Redimensionar imagem ?</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_extensions') ?></label>
                                             <select class="input-large form-control" id="input_image_resize">
-                                                <option value="">Não</option>
-                                                <option value="true">Sim</option>
+                                                <option value=""><?php echo $this->lang->line(APP . '_option_no') ?></option>
+                                                <option value="true"><?php echo $this->lang->line(APP . '_option_yes') ?></option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="row form-group">
                                         <div class="col-sm-6">
-                                            <label title="Difinir a largura da imagem">Largura</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_width') ?></label>
                                             <input type="text" class="input-large form-control" id="input_image_x">
 
                                         </div>
                                         <div class="col-sm-6">
-                                            <label title="Definir a altura da imagem">Altura</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_height') ?></label>
                                             <input type="text" class="input-large form-control" id="input_image_y">
 
                                         </div>
                                     </div>
                                     <div class="row form-group">
                                         <div class="col-sm-6">
-                                            <label title="Redimensionar largura e altura da imagem proporcionalmente">Redim. Altura</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_auto_resize') ?></label>
                                             <select class="input-large form-control" id="input_image_ratio">
-                                                <option value="">Não</option>
-                                                <option value="true">Sim</option>
+                                                <option value=""><?php echo $this->lang->line(APP . '_option_no') ?></option>
+                                                <option value="true"><?php echo $this->lang->line(APP . '_option_yes') ?></option>
                                             </select>
                                         </div>
                                         <div class="col-sm-6">
-                                            <label title="Redimensionar largura da imagem proporcionalmente">Redim. Largura</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_auto_resize_width') ?></label>
                                             <select class="input-large form-control" id="input_image_ratio_x">
-                                                <option value="">Não</option>
-                                                <option value="true">Sim</option>
+                                                <option value=""><?php echo $this->lang->line(APP . '_option_no') ?></option>
+                                                <option value="true"><?php echo $this->lang->line(APP . '_option_yes') ?></option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="row form-group">
                                         <div class="col-sm-6">
-                                            <label  title="Redimensionar altura da imagem proporcionalmente">Redim. proporcional</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_auto_resize_height') ?></label>
                                             <select class="input-large form-control" id="input_image_ratio_y">
-                                                <option value="">Não</option>
-                                                <option value="true">Sim</option>
+                                                <option value=""><?php echo $this->lang->line(APP . '_option_no') ?></option>
+                                                <option value="true"><?php echo $this->lang->line(APP . '_option_yes') ?></option>
                                             </select>
                                         </div>
                                         <div class="col-sm-6">
-                                            <label title="Cortar imagem por tamanho definido">Cortar imagem</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_crop') ?></label>
                                             <select class="input-large form-control" id="input_image_ratio_crop">
-                                                <option value="">Não</option>
-                                                <option value="true">Sim, alinhar corte no centro</option>
-                                                <option value="L">Sim, alinhar corte na esquerda</option>
-                                                <option value="R">Sim, alinhar corte na direita</option>
+                                                <option value=""><?php echo $this->lang->line(APP . '_option_no') ?></option>
+                                                <option value="true"><?php echo $this->lang->line(APP . '_crop_option_align_center') ?></option>
+                                                <option value="L"><?php echo $this->lang->line(APP . '_crop_option_align_left') ?></option>
+                                                <option value="R"><?php echo $this->lang->line(APP . '_crop_option_align_right') ?></option>
                                             </select>
 
                                         </div>
                                     </div>
                                     <div class="row form-group">
                                         <div class="col-sm-6">
-                                            <label title="Preencher imagem com tamanho fixo">Preencher imagem</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_fill') ?></label>
                                             <select class="input-large form-control" id="input_image_ratio_fill">
-                                                <option value="">Não</option>
-                                                <option value="true">Sim, preencher alinhando imagem no centro</option>
-                                                <option value="L">Sim, preencher alinhando imagem na esquerda</option>
-                                                <option value="R">Sim, preencher alinhando imagem na direita</option>
+                                                <option value=""><?php echo $this->lang->line(APP . '_option_no') ?></option>
+                                                <option value="true"><?php echo $this->lang->line(APP . '_fill_option_align_center') ?></option>
+                                                <option value="L"><?php echo $this->lang->line(APP . '_fill_option_align_left') ?></option>
+                                                <option value="R"><?php echo $this->lang->line(APP . '_fill_option_align_right') ?></option>
                                             </select>
 
                                         </div>
                                         <div class="col-sm-6">
-                                            <label title="Definir a cor de fundo do preenchimento da imagem">Cor de fundo</label>
-                                            <input type="text" placeholder="Ex: #999999" class="input-large form-control" id="input_image_background_color">
+                                            <label><?php echo $this->lang->line(APP . '_label_background_color') ?></label>
+                                            <input type="text" class="input-large form-control" id="input_image_background_color">
 
                                         </div>
                                     </div>
@@ -580,9 +580,9 @@ if (!defined('BASEPATH')) {
                                     <h4 class="text-center">Conversão</h4>
                                     <div class="row form-group">
                                         <div class="col-sm-12">
-                                            <label title="Coverter imagens">Converter imagem</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_convert') ?></label>
                                             <select class="input-large form-control" id="input_image_convert">
-                                                <option value="">Não</option>
+                                                <option value=""><?php echo $this->lang->line(APP . '_option_no') ?></option>
                                                 <option value="jpg">JPG/JPEG</option>
                                                 <option value="png">PNG</option>
                                                 <option value="gif">GIF</option>
@@ -590,103 +590,103 @@ if (!defined('BASEPATH')) {
                                         </div>
                                     </div>
                                     <hr>
-                                    <h4 class="text-center">Marca d'agua</h4>
+                                    <h4 class="text-center"><?php echo $this->lang->line(APP . '_subtitle_water_mark') ?></h4>
                                     <div class="row form-group">
                                         <div class="col-sm-4">
-                                            <label title="">Texto</label>
+                                            <label title=""><?php echo $this->lang->line(APP . '_label_text') ?></label>
                                             <input type="text" class="input-large form-control" id="input_image_text">
                                         </div>
                                         <div class="col-sm-4">
-                                            <label>Cor do texto</label>
-                                            <input type="color" placeholder="Ex: #999999" class="input-large form-control" id="input_image_text_color">
+                                            <label><?php echo $this->lang->line(APP . '_label_text_color') ?></label>
+                                            <input type="color" class="input-large form-control" id="input_image_text_color">
                                         </div>
                                         <div class="col-sm-4">
-                                            <label>Cor de fundo do texto</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_background_text') ?></label>
                                             <input type="color" class="input-large form-control" id="input_image_text_background">
                                         </div>
                                     </div>
                                     <div class="row form-group">
                                         <div class="col-sm-4">
-                                            <label>Opacidade do texto (0/100)</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_opacity_text') ?></label>
                                             <input type="text" class="input-large form-control" id="input_image_text_opacity">
                                         </div>
                                         <div class="col-sm-4">
-                                            <label>Opacidade do fundo(0/100)</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_opacity_background') ?></label>
                                             <input type="text" class="input-large form-control" id="input_image_text_background_opacity">
                                         </div>
                                         <div class="col-sm-4">
-                                            <label >Espaço interno (px)</label>
+                                            <label ><?php echo $this->lang->line(APP . '_label_padding') ?></label>
                                             <input type="text" class="input-large form-control" id="input_image_text_padding">
                                         </div>
                                     </div>
                                     <div class="row form-group">
                                         <div class="col-sm-6">
-                                            <label>Posição</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_position') ?></label>
                                             <select class="input-large form-control" id="input_image_text_position">
-                                                <option value="">Não</option>
-                                                <option value="TL">Topo, Esquerda</option>
-                                                <option value="TR">Topo, Direita</option>
-                                                <option value="L">Centro, Esquerda</option>
-                                                <option value="R">Centro, Direita</option>
-                                                <option value="BL">Rodapé, Esquerda</option>
-                                                <option value="BR">Rodapé, Direita</option>
+                                                <option value=""><?php echo $this->lang->line(APP . '_option_no') ?></option>
+                                                <option value="TL"><?php echo $this->lang->line(APP . '_position_option_top_left') ?></option>
+                                                <option value="TR"><?php echo $this->lang->line(APP . '_position_option_top_right') ?></option>
+                                                <option value="L"><?php echo $this->lang->line(APP . '_position_option_center_left') ?></option>
+                                                <option value="R"><?php echo $this->lang->line(APP . '_position_option_center_right') ?></option>
+                                                <option value="BL"><?php echo $this->lang->line(APP . '_position_option_bottom_left') ?></option>
+                                                <option value="BR"><?php echo $this->lang->line(APP . '_position_option_bottom_right') ?></option>
                                             </select>
                                         </div>
                                         <div class="col-sm-6">
-                                            <label>Orientação</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_orientation') ?></label>
                                             <select class="input-large form-control" id="input_image_text_direction">
-                                                <option value="">Horizontal (-)</option>
-                                                <option value="v">Vertical (|)</option>
+                                                <option value=""><?php echo $this->lang->line(APP . '_orientation_option_horizontal') ?></option>
+                                                <option value="v"><?php echo $this->lang->line(APP . '_orientation_option_vertical') ?></option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="row form-group">
                                         <div class="col-sm-6">
-                                            <label>Posição - X (px)</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_position_x') ?></label>
                                             <input type="text" class="input-large form-control" id="input_image_text_x">
                                         </div>
                                         <div class="col-sm-6">
-                                            <label>Posição - Y (px)</label>
+                                            <label><?php echo $this->lang->line(APP . '_label_position_y') ?></label>
                                             <input type="text" class="input-large form-control" id="input_image_text_y">
                                         </div>
                                     </div>
                                     <hr>
-                                    <h4 class="text-center">Miniaturas</h4>
+                                    <h4 class="text-center"><?php echo $this->lang->line(APP . '_subtitle_thumbnails') ?></h4>
                                     <div class="thumbnails">
                                         <div class="row form-group">
                                             <div class="col-sm-3">
-                                                <label title="Difinir altura do efeito reflexo">Prefixo*</label>
+                                                <label><?php echo $this->lang->line(APP . '_label_preffix') ?>*</label>
                                                 <input type="text" class="input-large form-control image_thumb_preffix">
                                             </div>
                                             <div class="col-sm-3">
-                                                <label title="Adicionar opacidade de 0 a 100 no reflexo">Largura (px)*</label>
+                                                <label><?php echo $this->lang->line(APP . '_label_width') ?>*</label>
                                                 <input type="text" class="input-large form-control image_thumb_width">
                                             </div>
                                             <div class="col-sm-3">
-                                                <label title="Difinir altura do efeito reflexo">Altura (px)</label>
+                                                <label><?php echo $this->lang->line(APP . '_label_height') ?></label>
                                                 <input type="text" class="input-large form-control image_thumb_height">
                                             </div>
                                             <div class="col-sm-3">
-                                                <label title="Cortar imagem por tamanho definido">Cortar imagem</label>
+                                                <label><?php echo $this->lang->line(APP . '_label_crop') ?></label>
                                                 <select class="input-large form-control image_thumb_ratio_crop">
-                                                    <option value="">Não</option>
-                                                    <option value="true">Sim, alinhar corte no centro</option>
-                                                    <option value="L">Sim, alinhar corte na esquerda</option>
-                                                    <option value="R">Sim, alinhar corte na direita</option>
+                                                    <option value=""><?php echo $this->lang->line(APP . '_option_no') ?></option>
+                                                    <option value="true"><?php echo $this->lang->line(APP . '_crop_option_align_center') ?></option>
+                                                    <option value="L"><?php echo $this->lang->line(APP . '_crop_option_align_left') ?></option>
+                                                    <option value="R"><?php echo $this->lang->line(APP . '_crop_option_align_right') ?></option>
                                                 </select>
                                             </div>
                                         </div>
                                     </div>
-                                    <a class="btn btn-default" id="btn-add-thumbnail"><span class="fa fa-plus"></span> Miniatura</a><br>
+                                    <a class="btn btn-default" id="btn-add-thumbnail"><span class="fa fa-plus"></span> <?php echo $this->lang->line(APP . '_btn_thumbnail') ?></a><br>
                                     <br><br>
-                                    <a class="btn btn-default btn-block" id="btn_refresh_image">Atualizar visualização</a>
-                                    <strong>Pré-visualização</strong><br>
+                                    <a class="btn btn-default btn-block" id="btn_refresh_image"><?php echo $this->lang->line(APP . '_btn_update_image') ?></a>
+                                    <strong><?php echo $this->lang->line(APP . '_label_pre_visualization') ?></strong><br>
                                     <img id="image_example" src="<?php echo base_url_app('sections/image-example'); ?>" style="background-image: url('<?php echo base_url(APP_ASSETS . 'images/transp.gif'); ?>') !important; max-width:100%;">
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
-                                <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Salvar</button>
+                                <button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo $this->lang->line(APP . '_btn_close') ?></button>
+                                <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true"><?php echo $this->lang->line(APP . '_btn_save') ?></button>
                             </div>
                         </div>
                     </div>
@@ -701,14 +701,14 @@ if (!defined('BASEPATH')) {
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title" id="myModalLabel">Importar tabela</h4>
+                                    <h4 class="modal-title" id="myModalLabel"><?php echo $this->lang->line(APP . '_title_import_table') ?></h4>
                                 </div>
                                 <div class="modal-body">
-                                    <div class="alert alert-warning">Atenção: Ao importar uma tabela, todos os campos criados anteriormente serão apagados.</div>
+                                    <div class="alert alert-warning"><?php echo $this->lang->line(APP . '_warning_import') ?></div>
                                     <div class="form-group">
-                                        <label for="table">Selecione a tabela</label>
+                                        <label for="table"><?php echo $this->lang->line(APP . '_label_select_table') ?></label>
                                         <select name="table" id="table-value" class="form-control">
-                                            <option value="">Selecione</option>
+                                            <option value=""><?php echo $this->lang->line(APP . '_option_select') ?></option>
                                             <?php
                                             if (count($tables_import) > 0) {
                                                 foreach ($tables_import as $arr) {
@@ -723,8 +723,8 @@ if (!defined('BASEPATH')) {
                                     <div id="msg-import"></div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-                                    <button type="submit" class="btn btn-primary" id="btn-save-import">Selecionar</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line(APP . '_btn_close') ?></button>
+                                    <button type="submit" class="btn btn-primary" id="btn-save-import"><?php echo $this->lang->line(APP . '_btn_select') ?></button>
                                 </div>
                             </div>
                             <?php echo form_close(); ?>
@@ -737,3 +737,24 @@ if (!defined('BASEPATH')) {
         </div>
     </div>
 </div>
+<script type="text/javascript">
+    var LANG = {
+        label_loading: '<?php echo $this->lang->line(APP . '_loading') ?>',
+        label_preffix: '<?php echo $this->lang->line(APP . '_label_preffix') ?>',
+        label_width: '<?php echo $this->lang->line(APP . '_label_width') ?>',
+        label_height: '<?php echo $this->lang->line(APP . '_label_height') ?>',
+        label_crop: '<?php echo $this->lang->line(APP . '_label_crop') ?>',
+        option_crop_center: '<?php echo $this->lang->line(APP . '_crop_option_align_center') ?>',
+        option_crop_left: '<?php echo $this->lang->line(APP . '_crop_option_align_left') ?>',
+        option_crop_right: '<?php echo $this->lang->line(APP . '_crop_option_align_right') ?>',
+        option_no: '<?php echo $this->lang->line(APP . '_option_no') ?>',
+        option_select: '<?php echo $this->lang->line(APP . '_option_select') ?>',
+        label_attribute: '<?php echo $this->lang->line(APP . '_html_label_attribute') ?>',
+        label_value: '<?php echo $this->lang->line(APP . '_html_label_value') ?>',
+        error_all_fields_required: '<?php echo $this->lang->line(APP . '_all_fields_required') ?>',
+        error_name_exists: '<?php echo $this->lang->line(APP . '_name_exists') ?>',
+        error_column_exists: '<?php echo $this->lang->line(APP . '_column_name_exists') ?>',
+        error_column_equals_table: '<?php echo $this->lang->line(APP . '_column_equals_table') ?>',
+        
+    };
+</script>

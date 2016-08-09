@@ -16,6 +16,7 @@ class Pages extends MY_Controller {
         parent::__construct();
         $this->load->model_app('pages_model');
         $this->path_view_project = 'application/' . APP_PATH . 'views/project/';
+        $this->data = $this->apps->data_app();
     }
 
     /*
@@ -23,6 +24,7 @@ class Pages extends MY_Controller {
      */
 
     public function index() {
+        $this->lang->load_app('pages/pages');
         $project = get_project();
         $dev_mode = $this->data_user['dev_mode'];
         $limit = 10;
@@ -33,6 +35,7 @@ class Pages extends MY_Controller {
 
         $vars = [
             'title' => $project['name'],
+            'name_app' => $this->data['name'],
             'pages' => $this->includeSections($pages),
             'pagination' => $pagination,
             'total' => $total_rows,
@@ -52,7 +55,7 @@ class Pages extends MY_Controller {
      */
 
     private function form_search($project, $dev_mode) {
-        $this->form_validation->set_rules('search', 'Pesquisa', 'trim|required');
+        $this->form_validation->set_rules('search', $this->lang->line(APP . '_field_search'), 'trim|required');
         $keyword = $this->input->get('search');
         $perPage = $this->input->get('per_page');
         $this->form_validation->run();
@@ -112,10 +115,12 @@ class Pages extends MY_Controller {
 
     public function create() {
         func_only_dev();
+        $this->lang->load_app('pages/form');
         $project = get_project();
         $this->form_create($project);
         $vars = [
-            'title' => 'Nova página',
+            'title' => $this->lang->line(APP . '_title_add_page'),
+            'name_app' => $this->data['name'],
             'project' => $project,
             'name' => '',
             'status' => ''
@@ -128,15 +133,18 @@ class Pages extends MY_Controller {
      */
 
     public function form_create($project) {
-        $this->form_validation->set_rules('name', 'Nome', 'required|is_unique[wd_pages.name]');
-        $this->form_validation->set_rules('status', 'Status', 'required|integer');
-        if ($this->form_validation->run()) {
-            $name = $this->input->post('name');
-            $status = $this->input->post('status');
-            $slug = slug($name);
-            $dir_page = $this->path_view_project . $project['directory'] . '/';
-            //Tenta criar o novo diretório
-            if (is_writable($dir_page)) {
+        try {
+            $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'required|is_unique[wd_pages.name]');
+            $this->form_validation->set_rules('status', $this->lang->line(APP . '_label_status'), 'required|integer');
+            if ($this->form_validation->run()) {
+                $name = $this->input->post('name');
+                $status = $this->input->post('status');
+                $slug = slug($name);
+                $dir_page = $this->path_view_project . $project['directory'] . '/';
+                //Tenta criar o novo diretório
+                if (!is_writable($dir_page)) {
+                    throw new Exception(printf($this->lang->line(APP . '_not_allowed_create'), $dir_page));
+                }
                 // Caso o diretório seja criado, os valores são inseridos no banco de dados
                 $id_user = $this->data_user['id'];
                 $data = [
@@ -151,10 +159,10 @@ class Pages extends MY_Controller {
                 $this->pages_model->create($data);
                 redirect_app('project/' . $project['slug']);
             } else {
-                setError('createPage', 'Você não possui privilégios suficiente para criar um diretório em "' . $dir_page . '" ou esse diretório não existe.');
+                setError(validation_errors());
             }
-        } else {
-            setError('createPage', validation_errors());
+        } catch (Exception $e) {
+            setError($e->getMessage());
         }
     }
 
@@ -164,6 +172,7 @@ class Pages extends MY_Controller {
 
     public function edit($slug_page) {
         func_only_dev();
+        $this->lang->load_app('pages/form');
         $project = get_project();
         $page = $this->pages_model->get_page($slug_page);
         if (!$project or ! $page) {
@@ -171,7 +180,8 @@ class Pages extends MY_Controller {
         }
         $this->form_edit($project, $page);
         $vars = [
-            'title' => 'Editar página',
+            'title' => $this->lang->line(APP . '_title_edit_page'),
+            'name_app' => $this->data['name'],
             'project' => $project,
             'name' => $page['name'],
             'status' => $page['status']
@@ -184,29 +194,31 @@ class Pages extends MY_Controller {
      */
 
     public function form_edit($project, $page) {
-        $this->form_validation->set_rules('name', 'Nome', 'required');
-        $this->form_validation->set_rules('status', 'Status', 'required|integer');
-        if ($page['name'] != $this->input->post('name')) {
-            // Verifica se houve alterações no nome da página e se houer, verifica a existência no banco de dados
-            $this->form_validation->set_rules('name', 'Nome', 'required|is_unique[wd_pages.name]');
-        }
-        if ($this->form_validation->run()) {
+        try {
+            $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'required');
+            $this->form_validation->set_rules('status', $this->lang->line(APP . '_label_status'), 'required|integer');
             $name = $this->input->post('name');
             $status = $this->input->post('status');
-            $slug = slug($name);
-            $dir_project = $this->path_view_project . $project['directory'] . '/';
-            if ($slug != $page['slug']) {
-                //Se o slug da página estiver diferente do slug atual
-                if (is_dir($dir_project . $slug)) {
-                    // Se já existir uma pasta com o slug atual
-                    setError('editPage', 'Não foi possível renomear a página, esse nome (diretório) já existe.');
-                } elseif (!@rename($dir_project . $page['directory'], $dir_project . $slug)) {
-                    // Se a nova pasta não for renomeada
-                    setError('editPage', 'Não foi possível renomear a página, você não possui privilégios.');
-                    $name = $page['name'];
-                }
+            if ($page['name'] != $name) {
+                // Verifica se houve alterações no nome da página e se houer, verifica a existência no banco de dados
+                $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'required|is_unique[wd_pages.name]');
             }
-            if (!hasError()) {
+            if ($this->form_validation->run()) {
+                $slug = slug($name);
+                $dir_project = $this->path_view_project . $project['directory'] . '/';
+                if ($slug != $page['slug']) {
+                    //Se o slug da página estiver diferente do slug atual
+                    if (is_dir($dir_project . $slug)) {
+                        // Se já existir uma pasta com o slug atual
+                        throw new Exception($this->lang->line(APP . '_folder_exists'));
+                    }
+
+                    if (!is_writable($dir_project . $page['directory'])) {
+                        // Se a nova pasta não puder ser renomeada
+                        throw new Exception($this->lang->line(APP . '_not_allowed_create'));
+                    }
+                    rename($dir_project . $page['directory'], $dir_project . $slug);
+                }
                 // Caso não haja erros, os dados são alterados no banco de dados
                 $data = [
                     'name' => $name,
@@ -216,9 +228,11 @@ class Pages extends MY_Controller {
                 ];
                 $this->pages_model->edit($data);
                 redirect_app('project/' . $project['slug']);
+            } else {
+                setError(validation_errors());
             }
-        } else {
-            setError('editPage', validation_errors());
+        } catch (Exception $e) {
+            setError($e->getMessage());
         }
     }
 
@@ -228,14 +242,16 @@ class Pages extends MY_Controller {
 
     public function remove($slug_page) {
         func_only_dev();
+        $this->lang->load_app('pages/remove');
         $project = get_project();
         $page = $this->pages_model->get_page($slug_page);
-        if (!$page or !$project) {
+        if (!$page or ! $project) {
             redirect_app();
         }
         $this->form_remove($page, $project);
         $vars = array(
-            'title' => 'Remover a página '.$page['name'],
+            'title' => sprintf($this->lang->line(APP . '_title_remove_page'), $page['name']),
+            'name_app' => $this->data['name'],
             'project' => $project,
             'page' => $page
         );
@@ -243,12 +259,12 @@ class Pages extends MY_Controller {
     }
 
     private function form_remove($page, $project) {
-        $this->form_validation->set_rules('password', 'Senha', 'required|callback_verify_password');
-        $this->form_validation->set_rules('page', 'Página', 'trim|required|integer');
+        $this->form_validation->set_rules('password', $this->lang->line(APP . '_label_password'), 'required|callback_verify_password');
+        $this->form_validation->set_rules('page', $this->lang->line(APP . '_label_page'), 'trim|required|integer');
         if ($this->form_validation->run()) {
             $slug_project = $project['slug'];
             $slug_page = $page['slug'];
-            
+
             if ($page['id'] == $this->input->post('page')) {
                 $dir_project = $project['directory'];
                 $dir_page = $page['directory'];
@@ -264,7 +280,7 @@ class Pages extends MY_Controller {
             }
         }
     }
-    
+
     /*
      * Método para verificar senha
      */
@@ -276,7 +292,7 @@ class Pages extends MY_Controller {
         $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
         // Verifica se a senha está errada
         if (!$PasswordHash->CheckPassword($v_pass, $pass_user)) {
-            $this->form_validation->set_message('verify_password', 'A senha informada está incorreta.');
+            $this->form_validation->set_message('verify_password', $this->lang->line(APP . '_incorrect_password'));
             return false;
         }
 

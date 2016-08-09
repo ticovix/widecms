@@ -10,9 +10,11 @@ class My_account extends MY_Controller {
      */
 
     public function index() {
+        $this->lang->load_app(APP);
+        $data = $this->apps->data_app();
         $user = $this->data_user;
-        if(!check_method('edit')){
-            redirect('apps/users/profile/'.$user['login']);
+        if (!check_method('edit')) {
+            redirect('apps/users/profile/' . $user['login']);
         }
         $this->form_edit();
 
@@ -31,10 +33,10 @@ class My_account extends MY_Controller {
             '/plugins/dropzone/css/dropzone.css',
             'css/style.css'
         ));
-        
+
 
         $vars = array(
-            'title' => 'Minha conta',
+            'title' => $data['name'],
             'name' => $user['name'],
             'login' => $user['login'],
             'last_name' => $user['last_name'],
@@ -52,13 +54,13 @@ class My_account extends MY_Controller {
     private function form_edit() {
         $user = $this->data_user;
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-        if($this->input->post('email')!=$user['email']){
+        if ($this->input->post('email') != $user['email']) {
             $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]|valid_email');
         }
-        if($this->input->post('login')!=$user['login']){
+        if ($this->input->post('login') != $user['login']) {
             $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]|min_length[3]');
         }
-        
+
         if ($this->form_validation->run()) {
             $data = [
                 'id' => $user['id'],
@@ -79,7 +81,7 @@ class My_account extends MY_Controller {
             }
             $this->load->model_app('user_model');
             $this->user_model->update($data);
-            add_history('Atualizou o perfil');
+            add_history($this->lang->line(APP . '_update_profile'));
             redirect(current_url());
         }
     }

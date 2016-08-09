@@ -8,3 +8,7 @@
 .content-files{
     clear: both;
 }
+
+.register-current.checked{
+    background-color: #eee !important;
+}

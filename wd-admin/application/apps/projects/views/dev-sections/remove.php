@@ -5,8 +5,8 @@ if (!defined('BASEPATH')) {
 ?>
 
 <ul class="breadcrumb">
-    <li><a href="<?php echo base_url() ?>">Home</a></li>
-    <li><a href="<?php echo base_url_app() ?>">Projetos</a></li>
+    <li><a href="<?php echo base_url() ?>"><i class="fa fa-home"></i></a></li>
+    <li><a href="<?php echo base_url_app() ?>"><?php echo $name_app ?></a></li>
     <li><a href="<?php echo base_url_app('project/' . $project['slug']) ?>"><?php echo $project['name'] ?></a></li>
     <li class="active"><?php echo $title ?></li>
 </ul>
@@ -25,15 +25,15 @@ if (!defined('BASEPATH')) {
                 ?>
                 <input type="hidden" name="section" value="<?php echo $section['id'] ?>">
                 <div class="alert alert-danger">
-                    <h4>Deseja realmente remover a seção <?php echo $section['name'] ?>?</h4>
-                    <p><strong>Atenção:</strong> A remoção será permanente, sem possibilidade de restauração.</p>
+                    <h4><?php printf($this->lang->line(APP . '_ask_remove_section'), $section['name']); ?></h4>
+                    <p><?php echo $this->lang->line(APP . '_warning_remove'); ?></p>
                 </div>
                 <div class="form-group">
-                    <label>Informe sua senha para confirmar a remoção:</label>
+                    <label><?php echo $this->lang->line(APP . '_label_confirm_password'); ?></label>
                     <input type="password" class="form-control" name="password">
                 </div>
                 <div class="form-group text-right">
-                    <input class="btn btn-danger" value="Remover" name="send" type="submit">
+                    <input class="btn btn-danger" value="<?php echo $this->lang->line(APP . '_btn_remove'); ?>" name="send" type="submit">
                 </div>
                 <?php echo form_close(); ?>
             </div>
