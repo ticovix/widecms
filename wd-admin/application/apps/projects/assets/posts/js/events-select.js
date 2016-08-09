@@ -1,4 +1,7 @@
 $(function () {
+
+    $(".chosen-select" ).chosen();
+
     var project = $("#data-project").data("project");
     var page = $("#data-project").data("page");
     var section = $("#data-project").data("section");
@@ -8,10 +11,11 @@ $(function () {
         var index = $(".trigger-select").index(this);
 
         if ($("select").hasClass("trigger-" + name)) {
+
             var select = $(".trigger-" + name).not($(this).eq(index));
             var name_destination = select.attr("name");
 
-            select.html($("<option>").val("").html("Carregando.."));
+            select.html($("<option>").val("").html(".."));
             $.ajax({
                 url: app_path + 'posts/options-json',
                 dataType: 'json',
@@ -32,6 +36,7 @@ $(function () {
                         var option = $("<option>").val(dt.value).html(dt.label);
                         select.append(option);
                     }
+                    select.trigger("chosen:updated");
                 }
             });
         }
