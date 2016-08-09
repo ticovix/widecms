@@ -7,14 +7,15 @@ class MY_Controller extends CI_Controller {
 
     public function __construct() {
         parent::__construct();
+        $this->lang->load('cms/panel/index');
         $this->load->library('apps');
         $this->security();
         $this->allow_project_list();
         $this->check_permissions();
-        $default_values = [
+        $default_values = array(
             'PROFILE' => $this->data_user,
             'APPS' => $this->apps->list_apps()
-        ];
+        );
         $this->load->setVars($default_values);
     }
 
