@@ -1,5 +1,4 @@
 $(function () {
-    $('.add-mask').setMask();
 
     if ($('input').hasClass('date-mod')) {
         $(".date-mod").datepicker({
