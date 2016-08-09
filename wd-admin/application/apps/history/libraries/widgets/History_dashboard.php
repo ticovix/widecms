@@ -1,9 +1,6 @@
 <?php
 
 class History_dashboard {
-
-    public $name = 'Atividades recentes';
-
     public function __construct() {
         add_css(array(
             'css/dashboard.css'

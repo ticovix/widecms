@@ -2,15 +2,14 @@
 
 class Gallery_dashboard {
 
-    public $name = "Galeria";
     public $limit = 6;
 
     public function __construct() {
         $CI =& get_instance();
+        $CI->lang->load_app('gallery','gallery');
         $search = $this->form_search();
         $files = $search['files'];
-        $total = $search['total'];
-        if (check_method('upload')) {
+        if (check_method('upload','gallery')) {
             add_js(array(
                 '/plugins/dropzone/js/dropzone.js'
             ));
@@ -33,7 +32,8 @@ class Gallery_dashboard {
         
         $vars = array(
             'title' => 'Galeria',
-            'files' => $files
+            'files' => $files,
+            'lang' => $CI->lang
         );
         
         $CI->load->view_app('dashboard', 'gallery', $vars);
