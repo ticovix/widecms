@@ -483,4 +483,22 @@ if (!function_exists('format_xml_string')) {
         return $result;
     }
 
-}    
+}
+
+if (!function_exists('load_gallery_upload')) {
+    function load_gallery(){
+        add_css(array(
+            '/plugins/fancybox/css/jquery.fancybox.css',
+            '/plugins/fancybox/css/jquery.fancybox-buttons.css',
+            '/plugins/dropzone/css/dropzone.css',
+        ));
+        add_js(array(
+            '/plugins/dropzone/js/dropzone.js',
+            '/plugins/fancybox/js/jquery.fancybox.pack.js',
+            '/plugins/fancybox/js/jquery.fancybox-buttons.js',
+            '/plugins/embeddedjs/ejs.js',
+        ));
+        add_css('css/gallery_modal.css', 'gallery');
+        add_js('js/upload.js', 'gallery');
+    }
+}

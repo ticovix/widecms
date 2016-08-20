@@ -493,5 +493,18 @@ class Gallery extends MY_Controller {
         }
         return true;
     }
+    
+    public function list_permissions(){
+        $data = array();
+        $data['app'] = check_app('gallery');
+        $data['upload'] = check_method('upload', 'gallery');
+        $data['view'] = check_method('view-files', 'gallery');
+        echo json_encode($data);
+    }
+    
+    public function list_lang(){
+        $this->lang->load_app('gallery');
+        echo json_encode($this->lang->language);
+    }
 
 }

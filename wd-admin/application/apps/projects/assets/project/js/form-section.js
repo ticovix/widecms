@@ -71,7 +71,7 @@ $(function () {
         cursor: "move",
         cursorAt: {top: -5, left: -5},
         helper: function (event) {
-            return $("<div class=''>Mover campo</div>");
+            return $("<div class='fa fa-arrows-v fa-2x'></div>");
         },
         stop: function (event) {
             $(".field-current").each(function () {

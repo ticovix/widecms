@@ -17,20 +17,13 @@ class My_account extends MY_Controller {
             redirect('apps/users/profile/' . $user['login']);
         }
         $this->form_edit();
-
+        // Carregar plugin de upload
+        load_gallery();
         add_js(array(
-            '/plugins/dropzone/js/dropzone.js',
-            '/plugins/fancybox/js/jquery.fancybox.pack.js',
-            '/plugins/fancybox/js/jquery.fancybox-buttons.js',
-            '/plugins/embeddedjs/ejs.js',
-            'js/load_gallery.js',
             'js/upload.js',
             'js/form.js'
         ));
         add_css(array(
-            '/plugins/fancybox/css/jquery.fancybox.css',
-            '/plugins/fancybox/css/jquery.fancybox-buttons.css',
-            '/plugins/dropzone/css/dropzone.css',
             'css/style.css'
         ));
 

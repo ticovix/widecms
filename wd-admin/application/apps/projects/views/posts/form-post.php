@@ -38,9 +38,9 @@ if (!defined('BASEPATH')) {
             <div class="x_content row">
                 <?php
                 $type = $this->uri->segment(7);
-                if($type === 'edit' or $type === 'create'){
+                if ($type === 'edit' or $type === 'create') {
                     $check_method = check_method($method . '-' . $type);
-                }else{
+                } else {
                     $check_method = check_method($method);
                 }
                 if ($check_method) {
@@ -80,8 +80,8 @@ if (!defined('BASEPATH')) {
                                     if ($dev_mode) {
                                         echo base_url_app('project/' . $slug_project);
                                     }
-                                    ?>" onclick="return confirm('Tem certeza que deseja cancelar?');" class="btn btn-default">Cancelar</a>
-                                    <input type="submit" value="Salvar" class="btn btn-primary">
+                                    ?>" onclick="return confirm('<?php echo $this->lang->line(APP."_ask_cancel")?>');" class="btn btn-default"><?php echo $this->lang->line(APP."_btn_cancel")?></a>
+                                    <input type="submit" value="<?php echo $this->lang->line(APP."_btn_save")?>" class="btn btn-primary">
                                 </div>
                             </div>
                             <?php
@@ -92,7 +92,7 @@ if (!defined('BASEPATH')) {
                     <?php
                 } else {
                     ?>
-                    <div class="alert alert-danger">Você não possui permissões para editar essa seção.</div>
+                    <div class="alert alert-danger"><?php echo $this->lang->line(APP."_section_not_allowed")?></div>
                     <?php
                 }
                 ?>
@@ -100,77 +100,41 @@ if (!defined('BASEPATH')) {
         </div>
     </div>
 </div>
+
 <!-- Modal -->
-<div class="modal fade" id="gallery" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade" id="modal-edit" tabindex="-1" role="dialog" aria-labelledby="modal-edit">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">Envie ou selecione arquivos</h4>
+                <h4 class="modal-title" id="myModalLabel"><?php echo $this->lang->line(APP."_title_modal_edit_file")?></h4>
             </div>
             <div class="modal-body">
-                <?php
-                if (check_app('gallery')) {
-                    if (check_method('upload', 'gallery')) {
-                        echo form_open_multipart('apps/gallery/upload', ['id' => 'dropzone_gallery', 'class' => 'dropzone form-group']);
-                        ?>
-                        <input type="hidden" name="config_upload" id="input_config">
-                        <div class="dropzone-previews"></div>
-                        <div class="dz-default dz-message"></div>
-                        <?php
-                        echo form_close();
-                    }
-
-                    if (check_method('view-files', 'gallery')) {
-                        echo form_open(null, ['method' => 'get', 'class' => 'form-group', 'id' => 'search-files']);
-                        ?>
-                        <div class="input-group">
-                            <input type="text" name="search" id="search-field" value="<?php echo $this->input->get('search') ?>" placeholder="Procurar arquivo" class="input-sm form-control"> 
-                            <span class="input-group-btn">
-                                <button type="submit" class="btn btn-sm btn-primary"> Buscar</button> 
-                            </span>
+                <input type="hidden" value="" id="field-edit" class="form-control">
+                <input type="hidden" value="" id="field-file" class="form-control">
+                <input type="hidden" value="" id="field-index" class="form-control">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <a href="" id="field-image-file" class="fancybox" rel="gallery" data-fancybox-group="gallery">
+                            <img src="" class="img-responsive center-block">
+                        </a>
+                    </div>
+                    <div class="col-sm-9">
+                        <div class="form-group">
+                            <label><?php echo $this->lang->line(APP."_label_title")?></label>
+                            <input type="text" name="title" value="" id="field-title" class="form-control">
                         </div>
-                        <?php echo form_close(); ?>
-                        <div class="row" id="files-content">
-                            <!--EJS -->
+                        <div class="form-group">
+                            <label><input type="checkbox" name="checked" id="field-checked"> <?php echo $this->lang->line(APP."_label_main")?> </label>
                         </div>
-                        <?php
-                    }
-                } else {
-                    ?>
-                    <div class="alert alert-danger">Você não tem permissão para acessar essa área.</div>
-                    <?php
-                }
-                ?>
-            </div>
-            <?php
-            if (check_app('gallery')) {
-                ?>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="btn-save-change">Salvar</button>
+                    </div>
                 </div>
-                <?php
-            }
-            ?>
-        </div>
-    </div>
-</div>
-
-
-<!-- Modal -->
-<div class="modal fade" id="details" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <!--EJS-->
-        </div>
-    </div>
-</div>
-<!-- Modal -->
-<div class="modal fade" id="modal-edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <!--EJS-->
+                <div id="message-edit"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line(APP."_btn_close")?></button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btn-save-edit"><?php echo $this->lang->line(APP."_btn_save")?></button>
+            </div>
         </div>
     </div>
 </div>

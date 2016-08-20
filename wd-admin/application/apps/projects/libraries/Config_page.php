@@ -337,24 +337,7 @@ class Config_page {
         $CI = & get_instance();
         $CI->lang->load_app('posts/form','projects');
         $this->fields = $fields;
-        if (check_method('upload', 'gallery')) {
-            add_css(array(
-                '/plugins/dropzone/css/dropzone.css'
-            ));
-            add_js(array(
-                '/plugins/dropzone/js/dropzone.js'
-            ));
-        }
-        add_css(array(
-            '/plugins/fancybox/css/jquery.fancybox.css',
-            '/plugins/fancybox/css/jquery.fancybox-buttons.css'
-        ));
-        add_js(array(
-            '/plugins/fancybox/js/jquery.fancybox.pack.js',
-            '/plugins/fancybox/js/jquery.fancybox-buttons.js',
-            '/plugins/embeddedjs/ejs.js',
-            'posts/js/load_gallery.js'
-        ));
+        
         foreach ($fields as $field) {
 
             // Lista os campos do formulário
@@ -486,12 +469,16 @@ class Config_page {
      */
 
     private function template_input_file() {
+        load_gallery();
         add_css(array(
+            '/plugins/jquery-ui/jquery-ui.css',
             'posts/css/gallery.css'
         ));
         add_js(array(
+            '/plugins/jquery-ui/jquery-ui.min.js',
             'posts/js/gallery.js'
         ));
+        
         $field = $this->field;
         $new_field = array();
         $new_field['type'] = $this->type;
@@ -499,18 +486,17 @@ class Config_page {
         $CI = &get_instance();
         $value = ($CI->input->post($this->column) !== null ? $CI->input->post($this->column) : $this->value);
         $files = json_decode($value);
+        $txt_extensions = 'TODAS';
         $this->attr['data-field'] = $this->column;
         $this->attr['class'] = 'form-control btn-gallery ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $this->attr['data-toggle'] = 'modal';
-        $this->attr['data-target'] = '#gallery';
+        //$this->attr['data-toggle'] = 'modal';
+        //$this->attr['data-target'] = '#gallery';
         $this->attr['type'] = 'button';
         $this->attr['data-config'] = $this->config_upload();
-        $new_field['input'] = $this->list_files($files);
+        $new_field['input'] = $this->list_files($files, null, true);
         $new_field['input'] .= form_button($this->attr, '<span class="fa fa-file-image-o"></span> '.$CI->lang->line('projects_label_upload_gallery'));
         if (isset($field['extensions_allowed']) && !empty($field['extensions_allowed'])) {
             $txt_extensions = str_replace(',', ', ', $field['extensions_allowed']);
-        } else {
-            $txt_extensions = 'TODAS';
         }
         $new_field['input'] .= sprintf($CI->lang->line('projects_extensions_allowed'), $txt_extensions);
         $attr = array();
@@ -740,7 +726,7 @@ class Config_page {
      * Método para montar template da listagem de arquivos
      */
 
-    private function list_files($files, $cols = 2) {
+    private function list_files($files, $cols = 2, $edit_file=false) {
         $files = (array) $files;
         $ctt = '<div class="content-files">';
         if ($files) {
@@ -753,6 +739,7 @@ class Config_page {
                     $file = (object) $file;
                 }
                 $file_ = $file->file;
+                $title = $file->title;
                 $checked = $file->checked;
                 if (!empty($file)) {
                     if ($checked == true) {
@@ -760,7 +747,15 @@ class Config_page {
                     } else {
                         $active = '';
                     }
-                    $ctt .= '<div class="files-list thumbnail ' . $active . '"><img src="' . base_url('apps/gallery/image/thumb/' . $file_) . '" class="img-responsive"></div>';
+                    $ctt .= '<div class="files-list thumbnail ' . $active . '">';
+                    if($edit_file){
+                        $ctt .= '<a href="javascript:void(0);" data-toggle="modal" data-target="#modal-edit" title="'.$title.'" data-file="'.$file_.'" class="btn-edit-file">';
+                    }
+                    $ctt .= '<img src="' . base_url('apps/gallery/image/thumb/' . $file_) . '" class="img-responsive">';
+                    if($edit_file){
+                        $ctt .= '</a>';
+                    }
+                    $ctt .= '</div>';
                 }
             }
         }

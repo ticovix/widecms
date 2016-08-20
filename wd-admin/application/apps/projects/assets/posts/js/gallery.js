@@ -1,288 +1,203 @@
 $(function () {
-    /*
-     * Dropzone
-     */
-    if (typeof Dropzone == "function") {
-        myDropzone.on("complete", function (file) {
-            if ($("#files-content").data('gallery') == "posts") {
-                files_list({});
+    var my_list = new Object();
+    function search_file(array, file_search) {
+        var total = Object.keys(array).length;
+        for (var i = 0; i < total; i++) {
+            var file = array[i].file;
+            if (file === file_search) {
+                return array[i];
             }
-        });
+        }
+        return false;
     }
-    var field, index_field_upload;
-    var modal = $("#gallery");
-    var content_files = $("#files-list");
-    var content_files_added = '';
-    var list = new Object();
-    /*
-     * By clicking the input file, open a modal
-     */
-    $("#data-project").on("click", ".btn-gallery", function () {
-        index_field_upload = $(".btn-gallery").index(this);
-        field = $(this).data("field");
-        var config = $(this).data("config");
-        var field_list = $("#" + field + "_field").val();
-        if (field_list.indexOf('{') != '-1') {
-            list = $.parseJSON(field_list);
+
+    function treat_files_selected(files) {
+        var files_selected = new Array();
+        if (files.indexOf('{') != '-1') {
+            files = $.parseJSON(files);
+            var total = Object.keys(files).length;
+            for (var i = 0; i < total; i++) {
+                files_selected[i] = files[i].file;
+            }
         } else {
-            list = new Object();
+            files_selected = new Array();
         }
-        $("#input_config").val(config);
-        if ($("#files-content").data('gallery') != "posts") {
-            var template = new EJS({url: app_assets + "posts/ejs/base-files.ejs"}).render();
-            $("#files-content").attr("data-gallery", "posts").html(template);
-            $("#btn-save-change").removeClass("hide");
-            content_files_added = $("#files-list-added");
-        }
+        return files_selected;
+    }
 
-        files_list({});
-        files_list_added();
-    });
-    /*
-     * Function to list files
-     */
-    function files_list(param) {
-        var URL = param.url;
-        var content = $("#files-list");
-        if (URL == '' || URL == undefined) {
-            URL = url + "apps/gallery/files-list";
-        }
-        content.html("Carregando..");
-        var config = $("#input_config").val();
-        $.ajax({
-            url: URL,
-            dataType: "json",
-            type: "POST",
-            data: {limit: 12, config:config},
-            success: function (data) {
-                var template = new EJS({url: app_assets + "posts/ejs/list-files.ejs"}).render({data: data, url: url, app_path: app_path});
-                content.html(template);
+    function is_checked(files) {
+        var total = Object.keys(files).length;
+        for (var i = 0; i < total; i++) {
+            var checked = files[i].checked;
+            if (checked) {
+                return true;
             }
-        });
-    }
-    /*
-     * Function to list files added
-     */
-    function files_list_added() {
-        var content = content_files_added;
-        var template = new EJS({url: app_assets + "posts/ejs/list-files-added.ejs"}).render({files: list, url: url, app_path: app_path});
-        content.html(template);
+        }
+        return false;
     }
 
-    /*
-     * Pagination
-     */
-    modal.on("click", ".btn-page", function (e) {
-        files_list({
-            url: $(this).attr("href")
-        });
-        e.preventDefault();
-        return false;
-    });
-    /*
-     * Search file
-     */
-    $("#search-files").submit(function (e) {
-        var keyword = $("#search-field").val();
-        files_list({
-            url: url + 'apps/gallery/files-list?search=' + keyword
-        });
-        e.preventDefault();
-        return false;
-    });
-    /*
-     * View file in modal
-     */
-    modal.on("click", ".btn-view-file", function () {
+    String.prototype.replaceAll = function (search, replacement) {
+        var target = this;
+        return target.replace(new RegExp(search, 'g'), replacement);
+    };
+
+    $(".content-files").on("click", ".btn-edit-file", function () {
         var file = $(this).data("file");
-        var content = $("#details .modal-content");
-        content.html('<div class="modal-body">Aguarde..</div>');
-        $.ajax({
-            url: url + "apps/gallery/file",
-            dataType: "json",
-            type: "POST",
-            data: {file: file},
-            success: function (data) {
-                var template = new EJS({url: url +"application/apps/gallery/assets/ejs/gallery/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
-                content.html(template);
-            }
-        });
-    });
-
-    modal.on("click", ".btn-checked-file", function () {
-        var index = $(".btn-checked-file").index(this);
-        $("#files-list-added .image-file").removeClass("active");
-        $("#files-list-added .image-file").eq(index).addClass("active");
-
-        checked_file(index);
-    });
-    /*
-     * Add file to post
-     */
-    modal.on("click", ".btn-add-file", function () {
-        var is_multiple = ($("#" + field + "_field").attr("multiple") !== undefined);
-        var index = $(".btn-add-file").index(this);
-        var file = $(".file").eq(index).children().children(".btn-view-file").data('file');
-        if (is_multiple || list !== undefined && Object.keys(list).length < 1) {
-            add_file(file);
-        } else {
-            $("#msg-add-file").html('<div class="alert alert-warning">Só é possível inserir um arquivo.</div>');
+        var field = $(this).parents("div.content-field").find(".input-field").attr("name");
+        var title = $(this).attr("title");
+        var index = $(".content-files").index($(this).parents("div.content-files"));
+        var checked = $(this).parents("div.files-list").hasClass("active");
+        $("#modal-edit #field-image-file").attr("href", base_url + "wd-content/upload/" + file);
+        $("#modal-edit #field-image-file img").attr("src", url + "apps/gallery/image/thumb/" + file);
+        $("#modal-edit #field-title").val(title);
+        $("#modal-edit #field-index").val(index);
+        $("#modal-edit #field-file").val(file);
+        $("#modal-edit #field-edit").val(field);
+        $("#modal-edit #field-checked").removeAttr("checked").removeAttr("disabled");
+        if (checked) {
+            $("#modal-edit #field-checked").prop("checked", "checked").attr("disabled","disabled");
         }
     });
 
-    /*
-     * Delete file to list
-     */
-
-    modal.on("click", ".btn-delete-file", function () {
-        var index = $(".btn-delete-file").index(this);
-        delete_file(index);
-        files_list_added();
-    });
-
-    /*
-     * Function to add file in input
-     */
-
-    function add_file(file) {
-        if (list == undefined || typeof list != "object") {
-            list = new Object();
+    $("#modal-edit").on("click", "#btn-save-edit", function () {
+        var title = $("#modal-edit #field-title").val();
+        var index = $("#modal-edit #field-index").val();
+        var file = $("#modal-edit #field-file").val();
+        var field = $("#modal-edit #field-edit").val();
+        var checked = $("#modal-edit #field-checked").prop("checked");
+        var list = $("input#" + field + "_field.input-field").val();
+        if (typeof list !== "object" && list.indexOf("{") != "-1") {
+            list = $.parseJSON(list.replaceAll("'", "\""));
         }
-        var file_current = Object.keys(list).length;
-        var checked = true;
-        for (var i = 0; i < file_current; i++) {
+        var total = Object.keys(list).length;
+        for (var i = 0; i < total; i++) {
+            var file_ = list[i].file;
             var checked_ = list[i].checked;
-            if (checked_ == true) {
-                checked = false;
+            var title_ = list[i].title;
+            if(checked==true){
+                checked_ = false;
             }
+            if (file_ === file) {
+                checked_ = checked;
+                title_ = title;
+            }
+            my_list[i] = {file: file_, checked: checked_, title: title_};
         }
-        list[file_current] = {file: file, checked: checked, title: ''};
-        files_list_added();
-    }
-    /*
-     * Function to delete file
-     */
-    function delete_file(index) {
-        if (list != undefined) {
-            var new_list = new Object();
-            var total = Object.keys(list).length;
-            var x = 0;
-            if (typeof list[0] == 'undefined') {
-                list = new Array(list);
-                total = 1;
-            }
-            for (var i = 0; i < total; i++) {
-                var file = list[i].file;
-                var checked = list[i].checked;
-                var title = list[i].title;
-                if (i != index) {
-                    new_list[x] = {file: file, checked: checked, title: title};
-                    x++;
-                }
-            }
-            list = new_list;
+        var json = JSON.stringify(my_list);
+        if (json === '{}') {
+            json = '';
         }
-    }
-
-    function checked_file(index) {
-        if (list != undefined) {
-            var new_list = new Object();
-            var total = Object.keys(list).length;
-            if (typeof list[0] == 'undefined') {
-                list = new Array(list);
-                total = 1;
-            }
-            for (var i = 0; i < total; i++) {
-                var file = list[i].file;
-                var checked = false;
-                var title = list[i].title;
-                if (i == index) {
-                    checked = true;
-                }
-                new_list[i] = {file: file, checked: checked, title: title};
-            }
-            list = new_list;
-        }
-    }
-
-    function edit_file(param) {
-        var index = param.index;
-        var title = param.title;
-        if (list != undefined) {
-            var new_list = new Object();
-            var total = Object.keys(list).length;
-            if (typeof list[0] == 'undefined') {
-                list = new Array(list);
-                total = 1;
-            }
-            for (var i = 0; i < total; i++) {
-                var file = list[i].file;
-                var checked = list[i].checked;
-                var title_ = list[i].title;
-                if (i == index) {
-                    title_ = title;
-                }
-                new_list[i] = {file: file, checked: checked, title: title_};
-            }
-            list = new_list;
-
-        }
-    }
-
-    /*
-     * Save change
-     */
-    $("#btn-save-change").click(function () {
-        if (list != undefined) {
-            var total = Object.keys(list).length;
-            $(".content-files").eq(index_field_upload).html("");
-            for (var i = 0; i < total; i++) {
-                var file = list[i].file;
-                var checked = list[i].checked;
-                var img = $("<img>").addClass("img-responsive").attr("src", url + "apps/gallery/image/thumb/" + file);
-                var div = $("<div>").addClass("files-list thumbnail").html($("<a>").attr("href", base_url + "wd-content/upload/" + file).addClass("fancybox").html(img));
-                if (checked == true) {
-                    div.removeClass("active");
-                    div.addClass("active");
-                }
-                $(".content-files").eq(index_field_upload).append(div);
-            }
-            var json = JSON.stringify(list);
-            if (json === '{}') {
-                json = '';
-            }
-            $("#" + field + "_field").val(json);
-
-
-        }
-    });
-
-    /*
-     * Edit file
-     */
-
-    modal.on("click", ".btn-edit-file", function () {
-        var index = $(".btn-edit-file").index(this);
-        var file = list[index];
-        var content = $("#modal-edit .modal-content");
-
-        content.attr("data-index", index);
-        var template = new EJS({url: app_assets + "posts/ejs/file-edit.ejs"}).render({file: file, url: url, app_path: app_path});
-        content.html(template);
-    });
-
-    /*
-     * Save Edit
-     */
-    $("#modal-edit .modal-content").delegate("#btn-save-edit", "click", function () {
-        var title = $("#field-title").val();
-        var index = $("#modal-edit .modal-content").attr("data-index");
-        edit_file({
-            title: title,
-            index: index
+        $("#" + field + "_field").val(json);
+        var file_edit = $(".content-files:eq(" + index + ") .btn-edit-file").filter(function (index) {
+            return $(this).attr("data-file") === file;
         });
-        var msg = $("#message-edit");
-        msg.html('<div class="alert alert-success">Atualizado com sucesso!</div>');
+        file_edit.attr({title:title});
+        if(checked){
+            $(".content-files:eq(" + index + ") .files-list").removeClass("active");
+            file_edit.parents("div.files-list").addClass("active");
+        }else{
+            file_edit.parents("div.files-list").removeClass("active");
+        }
+
     });
 
+    $(".content-files").sortable({
+        items: ".files-list",
+        appendTo: "parent",
+        revert: true,
+        cursor: "move",
+        cursorAt: {top: -5, left: -5},
+        stop: function (event) {
+            var my_list = new Object();
+            var count = 0;
+            $(this).find(".files-list").each(function(){
+                var btn_file = $(this).find(".btn-edit-file");
+                var file = btn_file.data("file");
+                var title = btn_file.data("title");
+                var checked = $(this).hasClass("active");
+                if(title===undefined){
+                    title=null;
+                }
+                my_list[count] = {file: file, checked: checked, title: title};
+                count++;
+            });
+            $(this).parents(".content-field").find(".input-field").val(JSON.stringify(my_list));
+        }
+    }).disableSelection();
+
+    $(".btn-gallery").each(function () {
+        var index = $(".btn-gallery").index(this);
+        var field = $(this).data("field");
+        var config_upload = $(this).data("config");
+        var files_selected = $("#" + field + "_field").val();
+        var type_upload = $("#" + field + "_field").attr("multiple");
+        var limit = null;
+        var my_list = new Object();
+
+        if (type_upload === undefined || type_upload === false) {
+            limit = 1;
+        }
+
+        if (config_upload.indexOf('{') != '-1') {
+            config_upload = $.parseJSON(config_upload.replaceAll("'", "\""));
+        } else {
+            config_upload = new Object();
+        }
+        var params = {
+            limit_select: limit,
+            files_selecteds: treat_files_selected(files_selected),
+            complete: function (files) {
+                var files_selected = $("#" + field + "_field").val();
+                if (files_selected.indexOf('{') != '-1') {
+                    my_list = $.parseJSON(files_selected.replaceAll("'", "\""));
+                }
+                if (typeof files === 'string') {
+                    var object_files = new Array();
+                    object_files[0] = files;
+                    files = object_files;
+                }
+
+                var total = files.length;
+                var my_new_list = new Object();
+                var ischecked = is_checked(my_list);
+                for (var i = 0; i < total; i++) {
+                    var file = files[i];
+                    var checked = false;
+                    var title = null;
+                    if (data = search_file(my_list, file)) {
+                        checked = data.checked;
+                        title = data.title;
+                    }
+                    if (i == 0 && ischecked === false || limit === 1) {
+                        checked = true;
+                    }
+
+                    my_new_list[i] = {file: file, checked: checked, title: title};
+                }
+                var json = JSON.stringify(my_new_list);
+                if (json === '{}') {
+                    json = '';
+                }
+                $("#" + field + "_field").val(json);
+
+                var total = Object.keys(my_new_list).length;
+                $(".content-files").eq(index).html("");
+                for (var i = 0; i < total; i++) {
+                    var file = my_new_list[i].file;
+                    var title = my_new_list[i].title;
+                    var checked = my_new_list[i].checked;
+                    var img = $("<img>").addClass("img-responsive").attr("src", url + "apps/gallery/image/thumb/" + file);
+                    var div = $("<div>").addClass("files-list thumbnail").html($("<a>").attr({href: "javascript:void(0);", "data-file": file, "data-target": "#modal-edit", "data-toggle": "modal", "title": title}).addClass("btn-edit-file").html(img));
+                    if (checked == true) {
+                        div.removeClass("active");
+                        div.addClass("active");
+                    }
+                    $(".content-files").eq(index).append(div);
+                }
+
+                this.my_list = my_new_list;
+            }
+        }
+        $(this).gallery($.extend(params, config_upload));
+    });
 });

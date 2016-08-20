@@ -1,65 +1,10 @@
-.image-file{
-    text-align: center;
-    padding: 2px;
-    border:1px solid #ccc;
-    margin-bottom: 10px;
-    position: relative;
-}
-.image-file img{
-    margin: 0 auto;
-}
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 14/08/2016, 17:59:04
+    Author     : patrick
+*/
 
-.image-file .options-file{
-    display: none;
-}
-.image-file:hover .options-file{
-    display: block;
-}
-
-#my-awesome-dropzone{
-    margin-bottom: 15px;
-}
-
-.name-file{
-    text-align: center;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    font-size: 10px;
-}
-
-.file{
-    margin-bottom: 15px;
-}
-.file.active .image-file{
-    background-color: #eee;
-}
-
-.options-file{
-    position: absolute;
-    top: 0;
-    right: 0;
-}
-.options-file .btn{
-    font-size: 14px;
-    padding: 5px;
-    margin-right: 0px;
-}
-
-.image-file.active{
-    border-color: #F12938;
-}
-
-.file-ckeditor .options-file{
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-}
-.file-ckeditor .image-file:hover .options-file{
-    background-color: rgba(0,0,0,0.7) !important;
-    padding: 40px;
-    margin: 0;
-    border-radius: 0px;
-}

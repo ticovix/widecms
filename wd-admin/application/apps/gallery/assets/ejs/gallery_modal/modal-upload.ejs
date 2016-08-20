@@ -1,0 +1,53 @@
+<!-- Modal -->
+<div class="modal fade gallery-upload-modal" id="gallery" tabindex="-1" role="document" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel"><%=lang.gallery_modal_title_upload%></h4>
+            </div>
+            <div class="modal-body">
+                <%
+                if (perm.app) {
+                    if (perm.upload) {
+                        %>
+                        <form action="<%=url%>apps/gallery/upload" id="dropzone_gallery" class="dropzone form-group" enctype="multipart/form-data" method="post" accept-charset="utf-8">
+                            <input type="hidden" name="csrf_test_name" value="<%=csrf_test_name%>" style="display:none;" />
+                            <input type="hidden" name="config_upload" id="upload_config" value="">
+                            <div class="dropzone-previews"></div>
+                            <div class="dz-default dz-message"></div>
+                        </form>
+                        <%
+                    }
+                    if (perm.view) {
+                        %>
+                        <form action="javascript:void(0);" method="get" class="form-group" id="search-files" accept-charset="utf-8">
+                            <input type="hidden" name="csrf_test_name" value="<%=csrf_test_name%>" style="display:none;" />
+                            <div class="input-group">
+                                <input type="text" name="search" id="search-field" placeholder="<%=lang.gallery_search_field%>" class="input-sm form-control"> 
+                                <span class="input-group-btn">
+                                    <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button> 
+                                </span>
+                            </div>
+                        </form>
+                        <div class="row" id="files-content">
+                            <!--EJS -->
+                        </div>
+                        <%
+                    }
+                } else {
+                    %>
+                    <div class="alert alert-danger"><%=lang.gallery_not_permission_upload%></div>
+                    <%php
+                }
+                %>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><%=lang.gallery_btn_close%></button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btn-save-change"><%=lang.gallery_btn_save%></button>
+            </div>
+
+        </div>
+    </div>
+</div>

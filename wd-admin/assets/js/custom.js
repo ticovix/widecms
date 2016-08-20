@@ -15,7 +15,7 @@ var URL = window.location.href.split('?')[0],
     $FOOTER = $('footer');
 
 // Sidebar
-$(document).ready(function() {
+$(function() {
     // Send csrf by ajax
     $.ajaxSetup({
         data: {
