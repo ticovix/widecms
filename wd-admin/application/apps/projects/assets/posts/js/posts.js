@@ -1,4 +1,7 @@
 $(function(){
+    $(".files-list").click(function(){
+        $(".register-current").unbind("click");
+    });
     $(".register-current").click(function(){
         var index = $(".register-current").index(this);
         var checked = $(".register-current").eq(index).hasClass("checked");
