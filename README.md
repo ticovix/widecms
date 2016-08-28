@@ -1,6 +1,10 @@
 # CMS WIDE
 Esse CMS é indispensável para todos desenvolvedores que buscam desenvolver seus projetos sem perder tempo com a parte administrativa, mantendo a organização do banco de dados da forma que achar melhor.
 
+## Requisitos
+Para usar o CMS é necessário ter instalado php5.3+ e mysql, a versão do php recomendada é a 5.6, além disso é obrigatório ter as extensões GD, Zip e Xml do php.
+Para que não haja erros na instalação, certifique-se no mysql que o usuário tenha permissão de inserir banco de dados e tabelas, certifique-se também de verificar se o usuário poderá criar e modificar arquivos.
+
 ## Banco de dados organizado
 Diferente de outros CMS, a partir do momento que você cria as páginas de gerenciamento, você também cria a estrutura do banco de dados, como tabelas e colunas, além disso é possível usar um banco de dados existente e criar as páginas de gerenciamento em cima da estrutura.
 
