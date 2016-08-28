@@ -2,7 +2,7 @@
 Esse CMS é indispensável para todos desenvolvedores que buscam desenvolver seus projetos sem perder tempo com a parte administrativa, mantendo a organização do banco de dados da forma que achar melhor.
 
 ## Requisitos
-Para usar o CMS é necessário ter instalado php5.3+ e mysql, a versão do php recomendada é a 5.6, além disso é obrigatório ter as extensões GD, Zip e Xml do php.
+Para usar o CMS é necessário ter instalado php5.3+ (recomendado 5.6) e mysql, além disso é obrigatório ter as extensões GD, Zip e Xml do php.
 Para que não haja erros na instalação, certifique-se no mysql que o usuário tenha permissão de inserir banco de dados e tabelas, certifique-se também de verificar se o usuário poderá criar e modificar arquivos.
 
 ## Banco de dados organizado
