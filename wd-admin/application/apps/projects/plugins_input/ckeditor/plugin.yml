@@ -1,6 +1,16 @@
 name: CKEditor
 js_form:
     - ckeditor/ckeditor.js
+    - ../../../../../../assets/plugins/dropzone/js/dropzone.js
+    - ../../../../../../assets/plugins/fancybox/js/jquery.fancybox.pack.js
+    - ../../../../../../assets/plugins/fancybox/js/jquery.fancybox-buttons.js
+    - ../../../../../../assets/plugins/embeddedjs/ejs.js
+    - ../../../../gallery/assets/js/upload.js
     - gallery/js/upload.js
+css_form: 
+    - ../../../../../../assets/plugins/fancybox/css/jquery.fancybox.css
+    - ../../../../../../assets/plugins/fancybox/css/jquery.fancybox-buttons.css
+    - ../../../../../../assets/plugins/dropzone/css/dropzone.css
+    - ../../../../gallery/assets/css/gallery_modal.css
 attr:
     class: ckeditor
