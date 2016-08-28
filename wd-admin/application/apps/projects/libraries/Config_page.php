@@ -552,12 +552,6 @@ class Config_page {
      */
 
     private function template_textarea() {
-        add_css(array(
-            'posts/css/gallery.css'
-        ));
-        add_js(array(
-            'posts/js/gallery.js'
-        ));
         $new_field = array();
         $new_field['type'] = $this->type;
         $new_field['label'] = $this->label;
