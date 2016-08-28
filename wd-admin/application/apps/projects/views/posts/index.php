@@ -32,7 +32,7 @@ if (!defined('BASEPATH')) {
                         <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button> 
                     </span>
                 </div>
-                <a href="" class="pull-right">Pesquisa avançada</a>
+                <a href="" class="pull-right hide">Pesquisa avançada</a>
                 <?php
                 if (check_method($method . '-create')) {
                     ?>
