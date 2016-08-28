@@ -62,6 +62,7 @@ $(function () {
             limit_select: null, // multiple default
             complete: null, // callback function
             files_selecteds: [], // String or Object
+            reset_selecteds: false,
             /*Config upload*/
             extensions_allowed: null,
             image_resize: null,
@@ -111,6 +112,9 @@ $(function () {
                 config.files_selecteds[0] = file;
                 saved_list = JSON.parse(JSON.stringify(config.files_selecteds));
                 // Callback
+                if(config.reset_selecteds){
+                    reset_selecteds();
+                }
                 if (typeof config.complete == 'function') {
                     config.complete(file);
                 }
@@ -259,6 +263,11 @@ $(function () {
                     content.html(template);
                 }
             });
+        }
+        
+        function reset_selecteds() {
+            config.files_selecteds = [];
+            saved_list = [];
         }
     };
 });
