@@ -6,7 +6,6 @@ $(function () {
         var field = $(".label-field").eq(index).data("field") + "_field";
         if ($(".input-field").eq(index).hasClass("ckeditor")) {
 
-            $("#btn-save-change").addClass("hide");
             var btn_index = $(".content-field .btn-gallery-ckeditor").length;
             $(".content-field").eq(index).prepend(
                     $("<a>").attr({"href": "javascript:void(0);"})
