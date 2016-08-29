@@ -98,7 +98,8 @@ class Sections_model extends CI_Model {
     }
 
     public function check_table_exists($table) {
-        $check = $this->db->query('SELECT * FROM information_schema.tables WHERE table_name = ?', array($table))->row();
+        $database = $this->db->database;
+        $check = $this->db->query('SELECT * FROM information_schema.tables WHERE table_schema=? AND table_name = ?', array($database, $table))->row();
         return $check;
     }
 
