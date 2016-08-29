@@ -14,32 +14,6 @@ $(function () {
         });
     }
 
-    // Carrega os plugins e o modal apenas uma vez para o template
-    var template_modal = new EJS({url: url + "application/apps/gallery/assets/ejs/gallery_modal/modal-upload.ejs"}).render({
-        perm: permissions,
-        lang: lang,
-        url: url,
-        csrf_test_name: csrf
-    });
-    // Inclui modal no corpo do cms
-    container_modal.append(template_modal);
-    // Carrega Dropzone
-    if (typeof Dropzone == 'function') {
-        Dropzone.autoDiscover = false;
-        var myDropzone = new Dropzone("#dropzone_gallery");
-        // Atualizar lista de arquivos ao fazer upload
-        myDropzone.on("complete", function () {
-            list_files({});
-        });
-    }
-    $(".fancybox").attr('rel', 'gallery').fancybox({
-        beforeShow: function () {
-            /* Disable right click */
-            $.fancybox.wrap.bind("contextmenu", function (e) {
-                return false;
-            });
-        }
-    });
     $(".fancybox").attr('rel', 'gallery').fancybox({
         nextEffect: 'fade',
         prevEffect: 'fade',
@@ -91,6 +65,35 @@ $(function () {
             $.extend(config, settings);
         }
         config.hash = hash++;
+        if (config.hash === 0) {
+            // Carrega os plugins e o modal apenas uma vez para o template
+            var template_modal = new EJS({url: url + "application/apps/gallery/assets/ejs/gallery_modal/modal-upload.ejs"}).render({
+                perm: permissions,
+                lang: lang,
+                url: url,
+                csrf_test_name: csrf
+            });
+            // Inclui modal no corpo do cms
+            container_modal.append(template_modal);
+            // Carrega Dropzone
+            if (typeof Dropzone == 'function') {
+                Dropzone.autoDiscover = false;
+                var myDropzone = new Dropzone("#dropzone_gallery");
+                // Atualizar lista de arquivos ao fazer upload
+                myDropzone.on("complete", function () {
+                    list_files({});
+                });
+            }
+            $(".fancybox").attr('rel', 'gallery').fancybox({
+                beforeShow: function () {
+                    /* Disable right click */
+                    $.fancybox.wrap.bind("contextmenu", function (e) {
+                        return false;
+                    });
+                }
+            });
+
+        }
         saved_list = JSON.parse(JSON.stringify(config.files_selecteds));
         var modal_current = "#gallery-upload-" + config.hash;
 
@@ -112,7 +115,7 @@ $(function () {
                 config.files_selecteds[0] = file;
                 saved_list = JSON.parse(JSON.stringify(config.files_selecteds));
                 // Callback
-                if(config.reset_selecteds){
+                if (config.reset_selecteds) {
                     reset_selecteds();
                 }
                 if (typeof config.complete == 'function') {
@@ -264,7 +267,7 @@ $(function () {
                 }
             });
         }
-        
+
         function reset_selecteds() {
             config.files_selecteds = [];
             saved_list = [];
