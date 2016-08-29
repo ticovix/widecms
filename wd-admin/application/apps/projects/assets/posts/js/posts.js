@@ -1,5 +1,5 @@
 $(function(){
-    $(".files-list").click(function(){
+    $(".register-current a").click(function(){
         $(".register-current").unbind("click");
     });
     $(".register-current").click(function(){
