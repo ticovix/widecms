@@ -29,7 +29,7 @@ if (!defined('BASEPATH')) {
                     ?>
                     <div class="btn-toolbar">
                         <a href="<?php echo base_url_app('create'); ?>" class="btn btn-primary">
-                            <i class="icon-plus"></i> <?php echo $this->lang->line(APP.'_btn_add_user')?>
+                            <i class="icon-plus"></i> <?php echo $this->lang->line(APP . '_btn_add_user') ?>
                         </a>
                         <div class="btn-group"></div>
                     </div>
@@ -44,21 +44,21 @@ if (!defined('BASEPATH')) {
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title" id="myModalLabel"><?php echo $this->lang->line(APP.'_title_remove_users')?></h4>
+                                <h4 class="modal-title" id="myModalLabel"><?php echo $this->lang->line(APP . '_title_remove_users') ?></h4>
                             </div>
                             <div class="modal-body">
-                                <?php echo $this->lang->line(APP.'_ask_remove_users')?>
+                                <?php echo $this->lang->line(APP . '_ask_remove_users') ?>
                             </div>
                             <div class="modal-footer">
                                 <input type="hidden" login="">
-                                <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line(APP.'_btn_answer_no')?></button>
-                                <button type="submit" class="btn btn-primary"><?php echo $this->lang->line(APP.'_btn_answer_yes')?></button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line(APP . '_btn_answer_no') ?></button>
+                                <button type="submit" class="btn btn-primary"><?php echo $this->lang->line(APP . '_btn_answer_yes') ?></button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <a href="#myModal" role="button" data-toggle="modal" class="btn btn-danger hide" id="btn-del-all"><i class="fa fa-remove remove_register"></i> <?php echo $this->lang->line(APP.'_btn_remove_users')?></a>
-                <table class="table table-striped">
+                <a href="#myModal" role="button" data-toggle="modal" class="btn btn-danger hide" id="btn-del-all"><i class="fa fa-remove remove_register"></i> <?php echo $this->lang->line(APP . '_btn_remove_users') ?></a>
+                <table class="table table-striped table-responsive table-bordered">
                     <thead>
                         <tr>
                             <th></th>
@@ -68,9 +68,12 @@ if (!defined('BASEPATH')) {
                             <th style="width: 50px;"></th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php
-                        if ($users) {
+
+                    <?php
+                    if ($users) {
+                        ?>
+                        <tbody>
+                            <?php
                             foreach ($users as $user) {
                                 $root = $user['root'];
                                 ?>
@@ -96,11 +99,14 @@ if (!defined('BASEPATH')) {
                                 <?php
                             }
                             ?>
+                        </tbody>
+                        <tfoot>
                             <tr><td colspan="5"><strong><?php printf($this->lang->line(APP . '_text_users_found'), $total) ?></strong></td></tr>
-                            <?php
-                        }
-                        ?>
-                    </tbody>
+                        </tfoot>
+                        <?php
+                    }
+                    ?>
+
                 </table>
                 <?php echo form_close(); ?>
                 <ul class="pagination pagination-sm"><?php echo $pagination; ?></ul>

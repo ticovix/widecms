@@ -43,7 +43,7 @@ if (!defined('BASEPATH')) {
                     <?php
                 }
                 echo form_close();
-                echo form_open(APP_PATH.'project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/remove');
+                echo form_open(APP_PATH . 'project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/remove');
                 ?>
                 <button class="btn btn-danger hide" id="btn-del-selected"><i class="fa fa-remove remove_register"></i> <?php echo $this->lang->line(APP . '_btn_remove_selected') ?></button>
                 <table class="table table-striped table-responsive table-bordered">
@@ -62,9 +62,11 @@ if (!defined('BASEPATH')) {
                             <!--th style="width: 60px;"></th-->
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php
-                        if ($posts) {
+                    <?php
+                    if ($posts) {
+                        ?>
+                        <tbody>
+                            <?php
                             foreach ($posts as $row) {
                                 $id = $row['id'];
                                 ?>
@@ -106,15 +108,17 @@ if (!defined('BASEPATH')) {
                                 <?php
                             }
                             ?>
+                        </tbody>
+                        <tfoot>
                             <tr><td colspan="<?php echo $total_list; ?>"><strong><?php printf($this->lang->line(APP . '_registers_found'), $total); ?></strong></td></tr>
-                            <?php
-                        } else {
-                            echo '<tr><td colspan="' . $total_list . '">' . $this->lang->line(APP . '_registers_not_found') . '</td></tr>';
-                        }
-                        ?>
-                    </tbody>
+                        </tfoot>
+                        <?php
+                    } else {
+                        echo '<tfoot><tr><td colspan="' . $total_list . '">' . $this->lang->line(APP . '_registers_not_found') . '</td></tr></tfoot>';
+                    }
+                    ?>
                 </table>
-                <?php echo form_close();?>
+                <?php echo form_close(); ?>
                 <ul class="pagination pagination-sm"><?php echo $pagination; ?></ul>
             </div>
         </div>

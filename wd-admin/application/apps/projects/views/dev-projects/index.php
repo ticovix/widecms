@@ -24,7 +24,7 @@ if (!defined('BASEPATH')) {
                     </span>
                 </div>
                 <div class="btn-toolbar">
-                    <a href="<?php echo base_url_app('create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> <?php echo $this->lang->line(APP . '_btn_add_project')?></a>
+                    <a href="<?php echo base_url_app('create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> <?php echo $this->lang->line(APP . '_btn_add_project') ?></a>
                     <div class="btn-group"></div>
                 </div>
                 <?php echo form_close(); ?>
@@ -37,15 +37,18 @@ if (!defined('BASEPATH')) {
                             <th style="width: 50px;"></th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php
-                        if ($projects) {
+
+                    <?php
+                    if ($projects) {
+                        ?>
+                        <tbody>
+                            <?php
                             foreach ($projects as $arr) {
                                 ?>
                                 <tr>
                                     <td>
                                         <a href="<?php echo base_url_app('project/' . $arr['slug']) ?>">
-                                            <?php if ($arr['main']) { ?><span class="fa fa-star"></span> <?php } ?> <?php echo $arr["name"] ?>
+                                            <?php echo $arr["name"] ?>
                                         </a>
                                     </td>
                                     <td><?php echo $arr["directory"] ?></td>
@@ -64,13 +67,15 @@ if (!defined('BASEPATH')) {
                                 <?php
                             }
                             ?>
+                        </tbody>
+                        <tfoot>
                             <tr><td colspan="5"><strong><?php printf($this->lang->line(APP . '_registers_found'), $total); ?></strong></td></tr>
-                            <?php
-                        } else {
-                            echo '<tr><td colspan="5">'.$this->lang->line(APP . '_registers_not_found').'</td></tr>';
-                        }
-                        ?>
-                    </tbody>
+                        </tfoot>
+                        <?php
+                    } else {
+                        echo '<tfoot><tr><td colspan="5">' . $this->lang->line(APP . '_registers_not_found') . '</td></tr></tfoot>';
+                    }
+                    ?>
                 </table>
                 <ul class="pagination pagination-sm"><?php echo $pagination; ?></ul>
             </div>

@@ -6,7 +6,7 @@ if (!defined('BASEPATH')) {
 
 <ul class="breadcrumb">
     <li><a href="<?php echo base_url(); ?>"><i class="fa fa-home"></i></a></li>
-    <li><a href="<?php echo base_url_app(); ?>"><?php echo $name_app?></a></li>
+    <li><a href="<?php echo base_url_app(); ?>"><?php echo $name_app ?></a></li>
     <li class="active"><?php echo $title ?></li>
 </ul>
 <div class="row">
@@ -19,29 +19,31 @@ if (!defined('BASEPATH')) {
             <div class="x_content">
                 <?php echo form_open(null, ['method' => 'get']); ?>
                 <div class="input-group">
-                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="<?php echo $this->lang->line(APP.'_field_search');?>" class="input-sm form-control"> 
+                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="<?php echo $this->lang->line(APP . '_field_search'); ?>" class="input-sm form-control"> 
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button> 
                     </span>
                 </div>
                 <div class="btn-toolbar">
-                    <a href="<?php echo base_url_app('project/' . $project['slug'] . '/create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> <?php echo $this->lang->line(APP.'_btn_add_page');?></a>
+                    <a href="<?php echo base_url_app('project/' . $project['slug'] . '/create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> <?php echo $this->lang->line(APP . '_btn_add_page'); ?></a>
                     <div class="btn-group"></div>
                 </div>
-                
+
                 <?php echo form_close(); ?>
                 <table class="table table-striped table-responsive table-bordered">
                     <thead>
                         <tr>
-                            <th><?php echo $this->lang->line(APP.'_label_page');?></th>
-                            <th><?php echo $this->lang->line(APP.'_label_directory');?></th>
-                            <th style="width: 50px;"><?php echo $this->lang->line(APP.'_label_status');?></th>
+                            <th><?php echo $this->lang->line(APP . '_label_page'); ?></th>
+                            <th><?php echo $this->lang->line(APP . '_label_directory'); ?></th>
+                            <th style="width: 50px;"><?php echo $this->lang->line(APP . '_label_status'); ?></th>
                             <th style="width: 50px;"></th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php
-                        if ($pages) {
+                    <?php
+                    if ($pages) {
+                        ?>
+                        <tbody>
+                            <?php
                             foreach ($pages as $arr) {
                                 ?>
                                 <tr>
@@ -70,13 +72,16 @@ if (!defined('BASEPATH')) {
                                 <?php
                             }
                             ?>
+                        </tbody>
+                        <tfoot>
                             <tr><td colspan="4"><strong><?php printf($this->lang->line(APP . '_registers_found'), $total); ?></strong></td></tr>
-                            <?php
-                        } else {
-                            echo '<tr><td colspan="4">'.$this->lang->line(APP . '_registers_not_found').'</td></tr>';
-                        }
-                        ?>
-                    </tbody>
+                        </tfoot>
+                        <?php
+                    } else {
+                        echo '<tfoot><tr><td colspan="4">' . $this->lang->line(APP . '_registers_not_found') . '</td></tr></tfoot>';
+                    }
+                    ?>
+
                 </table>
                 <ul class="pagination pagination-sm"><?php echo $pagination; ?></ul>
             </div>
