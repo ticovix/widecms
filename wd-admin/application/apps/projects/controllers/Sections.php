@@ -106,13 +106,11 @@ class Sections extends MY_Controller {
         $this->load->library_app('config_page');
         // Carrega os campos da seção
         $config = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
-        $selects = array();
         if ($config) {
             // Se carregado corretamente, carrega o formulário de edição
             $fields = $this->treat_fields($config['fields']);
             $this->form_edit_section($project, $page, $section, $config);
             // Busca todos os campos do tipo select
-            $selects = search($fields, 'type', 'select');
         } else {
             $fields = false;
             setError($this->lang->line(APP.'_open_config_fail'));
@@ -140,7 +138,6 @@ class Sections extends MY_Controller {
             'project' => $project,
             'page' => $page,
             'section' => $section,
-            'selects' => $selects,
             'sections' => $this->list_options($section['id']),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
@@ -583,8 +580,7 @@ class Sections extends MY_Controller {
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
             'plugins_input' => $this->config_page->list_plugins(),
-            'label_options' => '',
-            'selects' => ''
+            'label_options' => ''
         );
         $this->load->template_app('dev-sections/form', $vars);
     }

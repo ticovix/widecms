@@ -462,17 +462,6 @@ if (!defined('BASEPATH')) {
                                             <label><?php echo $this->lang->line(APP . '_label_select_trigger') ?></label>
                                             <select id="trigger_select_field" class="form-control">
                                                 <option value=""><?php echo $this->lang->line(APP . '_option_select') ?></option>
-                                                <?php
-                                                if ($selects) {
-                                                    foreach ($selects as $select) {
-                                                        $col = $select['column'];
-                                                        $label = $select['label'];
-                                                        ?>
-                                                        <option value="<?php echo $col ?>" <?php echo set_select('select_trigger_field[' . $i . ']', $col, ($select_trigger_field == $col)) ?>><?php echo $label ?> (<?php echo $col ?>)</option>
-                                                        <?php
-                                                    }
-                                                }
-                                                ?>
                                             </select>
                                         </div>
                                     </div>

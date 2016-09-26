@@ -86,13 +86,17 @@ $(function () {
         $("#dir_name").val(slug(val, '-'));
         table_field.val(slug(val, '_'));
     });
+    
+    
     $("#name_field").keyup(function () {
         var val = $(this).val();
         column_field.val(slug(val, '_'));
     });
+    
     modal_new_field.on("change", ".select-input", function () {
         if_input_select();
     });
+    
     modal_select.on("change", ".select-options", function () {
         var option = $(this).val();
         var index = $(".select-options").index(this);
@@ -113,17 +117,24 @@ $(function () {
             }
         });
     });
+    
+    
     String.prototype.replaceAll = function (search, replacement) {
         var target = this;
         return target.replace(new RegExp(search, 'g'), replacement);
     };
+    
+    
     btn_add_field.click(function () {
         var id_current = modal_new_field.attr("data-current");
         if (id_current !== "") {
             clean_inputs();
-            modal_new_field.attr("data-current","")
+            modal_new_field.attr("data-current","");
         }
+        list_selects_trigger();
     });
+    
+    
     $(".x_content").on("click","#btn-save",function () {
         var attributes = new Object();
         var plugins_input = '';
@@ -131,7 +142,7 @@ $(function () {
         var id_current = modal_new_field.attr("data-index");
         var sort_current = modal_new_field.attr("data-current");
         var msg_modal = $("#msg-modal");
-        if (name_field.val() == "" || type_input_field.val() == "" || column_field.val() == "" || type_column_field == "") {
+        if (name_field.val() == "" || type_input_field.val() == "" || column_field.val() == "" || type_column_field.val() == "") {
             msg_modal.removeClass("hide").text(LANG.error_all_fields_required);
             return false;
         } else if (name_exists(name_field.val(), sort_current) === true) {
@@ -408,6 +419,7 @@ $(function () {
             if_input_select();
             if_image_resize();
             refresh_image_example();
+            list_selects_trigger(column_val);
         }
     });
     form_import.submit(function () {
@@ -677,8 +689,10 @@ $(function () {
                 $(this).removeAttr('checked');
             }
         });
-        $("#modal-new-field select option").removeAttr('selected');
+        $("#modal-new-field select option").prop("selected",false);
+        $("#options_field option").prop("selected",false);
         $("#label_options_field").html($("<option>").val("").text(LANG.option_select));
+        $("#trigger_select_field").html($("<option>").val("").text(LANG.option_select));
         if_input_select();
     }
 
@@ -695,6 +709,21 @@ $(function () {
             }
         });
         return exists;
+    }
+    
+    function list_selects_trigger(column_current){
+        $(".field-current").each(function(){
+            var input = $(this).find(".input-val").val();
+            if(input==="select"){
+                var name = $(this).find(".name-val").val();
+                var column = $(this).find(".column-val").val();
+                if(column!==column_current){
+                    $("#trigger_select_field").append(
+                            $("<option>").val(column).html(name+" ("+column+")")
+                    );
+                }
+            }
+        });
     }
 
     function column_exists(column, index_ignore) {
