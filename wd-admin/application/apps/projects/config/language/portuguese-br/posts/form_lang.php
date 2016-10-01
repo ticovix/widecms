@@ -2,7 +2,7 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-/*TEMPLATE*/
+/* TEMPLATE */
 $lang['projects_title_add_post'] = 'Novo registro';
 $lang['projects_title_edit_post'] = 'Editar registro';
 
@@ -19,8 +19,9 @@ $lang['projects_section_not_allowed'] = 'Você não possui permissões para edit
 $lang['projects_btn_close'] = 'Fechar';
 $lang['projects_btn_cancel'] = 'Cancelar';
 $lang['projects_btn_save'] = 'Salvar';
+$lang['projects_select_default'] = 'Selecione';
 
-/*MODAL EDIT FILE*/
+/* MODAL EDIT FILE */
 $lang['projects_title_modal_edit_file'] = 'Editar';
 $lang['projects_label_title'] = 'Título';
 $lang['projects_label_main'] = 'Principal';

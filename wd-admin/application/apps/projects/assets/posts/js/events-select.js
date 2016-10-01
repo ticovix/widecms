@@ -1,6 +1,6 @@
 $(function () {
 
-    $(".chosen-select" ).chosen();
+    $(".chosen-select" ).chosen({ width: '100%' });
 
     var project = $("#data-project").data("project");
     var page = $("#data-project").data("page");
@@ -30,7 +30,7 @@ $(function () {
                 },
                 success: function (data) {
                     var total = data.length;
-                    select.html($("<option>").val("").html("Selecione"));
+                    select.html($("<option>").val("").html(LANG.select_default));
                     for (var i = 0; i < total; i++) {
                         var dt = data[i];
                         var option = $("<option>").val(dt.value).html(dt.label);
