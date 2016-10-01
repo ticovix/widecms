@@ -4,24 +4,25 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Posts extends MY_Controller {
+class Posts extends MY_Controller
+{
     /*
      * Variável pública com o limite de seções por página
      */
-
     public $limit = 10;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->data = $this->apps->data_app();
         $this->load->model_app('posts_model');
     }
-
     /*
      * Método para listar os registros de uma tabela
      */
 
-    public function index($slug_project, $slug_page, $slug_section) {
+    public function index($slug_project, $slug_page, $slug_section)
+    {
         $section = get_section();
         $project = get_project();
         $page = get_page();
@@ -48,12 +49,12 @@ class Posts extends MY_Controller {
             redirect_app('project/' . $slug_project . '/' . $slug_page);
         }
     }
-
     /*
-     * Método para montar o formulário de edição 
+     * Método para montar o formulário de edição
      */
 
-    private function mount_form($data, $section, $project, $page) {
+    private function mount_form($data, $section, $project, $page)
+    {
         add_js(array(
             'js/masks/js/jquery.meio.js',
             'posts/js/form.js'
@@ -89,20 +90,22 @@ class Posts extends MY_Controller {
         );
         $this->load->template_app('posts/form-post', $vars);
     }
-
     /*
      * Método para listar os registros com possibilidade de inserir, editar e deletar registros
      */
 
-    private function mount_list($data, $section, $project, $page) {
+    private function mount_list($data, $section, $project, $page)
+    {
         $this->load->library_app('config_page');
         add_js(array(
-            'posts/js/posts.js'
+            'js/masks/js/jquery.meio.js',
+            'posts/js/posts.js',
         ));
         add_css(array(
             'posts/css/posts-list.css'
         ));
-        $search = $this->form_search($data, $section);
+        $form_search = $this->mount_form_search($data, $section);
+        $search = $this->form_search($form_search, $data, $section);
         $posts = $search['posts'];
         $total_rows = $search['total_rows'];
         $pagination = $this->pagination($total_rows);
@@ -119,36 +122,157 @@ class Posts extends MY_Controller {
             'name_section' => $section['name'],
             'name_page' => $page['name'],
             'name_project' => $project['name'],
+            'form_search' => $form_search,
             'pagination' => $pagination,
             'total' => $total_rows,
             'method' => $project['slug'] . '-' . $page['slug'] . '-' . $section['slug']
         );
         $this->load->template_app('posts/index', $vars);
     }
+    /*
+     * Montagem de formulário para pesquisa avançada na index
+     */
 
+    private function mount_form_search($data, $section)
+    {
+        add_js(array(
+            '/plugins/chosen/js/chosen.jquery.min.js',
+            'posts/js/events-select.js',
+        ));
+        add_css(array(
+            '/plugins/chosen/css/chosen.css'
+        ));
+        $fields = $data['fields'];
+        $fields_search = array();
+        if ($fields) {
+            foreach ($fields as $field) {
+                $type = $field['type'];
+                $type_column = $field['type_column'];
+                $column = $field['column'];
+                $plugins = $field['plugins'];
+                $label = $field['label'];
+                $input = '';
+                if ($type != 'file' && $type != 'multifile' && $type != 'hidden') {
+                    $value = $this->input->get($column);
+                    $attr = array(
+                        'name' => $column,
+                        'id' => $column . '_field',
+                        'class' => 'form-control input-search'
+                    );
+                    if ($type === 'select' or $type === 'checkbox') {
+                        $list_posts_select = array();
+                        $field['value'] = $value;
+                        $column_trigger = $field['options_trigger_select'];
+                        $column_label = $field['options_label'];
+                        $table = $field['options_table'];
+                        $options = array(
+                            '' => $this->lang->line(APP . '_select_default')
+                        );
+                        $attr['class'] .= ' chosen-select trigger-select ';
+                        if (!empty($column_trigger)) {
+                            $field_trigger = search($fields, 'column', $column_trigger);
+                            if ($field_trigger) {
+                                $label_trigger = $field_trigger[0]['label'];
+                                $table_trigger = $field_trigger[0]['options_table'];
+                                $value_trigger = $this->input->get($column_trigger);
+                                $attr['class'] .= 'trigger-' . $column_trigger;
+                                if (!empty($value_trigger)) {
+                                    $data_trigger = array(
+                                        'table' => $table_trigger,
+                                        'column' => $column_trigger,
+                                        'value' => $value_trigger,
+                                    );
+                                    $list_posts_select = $this->posts_model->list_posts_select($table, $column_label, $data_trigger);
+                                } else {
+                                    $options = array(
+                                        '' => $this->lang->line(APP . '_subselect_default') . $label_trigger
+                                    );
+                                }
+                            }
+                        } else {
+                            $list_posts_select = $this->posts_model->list_posts_select($table, $column_label);
+                        }
+
+                        if ($list_posts_select) {
+                            foreach ($list_posts_select as $posts) {
+                                $value_ = $posts['value'];
+                                $label_ = $posts['label'];
+                                $options[$value_] = $label_;
+                            }
+                        }
+
+                        $input = form_dropdown($column, $options, $value, $attr);
+                    } else {
+                        $attr['type'] = 'text';
+                        $attr['placeholder'] = $this->lang->line(APP . '_field_placeholder_default');
+                        if ($type_column == 'date' || $type_column == 'datetime') {
+                            // Cria dois campos para filtrar por datas
+                            $attr['placeholder'] = 'YYYY-MM-DD';
+                            $attr['name'] = 'field_' . $column . '[]';
+                            $attr['alt'] = '9999-19-39'; // Mask
+                            $field['label'] = $label . ' - ' . $this->lang->line(APP . '_label_date_of');
+                            $field['input'] = form_input($attr, $value[0]);
+                            $field['value'] = $value[0];
+                            $field['type_date'] = 'of';
+                            $fields_search[] = $field;
+                            // Prepara o segundo campo de data
+                            $value = $value[1];
+                            $field['label'] = $label . ' - ' . $this->lang->line(APP . '_label_date_until');
+                            $field['type_date'] = 'until';
+                        } else {
+                            // Adiciona input hidden para identificar o tipo de pesquisa
+                            // (Exceto para date, datetime, select, checkbox que não tem opção de tipo de pesquisa)
+                            $value_type = $this->input->get('type_search_' . $column);
+                            $input .= form_input(array(
+                                'id' => 'type_search_' . $column,
+                                'name' => 'type_search_' . $column,
+                                'type' => 'hidden'
+                                    ), $value_type);
+                            $field['value_type'] = $value_type;
+                        }
+                        // Adiciona input
+                        $input .= form_input($attr, $value);
+                        $field['value'] = $value;
+                    }
+
+                    $field['input'] = $input;
+                    $fields_search[] = $field;
+                }
+            }
+        }
+        return $fields_search;
+    }
     /*
      * Método com formulário de pesquisa de registros
      */
 
-    private function form_search($data, $section) {
-        $this->form_validation->set_rules('search', $this->lang->line(APP . '_field_search'), 'trim|required');
+    private function form_search($form_search, $data, $section)
+    {
+        $this->form_validation->set_rules('wd_search', $this->lang->line(APP . '_field_search'), 'trim|required');
         $this->form_validation->run();
-        $keyword = $this->input->get('search');
-        $perPage = $this->input->get('per_page');
-        $limit = $this->limit;
-        $posts = $this->posts_model->search($data, $section, $keyword, $limit, $perPage);
+        $keyword = $this->input->get('wd_search');
+        $perPage = $this->input->get('wd_per_page');
+
+        $limit = $this->input->get('wd_limit');
+        if (!empty($limit) && $limit <= 100) {
+            $this->limit = $limit;
+        } else {
+            $limit = $this->limit;
+        }
+
+        $posts = $this->posts_model->search($form_search, $data, $section, $keyword, $limit, $perPage);
         $total_rows = $posts['total'];
         return array(
             'posts' => $posts,
             'total_rows' => $total_rows
         );
     }
-
     /*
      * Método para criar template da paginação da listagem de registros
      */
 
-    private function pagination($total_rows) {
+    private function pagination($total_rows)
+    {
         $this->load->library('pagination');
         $config['total_rows'] = $total_rows;
         $config['per_page'] = $this->limit;
@@ -166,16 +290,17 @@ class Posts extends MY_Controller {
         $config['last_tag_close'] = '</li>';
         $config['first_tag_open'] = '<li>';
         $config['first_tag_close'] = '</li>';
-        $config['first_url'] = '?per_page=0';
+        $config['first_url'] = '?wd_per_page=0';
+        $config['query_string_segment'] = 'wd_per_page';
         $this->pagination->initialize($config);
         return $this->pagination->create_links();
     }
-
     /*
      * Método para listar os options do select no json acionado por um js
      */
 
-    public function options_json() {
+    public function options_json()
+    {
         $this->form_validation->set_rules('project', 'Projeto', 'required');
         $this->form_validation->set_rules('page', 'Página', 'required');
         $this->form_validation->set_rules('section', 'Seção', 'required');
@@ -211,12 +336,12 @@ class Posts extends MY_Controller {
         }
         echo json_encode($posts);
     }
-
     /*
      * Método para setar um valor que possui um método de entrada
      */
 
-    private function set_value($value, $field, $fields) {
+    private function set_value($value, $field, $fields)
+    {
         $type = strtolower($field['type']);
         $plugins = $this->config_page->get_plugins($field['plugins']);
         if ($plugins) {
@@ -242,12 +367,12 @@ class Posts extends MY_Controller {
         }
         return $value;
     }
-
     /*
      * Método para criar registro
      */
 
-    public function create($slug_project, $slug_page, $slug_section) {
+    public function create($slug_project, $slug_page, $slug_section)
+    {
         $section = get_section();
         $project = get_project();
         $page = get_page();
@@ -282,12 +407,12 @@ class Posts extends MY_Controller {
             redirect_app();
         }
     }
-
     /*
      * Método para configuração de requisitos para criação do registro
      */
 
-    private function form_create_post($data_fields, $project, $page, $section) {
+    private function form_create_post($data_fields, $project, $page, $section)
+    {
         add_js(array(
             'js/masks/js/jquery.meio.js',
             'posts/js/form.js'
@@ -327,12 +452,12 @@ class Posts extends MY_Controller {
             }
         }
     }
-
     /*
      * Método para editar registro
      */
 
-    public function edit($slug_project, $slug_page, $slug_section, $id_post) {
+    public function edit($slug_project, $slug_page, $slug_section, $id_post)
+    {
         $project = get_project();
         $section = get_section();
         $page = get_page();
@@ -366,12 +491,12 @@ class Posts extends MY_Controller {
             redirect_app();
         }
     }
-
     /*
      * Método para configuração de requisitos para edição do registro
      */
 
-    private function form_edit_post($data_fields, $section, $post) {
+    private function form_edit_post($data_fields, $section, $post)
+    {
         add_js(array(
             'js/masks/js/jquery.meio.js',
             'posts/js/form.js'
@@ -407,10 +532,10 @@ class Posts extends MY_Controller {
                     // Edita o post no banco de dados
                     $this->posts_model->edit($current_field, $post, $section);
                     if ($list) {
-                        $slug_project = $project['slug'].'/';
-                        $slug_page = $page['slug'].'/';
-                        $slug_section = $section['slug'].'/';
-                        redirect_app('project/'.$slug_project.$slug_page.$slug_section);
+                        $slug_project = $project['slug'] . '/';
+                        $slug_page = $page['slug'] . '/';
+                        $slug_section = $section['slug'] . '/';
+                        redirect_app('project/' . $slug_project . $slug_page . $slug_section);
                     } else {
                         redirect_app(current_url());
                     }
@@ -420,12 +545,12 @@ class Posts extends MY_Controller {
             }
         }
     }
-
     /*
      * Método para remover registro
      */
 
-    public function remove($slug_project, $slug_page, $slug_section) {
+    public function remove($slug_project, $slug_page, $slug_section)
+    {
         $section = get_section();
         $project = get_project();
         $page = get_page();
@@ -463,7 +588,8 @@ class Posts extends MY_Controller {
         }
     }
 
-    private function form_remove($page, $project, $section) {
+    private function form_remove($page, $project, $section)
+    {
         $pass = $this->input->post('password');
         if (!empty($pass)) {
             $this->form_validation->set_rules('password', $this->lang->line(APP . '_label_password'), 'callback_verify_password');
@@ -480,12 +606,12 @@ class Posts extends MY_Controller {
             redirect_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section);
         }
     }
-
     /*
      * Método para verificar senha
      */
 
-    public function verify_password($v_pass) {
+    public function verify_password($v_pass)
+    {
         $pass_user = $this->data_user['password'];
         // Inicia helper PasswordHash
         $this->load->helper('passwordhash');
@@ -498,5 +624,4 @@ class Posts extends MY_Controller {
 
         return true;
     }
-
 }

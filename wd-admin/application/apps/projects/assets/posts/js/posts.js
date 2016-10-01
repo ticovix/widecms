@@ -1,4 +1,13 @@
 $(function(){
+    $("input[type=text]").setMask();
+    $(".btn-config-field").click(function(){
+        var index_dropmenu = $(".dropdown-menu").index($(this).parent(".dropdown-menu"));
+        var field = $(this).parent(".dropdown-menu").data("field");
+        var value = $(this).children("a").data("value");
+        $("#type_search_"+field).val(value);
+        $(".dropdown-menu").eq(index_dropmenu).children(".btn-config-field").removeClass("active");
+        $(this).addClass("active");
+    });
     $(".register-current a").click(function(){
         $(".register-current").unbind("click");
     });

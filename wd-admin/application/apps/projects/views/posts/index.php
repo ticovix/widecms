@@ -24,27 +24,123 @@ if (!defined('BASEPATH')) {
                 <h2><?php echo $title ?></h2>
                 <div class="clearfix"></div>
             </div>
-            <div class="x_content">
+            <div class="x_content" id="data-project" data-project="<?php echo $slug_project ?>" data-page="<?php echo $slug_page ?>" data-section="<?php echo $slug_section ?>">
                 <?php echo form_open(null, ['method' => 'get']); ?>
-                <div class="input-group">
-                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="Procurar" class="input-sm form-control"> 
-                    <span class="input-group-btn">
-                        <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button> 
-                    </span>
+                <div class="row form-group">
+                    <div class="col-sm-9">
+                        <input type="text" name="wd_search" value="<?php echo $this->input->get('wd_search') ?>" placeholder="<?php echo $this->lang->line(APP . '_field_search') ?>" class="form-control">
+                    </div>
+                    <div class="col-sm-2">
+                        <select name="wd_limit" class="form-control">
+                            <?php
+                            for ($i = 1; $i < 100; $i++) {
+                                $i = $i + 9;
+                                ?>
+                                <option value="<?php echo $i ?>" <?php echo set_select('wd_limit', $i, ($i == $this->input->get('wd_limit'))); ?>><?php echo $i ?></option>
+                                <?php
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="col-sm-1">
+                        <button type="submit" class="btn btn-primary btn-group-justified"> <i class="fa fa-search"></i></button>
+                    </div>
                 </div>
-                <a href="" class="pull-right hide">Pesquisa avançada</a>
                 <?php
-                if (check_method($method . '-create')) {
+                if ($form_search) {
                     ?>
-                    <div class="btn-toolbar">
-                        <a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> <?php echo $this->lang->line(APP . '_btn_add_post') ?></a>
-                        <div class="btn-group"></div>
+                    <div class="collapse" id="search-advanced">
+                        <div class="well">
+                            <div class="row">
+                                <?php
+                                $count = 1;
+                                foreach ($form_search as $field) {
+                                    $label = $field['label'];
+                                    $column = $field['column'];
+                                    $input = $field['input'];
+                                    $type = $field['type'];
+                                    $type_column = $field['type_column'];
+                                    $clearfix = '<div class="clearfix"></div>';
+                                    $has_type_search = ($type_column != 'date' && $type_column != 'datetime' && $type != 'select' && $type != 'checkbox');
+                                    ?>
+                                    <div class="col-sm-3">
+                                        <label><?php echo $label ?></label>
+
+                                        <div class="<?php
+                                        if ($has_type_search) {
+                                            echo 'input-group';
+                                        }
+                                        ?>">
+                                                 <?php
+                                                 echo $input;
+                                                 if ($has_type_search) {
+                                                     $value_type = $field['value_type'];
+                                                     ?>
+                                                <div class="dropdown input-group-addon">
+                                                    <a href="javascript:void(0);" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-cog"></span></a>
+                                                    <ul class="dropdown-menu" data-field="<?php echo $column ?>" aria-labelledby="dLabel">
+                                                        <li class="<?php echo is_nav_active($value_type, array('both', '')) ?> btn-config-field">
+                                                            <a href="javascript:void(0);" data-value="both"><?php echo $this->lang->line(APP . '_option_both') ?></a>
+                                                        </li>
+                                                        <li class="<?php echo is_nav_active($value_type, 'equals') ?> btn-config-field">
+                                                            <a href="javascript:void(0);" data-value="equals"><?php echo $this->lang->line(APP . '_option_equals') ?></a>
+                                                        </li>
+                                                        <li class="<?php echo is_nav_active($value_type, 'after') ?> btn-config-field">
+                                                            <a href="javascript:void(0);" data-value="after"><?php echo $this->lang->line(APP . '_option_after') ?></a>
+                                                        </li>
+                                                        <li class="<?php echo is_nav_active($value_type, 'before') ?> btn-config-field">
+                                                            <a href="javascript:void(0);" data-value="before"><?php echo $this->lang->line(APP . '_option_before') ?></a>
+                                                        </li>
+                                                        <li class="<?php echo is_nav_active($value_type, 'greater') ?> btn-config-field">
+                                                            <a href="javascript:void(0);" data-value="greater"><?php echo $this->lang->line(APP . '_option_greater') ?></a>
+                                                        </li>
+                                                        <li class="<?php echo is_nav_active($value_type, 'smaller') ?> btn-config-field">
+                                                            <a href="javascript:void(0);" data-value="smaller"><?php echo $this->lang->line(APP . '_option_smaller') ?></a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <?php
+                                            }
+                                            ?>
+                                        </div>
+
+                                    </div>
+
+                                    <?php
+                                    if ($count % 4 == 0) {
+                                        echo $clearfix;
+                                    }
+                                    $count++;
+                                }
+                                ?>
+                            </div>
+                        </div>
                     </div>
                     <?php
                 }
+                ?>
+                <div class="form-group">
+                    <?php
+                    if ($form_search) {
+                        ?>
+                        <a class="pull-right" role="button" data-toggle="collapse" href="#search-advanced" aria-expanded="false" aria-controls="collapseExample"><?php echo $this->lang->line(APP . '_btn_search_advanced') ?></a>
+                        <?php
+                    }
+                    if (check_method($method . '-create')) {
+                        ?>
+                        <div class="btn-toolbar">
+                            <a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> <?php echo $this->lang->line(APP . '_btn_add_post') ?></a>
+                            <div class="btn-group"></div>
+                        </div>
+                        <?php
+                    }
+                    ?>
+                </div>
+                <?php
                 echo form_close();
                 echo form_open(APP_PATH . 'project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/remove');
                 ?>
+
                 <button class="btn btn-danger hide" id="btn-del-selected"><i class="fa fa-remove remove_register"></i> <?php echo $this->lang->line(APP . '_btn_remove_selected') ?></button>
                 <table class="table table-striped table-responsive table-bordered">
                     <thead>
@@ -59,7 +155,6 @@ if (!defined('BASEPATH')) {
                                 }
                             }
                             ?>
-                            <!--th style="width: 60px;"></th-->
                         </tr>
                     </thead>
                     <?php
@@ -70,7 +165,7 @@ if (!defined('BASEPATH')) {
                             foreach ($posts as $row) {
                                 $id = $row['id'];
                                 ?>
-                                <tr class="register-current">    
+                                <tr class="register-current">
                                     <td align="center">
                                         <?php
                                         if (check_method($method . '-remove')) {
@@ -95,26 +190,22 @@ if (!defined('BASEPATH')) {
                                                     echo '</a>';
                                                 }
                                                 ?>
-                                            </td>    
+                                            </td>
                                             <?php
                                         }
                                     }
                                     ?>
-                                    <!--td>
-                                    <?php if (check_method($method . '-edit')) { ?><a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/edit/' . $id); ?>"><i class="fa fa-pencil"></i></a><?php } ?>
-                                    <?php if (check_method($method . '-remove')) { ?><a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/remove/' . $id); ?>" onclick="javascript: return confirm('Deseja realmente remover esse registro?')"><i class="fa fa-remove"></i></a><?php } ?>
-                                    </td-->
                                 </tr>
                                 <?php
                             }
                             ?>
                         </tbody>
                         <tfoot>
-                            <tr><td colspan="<?php echo $total_list; ?>"><strong><?php printf($this->lang->line(APP . '_registers_found'), $total); ?></strong></td></tr>
+                            <tr><td colspan="<?php echo ($total_list + 1); ?>"><strong><?php printf($this->lang->line(APP . '_registers_found'), $total); ?></strong></td></tr>
                         </tfoot>
                         <?php
                     } else {
-                        echo '<tfoot><tr><td colspan="' . $total_list . '">' . $this->lang->line(APP . '_registers_not_found') . '</td></tr></tfoot>';
+                        echo '<tfoot><tr><td colspan="' . ($total_list + 1) . '">' . $this->lang->line(APP . '_registers_not_found') . '</td></tr></tfoot>';
                     }
                     ?>
                 </table>
@@ -124,3 +215,9 @@ if (!defined('BASEPATH')) {
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    var LANG = {
+        select_default: '<?php echo $this->lang->line(APP . '_select_default') ?>',
+    }
+</script>

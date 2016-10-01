@@ -5,29 +5,70 @@ if (!defined('BASEPATH')) {
 }
 
 class Posts_model extends CI_Model {
+    
+    private function filter_search($form_search, $data, $keyword=null){
+        if (count($form_search) > 0) {
+            foreach ($form_search as $field) {
+                $column = $field['column'];
+                $value = $field['value'];
+                $type_column = $field['type_column'];
+                $type = $field['type'];
+                if (!empty($value)) {
+                    if ($type == 'select' || $type == 'checkbox') {
+                        $this->db->where($column, $value);
+                    } else if ($type_column == 'date' || $type_column == 'datetime') {
+                        $type_date = $field['type_date'];
 
-    public function search($data, $section, $keyword = null, $total = null, $offset = null) {
+                        if ($type_date == 'of') {
+                            $this->db->where($column . ' >=', $value);
+                        } elseif ($type_date == 'until') {
+                            $this->db->where($column . ' <=', $value);
+                        }
+                    } else {
+                        $value_type = $field['value_type'];
+                        switch ($value_type) {
+                            case 'equals':
+                                $this->db->where($column, $value);
+                                break;
+                            case 'greater':
+                                $this->db->where($column.' >=', $value);
+                                break;
+                            case 'smaller':
+                                $this->db->where($column.' <=', $value);
+                                break;
+                            case 'before':
+                            case 'after':
+                                $this->db->like($column, $value,$value_type);
+                                break;
+                            default: 
+                                $this->db->like($column, $value);
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (!empty($keyword)) {
+            $this->db->group_start();
+            foreach ($data['fields'] as $arr) {
+                $col = $arr['column'];
+                $this->db->or_like($col, $keyword);
+            }
+            $this->db->group_end();
+        }
+    }
+    public function search($form_search, $data, $section, $keyword = null, $total = null, $offset = null) {
         $get = array();
         $select = implode(',', $data['select_query']);
+        $this->filter_search($form_search, $data, $keyword);
         $this->db->select('id,' . $select);
         $this->db->limit($total, $offset);
         $this->db->order_by('id DESC');
-        if ($keyword) {
-            $x = 0;
-            foreach ($data['fields'] as $arr) {
-                $col = $arr['column'];
-                if ($x == 0) {
-                    $this->db->like($col, $keyword);
-                } else {
-                    $this->db->or_like($col, $keyword);
-                }
-                $x++;
-            }
-        }
         $get['rows'] = $this->db->get($section['table'])->result_array();
         if ($get) {
-            $this->db->select('count(id) total');
-            $get['total'] = $this->db->get($section['table'])->row()->total;
+            $this->filter_search($form_search, $data, $keyword);
+            $get['total'] = $this->db->count_all_results($section['table']);
         }
         return $get;
     }
