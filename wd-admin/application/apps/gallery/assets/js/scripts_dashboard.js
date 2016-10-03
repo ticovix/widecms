@@ -1,16 +1,12 @@
+
+if (typeof Dropzone == "function") {
+    Dropzone.autoDiscover = false;
+}
+
 $(function () {
     var app_assets = 'application/apps/gallery/assets/';
     var app_path = 'apps/gallery/';
-    if (typeof Dropzone == "function") {
-        /*
-         * Dropzone
-         */
-        var myDropzone = new Dropzone("#dropzone_gallery");
-        myDropzone.on("complete", function (file) {
-            files_list({});
-            //myDropzone.removeFile(file);
-        });
-    }
+
     /*
      * Gallery
      */
@@ -165,5 +161,15 @@ $(function () {
         e.preventDefault();
         return false;
     });
+
+    /*
+     * Dropzone
+     */
+    if (typeof Dropzone == "function") {
+        var myDropzone = new Dropzone("#dropzone_gallery");
+        myDropzone.on("complete", function () {
+            files_list({});
+        });
+    }
 
 });

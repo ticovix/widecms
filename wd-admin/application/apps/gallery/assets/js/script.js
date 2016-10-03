@@ -1,41 +1,13 @@
+if (typeof Dropzone == "function") {
+    Dropzone.autoDiscover = false;
+}
+
 $(function () {
-    if (typeof Dropzone == "function") {
-        /*
-         * Dropzone
-         */
-        var myDropzone = new Dropzone("#dropzone_gallery");
-        myDropzone.on("complete", function (file) {
-            files_list({});
-            //myDropzone.removeFile(file);
-        });
-    }
-    /*
-     * Gallery
-     */
-    $(".fancybox").attr('rel', 'gallery').fancybox({
-        beforeShow: function () {
-            /* Disable right click */
-            $.fancybox.wrap.bind("contextmenu", function (e) {
-                return false;
-            });
-        }
-    });
-    $(".fancybox").attr('rel', 'gallery').fancybox({
-        nextEffect: 'fade',
-        prevEffect: 'fade',
-        openEffect: 'elastic',
-        closeEffect: 'elastic',
-        autoCenter: true,
-        padding: 0,
-        margin: 20,
-        arrows: true,
-        mouseWheel: true,
-        fitToView: true,
-    });
     /*
      * Function to list files
      */
     function files_list(param) {
+
         var URL = param.url;
         var content = $("#files-list");
         if (URL == '' || URL == undefined) {
@@ -136,9 +108,9 @@ $(function () {
                     msg.html('<div class="alert alert-danger">' + data.message + '</div>');
                 } else {
                     msg.html('<div class="alert alert-success">' + data.message + '</div>');
-                    setTimeout(function(){
+                    setTimeout(function () {
                         document.location.reload();
-                    },1000);
+                    }, 1000);
                 }
             }
         });
@@ -166,5 +138,39 @@ $(function () {
         e.preventDefault();
         return false;
     });
+
+    /*
+     * Gallery
+     */
+    $(".fancybox").attr('rel', 'gallery').fancybox({
+        beforeShow: function () {
+            /* Disable right click */
+            $.fancybox.wrap.bind("contextmenu", function (e) {
+                return false;
+            });
+        }
+    });
+    $(".fancybox").attr('rel', 'gallery').fancybox({
+        nextEffect: 'fade',
+        prevEffect: 'fade',
+        openEffect: 'elastic',
+        closeEffect: 'elastic',
+        autoCenter: true,
+        padding: 0,
+        margin: 20,
+        arrows: true,
+        mouseWheel: true,
+        fitToView: true,
+    });
+
+    /*
+     * Dropzone
+     */
+    if (typeof Dropzone == "function") {
+        var myDropzone = new Dropzone("#dropzone_gallery");
+        myDropzone.on("complete", function (file) {
+            files_list({});
+        });
+    }
 
 });
