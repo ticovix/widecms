@@ -1,8 +1,8 @@
 <?php
-if (!defined('BASEPATH')){
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 ?>
-        <?php echo put_js();?>
-    </body>
+<?php echo $this->include_components->put_js(); ?>
+</body>
 </html>

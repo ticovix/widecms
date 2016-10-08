@@ -55,13 +55,11 @@ class Posts extends MY_Controller
 
     private function mount_form($data, $section, $project, $page)
     {
-        add_js(array(
+        $this->include_components->app_js(array(
             'js/masks/js/jquery.meio.js',
             'posts/js/form.js'
-        ));
-        add_css(array(
-            'posts/css/post-form.css'
-        ));
+        ))->app_css('posts/css/post-form.css');
+
         $post = $this->posts_model->get_post($section);
         if (!$post) {
             // Verifica se já existe um registro na tabela, caso não exista, cria um novo e seta
@@ -97,13 +95,11 @@ class Posts extends MY_Controller
     private function mount_list($data, $section, $project, $page)
     {
         $this->load->library_app('config_page');
-        add_js(array(
+        $this->include_components->app_js(array(
             'js/masks/js/jquery.meio.js',
             'posts/js/posts.js',
-        ));
-        add_css(array(
-            'posts/css/posts-list.css'
-        ));
+        ))->app_css('posts/css/posts-list.css');
+
         $form_search = $this->mount_form_search($data, $section);
         $search = $this->form_search($form_search, $data, $section);
         $posts = $search['posts'];
@@ -135,13 +131,10 @@ class Posts extends MY_Controller
 
     private function mount_form_search($data, $section)
     {
-        add_js(array(
-            '/plugins/chosen/js/chosen.jquery.min.js',
-            'posts/js/events-select.js',
-        ));
-        add_css(array(
-            '/plugins/chosen/css/chosen.css'
-        ));
+        $this->include_components->main_js('plugins/chosen/js/chosen.jquery.min.js')
+                ->app_js('posts/js/events-select.js')
+                ->main_css('plugins/chosen/css/chosen.css');
+
         $fields = $data['fields'];
         $fields_search = array();
         if ($fields) {
@@ -378,9 +371,7 @@ class Posts extends MY_Controller
         $page = get_page();
 
         if ($section && $project && $page) {
-            add_css(array(
-                'posts/css/post-form.css'
-            ));
+            $this->include_components->app_css('posts/css/post-form.css');
 
             $this->load->library_app('config_page');
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
@@ -413,7 +404,7 @@ class Posts extends MY_Controller
 
     private function form_create_post($data_fields, $project, $page, $section)
     {
-        add_js(array(
+        $this->include_components->app_js(array(
             'js/masks/js/jquery.meio.js',
             'posts/js/form.js'
         ));
@@ -462,9 +453,8 @@ class Posts extends MY_Controller
         $section = get_section();
         $page = get_page();
         $post = $this->posts_model->get_post($section, $id_post);
-        add_css(array(
-            'posts/css/post-form.css'
-        ));
+        $this->include_components->app_css('posts/css/post-form.css');
+
         if ($section && $project && $page && $post) {
             $this->load->library_app('config_page');
             $data = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
@@ -497,7 +487,7 @@ class Posts extends MY_Controller
 
     private function form_edit_post($data_fields, $section, $post)
     {
-        add_js(array(
+        $this->include_components->app_js(array(
             'js/masks/js/jquery.meio.js',
             'posts/js/form.js'
         ));
@@ -566,9 +556,8 @@ class Posts extends MY_Controller
 
             $this->form_remove($page, $project, $section);
 
-            add_css(array(
-                'posts/css/posts-list.css'
-            ));
+            $this->include_components->app_css('posts/css/posts-list.css');
+
             $vars = array(
                 'title' => $this->lang->line(APP . '_title_remove'),
                 'list' => $data['list'],

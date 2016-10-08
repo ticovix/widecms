@@ -4,8 +4,8 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Projects extends MY_Controller {
-
+class Projects extends MY_Controller
+{
     private $path_view_project = '';
 
     /*
@@ -13,18 +13,19 @@ class Projects extends MY_Controller {
      */
     public $limit = 10;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->load->model_app('projects_model');
         $this->path_view_project = 'application/' . APP_PATH . '/views/project/';
         $this->data = $this->apps->data_app();
     }
-
     /*
      * Método para listar os projetos
      */
 
-    public function index() {
+    public function index()
+    {
         $this->lang->load_app('projects/projects');
         $search = $this->form_search();
         $projects = $search['projects'];
@@ -45,13 +46,13 @@ class Projects extends MY_Controller {
             $this->load->template_app('projects/index', $vars);
         }
     }
-
     /*
      * Método para busca e projetos
      */
 
-    private function form_search() {
-        $this->form_validation->set_rules('search', $this->lang->line(APP.'_field_search'), 'trim|required');
+    private function form_search()
+    {
+        $this->form_validation->set_rules('search', $this->lang->line(APP . '_field_search'), 'trim|required');
         $this->form_validation->run();
         $dev_mode = $this->data_user['dev_mode'];
         $limit = $this->limit;
@@ -64,12 +65,12 @@ class Projects extends MY_Controller {
             'total_rows' => $total_rows
         );
     }
-
     /*
      * Método de criação de template da páginação da listagem de projetos
      */
 
-    private function pagination($total_rows) {
+    private function pagination($total_rows)
+    {
         $this->load->library('pagination');
         $config['total_rows'] = $total_rows;
         $config['per_page'] = $this->limit;
@@ -93,14 +94,13 @@ class Projects extends MY_Controller {
         return $this->pagination->create_links();
     }
 
-    public function create() {
+    public function create()
+    {
         func_only_dev();
         $this->lang->load_app('projects/form');
         $this->form_create();
 
-        add_js([
-            'js/form.js'
-        ]);
+        $this->include_components->app_js('js/form.js');
         $vars = [
             'title' => $this->lang->line(APP . '_title_add_project'),
             'name_app' => $this->data['name'],
@@ -113,12 +113,12 @@ class Projects extends MY_Controller {
         ];
         $this->load->template_app('dev-projects/form', $vars);
     }
-
     /*
      * Método para criação de projeto
      */
 
-    private function form_create() {
+    private function form_create()
+    {
         $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'trim|required');
         $this->form_validation->set_rules('preffix', $this->lang->line(APP . '_label_preffix'), 'trim');
         $this->form_validation->set_rules('dir', $this->lang->line(APP . '_label_directory'), 'trim|required|callback_verify_dir');
@@ -159,12 +159,12 @@ class Projects extends MY_Controller {
             setError(validation_errors());
         }
     }
-
     /*
      * Método para editar projeto
      */
 
-    public function edit($slug_project) {
+    public function edit($slug_project)
+    {
         $this->lang->load_app('projects/form');
         func_only_dev();
         $project = $this->projects_model->get_project($slug_project);
@@ -184,12 +184,12 @@ class Projects extends MY_Controller {
         ];
         $this->load->template_app('dev-projects/form', $vars);
     }
-
     /*
      * Método de configuração dos requisitos para edição de projeto
      */
 
-    private function form_edit($project) {
+    private function form_edit($project)
+    {
         $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'trim|required');
         if ($this->form_validation->run()) {
             $name = $this->input->post('name');
@@ -207,12 +207,12 @@ class Projects extends MY_Controller {
             setError(validation_errors());
         }
     }
-
     /*
      * Método para verificar existencia de diretório
      */
 
-    public function verify_dir($dir) {
+    public function verify_dir($dir)
+    {
         $main = $this->input->post('main');
         $extract = $this->input->post('extract_ci');
         $dir_project = '../';
@@ -240,12 +240,12 @@ class Projects extends MY_Controller {
             return true;
         }
     }
-
     /*
      * Método para criar diretórios
      */
 
-    protected function createDir($data) {
+    protected function createDir($data)
+    {
         $dir = $data['dir'];
         $extract_ci = $data['extract_ci'];
         $dir_project = '../';
@@ -258,12 +258,12 @@ class Projects extends MY_Controller {
             return true;
         }
     }
-
     /*
      * Método de extração de projeto codeigniter padrão
      */
 
-    protected function extractProject($data) {
+    protected function extractProject($data)
+    {
         $dir = $data['dir'];
         $dir_project = '../' . $dir;
 
@@ -278,12 +278,12 @@ class Projects extends MY_Controller {
         }
         $zip->close();
     }
-
     /*
      * Método para configuração do projeto extraido
      */
 
-    protected function configProject($data) {
+    protected function configProject($data)
+    {
         $this->load->helper('passwordhash');
         $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
         $dir_project = $data['dir'];
@@ -326,12 +326,12 @@ class Projects extends MY_Controller {
             rename($path_index, '../index.php');
         }
     }
-
     /*
      * Método para verificar a existencia do slug no banco de dados
      */
 
-    protected function slug($name, $id = false) {
+    protected function slug($name, $id = false)
+    {
         $return = true;
         $slug = null;
         $i = 0;
@@ -346,12 +346,12 @@ class Projects extends MY_Controller {
         }
         return $slug;
     }
-
     /*
      * Método para remover projeto
      */
 
-    public function remove($slug_project) {
+    public function remove($slug_project)
+    {
         func_only_dev();
         $this->lang->load_app('projects/remove');
         $project = $this->projects_model->get_project($slug_project);
@@ -366,12 +366,12 @@ class Projects extends MY_Controller {
         ];
         $this->load->template_app('dev-projects/remove', $vars);
     }
-
     /*
      * Método com configuração dos requisitos para remover projeto
      */
 
-    private function form_remove($project) {
+    private function form_remove($project)
+    {
         $this->form_validation->set_rules('password', $this->lang->line(APP . '_field_password'), 'required|callback_verify_password');
         $this->form_validation->set_rules('project', $this->lang->line(APP . '_field_project'), 'trim|required|integer');
         if ($this->form_validation->run()) {
@@ -403,12 +403,12 @@ class Projects extends MY_Controller {
             }
         }
     }
-
     /*
      * Método para verificar senha
      */
 
-    public function verify_password($v_pass) {
+    public function verify_password($v_pass)
+    {
         $pass_user = $this->data_user['password'];
         // Inicia helper PasswordHash
         $this->load->helper('passwordhash');
@@ -421,5 +421,4 @@ class Projects extends MY_Controller {
 
         return true;
     }
-
 }

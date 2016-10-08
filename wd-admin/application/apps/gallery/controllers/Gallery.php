@@ -4,64 +4,64 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Gallery extends MY_Controller {
+class Gallery extends MY_Controller
+{
     /*
      * Variável pública com extensões permitidas para upload
      */
-
     public $allowed_types = 'xls|xml|pdf|gif|jpg|jpeg|png|doc|docx|rar|3gp|7z|ace|ai|aif|aiff|amr|asf|asx|bmp|bup|cab|cbr|cda|cdl|cdr|chm|dat|divx|dmg|dss|dvf|dwg|eml|eps|flv|gz|hqx|htm|html|ifo|indd|iso|jar|js|lnk|log|m4a|m4b|m4p|m4v|mcd|mdb|mid|mov|mp2|mp3|mp4|mpeg|mpg|msi|ogg|pdf|pps|ps|psd|pst|ptb|pub|qbb|qbw|qxd|ram|rm|rmvb|rtf|svg|sea|ses|sit|sitx|ss|swf|tgz|thm|tif|tmp|torrent|ttf|txt|vcd|vob|wav|wmv|wps|xpi|xcf|zip|avi|sql|css';
     /*
      * Variável pública com o limite de usuários por página
      */
     public $limit = 18;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->load->model_app('files_model');
     }
-
     /*
      * Método para criação de template da listagem de arquivos
      */
 
-    public function index() {
+    public function index()
+    {
         $this->lang->load_app(APP);
         $data = $this->apps->data_app();
         $search = $this->form_search();
         $files = $search['files'];
-        $total = $search['total'];
+
         if (check_method('upload')) {
-            add_js(array(
-                '/plugins/dropzone/js/dropzone.js'
-            ));
-            add_css(array(
-                '/plugins/dropzone/css/dropzone.css',
-            ));
+            $this->include_components
+                    ->main_js('plugins/dropzone/js/dropzone.js')
+                    ->main_css('plugins/dropzone/css/dropzone.css');
         }
 
-        add_js(array(
-            '/plugins/fancybox/js/jquery.fancybox-buttons.js',
-            '/plugins/fancybox/js/jquery.fancybox.pack.js',
-            '/plugins/embeddedjs/ejs.js',
-            'js/script.js'
-        ));
-        add_css(array(
-            '/plugins/fancybox/css/jquery.fancybox.css',
-            '/plugins/fancybox/css/jquery.fancybox-buttons.css',
-            'css/style.css'
-        ));
+        $this->include_components
+                ->main_js(array(
+                    'plugins/fancybox/js/jquery.fancybox-buttons.js',
+                    'plugins/fancybox/js/jquery.fancybox.pack.js',
+                    'plugins/embeddedjs/ejs.js',
+                ))
+                ->main_css(array(
+                    'plugins/fancybox/css/jquery.fancybox.css',
+                    'plugins/fancybox/css/jquery.fancybox-buttons.css',
+                ))
+                ->app_js('js/script.js')
+                ->app_css('css/style.css');
+
         $vars = array(
             'title' => $data['name'],
             'files' => $files
         );
         $this->load->template_app('index', $vars);
     }
-
     /*
      * Método para pesquisar arquivos
      */
 
-    private function form_search() {
+    private function form_search()
+    {
         $keyword = $this->input->get('search');
         $per_page = (int) $this->input->get('per_page') or 0;
         $this->form_validation->set_rules('search', 'Pesquisa', 'trim|required');
@@ -75,12 +75,12 @@ class Gallery extends MY_Controller {
             'total' => $total
         );
     }
-
     /*
      * Método para listar arquivos, acionado por js
      */
 
-    public function files_list() {
+    public function files_list()
+    {
         $per_page = (int) $this->input->get('per_page') or 0;
         $keyword = $this->input->get('search');
         $limit = $this->input->post('limit');
@@ -115,12 +115,12 @@ class Gallery extends MY_Controller {
         $pagination = $this->pagination($total, $limit);
         echo json_encode(array('files' => $files, 'total' => $total, 'pagination' => $pagination));
     }
-
     /*
      * Método para criação de template da paginação
      */
 
-    private function pagination($total, $limit) {
+    private function pagination($total, $limit)
+    {
         $this->load->library('pagination');
         $config['total_rows'] = $total;
         $config['per_page'] = $limit;
@@ -145,12 +145,12 @@ class Gallery extends MY_Controller {
         $this->pagination->initialize($config);
         return $this->pagination->create_links();
     }
-
     /*
      * Método para enviar arquivo
      */
 
-    public function upload() {
+    public function upload()
+    {
         $upload = false;
         $insert = false;
         $path = PATH_UPLOAD;
@@ -200,7 +200,8 @@ class Gallery extends MY_Controller {
         }
     }
 
-    private function create_file_unique($file, $config) {
+    private function create_file_unique($file, $config)
+    {
         $image_thumbnails = (isset($config->image_thumbnails) && strpos($config->image_thumbnails, '{') !== false) ? json_decode($config->image_thumbnails) : array();
         $exists = false;
         $new_file = $file;
@@ -223,7 +224,8 @@ class Gallery extends MY_Controller {
         return $file;
     }
 
-    private function config_upload($data, $file) {
+    private function config_upload($data, $file)
+    {
         $image_resize = (isset($data->image_resize)) ? to_boolean($data->image_resize) : '';
         $image_y = (isset($data->image_y)) ? $data->image_y : '';
         $image_x = (isset($data->image_x)) ? $data->image_x : '';
@@ -337,12 +339,12 @@ class Gallery extends MY_Controller {
         }
         return $thumbs;
     }
-
     /*
      * Método para criar imagem de exibição com tamanho especifico
      */
 
-    public function image($type = false, $file = false) {
+    public function image($type = false, $file = false)
+    {
         if ($type && $file) {
             $file = urldecode($file);
             $path = PATH_UPLOAD;
@@ -384,12 +386,12 @@ class Gallery extends MY_Controller {
             echo $file_tmp->Process();
         }
     }
-
     /*
      * Método para remover arquivo
      */
 
-    public function delete() {
+    public function delete()
+    {
         $file = $this->input->post('file');
         $get_file = $this->files_model->file($file);
         if (!$get_file) {
@@ -410,12 +412,12 @@ class Gallery extends MY_Controller {
             }
         }
     }
-
     /*
      * Método exibir dados de um arquivo
      */
 
-    public function file() {
+    public function file()
+    {
         $file = $this->input->post('file');
         $path = PATH_UPLOAD;
         $path_file = $path . $file;
@@ -430,12 +432,12 @@ class Gallery extends MY_Controller {
         }
         echo json_encode(array('file' => $file, 'name' => $name, 'path_file' => wd_base_url('wd-content/upload/' . $file), 'filesize' => FileSizeConvert($filesize), 'thumbnails' => $thumbnails));
     }
-
     /*
      * Método para editar arquivo
      */
 
-    public function edit_file() {
+    public function edit_file()
+    {
         $this->form_validation->set_rules('file', 'Arquivo', 'required|callback_verify_name');
         if ($this->form_validation->run()) {
             $path = PATH_UPLOAD;
@@ -445,10 +447,10 @@ class Gallery extends MY_Controller {
             $infors_file = $this->files_model->file($file);
             $thumbs = array();
             if ($infors_file && strpos($infors_file['thumbnails'], '[') !== FALSE && $thumbnails = json_decode($infors_file['thumbnails'])) {
-                foreach($thumbnails as $thumb){
+                foreach ($thumbnails as $thumb) {
                     $preffix = str_replace($file, '', $thumb);
-                    $rename = \rename($path . $thumb, $path . $preffix.$new_file);
-                    $thumbs[] = $preffix.$new_file;
+                    $rename = \rename($path . $thumb, $path . $preffix . $new_file);
+                    $thumbs[] = $preffix . $new_file;
                 }
             }
 
@@ -474,12 +476,12 @@ class Gallery extends MY_Controller {
             echo json_encode(array('message' => validation_errors(), 'error' => 1));
         }
     }
-
     /*
      * Método para verificar existencia do arquivo
      */
 
-    public function verify_name($name) {
+    public function verify_name($name)
+    {
         $path = PATH_UPLOAD;
         $file = $this->input->post('file');
         $explode_file = explode('.', $file);
@@ -493,18 +495,19 @@ class Gallery extends MY_Controller {
         }
         return true;
     }
-    
-    public function list_permissions(){
+
+    public function list_permissions()
+    {
         $data = array();
         $data['app'] = check_app('gallery');
         $data['upload'] = check_method('upload', 'gallery');
         $data['view'] = check_method('view-files', 'gallery');
         echo json_encode($data);
     }
-    
-    public function list_lang(){
+
+    public function list_lang()
+    {
         $this->lang->load_app('gallery');
         echo json_encode($this->lang->language);
     }
-
 }

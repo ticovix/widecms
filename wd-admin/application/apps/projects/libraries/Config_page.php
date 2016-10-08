@@ -4,20 +4,21 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Config_page {
-
+class Config_page
+{
     private $plugins;
     private $path_view_project;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->path_view_project = 'application/apps/projects/views/project/';
     }
-
     /*
      * Método com lista de inputs disponíveis
      */
 
-    public function inputs() {
+    public function inputs()
+    {
         $input = array();
         $input[] = ['name' => 'Text', 'value' => 'text'];
         $input[] = ['name' => 'Textarea', 'value' => 'textarea'];
@@ -29,12 +30,12 @@ class Config_page {
         $input[] = ['name' => 'Hidden', 'value' => 'hidden'];
         return $input;
     }
-
     /*
      * Método com lista de tipos de colunas do banco de dados
      */
 
-    public function types() {
+    public function types()
+    {
         $input = array();
         $input[] = ['type' => 'integer', 'constraint' => 11];
         $input[] = ['type' => 'char', 'constraint' => 255];
@@ -52,12 +53,12 @@ class Config_page {
         $input[] = ['type' => 'double', 'constraint' => ''];
         return $input;
     }
-
     /*
      * Método pra criar arquivo config xml
      */
 
-    public function create_config_xml($fields) {
+    public function create_config_xml($fields)
+    {
         $total = count($fields);
         if ($total) {
             $config = array();
@@ -169,24 +170,24 @@ class Config_page {
             return false;
         }
     }
-
     /*
      * Método para carregar o arquivo xml
      */
 
-    public function load_config($dir_project, $dir_page, $dir_section) {
+    public function load_config($dir_project, $dir_page, $dir_section)
+    {
         $path = $this->path_view_project . $dir_project . '/' . $dir_page . '/' . $dir_section . '/config.xml';
         if (is_file($path)) {
             $xml = simplexml_load_file($path, 'SimpleXMLElement');
             return $this->treat_config($xml);
         }
     }
-
     /*
      * Método para tratar os valores do config xml
      */
 
-    private function treat_config($xml) {
+    private function treat_config($xml)
+    {
         if ($xml) {
             $fields = $xml->form->input;
             $list = false;
@@ -328,16 +329,16 @@ class Config_page {
             return false;
         }
     }
-
     /*
      * Método para criação do template com todos os campos do config xml
      */
 
-    public function fields_template($fields, $post = null) {
+    public function fields_template($fields, $post = null)
+    {
         $CI = & get_instance();
-        $CI->lang->load_app('posts/form','projects');
+        $CI->lang->load_app('posts/form', 'projects');
         $this->fields = $fields;
-        
+
         foreach ($fields as $field) {
 
             // Lista os campos do formulário
@@ -389,12 +390,13 @@ class Config_page {
         }
         return $form;
     }
-
     /*
      * Método para alterar valor do input, caso tenha algum método para tratar a saida do valor do banco de dados
      */
 
-    private function add_plugins() {
+    private function add_plugins()
+    {
+        $CI = & get_instance();
         $plugins = $this->plugins;
         if ($plugins) {
             $this->attr = array();
@@ -408,14 +410,13 @@ class Config_page {
                 $class = ucfirst($plugin['plugin']);
                 $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
                 if ($js) {
-                    add_js($js);
+                    $CI->include_components->app_js($js);
                 }
                 if ($css) {
-                    add_css($css);
+                    $CI->include_components->app_css($css);
                 }
                 if (is_file($class_plugin)) {
                     // Se houver um método de saida
-                    $CI = & get_instance();
                     $CI->load->library_app('../plugins_input/' . $plugin['plugin'] . '/' . $class);
                     if (method_exists($class, 'output')) {
                         $class = strtolower($class);
@@ -427,7 +428,8 @@ class Config_page {
         }
     }
 
-    private function treat_attributes() {
+    private function treat_attributes()
+    {
         if (isset($this->attributes)) {
             $attr = (array) json_decode(str_replace('\'', '"', $this->attributes));
             $arr_attr = array();
@@ -453,7 +455,8 @@ class Config_page {
         $this->attr = $result_attr;
     }
 
-    private function change_path($path, $plugin) {
+    private function change_path($path, $plugin)
+    {
         if (is_array($path)) {
             foreach ($path as $p) {
                 $new_path[] = '../plugins_input/' . $plugin['plugin'] . '/assets/' . $p;
@@ -463,27 +466,24 @@ class Config_page {
             return '../plugins_input/' . $plugin['plugin'] . '/assets/' . $path;
         }
     }
-
     /*
      * Método para criar template do input file
      */
 
-    private function template_input_file() {
+    private function template_input_file()
+    {
+        $CI = &get_instance();
         load_gallery();
-        add_css(array(
-            '/plugins/jquery-ui/jquery-ui.css',
-            'posts/css/gallery.css'
-        ));
-        add_js(array(
-            '/plugins/jquery-ui/jquery-ui.min.js',
-            'posts/js/gallery.js'
-        ));
-        
+
+        $CI->include_components->main_css('plugins/jquery-ui/jquery-ui.css')
+                ->app_css('posts/css/gallery.css')
+                ->main_js('plugins/jquery-ui/jquery-ui.min.js')
+                ->app_js('posts/js/gallery.js');
+
         $field = $this->field;
         $new_field = array();
         $new_field['type'] = $this->type;
         $new_field['label'] = $this->label;
-        $CI = &get_instance();
         $value = ($CI->input->post($this->column) !== null ? $CI->input->post($this->column) : $this->value);
         $files = json_decode($value);
         $txt_extensions = 'TODAS';
@@ -494,7 +494,7 @@ class Config_page {
         $this->attr['type'] = 'button';
         $this->attr['data-config'] = $this->config_upload();
         $new_field['input'] = $this->list_files($files, null, true);
-        $new_field['input'] .= form_button($this->attr, '<span class="fa fa-file-image-o"></span> '.$CI->lang->line('projects_label_upload_gallery'));
+        $new_field['input'] .= form_button($this->attr, '<span class="fa fa-file-image-o"></span> ' . $CI->lang->line('projects_label_upload_gallery'));
         if (isset($field['extensions_allowed']) && !empty($field['extensions_allowed'])) {
             $txt_extensions = str_replace(',', ', ', $field['extensions_allowed']);
         }
@@ -510,12 +510,12 @@ class Config_page {
         $new_field['input'] .= form_input($attr, set_value($this->column, $this->value, false));
         return $new_field;
     }
-
     /*
      * Método para criar atributo de configuração do campo upload
      */
 
-    private function config_upload() {
+    private function config_upload()
+    {
         $field = $this->field;
         $config_upload = array(
             'extensions_allowed' => $field['extensions_allowed'],
@@ -546,12 +546,12 @@ class Config_page {
         });
         return str_replace('"', '\'', json_encode($config_upload));
     }
-
     /*
      * Método para criar template do textarea
      */
 
-    private function template_textarea() {
+    private function template_textarea()
+    {
         $new_field = array();
         $new_field['type'] = $this->type;
         $new_field['label'] = $this->label;
@@ -561,22 +561,21 @@ class Config_page {
         $new_field['input'] = form_textarea($this->attr, htmlspecialchars_decode(set_value($this->column, $this->value, false), ENT_QUOTES));
         return $new_field;
     }
-
     /*
      * Método para criar template do checkbox
      */
 
-    private function template_checkbox() {
-        add_js(array(
-            'posts/js/events-select.js'
-        ));
+    private function template_checkbox()
+    {
+        $CI = &get_instance();
+        $CI->include_components->app_js('posts/js/events-select.js');
+
         $new_field = array();
         $new_field['type'] = $this->type;
         $new_field['label'] = $this->label;
         $this->attr['id'] = $this->column . '_field';
         $this->attr['name'] = $this->column . '[]';
         $this->attr['class'] = (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $CI = &get_instance();
         // Lista registros para o select
         $CI->load->model('posts_model');
         $table = $this->field['options_table'];
@@ -605,19 +604,17 @@ class Config_page {
 
         return $new_field;
     }
-
     /*
      * Método para criar template do select
      */
 
-    private function template_select() {
-        add_js(array(
-            '/plugins/chosen/js/chosen.jquery.min.js',
-            'posts/js/events-select.js',
-        ));
-        add_css(array(
-            '/plugins/chosen/css/chosen.css'
-        ));
+    private function template_select()
+    {
+        $CI = &get_instance();
+        $CI->include_components->main_js('plugins/chosen/js/chosen.jquery.min.js')
+                ->app_js('posts/js/events-select.js')
+                ->main_css('plugins/chosen/css/chosen.css');
+
         $new_field = array();
         $new_field['type'] = $this->type;
         $new_field['label'] = $this->label;
@@ -651,17 +648,16 @@ class Config_page {
         }
         $this->attr['id'] = $this->column . '_field';
         $this->attr['class'] = 'form-control input-field trigger-select chosen-select ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $CI = &get_instance();
         $value = ($CI->input->post($this->column) !== null ? $CI->input->post($this->column) : $this->value);
         $new_field['input'] = form_dropdown($this->column, $array_options, $value, $this->attr);
         return $new_field;
     }
-
     /*
      * Método para criar template do input hidden
      */
 
-    private function template_input_hidden() {
+    private function template_input_hidden()
+    {
         $new_field = array();
         $this->attr['id'] = $this->column . '_field';
         $this->attr['name'] = $this->column;
@@ -670,12 +666,12 @@ class Config_page {
         $new_field['input'] = form_input($this->attr, set_value($this->column, $this->value));
         return $new_field;
     }
-
     /*
      * Método para criar template do input
      */
 
-    private function template_input() {
+    private function template_input()
+    {
         $new_field = array();
         $new_field['type'] = $this->type;
         $new_field['label'] = $this->label;
@@ -686,12 +682,12 @@ class Config_page {
         $new_field['input'] = form_input($this->attr, htmlspecialchars_decode(set_value($this->column, $this->value), ENT_QUOTES));
         return $new_field;
     }
-
     /*
      * Método para listar as opções de um select
      */
 
-    private function set_options($table, $column, $data_trigger = null) {
+    private function set_options($table, $column, $data_trigger = null)
+    {
         $CI = & get_instance();
         if (is_array($data_trigger) && empty($data_trigger['value'])) {
             return array('' => sprintf($CI->lang->line('projects_label_subselect'), $data_trigger['label']));
@@ -715,12 +711,12 @@ class Config_page {
         }
         return $options;
     }
-
     /*
      * Método para montar template da listagem de arquivos
      */
 
-    private function list_files($files, $cols = 2, $edit_file=false) {
+    private function list_files($files, $cols = 2, $edit_file = false)
+    {
         $files = (array) $files;
         $ctt = '<div class="content-files">';
         if ($files) {
@@ -742,11 +738,11 @@ class Config_page {
                         $active = '';
                     }
                     $ctt .= '<div class="files-list thumbnail ' . $active . '">';
-                    if($edit_file){
-                        $ctt .= '<a href="javascript:void(0);" data-toggle="modal" data-target="#modal-edit" title="'.$title.'" data-file="'.$file_.'" class="btn-edit-file">';
+                    if ($edit_file) {
+                        $ctt .= '<a href="javascript:void(0);" data-toggle="modal" data-target="#modal-edit" title="' . $title . '" data-file="' . $file_ . '" class="btn-edit-file">';
                     }
                     $ctt .= '<img src="' . base_url('apps/gallery/image/thumb/' . $file_) . '" class="img-responsive">';
-                    if($edit_file){
+                    if ($edit_file) {
                         $ctt .= '</a>';
                     }
                     $ctt .= '</div>';
@@ -756,14 +752,14 @@ class Config_page {
         $ctt .= '</div>';
         return $ctt;
     }
-
     /*
      * Método para tratar a listagem de registros
      * Param posts - contém os registros do banco de dados
      * Param data - contém os dados dos campos de listagem do config xml
      */
 
-    public function treat_list($posts, $data) {
+    public function treat_list($posts, $data)
+    {
         $list = array();
         // Lista os registros do banco de dados
         foreach ($posts as $row) {
@@ -799,7 +795,8 @@ class Config_page {
         return $list;
     }
 
-    private function plugins_output($plugins, $value, $field, $fields) {
+    private function plugins_output($plugins, $value, $field, $fields)
+    {
         $type = $field['type'];
         $plugins = $this->get_plugins($plugins);
         if ($plugins) {
@@ -842,7 +839,8 @@ class Config_page {
         return $value;
     }
 
-    private function treat_options($value, $field) {
+    private function treat_options($value, $field)
+    {
         if (!empty($value) && $value > 0) {
             // Se o valor da coluna não estiver vazio
             $CI = & get_instance();
@@ -865,7 +863,8 @@ class Config_page {
         return $value;
     }
 
-    private function treat_value_json($value, $field) {
+    private function treat_value_json($value, $field)
+    {
         if (!empty($value)) {
             // Se o valor da coluna não estiver vazio
             // Decodifica o json
@@ -875,13 +874,13 @@ class Config_page {
         }
         return $value;
     }
-
     /*
      * Método para listar os plugins para usar nos inputs
      * return Array
      */
 
-    public function list_plugins() {
+    public function list_plugins()
+    {
         $path_apps = getcwd() . '/application/' . APP_PATH . 'plugins_input/';
         $opendir = \opendir($path_apps);
         while (false !== ($plugin = readdir($opendir))) {
@@ -897,13 +896,13 @@ class Config_page {
         asort($this->list_plugins);
         return $this->list_plugins;
     }
-
     /*
      * Método para buscar o arquivo yml e setar o plugin
      * return Array
      */
 
-    private function set_plugin($path, $plugin) {
+    private function set_plugin($path, $plugin)
+    {
         $CI = &get_instance();
         $CI->load->library('spyc');
         $config = $CI->spyc->loadFile($path);
@@ -916,13 +915,13 @@ class Config_page {
             return $this->list_plugins[] = $config;
         }
     }
-
     /*
      * Método para buscar um plugin
      * return String
      */
 
-    public function get_plugins($plugins) {
+    public function get_plugins($plugins)
+    {
         $plugins = explode("|", $plugins);
         $arr_plugins = array();
         if ($plugins) {
@@ -944,5 +943,4 @@ class Config_page {
         }
         return $arr_plugins;
     }
-
 }

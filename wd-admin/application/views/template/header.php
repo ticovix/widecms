@@ -19,16 +19,16 @@ if (!defined('BASEPATH')) {
         <title><?php echo (!empty($title)) ? $title . ' | CMS WIDE' : 'CMS WIDE'; ?></title>
 
         <!-- Bootstrap -->
-        <link href="<?php echo base_url('assets/plugins/bootstrap/css/bootstrap.min.css') ?>" rel="stylesheet">
+        <link href="<?php echo base_url('../vendor/components/bootstrap/css/bootstrap.min.css') ?>" rel="stylesheet">
         <!-- Font Awesome -->
-        <link href="<?php echo base_url('assets/plugins/font-awesome/css/font-awesome.min.css') ?>" rel="stylesheet">
+        <link href="<?php echo base_url('../vendor/components/font-awesome/css/font-awesome.min.css') ?>" rel="stylesheet">
         <?php if ($this->data_user['allow_dev']) { ?>
             <link rel="stylesheet" href="<?php echo base_url('assets/plugins/switchery/css/switchery.css') ?>">
         <?php } ?>
         <link rel="icon" type="image/png" href="<?php echo base_url('assets/images/favicon.png') ?>" />
         <!-- Custom Theme Style -->
         <link href="<?php echo base_url('assets/css/custom.css'); ?>" rel="stylesheet">
-        <?php echo put_css(); ?>
+        <?php echo $this->include_components->put_css(); ?>
     </head>
 
     <body class="nav-md">
@@ -56,7 +56,7 @@ if (!defined('BASEPATH')) {
                                 ?>" alt="<?php echo $PROFILE['name'] ?>" class="img-circle profile_img" height="56">
                             </div>
                             <div class="profile_info">
-                                <span><?php echo $this->lang->line('panel_welcome');?></span>
+                                <span><?php echo $this->lang->line('panel_welcome'); ?></span>
                                 <h2><?php echo $PROFILE['name'] ?></h2>
                             </div>
                         </div>
@@ -70,8 +70,8 @@ if (!defined('BASEPATH')) {
                             <div class="menu_section">
                                 <ul class="nav side-menu">
                                     <li>
-                                        <a href="<?php echo base_url()?>" class="<?php echo is_nav_active($this->uri->segment(2), array('','home'), "current-page"); ?>">
-                                            <i class="fa fa-dashboard"></i> <?php echo $this->lang->line('panel_btn_dashboard');?>
+                                        <a href="<?php echo base_url() ?>" class="<?php echo is_nav_active($this->uri->segment(2), array('', 'home'), "current-page"); ?>">
+                                            <i class="fa fa-dashboard"></i> <?php echo $this->lang->line('panel_btn_dashboard'); ?>
                                         </a>
                                     </li>
                                     <?php
@@ -83,7 +83,7 @@ if (!defined('BASEPATH')) {
                                         if ($show) {
                                             ?>
                                             <li class="<?php echo is_nav_active($this->uri->segment(2), $app, "current-page"); ?>">
-                                                <a href="<?php echo base_url('apps/' . $app); ?>"> 
+                                                <a href="<?php echo base_url('apps/' . $app); ?>">
                                                     <?php
                                                     if (strpos($icon, '/') == false && strpos($icon, 'fa-') >= 0) {
                                                         ?>
@@ -133,13 +133,13 @@ if (!defined('BASEPATH')) {
                                     </a>
                                     <ul class="dropdown-menu dropdown-usermenu pull-right">
                                         <li>
-                                            <a href="<?php echo base_url('logout') ?>"><i class="fa fa-sign-out pull-right"></i> <?php echo $this->lang->line('panel_logout');?></a>
+                                            <a href="<?php echo base_url('logout') ?>"><i class="fa fa-sign-out pull-right"></i> <?php echo $this->lang->line('panel_logout'); ?></a>
                                         </li>
                                     </ul>
                                 </li>
 
                                 <li class="dev-mode">
-                                    <?php if ($PROFILE['allow_dev']) { ?><?php echo $this->lang->line('panel_dev_mode');?> <input type="checkbox" id="allow_dev" <?php if ($PROFILE['dev_mode']) { ?>checked<?php } ?> /> <?php } ?>
+                                    <?php if ($PROFILE['allow_dev']) { ?><?php echo $this->lang->line('panel_dev_mode'); ?> <input type="checkbox" id="allow_dev" <?php if ($PROFILE['dev_mode']) { ?>checked<?php } ?> /> <?php } ?>
                                 </li>
                             </ul>
                         </nav>

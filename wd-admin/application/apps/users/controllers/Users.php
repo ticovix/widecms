@@ -4,24 +4,25 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Users extends MY_Controller {
+class Users extends MY_Controller
+{
     /*
      * Variável pública com o limite de usuários por página
      */
-
     public $limit = 10;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->load->model_app('users_model');
         $this->data = $this->apps->data_app();
     }
-
     /*
      * Método com template de listagem de usuários
      */
 
-    public function index() {
+    public function index()
+    {
         $this->lang->load_app(APP);
         $search = $this->form_search();
         $users = $search['users'];
@@ -34,17 +35,15 @@ class Users extends MY_Controller {
             'pagination' => $pagination,
             'total' => $total_rows
         ];
-        add_js([
-            'js/index.js'
-        ]);
+        $this->include_components->app_js('js/index.js');
         $this->load->template_app('index', $data);
     }
-
     /*
      * Método para pesquisa de listagem de usuários
      */
 
-    private function form_search() {
+    private function form_search()
+    {
         $this->form_validation->set_rules('search', 'Search', 'trim|required');
         $keyword = $this->input->get('search');
         $perPage = $this->input->get('per_page');
@@ -57,12 +56,12 @@ class Users extends MY_Controller {
             'total_rows' => $total_rows
         );
     }
-
     /*
      * Método para gerar template de páginação para listagem de usuários
      */
 
-    private function pagination($total_rows) {
+    private function pagination($total_rows)
+    {
         $this->load->library('pagination');
         $config['total_rows'] = $total_rows;
         $config['per_page'] = $this->limit;
@@ -85,25 +84,21 @@ class Users extends MY_Controller {
         $this->pagination->initialize($config);
         return $this->pagination->create_links();
     }
-
     /*
-     * Método para criação de template para criar usuário 
+     * Método para criação de template para criar usuário
      */
 
-    public function create() {
+    public function create()
+    {
         $this->lang->load_app('form');
         $permissions = $this->apps->list_apps_permissions();
         $this->form_create($permissions);
         $this->load->library('apps');
-        add_js([
-            '/plugins/switchery/js/switchery.js',
-            'js/form.js'
-        ]);
-        add_css([
-            '/plugins/switchery/css/switchery.css'
-        ]);
+        $this->include_components->main_js('plugins/switchery/js/switchery.js')
+                ->app_js('js/form.js')
+                ->main_css('plugins/switchery/css/switchery.css');
         $vars = [
-            'title' => $this->lang->line(APP.'_title_add_user'),
+            'title' => $this->lang->line(APP . '_title_add_user'),
             'name_app' => $this->data['name'],
             'user_logged' => $this->data_user,
             'name' => null,
@@ -119,12 +114,12 @@ class Users extends MY_Controller {
         ];
         $this->load->template_app('form', $vars);
     }
-
     /*
      * Método para criação de usuário
      */
 
-    private function form_create($permissions) {
+    private function form_create($permissions)
+    {
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
         $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]|valid_email');
         $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]|min_length[3]|alpha_numeric');
@@ -159,7 +154,8 @@ class Users extends MY_Controller {
         }
     }
 
-    private function create_permissions($permissions, $id_user) {
+    private function create_permissions($permissions, $id_user)
+    {
         if ($permissions) {
             $data = array();
             foreach ($permissions as $app) {
@@ -209,12 +205,12 @@ class Users extends MY_Controller {
             $this->users_model->create_permissions($data);
         }
     }
-
     /*
      * Método para criação de template de edição de usuário
      */
 
-    public function edit($login) {
+    public function edit($login)
+    {
         $this->lang->load_app('form');
         $user = $this->users_model->get_user_edit($login);
         if (!$user) {
@@ -223,11 +219,9 @@ class Users extends MY_Controller {
         $permissions = $this->apps->list_apps_permissions();
         $this->form_edit($user, $permissions);
 
-        add_js([
-            'js/form.js'
-        ]);
+        $this->include_components->app_js('js/form.js');
         $vars = [
-            'title' => $this->lang->line(APP.'_title_edit_user'),
+            'title' => $this->lang->line(APP . '_title_edit_user'),
             'name_app' => $this->data['name'],
             'id_user' => $user['id'],
             'name' => $user['name'],
@@ -242,12 +236,12 @@ class Users extends MY_Controller {
         ];
         $this->load->template_app('form', $vars);
     }
-
     /*
      * Método para edição de usuário
      */
 
-    private function form_edit($user, $permissions) {
+    private function form_edit($user, $permissions)
+    {
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
         if ($this->input->post('email') != $user['email']) {
             $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]|valid_email');
@@ -289,39 +283,40 @@ class Users extends MY_Controller {
             redirect_app('users');
         }
     }
-
     /*
      * Método para deletar usuário
      */
 
-    public function delete() {
+    public function delete()
+    {
         $del = $this->input->post('del');
         if ($del > 1) {
             $this->users_model->delete($del);
         }
         redirect_app('users');
     }
-
     /*
      * Método para ativar e desativar o modo desenvolvedor, acionado por js
      */
 
-    public function dev_mode() {
+    public function dev_mode()
+    {
         $this->form_validation->set_rules('dev', 'Dev', 'required');
         if ($this->form_validation->run()) {
             $dev = $this->input->post('dev');
             $this->users_model->change_mode(['dev' => $dev, 'id_user' => $this->data_user['id']]);
         }
     }
-    
-    public function profile($login) {
+
+    public function profile($login)
+    {
         $this->lang->load_app('profile');
         $user = $this->users_model->get_user_edit($login);
-        if(!$user){
+        if (!$user) {
             redirect();
         }
         $offset = (int) $this->input->get('per_page');
-        add_css('css/profile.css');
+        $this->include_components->app_css('css/profile.css');
         $history = read_history(array(
             'limit' => 10,
             'offset' => $offset,
@@ -331,7 +326,7 @@ class Users extends MY_Controller {
             )
         ));
         $vars = array(
-            'title' => $user['name'].' '.$user['last_name'],
+            'title' => $user['name'] . ' ' . $user['last_name'],
             'name_app' => $this->data['name'],
             'name' => $user['name'],
             'login' => $user['login'],
@@ -345,8 +340,9 @@ class Users extends MY_Controller {
         );
         $this->load->template_app('profile', $vars);
     }
-    
-    private function pagination_history($total_rows) {
+
+    private function pagination_history($total_rows)
+    {
         $this->load->library('pagination');
         $config['total_rows'] = $total_rows;
         $config['per_page'] = 10;
@@ -369,5 +365,4 @@ class Users extends MY_Controller {
         $this->pagination->initialize($config);
         return $this->pagination->create_links();
     }
-
 }

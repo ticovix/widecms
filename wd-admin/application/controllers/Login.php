@@ -3,24 +3,25 @@
 if (!defined('BASEPATH'))
     exit('Não é permitido o acesso direto ao arquivo.');
 
-class Login extends CI_Controller {
-
+class Login extends CI_Controller
+{
     private $max_attempts = 3;
     private $path_captcha = 'assets/captcha/';
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         // Carrega a model login
         $this->load->model_app('users_model', 'users');
     }
-
     /*
      * Método para criar template de login
      */
 
-    public function index() {
+    public function index()
+    {
         $this->lang->load('cms/login/login');
-        
+
         // Validação de formulário
         $captcha = false;
         $this->form_validation->set_rules('login', 'Login', 'trim|required');
@@ -41,17 +42,17 @@ class Login extends CI_Controller {
             'title' => 'Login',
             'captcha' => $captcha
         ];
-        add_css('view/login/css/style.css');
+        $this->include_components->main_css('view/login/css/style.css');
         $this->load->view('login/inc/header', $data);
         $this->load->view('login/index', $data);
         $this->load->view('login/inc/footer');
     }
-
     /*
      * Método para verificar e exibir captcha caso seja detectado força bruta
      */
 
-    private function protection_brute_force() {
+    private function protection_brute_force()
+    {
         $attempts = $this->session->userdata('attempts') + 1;
         $this->session->set_userdata(array('attempts' => $attempts));
         if ($attempts > $this->max_attempts) {
@@ -74,12 +75,12 @@ class Login extends CI_Controller {
             return false;
         }
     }
-
     /*
      * Método para checar captcha caso seja detectado acesso por força bruta
      */
 
-    public function check_captcha($str) {
+    public function check_captcha($str)
+    {
         $attempts = $this->session->userdata('attempts');
         // Maximo de 3 tentativas para exibir o captcha
         if ($attempts > $this->max_attempts) {
@@ -93,12 +94,12 @@ class Login extends CI_Controller {
         }
         return true;
     }
-
     /*
      * Método para autenticar login
      */
 
-    public function auth_account($password) {
+    public function auth_account($password)
+    {
         $user = $this->input->post('login');
 
         // Busca conta pelo login informado
@@ -127,7 +128,8 @@ class Login extends CI_Controller {
         }
     }
 
-    public function recovery() {
+    public function recovery()
+    {
         $this->lang->load('cms/login/recovery');
         $this->form_validation->set_rules('captcha', 'Captcha', 'callback_check_captcha_recovery');
         $this->form_validation->set_rules('email', 'E-mail', 'trim|required|valid_email|callback_check_status_user');
@@ -178,12 +180,12 @@ class Login extends CI_Controller {
         $this->load->view('login/recovery', $data);
         $this->load->view('login/inc/footer');
     }
-
     /*
      * Método para checar captcha da página de recuperação de senha
      */
 
-    public function check_captcha_recovery($str) {
+    public function check_captcha_recovery($str)
+    {
         $word = $this->session->userdata('captchaWordRecovery');
         if (strcmp(strtoupper($str), strtoupper($word)) == 0) {
             return true;
@@ -194,7 +196,8 @@ class Login extends CI_Controller {
         return true;
     }
 
-    public function check_status_user($email) {
+    public function check_status_user($email)
+    {
         $this->user = $this->users_model->list_user_email($email);
         if ($this->user) {
             if ($this->user['status'] == '0') {
@@ -204,7 +207,8 @@ class Login extends CI_Controller {
         }
     }
 
-    public function redefine_pass() {
+    public function redefine_pass()
+    {
         $this->lang->load('cms/login/redefinepass');
         $token = $this->input->get('token');
         $login = $this->input->get('login');
@@ -238,7 +242,8 @@ class Login extends CI_Controller {
         $this->load->view('login/inc/footer');
     }
 
-    private function verify_token($token, $login) {
+    private function verify_token($token, $login)
+    {
         $user = $this->users_model->user_recovery($login);
         if (!$user) {
             redirect('login');
@@ -251,5 +256,4 @@ class Login extends CI_Controller {
             redirect('login');
         }
     }
-
 }

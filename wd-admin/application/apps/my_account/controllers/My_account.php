@@ -4,12 +4,14 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class My_account extends MY_Controller {
+class My_account extends MY_Controller
+{
     /*
      * Método para criação de template com formulário para editar usuário
      */
 
-    public function index() {
+    public function index()
+    {
         $this->lang->load_app(APP);
         $data = $this->apps->data_app();
         $user = $this->data_user;
@@ -19,14 +21,9 @@ class My_account extends MY_Controller {
         $this->form_edit();
         // Carregar plugin de upload
         load_gallery();
-        add_js(array(
-            'js/upload.js',
-            'js/form.js'
-        ));
-        add_css(array(
-            'css/style.css'
-        ));
-
+        $this->include_components
+                ->app_js(array('js/upload.js', 'js/form.js'))
+                ->app_css('css/style.css');
 
         $vars = array(
             'title' => $data['name'],
@@ -39,12 +36,12 @@ class My_account extends MY_Controller {
         );
         $this->load->template_app('index', $vars);
     }
-
     /*
      * Método para edição da conta
      */
 
-    private function form_edit() {
+    private function form_edit()
+    {
         $user = $this->data_user;
         $this->form_validation->set_rules('name', 'Nome', 'trim|required');
         if ($this->input->post('email') != $user['email']) {
@@ -78,5 +75,4 @@ class My_account extends MY_Controller {
             redirect(current_url());
         }
     }
-
 }
