@@ -475,9 +475,10 @@ class Config_page
         $CI = &get_instance();
         load_gallery();
 
-        $CI->include_components->main_css('plugins/jquery-ui/jquery-ui.css')
+        $CI->include_components
+                ->vendor_js('components/jqueryui/jquery-ui.min.js')
+                ->vendor_css('components/jqueryui/themes/ui-lightness/jquery-ui.min.css')
                 ->app_css('posts/css/gallery.css')
-                ->main_js('plugins/jquery-ui/jquery-ui.min.js')
                 ->app_js('posts/js/gallery.js');
 
         $field = $this->field;
@@ -611,7 +612,8 @@ class Config_page
     private function template_select()
     {
         $CI = &get_instance();
-        $CI->include_components->main_js('plugins/chosen/js/chosen.jquery.min.js')
+        $CI->include_components
+                ->main_js('plugins/chosen/js/chosen.jquery.min.js')
                 ->app_js('posts/js/events-select.js')
                 ->main_css('plugins/chosen/css/chosen.css');
 

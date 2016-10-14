@@ -117,12 +117,11 @@ class Sections extends MY_Controller
             setError($this->lang->line(APP . '_open_config_fail'));
         }
 
-        $this->include_components->main_js(array(
-                    'plugins/embeddedjs/ejs.js',
-                    'plugins/jquery-ui/jquery-ui.min.js'
-                ))
-                ->app_js('js/masks/js/jquery.meio.js', 'project/js/form-section.js')
-                ->main_css('plugins/jquery-ui/jquery-ui.css')
+        $this->include_components
+                ->vendor_js('components/jqueryui/jquery-ui.min.js')
+                ->vendor_css('components/jqueryui/themes/ui-lightness/jquery-ui.min.css')
+                ->main_js('plugins/embeddedjs/ejs.js')
+                ->app_js(array('js/masks/js/jquery.meio.js', 'project/js/form-section.js'))
                 ->app_css('project/css/form-section.css');
         $vars = array(
             'fields' => $fields,
