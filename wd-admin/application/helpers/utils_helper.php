@@ -2,14 +2,15 @@
 
 if (!function_exists('only_number')) {
 
-    function only_numbers($str) {
+    function only_numbers($str)
+    {
         return preg_replace('/[^0-9]/', '', $str);
     }
-
 }
 if (!function_exists('is_nav_active')) {
 
-    function is_nav_active($page_current = null, $keys = null, $result = "active") {
+    function is_nav_active($page_current = null, $keys = null, $result = "active")
+    {
         $return = null;
         if (!is_array($keys)) {
             $keys = [$keys];
@@ -19,12 +20,12 @@ if (!function_exists('is_nav_active')) {
         }
         return $return;
     }
-
 }
 
 if (!function_exists('to_boolean')) {
 
-    function to_boolean($value) {
+    function to_boolean($value)
+    {
         switch (strtolower($value)) {
             case "true":
                 return true;
@@ -37,21 +38,21 @@ if (!function_exists('to_boolean')) {
                 break;
         }
     }
-
 }
 
 if (!function_exists('verify_permission')) {
 
-    function verify_permission($nav) {
+    function verify_permission($nav)
+    {
         $CI = & get_instance();
         $CI->securitypanel->verifyPermission($nav);
     }
-
 }
 
 if (!function_exists('search')) {
 
-    function search($array, $key, $value, $regex = false) {
+    function search($array, $key, $value, $regex = false)
+    {
         $results = array();
         if (is_array($value) && is_array($array)) {
             foreach ($value as $val) {
@@ -71,12 +72,12 @@ if (!function_exists('search')) {
         }
         return $results;
     }
-
 }
 
 if (!function_exists('slug')) {
 
-    function slug($string, $transform_space = '-') {
+    function slug($string, $transform_space = '-')
+    {
         $table = ['Š' => 'S', 'š' => 's', 'Đ' => 'Dj', 'đ' => 'dj', 'Ž' => 'Z',
             'ž' => 'z', 'Č' => 'C', 'č' => 'c', 'Ć' => 'C', 'ć' => 'c',
             'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'A',
@@ -101,12 +102,12 @@ if (!function_exists('slug')) {
         $slug = preg_replace("/[\s_]/", $transform_space, $strTrim);
         return $slug;
     }
-
 }
 
 if (!function_exists('forceRemoveDir')) {
 
-    function forceRemoveDir($dir) {
+    function forceRemoveDir($dir)
+    {
         $opendir = \opendir($dir);
         if ($opendir) {
             if ($dd = $opendir) {
@@ -125,13 +126,13 @@ if (!function_exists('forceRemoveDir')) {
             \rmdir($dir);
         }
     }
-
 }
 
 
 if (!function_exists('generateXML') && !function_exists('arrayToXML')) {
 
-    function generateXML($tag_in, $value_in = "", $attribute_in = "", $cdata) {
+    function generateXML($tag_in, $value_in = "", $attribute_in = "", $cdata)
+    {
         $return = "";
         $attributes_out = "";
         if (is_array($attribute_in)) {
@@ -151,7 +152,8 @@ if (!function_exists('generateXML') && !function_exists('arrayToXML')) {
         }
     }
 
-    function arrayToXML($array_in, $cdata = false, $header = true) {
+    function arrayToXML($array_in, $cdata = false, $header = true)
+    {
         $return = '';
         if ($header) {
             $header = 1;
@@ -174,13 +176,13 @@ if (!function_exists('generateXML') && !function_exists('arrayToXML')) {
         endforeach;
         return $return;
     }
-
 }
 
 
 if (!function_exists('setError') && !function_exists('getErrors') && !function_exists('hasError')) {
 
-    function setError($message) {
+    function setError($message)
+    {
         $CI = & get_instance();
         if ($CI->load->is_loaded('error_reporting')) {
             $CI->error_reporting->set_error($message);
@@ -189,7 +191,8 @@ if (!function_exists('setError') && !function_exists('getErrors') && !function_e
         }
     }
 
-    function getErrors($prefix = '<div class="alert alert-danger">', $suffix = '</div>') {
+    function getErrors($prefix = '<div class="alert alert-danger">', $suffix = '</div>')
+    {
         $CI = & get_instance();
         if ($CI->load->is_loaded('error_reporting')) {
             return $CI->error_reporting->get_errors($prefix, $suffix);
@@ -198,17 +201,18 @@ if (!function_exists('setError') && !function_exists('getErrors') && !function_e
         }
     }
 
-    function hasError() {
+    function hasError()
+    {
         $CI = & get_instance();
         if ($CI->load->is_loaded('error_reporting')) {
             return $CI->error_reporting->has_error();
         }
     }
-
 }
 if (!function_exists('FileSizeConvert')) {
 
-    function FileSizeConvert($bytes) {
+    function FileSizeConvert($bytes)
+    {
         $bytes = floatval($bytes);
         $arBytes = array(
             0 => array(
@@ -242,24 +246,24 @@ if (!function_exists('FileSizeConvert')) {
         }
         return $result;
     }
-
 }
 
 if (!function_exists('projects')) {
 
-    function projects() {
+    function projects()
+    {
         $CI = & get_instance();
         $CI->load->model('projects_model');
         $id_user = $CI->session->userdata('id');
         return $CI->projects_model->search($CI->data_user['dev_mode']);
     }
-
 }
 
 if (!function_exists('get_project')) {
     $project = null;
 
-    function get_project() {
+    function get_project()
+    {
         $CI = & get_instance();
         if (!isset($CI->project)) {
             $slug_project = $CI->uri->segment(4);
@@ -269,14 +273,14 @@ if (!function_exists('get_project')) {
             return $CI->project;
         }
     }
-
 }
 /*
  * Método para listar página
  */
 if (!function_exists('get_page')) {
 
-    function get_page() {
+    function get_page()
+    {
         $CI = & get_instance();
         $page = $CI->uri->segment(5);
         if (empty($CI->page)) {
@@ -286,14 +290,14 @@ if (!function_exists('get_page')) {
             return $CI->page;
         }
     }
-
 }
 /*
  * Método para listar seção
  */
 if (!function_exists('get_section')) {
 
-    function get_section($section = null) {
+    function get_section($section = null)
+    {
         $CI = & get_instance();
         if (!$section) {
             $section = $CI->uri->segment(6);
@@ -305,22 +309,22 @@ if (!function_exists('get_section')) {
             return $CI->section;
         }
     }
-
 }
 if (!function_exists('func_only_dev')) {
 
-    function func_only_dev() {
+    function func_only_dev()
+    {
         $CI = & get_instance();
         if (!$CI->data_user['dev_mode']) {
             header('HTTP/1.1 403 Forbidden');
             die();
         }
     }
-
 }
 if (!function_exists('segments')) {
 
-    function segments() {
+    function segments()
+    {
         $CI = & get_instance();
         return array(
             $CI->uri->segment(1),
@@ -333,44 +337,44 @@ if (!function_exists('segments')) {
             $CI->uri->segment(8),
         );
     }
-
 }
 
 if (!function_exists('base_url_app')) {
 
-    function base_url_app($uri = '', $protocol = null) {
-        $base_url = base_url(APP_PATH . $uri, $protocol) ;
+    function base_url_app($uri = '', $protocol = null)
+    {
+        $base_url = base_url(APP_PATH . $uri, $protocol);
         return $base_url;
     }
-
 }
 
 if (!function_exists('redirect_app')) {
 
-    function redirect_app($url, $method = 'auto', $code = null) {
+    function redirect_app($url, $method = 'auto', $code = null)
+    {
         if (strpos($url, '://') === false) {
             $url = APP_PATH . $url;
         }
         redirect($url, $method, $code);
     }
-
 }
 
 if (!function_exists('redirect_module')) {
 
-    function redirect_module($url, $method = 'auto', $code = null) {
+    function redirect_module($url, $method = 'auto', $code = null)
+    {
         $segments = segments();
         $project = $segments[3];
         $page = $segments[4];
         $section = $segments[5];
         redirect(APP_PATH . 'project/' . $project . '/' . $page . '/' . $section . '/' . $url, $method, $code);
     }
-
 }
 
 if (!function_exists('base_url_module')) {
 
-    function base_url_module($uri = '', $protocol = null) {
+    function base_url_module($uri = '', $protocol = null)
+    {
         $segments = segments();
         $project = $segments[3];
         $page = $segments[4];
@@ -382,20 +386,20 @@ if (!function_exists('base_url_module')) {
         $base_url = base_url(APP_PATH . 'project/' . $project . '/' . $page . '/' . $section . '/' . $uri, $protocol) . $addslashes;
         return $base_url;
     }
-
 }
 
 if (!function_exists('wd_base_url')) {
 
-    function wd_base_url($uri = '', $protocol = null) {
+    function wd_base_url($uri = '', $protocol = null)
+    {
         return str_replace(DIR_ADMIN_DEFAULT, '', base_url($uri, $protocol));
     }
-
 }
 
 if (!function_exists('diff_date_today') && !function_exists('month_name')) {
 
-    function month_name($value) {
+    function month_name($value)
+    {
         switch ($value) {
             case '1': $month = "Janeiro";
                 break;
@@ -427,7 +431,8 @@ if (!function_exists('diff_date_today') && !function_exists('month_name')) {
         return $month;
     }
 
-    function diff_date_today($dateSql) {
+    function diff_date_today($dateSql)
+    {
         $datetime1 = new DateTime($dateSql);
         $datetime2 = new DateTime('now');
         $interval = $datetime1->diff($datetime2);
@@ -453,12 +458,12 @@ if (!function_exists('diff_date_today') && !function_exists('month_name')) {
         }
         return $result;
     }
-
 }
 
 if (!function_exists('format_xml_string')) {
 
-    function format_xml_string($xml) {
+    function format_xml_string($xml)
+    {
         $xml = preg_replace('/(>)(<)(\/*)/', "$1\n$2$3", $xml);
         $token = strtok($xml, "\n");
         $result = '';
@@ -482,23 +487,26 @@ if (!function_exists('format_xml_string')) {
         endwhile;
         return $result;
     }
-
 }
 
 if (!function_exists('load_gallery_upload')) {
-    function load_gallery(){
-        add_css(array(
-            '/plugins/fancybox/css/jquery.fancybox.css',
-            '/plugins/fancybox/css/jquery.fancybox-buttons.css',
-            '/plugins/dropzone/css/dropzone.css',
-        ));
-        add_js(array(
-            '/plugins/dropzone/js/dropzone.js',
-            '/plugins/fancybox/js/jquery.fancybox.pack.js',
-            '/plugins/fancybox/js/jquery.fancybox-buttons.js',
-            '/plugins/embeddedjs/ejs.js',
-        ));
-        add_css('css/gallery_modal.css', 'gallery');
-        add_js('js/upload.js', 'gallery');
+
+    function load_gallery()
+    {
+        $CI = &get_instance();
+        $CI->include_components
+                ->main_css(array(
+                    'plugins/fancybox/css/jquery.fancybox.css',
+                    'plugins/fancybox/css/jquery.fancybox-buttons.css',
+                    'plugins/dropzone/css/dropzone.css',
+                ))
+                ->main_js(array(
+                    'plugins/dropzone/js/dropzone.js',
+                    'plugins/fancybox/js/jquery.fancybox.pack.js',
+                    'plugins/fancybox/js/jquery.fancybox-buttons.js',
+                    'plugins/embeddedjs/ejs.js',
+                ))
+                ->app_css('css/gallery_modal.css', 'gallery')
+                ->app_js('js/upload.js', 'gallery');
     }
 }
