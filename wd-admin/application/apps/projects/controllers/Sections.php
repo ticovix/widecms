@@ -103,7 +103,8 @@ class Sections extends MY_Controller
         $this->lang->load_app('sections/form');
         $project = get_project();
         $page = get_page();
-        $section = $this->sections_model->get_section($slug_section);
+        $id_page = $page['id'];
+        $section = $this->sections_model->get_section($slug_section, $id_page);
         $this->load->library_app('config_page');
         // Carrega os campos da seção
         $config = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
@@ -173,7 +174,7 @@ class Sections extends MY_Controller
             rename($dir . $dir_section, $dir . $directory);
             $this->sections_model->edit($data);
             $this->edit_fields($data);
-            // Se a seção for atualizada corretamente, redireciona o usuário
+
             redirect_app('project/' . $slug_project . '/' . $slug_page);
         } else {
             setError(validation_errors());
@@ -192,9 +193,11 @@ class Sections extends MY_Controller
         if ($section['directory'] != $directory) {
             if (!is_writable($dir . $dir_section)) {
                 $this->form_validation->set_message('verify_dir_edit', sprintf($this->lang->line(APP . '_not_allowed_folder_rename'), $directory));
+
                 return false;
             }
         }
+
         return true;
     }
     /*
@@ -204,17 +207,27 @@ class Sections extends MY_Controller
     public function verify_table_edit($table)
     {
         $project = get_project();
+        $preffix = $project['preffix'];
+        $table = $preffix . $table;
+
         $section = get_section($this->uri->segment(7));
+
+        // Verifica se o nome da tabela atual é diferente da enviada
         if ($table != $section['table']) {
+
+            // Verifica se a tabela existe
             $check_table = $this->sections_model->check_table_exists($table);
             if ($check_table) {
                 $this->form_validation->set_message('verify_table_edit', sprintf($this->lang->line(APP . '_table_exists'), $table));
+
                 return false;
             }
 
-            $preffix = substr($project['preffix'] . $table, 0, 3);
-            if ($preffix == 'wd_' && !$import) {
+            // Verifica se a tabela possui o prefixo wd_
+            $preffix_wd = substr($table, 0, 3);
+            if ($preffix_wd == 'wd_' && !$import) {
                 $this->form_validation->set_message('verify_table_edit', $this->lang->line(APP . '_not_allowed_preffix_wd'));
+
                 return false;
             }
         }
@@ -484,9 +497,10 @@ class Sections extends MY_Controller
     {
         func_only_dev();
         $this->lang->load_app('sections/remove');
-        $section = $this->sections_model->get_section($slug_section);
         $project = get_project();
         $page = get_page();
+        $id_page = $page['id'];
+        $section = $this->sections_model->get_section($slug_section, $id_page);
         if (!$section or ! $project or ! $page) {
             redirect_app();
         }
@@ -590,7 +604,7 @@ class Sections extends MY_Controller
     {
         $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'trim|required');
         $this->form_validation->set_rules('directory', $this->lang->line(APP . '_label_directory'), 'trim|required|is_unique[wd_sections.directory]|callback_verify_dir_create');
-        $this->form_validation->set_rules('table', $this->lang->line(APP . '_label_table'), 'trim|required|is_unique[wd_sections.table]|callback_verify_table_create');
+        $this->form_validation->set_rules('table', $this->lang->line(APP . '_label_table'), 'trim|required|callback_verify_table_create');
         if ($this->form_validation->run()) {
             $import = ($this->input->post('import') == 'true');
             $dir_project = $project['directory'];
@@ -602,6 +616,7 @@ class Sections extends MY_Controller
             $data['import'] = $import;
             $directory = $data['directory'];
             $table = $data['table'];
+
             if (!$import) {
                 // Se não for uma importação de tabela, a tabela é criada no banco de dados
                 $this->sections_model->create_table($table);
@@ -642,15 +657,24 @@ class Sections extends MY_Controller
     public function verify_table_create($table)
     {
         $project = get_project();
+        $preffix = $project['preffix'];
+        $table = $preffix . $table;
+
+
+        // Verifica se a tabela existe
         $import = $this->input->post('import');
         $check_table = $this->sections_model->check_table_exists($table);
         if ($check_table && !$import) {
             $this->form_validation->set_message('verify_table_create', sprintf($this->lang->line(APP . '_table_exists'), $table));
+
             return false;
         }
-        $preffix = substr($project['preffix'] . $table, 0, 3);
-        if ($preffix == 'wd_' && !$import) {
+
+        // Verifica se a tabela possui o prefixo wd_
+        $preffix_wd = substr($table, 0, 3);
+        if ($preffix_wd == 'wd_' && !$import) {
             $this->form_validation->set_message('verify_table_create', $this->lang->line(APP . '_not_allowed_preffix_wd'));
+
             return false;
         }
 
