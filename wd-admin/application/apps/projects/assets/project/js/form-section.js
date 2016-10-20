@@ -7,7 +7,7 @@ $(function () {
     var modal_select = $("#modal-select");
     var form_import = $("#form-import");
     var btn_edit = $(".btn-edit");
-    
+
     // Fields
     var name_field = $("#name_field");
     var type_input_field = $("#input_field");
@@ -27,7 +27,7 @@ $(function () {
     var unique_field = $("#unique_field");
     var plugins_field = $(".plugin_field");
     var table_field = $("#table_name");
-    
+
     //Fields Upload
     var extensions_allowed = $("#extensions_allowed");
     var image_resize = $("#input_image_resize");
@@ -86,17 +86,17 @@ $(function () {
         $("#dir_name").val(slug(val, '-'));
         table_field.val(slug(val, '_'));
     });
-    
-    
+
+
     $("#name_field").keyup(function () {
         var val = $(this).val();
         column_field.val(slug(val, '_'));
     });
-    
+
     modal_new_field.on("change", ".select-input", function () {
         if_input_select();
     });
-    
+
     modal_select.on("change", ".select-options", function () {
         var option = $(this).val();
         var index = $(".select-options").index(this);
@@ -117,14 +117,14 @@ $(function () {
             }
         });
     });
-    
-    
+
+
     String.prototype.replaceAll = function (search, replacement) {
         var target = this;
         return target.replace(new RegExp(search, 'g'), replacement);
     };
-    
-    
+
+
     btn_add_field.click(function () {
         var id_current = modal_new_field.attr("data-current");
         if (id_current !== "") {
@@ -133,8 +133,8 @@ $(function () {
         }
         list_selects_trigger();
     });
-    
-    
+
+
     $(".x_content").on("click","#btn-save",function () {
         var attributes = new Object();
         var plugins_input = '';
@@ -155,14 +155,14 @@ $(function () {
             msg_modal.removeClass("hide").text(LANG.error_column_equals_table);
             return false;
         }
-        
+
         var i = 0;
         label_options_field.children("option").each(function () {
             var value = $(this).val();
             options_selected[i] = value;
             i++;
         });
-        
+
         var i = 0;
         $(".param_attr_field").each(function () {
             var index = $(".param_attr_field").index(this);
@@ -181,7 +181,7 @@ $(function () {
                 plugins_input += plugin + '|';
             }
         });
-        
+
         var i = 0;
         $(".image_thumb_preffix").each(function(){
             var index = $(".image_thumb_preffix").index(this);
@@ -199,8 +199,8 @@ $(function () {
                 i++;
             }
         });
-        var thumbnails = JSON.stringify(thumbs).replaceAll("\"","'");     
-        
+        var thumbnails = JSON.stringify(thumbs).replaceAll("\"","'");
+
         if (id_current === "") {
             var index = $("#fields .field-current").length;
         } else {
@@ -260,11 +260,11 @@ $(function () {
         $(".msg-is-empty").remove();
         modal_new_field.modal("toggle");
     });
-    
+
     $("#add-attr").click(function () {
         add_attr('', '');
     });
-    
+
     fields.on("click", ".btn-edit", function () {
         var index = $(".btn-edit").index(this);
         var id = $(this).data("index");
@@ -314,8 +314,8 @@ $(function () {
             var image_text_x_val = $(".image-text-x-val").eq(index).val();
             var image_text_y_val = $(".image-text-y-val").eq(index).val();
             var image_thumbnails_val = $(".image-thumbnails-val").eq(index).val();
-            
-            
+
+
             if (plugins_val != '') {
                 plugins_val = plugins_val.split("|");
                 plugins_field.each(function () {
@@ -414,8 +414,8 @@ $(function () {
             image_text_direction.val(image_text_direction_val);
             image_text_x.val(image_text_x_val);
             image_text_y.val(image_text_y_val);
-            
-            
+
+
             if_input_select();
             if_image_resize();
             refresh_image_example();
@@ -504,26 +504,26 @@ $(function () {
         });
         return false;
     });
-    
+
     image_resize.change(function(){
         if_image_resize();
     });
-    
+
     btn_refresh_image.click(function(){
         refresh_image_example();
     });
-    
+
     $("#modal-upload select").change(function(){
         refresh_image_example();
     });
     $("#modal-upload input[type=text]").blur(function(){
         refresh_image_example();
     });
-    
+
     $("#btn-add-thumbnail").click(function(){
         add_thumbnail({});
     });
-    
+
     /*** Methods****/
     function slug(str, transform_space) {
         str = str.replace(/^\s+|\s+$/g, ''); // trim
@@ -656,7 +656,7 @@ $(function () {
             image_x.removeAttr("disabled");
             image_y.removeAttr("disabled");
             image_ratio.removeAttr("disabled");
-            image_ratio_x.removeAttr("disabled");   
+            image_ratio_x.removeAttr("disabled");
             image_ratio_y.removeAttr("disabled");
             image_ratio_crop.removeAttr("disabled");
             image_ratio_fill.removeAttr("disabled");
@@ -689,6 +689,7 @@ $(function () {
                 $(this).removeAttr('checked');
             }
         });
+        $(".plugin_field").prop("checked",false);
         $("#modal-new-field select option").prop("selected",false);
         $("#options_field option").prop("selected",false);
         $("#label_options_field").html($("<option>").val("").text(LANG.option_select));
@@ -710,7 +711,7 @@ $(function () {
         });
         return exists;
     }
-    
+
     function list_selects_trigger(column_current){
         $(".field-current").each(function(){
             var input = $(this).find(".input-val").val();
@@ -752,7 +753,7 @@ $(function () {
                 '</div>' +
                 '</div>');
     }
-    
+
     function add_thumbnail(data){
         var preffix = (data.preffix!=undefined)?data.preffix:'';
         var width = (data.width!=undefined)?data.width:'';
