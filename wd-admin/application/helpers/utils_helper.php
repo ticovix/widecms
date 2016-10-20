@@ -303,8 +303,10 @@ if (!function_exists('get_section')) {
             $section = $CI->uri->segment(6);
         }
         if (empty($CI->section)) {
+            $page = get_page();
+            $id_page = $page['id'];
             $CI->load->model_app('sections_model', 'projects');
-            return $CI->section = $CI->sections_model->get_section($section);
+            return $CI->section = $CI->sections_model->get_section($section, $id_page);
         } else {
             return $CI->section;
         }
