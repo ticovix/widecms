@@ -4,14 +4,15 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class CI_Helper {
-
+class CI_Helper
+{
     public $table = null;
     private $config = null;
     private $stmt = null;
     private $final_result = array();
 
-    public function get($stmt) {
+    public function get($stmt)
+    {
         try {
             $this->check_section_exists();
             $this->stmt = $stmt;
@@ -21,36 +22,41 @@ class CI_Helper {
         }
     }
 
-    public function result() {
+    public function result()
+    {
         $result = $this->stmt->result();
         $get_result = $this->prepare_result($result, 'object');
         $this->final_result = array();
         return $get_result;
     }
 
-    public function row() {
+    public function row()
+    {
         $result = $this->stmt->row();
         $get_result = $this->prepare_result($result, 'object', true);
         $this->final_result = array();
         return $get_result;
     }
-    
-    public function row_array() {
+
+    public function row_array()
+    {
         $result = $this->stmt->row();
         $get_result = $this->prepare_result($result, 'array', true);
         $this->final_result = array();
         return $get_result;
     }
 
-    public function result_array() {
+    public function result_array()
+    {
         $result = $this->stmt->result();
         $get_result = $this->prepare_result($result);
         $this->final_result = array();
         return $get_result;
     }
 
-    public function prepare_result($result, $type = 'array', $row = false) {
-        if(!$result){
+    public function prepare_result($result, $type = 'array', $row = false)
+    {
+        if (!$result) {
             return $result;
         }
         $config = $this->config;
@@ -91,7 +97,8 @@ class CI_Helper {
         return $this->final_result;
     }
 
-    private function treat_config($xml) {
+    private function treat_config($xml)
+    {
         if ($xml) {
             $fields = $xml->form->input;
             $list = false;
@@ -149,11 +156,13 @@ class CI_Helper {
         }
     }
 
-    public function get_config() {
+    public function get_config()
+    {
         return $this->config;
     }
 
-    private function check_section_exists() {
+    private function check_section_exists()
+    {
         if (empty($this->table)) {
             throw new Exception('Insira o nome da tabela.');
         }
@@ -164,7 +173,8 @@ class CI_Helper {
         }
     }
 
-    public function list_files($json, $limit = null, $offset = 0) {
+    public function list_files($json, $limit = null, $offset = 0)
+    {
         if (empty($json)) {
             return false;
         }
@@ -227,7 +237,8 @@ class CI_Helper {
         }
     }
 
-    public function search($array, $key, $value) {
+    public function search($array, $key, $value)
+    {
         $results = array();
         if (is_array($value) && is_array($array)) {
             foreach ($value as $val) {
@@ -248,13 +259,14 @@ class CI_Helper {
         return $results;
     }
 
-    private function list_config_section() {
+    private function list_config_section()
+    {
         $table = $this->table;
         $dir = $this->list_dirs($table);
         if (!$dir) {
             throw new Exception('A tabela ' . $table . ' não foi localizada na tabela wd_sections.');
         }
-        $path = getcwd() . '/wd-admin/application/apps/projects/views/project/' . $dir['dir_project'] . '/' . $dir['dir_page'] . '/' . $dir['dir_section'] . '/config.xml';
+        $path = APPPATH . '../../wd-admin/application/apps/projects/views/project/' . $dir['dir_project'] . '/' . $dir['dir_page'] . '/' . $dir['dir_section'] . '/config.xml';
         if (!is_file($path)) {
             throw new Exception('Não foi possível localizar o arquivo config.xml dessa tabela');
         }
@@ -262,7 +274,8 @@ class CI_Helper {
         return $this->config;
     }
 
-    private function list_dirs($table) {
+    private function list_dirs($table)
+    {
         $model = load_class('Model', 'core');
         $model->db->select('wd_sections.directory dir_section');
         $model->db->select('wd_pages.directory dir_page');
@@ -272,5 +285,4 @@ class CI_Helper {
         $model->db->where('table', $table);
         return $model->db->get('wd_sections')->row_array();
     }
-
 }
