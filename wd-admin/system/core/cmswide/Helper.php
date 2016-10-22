@@ -7,32 +7,67 @@ if (!defined('BASEPATH')) {
 class CI_Helper
 {
     public $table = null;
-    private $config = null;
+    public $limit = null;
+    public $offset = null;
+    public $where = null;
+    private $query = null;
     private $stmt = null;
+    private $config = null;
     private $final_result = array();
+    private $filter_options = array();
 
     public function get($stmt)
     {
         try {
-            $this->check_section_exists();
             $this->stmt = $stmt;
+            $this->prepare_query();
+            $this->list_config_section();
+
             return $this;
         } catch (Exception $e) {
-            return $stmt;
+            var_dump($e->getMessage());
+            return false;
         }
+    }
+
+    private function prepare_query()
+    {
+        $this->query = $this->stmt->get_where($this->table, $this->where, $this->limit, $this->offset);
+    }
+
+    private function get_options_selected($type_return, $column, $table, $id)
+    {
+        $filter_options = $this->filter_options;
+        if (!empty($filter_options[$column])) {
+            $this->stmt->select($filter_options[$column]);
+        }
+        $result = $this->stmt->get_where($table, array('id' => $id))->row();
+        $this->list_config_section($table);
+        return $this->prepare_result($result, $type_return, true);
+    }
+
+    public function get_options($data)
+    {
+        if (!is_array($data)) {
+            $data = array($data);
+        }
+        $this->filter_options = $data;
+
+        return $this;
     }
 
     public function result()
     {
-        $result = $this->stmt->result();
+        $result = $this->query->result();
         $get_result = $this->prepare_result($result, 'object');
         $this->final_result = array();
+
         return $get_result;
     }
 
     public function row()
     {
-        $result = $this->stmt->row();
+        $result = $this->query->row();
         $get_result = $this->prepare_result($result, 'object', true);
         $this->final_result = array();
         return $get_result;
@@ -40,7 +75,7 @@ class CI_Helper
 
     public function row_array()
     {
-        $result = $this->stmt->row();
+        $result = $this->query->row();
         $get_result = $this->prepare_result($result, 'array', true);
         $this->final_result = array();
         return $get_result;
@@ -48,15 +83,16 @@ class CI_Helper
 
     public function result_array()
     {
-        $result = $this->stmt->result();
+        $result = $this->query->result();
         $get_result = $this->prepare_result($result);
         $this->final_result = array();
         return $get_result;
     }
 
-    public function prepare_result($result, $type = 'array', $row = false)
+    private function prepare_result($result, $type, $row = false)
     {
         if (!$result) {
+
             return $result;
         }
         $config = $this->config;
@@ -70,7 +106,25 @@ class CI_Helper
 
                 $search = $this->search($config, 'column', $col);
                 if ($search && isset($search[0]['type'])) {
-                    switch ($search[0]['type']) {
+                    $field = $search[0];
+                    switch ($field['type']) {
+                        case 'checkbox':
+                            if (in_array($col, $this->filter_options) or isset($this->filter_options[$col])) {
+                                $options_checked = json_decode($value);
+                                $options = null;
+                                if ($options_checked) {
+                                    foreach ($options_checked as $id_option) {
+                                        $options[] = $this->get_options_selected($type, $col, $field['options_table'], $id_option);
+                                    }
+                                }
+                                $result[$col] = $options;
+                            }
+                            break;
+                        case 'select':
+                            if ((in_array($col, $this->filter_options) or isset($this->filter_options[$col])) && !empty($value)) {
+                                $result[$col] = $this->get_options_selected($type, $col, $field['options_table'], $value);
+                            }
+                            break;
                         case 'file':
                             $result[$col] = $this->list_files($value, 1);
                             break;
@@ -82,16 +136,15 @@ class CI_Helper
                     }
                 }
             }
+
+            if ($type == 'object') {
+                $result = (object) $result;
+            }
+
             if ($row) {
-                if ($type == 'array') {
-                    $this->final_result = $result;
-                } else {
-                    $this->final_result = (object) $result;
-                }
-            } elseif ($type == 'array') {
-                $this->final_result[] = $result;
+                $this->final_result = $result;
             } else {
-                $this->final_result[] = (object) $result;
+                $this->final_result[] = $result;
             }
         }
         return $this->final_result;
@@ -148,10 +201,12 @@ class CI_Helper
                     );
                 }
             } else {
+
                 return false;
             }
             return $this->config;
         } else {
+
             return false;
         }
     }
@@ -161,21 +216,10 @@ class CI_Helper
         return $this->config;
     }
 
-    private function check_section_exists()
-    {
-        if (empty($this->table)) {
-            throw new Exception('Insira o nome da tabela.');
-        }
-
-        $config_section = $this->list_config_section();
-        if (!$config_section) {
-            throw new Exception('Não foi possível encontrar a configuração da seção.');
-        }
-    }
-
-    public function list_files($json, $limit = null, $offset = 0)
+    private function list_files($json, $limit = null, $offset = 0)
     {
         if (empty($json)) {
+
             return false;
         }
         // Decodifica o json para object
@@ -184,6 +228,7 @@ class CI_Helper
         if (is_object($files)) {
             $files = (array) $files;
         } else {
+
             return false;
         }
         // Se o limit for setado como 1, busca o arquivo principal ou exibe o primeiro arquivo que encontrar.
@@ -195,9 +240,10 @@ class CI_Helper
                 $file = (array) array_shift($files);
             }
 
-            if (is_file(getcwd() . '/wd-content/upload/' . $file['file'])) {
+            if (is_file(APPPATH . '../../wd-content/upload/' . $file['file'])) {
                 return $file;
             } else {
+
                 return false;
             }
         } else {
@@ -215,7 +261,7 @@ class CI_Helper
                 $title = (isset($file->title)) ? $file->title : '';
                 $name_file = (isset($file->file)) ? $file->file : '';
                 // Seta imagens que o caminho exista e que não seja o arquivo principal
-                if (!empty($name_file) && is_file(getcwd() . '/wd-content/upload/' . $name_file) && $checked == '0') {
+                if (!empty($name_file) && is_file(APPPATH . '../../wd-content/upload/' . $name_file) && $checked == '0') {
                     $arr_file[] = array('file' => $name_file, 'title' => $title, 'checked' => $checked);
                 }
             }
@@ -233,11 +279,12 @@ class CI_Helper
             } else {
                 $final_files = $arr_file;
             }
+
             return $final_files;
         }
     }
 
-    public function search($array, $key, $value)
+    private function search($array, $key, $value)
     {
         $results = array();
         if (is_array($value) && is_array($array)) {
@@ -259,9 +306,11 @@ class CI_Helper
         return $results;
     }
 
-    private function list_config_section()
+    private function list_config_section($table = null)
     {
-        $table = $this->table;
+        if (empty($table)) {
+            $table = $this->table;
+        }
         $dir = $this->list_dirs($table);
         if (!$dir) {
             throw new Exception('A tabela ' . $table . ' não foi localizada na tabela wd_sections.');
@@ -271,6 +320,7 @@ class CI_Helper
             throw new Exception('Não foi possível localizar o arquivo config.xml dessa tabela');
         }
         $this->config = $this->treat_config(simplexml_load_file($path, 'SimpleXMLElement'));
+
         return $this->config;
     }
 
@@ -283,6 +333,7 @@ class CI_Helper
         $model->db->join('wd_pages', 'wd_pages.id=wd_sections.fk_page');
         $model->db->join('wd_projects', 'wd_projects.id=wd_pages.fk_project');
         $model->db->where('table', $table);
+
         return $model->db->get('wd_sections')->row_array();
     }
 }
