@@ -139,10 +139,12 @@ class Sections_model extends CI_Model
                 'name' => $column,
                 'type' => $type,
                 'constraint' => $limit,
-                'default' => $default,
                 'comment' => $comment
             ),
         );
+        if (!empty($default)) {
+            $fields[$old_column]['default'] = $default;
+        }
 
         $modify = $this->dbforge->modify_column($table, $fields);
         return $modify;
