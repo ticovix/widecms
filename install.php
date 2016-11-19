@@ -1,4 +1,9 @@
 <?php
+if (!is_dir('vendor')) {
+    header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);
+    echo 'You must install composer dependencies.';
+    exit(1); // EXIT_ERROR
+}
 require_once('install/action.php');
 ?>
 <!DOCTYPE html>

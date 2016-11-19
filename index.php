@@ -1,6 +1,10 @@
 <?php
 
-if(is_file('install.php')){
+if (!is_dir('vendor')) {
+    header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);
+    echo 'You must install composer dependencies.';
+    exit(1); // EXIT_ERROR
+} elseif (is_file('install.php')) {
     header('Location: install.php');
     die();
 }
