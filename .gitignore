@@ -1,4 +1,3 @@
-/.gitignore
 */config/development
 */logs/log-*.php
 */logs/!index.html
@@ -7,10 +6,10 @@
 */cache/!.htaccess
 nbproject
 vagrant
-vendor/
-/composer.lock
-/composer.phar
+vendor
+composer.lock
+composer.phar
 install
 install.php
 index.php
-wd-admin/application/config
+wd-admin/application/config/*
