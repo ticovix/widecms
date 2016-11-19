@@ -19,9 +19,9 @@ require_once('install/action.php');
 
         <title>Instalação do CMS WIDE</title>
         <!-- Bootstrap -->
-        <link href="wd-admin/assets/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="vendor/components/bootstrap/css/bootstrap.min.css" rel="stylesheet">
         <!-- Font Awesome -->
-        <link href="wd-admin/assets/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        <link href="vendor/components/font-awesome/css/font-awesome.min.css" rel="stylesheet">
         <!-- Fav Icon -->
         <link rel="icon" type="image/png" href="wd-admin/assets/images/favicon.png" />
         <style>
