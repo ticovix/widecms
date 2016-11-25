@@ -14,6 +14,7 @@ class History_dashboard
         $vars = array(
             'history' => $history
         );
+
         $CI->load->view_app('dashboard', 'history', $vars);
     }
 }

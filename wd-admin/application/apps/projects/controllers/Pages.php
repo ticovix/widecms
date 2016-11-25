@@ -4,43 +4,43 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Pages extends MY_Controller {
-
+class Pages extends MY_Controller
+{
     private $path_view_project = '';
     /*
      * Variável pública com o limite de páginas
      */
     public $limit = 10;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->load->model_app('pages_model');
         $this->path_view_project = 'application/' . APP_PATH . 'views/project/';
         $this->data = $this->apps->data_app();
     }
-
     /*
      * Método para listar as páginas
      */
 
-    public function index() {
+    public function index()
+    {
         $this->lang->load_app('pages/pages');
         $project = get_project();
         $dev_mode = $this->data_user['dev_mode'];
-        $limit = 10;
         $search = $this->form_search($project, $dev_mode);
         $pages = $search['pages'];
         $total_rows = $search['total_rows'];
         $pagination = $this->pagination($total_rows);
 
-        $vars = [
+        $vars = array(
             'title' => $project['name'],
             'name_app' => $this->data['name'],
             'pages' => $this->includeSections($pages),
             'pagination' => $pagination,
             'total' => $total_rows,
             'project' => $project
-        ];
+        );
         if ($dev_mode) {
             // Template modo desenvolvedor
             $this->load->template_app('dev-pages/index', $vars);
@@ -49,29 +49,30 @@ class Pages extends MY_Controller {
             $this->load->template_app('projects/project', $vars);
         }
     }
-
     /*
      * Método com pesquisa da listagem de páginas
      */
 
-    private function form_search($project, $dev_mode) {
+    private function form_search($project, $dev_mode)
+    {
         $this->form_validation->set_rules('search', $this->lang->line(APP . '_field_search'), 'trim|required');
         $keyword = $this->input->get('search');
         $perPage = $this->input->get('per_page');
         $this->form_validation->run();
         $pages = $this->pages_model->search($project['id'], $dev_mode, $keyword, $this->limit, $perPage);
         $total_rows = $this->pages_model->search_total_rows($project['id'], $dev_mode, $keyword);
+
         return array(
             'pages' => $pages,
             'total_rows' => $total_rows
         );
     }
-
     /*
      * Método para criar template da páginação da listagem de páginas
      */
 
-    private function pagination($total_rows) {
+    private function pagination($total_rows)
+    {
         $this->load->library('pagination');
         $config['total_rows'] = $total_rows;
         $config['per_page'] = $this->limit;
@@ -91,48 +92,51 @@ class Pages extends MY_Controller {
         $config['first_tag_close'] = '</li>';
         $config['first_url'] = '?per_page=0';
         $this->pagination->initialize($config);
+
         return $this->pagination->create_links();
     }
-
     /*
      * Método para incluir seções da página na listagem das páginas (usado somente no modo cliente)
      */
 
-    private function includeSections($pages) {
+    private function includeSections($pages)
+    {
         $this->load->model_app('sections_model');
         if (count($pages)) {
             foreach ($pages as $page) {
                 $page['sections'] = $this->sections_model->list_sections($page['id']);
                 $arr[] = $page;
             }
+
             return $arr;
         }
     }
-
     /*
      * Método para exibir template para criação da página
      */
 
-    public function create() {
+    public function create()
+    {
         func_only_dev();
         $this->lang->load_app('pages/form');
         $project = get_project();
         $this->form_create($project);
-        $vars = [
+        $vars = array(
             'title' => $this->lang->line(APP . '_title_add_page'),
             'name_app' => $this->data['name'],
             'project' => $project,
             'name' => '',
             'status' => ''
-        ];
+        );
+
         $this->load->template_app('dev-pages/form', $vars);
     }
-
     /*
      * Método para criar página
      */
 
-    public function form_create($project) {
+    public function form_create($project)
+    {
         try {
             $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'required|is_unique[wd_pages.name]');
             $this->form_validation->set_rules('status', $this->lang->line(APP . '_label_status'), 'required|integer');
@@ -141,11 +145,10 @@ class Pages extends MY_Controller {
                 $status = $this->input->post('status');
                 $slug = slug($name);
                 $dir_page = $this->path_view_project . $project['directory'] . '/';
-                //Tenta criar o novo diretório
                 if (!is_writable($dir_page)) {
                     throw new Exception(printf($this->lang->line(APP . '_not_allowed_create'), $dir_page));
                 }
-                // Caso o diretório seja criado, os valores são inseridos no banco de dados
+
                 $id_user = $this->data_user['id'];
                 $data = [
                     'name' => $name,
@@ -157,6 +160,7 @@ class Pages extends MY_Controller {
                 ];
                 mkdir($dir_page . $slug);
                 $this->pages_model->create($data);
+
                 redirect_app('project/' . $project['slug']);
             } else {
                 setError(validation_errors());
@@ -165,12 +169,12 @@ class Pages extends MY_Controller {
             setError($e->getMessage());
         }
     }
-
     /*
      * Método para exibir template de edição da página
      */
 
-    public function edit($slug_page) {
+    public function edit($slug_page)
+    {
         func_only_dev();
         $this->lang->load_app('pages/form');
         $project = get_project();
@@ -179,21 +183,22 @@ class Pages extends MY_Controller {
             redirect_app('project/' . $project['slug']);
         }
         $this->form_edit($project, $page);
-        $vars = [
+        $vars = array(
             'title' => $this->lang->line(APP . '_title_edit_page'),
             'name_app' => $this->data['name'],
             'project' => $project,
             'name' => $page['name'],
             'status' => $page['status']
-        ];
+        );
+
         $this->load->template_app('dev-pages/form', $vars);
     }
-
     /*
      * Método para editar a página
      */
 
-    public function form_edit($project, $page) {
+    public function form_edit($project, $page)
+    {
         try {
             $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'required');
             $this->form_validation->set_rules('status', $this->lang->line(APP . '_label_status'), 'required|integer');
@@ -203,6 +208,7 @@ class Pages extends MY_Controller {
                 // Verifica se houve alterações no nome da página e se houer, verifica a existência no banco de dados
                 $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'required|is_unique[wd_pages.name]');
             }
+
             if ($this->form_validation->run()) {
                 $slug = slug($name);
                 $dir_project = $this->path_view_project . $project['directory'] . '/';
@@ -217,16 +223,18 @@ class Pages extends MY_Controller {
                         // Se a nova pasta não puder ser renomeada
                         throw new Exception($this->lang->line(APP . '_not_allowed_create'));
                     }
+
                     rename($dir_project . $page['directory'], $dir_project . $slug);
                 }
                 // Caso não haja erros, os dados são alterados no banco de dados
-                $data = [
+                $data = array(
                     'name' => $name,
                     'status' => $status,
                     'slug' => $slug,
                     'id_page' => $page['id'],
-                ];
+                );
                 $this->pages_model->edit($data);
+
                 redirect_app('project/' . $project['slug']);
             } else {
                 setError(validation_errors());
@@ -235,12 +243,12 @@ class Pages extends MY_Controller {
             setError($e->getMessage());
         }
     }
-
     /*
      * Método para remover página
      */
 
-    public function remove($slug_page) {
+    public function remove($slug_page)
+    {
         func_only_dev();
         $this->lang->load_app('pages/remove');
         $project = get_project();
@@ -255,10 +263,12 @@ class Pages extends MY_Controller {
             'project' => $project,
             'page' => $page
         );
+
         $this->load->template_app('dev-pages/remove', $vars);
     }
 
-    private function form_remove($page, $project) {
+    private function form_remove($page, $project)
+    {
         $this->form_validation->set_rules('password', $this->lang->line(APP . '_label_password'), 'required|callback_verify_password');
         $this->form_validation->set_rules('page', $this->lang->line(APP . '_label_page'), 'trim|required|integer');
         if ($this->form_validation->run()) {
@@ -274,18 +284,19 @@ class Pages extends MY_Controller {
                     // Se a página for removida do banco de dados, todos os arquivos incluindo a pasta são removidos.
                     forceRemoveDir($this->path_view_project . $dir_project . '/' . $dir_page);
                 }
+
                 redirect_app('project/' . $slug_project);
             } else {
                 redirect_app('project/' . $slug_project . '/' . $slug_page);
             }
         }
     }
-
     /*
      * Método para verificar senha
      */
 
-    public function verify_password($v_pass) {
+    public function verify_password($v_pass)
+    {
         $pass_user = $this->data_user['password'];
         // Inicia helper PasswordHash
         $this->load->helper('passwordhash');
@@ -293,10 +304,10 @@ class Pages extends MY_Controller {
         // Verifica se a senha está errada
         if (!$PasswordHash->CheckPassword($v_pass, $pass_user)) {
             $this->form_validation->set_message('verify_password', $this->lang->line(APP . '_incorrect_password'));
+
             return false;
         }
 
         return true;
     }
-
 }

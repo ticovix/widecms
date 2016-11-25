@@ -52,6 +52,7 @@ class Gallery_dashboard
         $CI->load->model_app('files_model', 'gallery');
         $files = $CI->files_model->search($keyword, $limit, $per_page);
         $total = $CI->files_model->search_total_rows($keyword);
+
         return array(
             'files' => $files,
             'total' => $total

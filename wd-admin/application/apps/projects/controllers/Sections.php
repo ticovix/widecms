@@ -34,7 +34,7 @@ class Sections extends MY_Controller
         $total_rows = $search['total_rows'];
         $pagination = $this->pagination($total_rows);
 
-        $vars = [
+        $vars = array(
             'title' => $page['name'],
             'name_app' => $this->data['name'],
             'sections' => $sections,
@@ -42,7 +42,7 @@ class Sections extends MY_Controller
             'total' => $total_rows,
             'project' => $project,
             'page' => $page
-        ];
+        );
 
         $this->load->template_app('dev-sections/index', $vars);
     }
@@ -60,6 +60,7 @@ class Sections extends MY_Controller
         $limit = $this->limit;
         $sections = $this->sections_model->search_sections($id_page, $keyword, $limit, $perPage);
         $total_rows = $this->sections_model->search_sections_total_rows($id_page, $keyword);
+
         return array(
             'sections' => $sections,
             'total_rows' => $total_rows
@@ -92,6 +93,7 @@ class Sections extends MY_Controller
 
         $this->pagination->initialize($config);
         $pagination = $this->pagination->create_links();
+
         return $pagination;
     }
     /*
@@ -104,17 +106,16 @@ class Sections extends MY_Controller
         $project = get_project();
         $page = get_page();
         $id_page = $page['id'];
+        $fields = false;
         $section = $this->sections_model->get_section($slug_section, $id_page);
         $this->load->library_app('config_page');
-        // Carrega os campos da seção
-        $config = $this->config_page->load_config($project['directory'], $page['directory'], $section['directory']);
+        $this->load->library_app('config_xml');
+        $this->load->library_app('form');
+        $config = $this->config_xml->load_config($project['directory'], $page['directory'], $section['directory']);
         if ($config) {
-            // Se carregado corretamente, carrega o formulário de edição
             $fields = $this->treat_fields($config['fields']);
             $this->form_edit_section($project, $page, $section, $config);
-            // Busca todos os campos do tipo select
         } else {
-            $fields = false;
             setError($this->lang->line(APP . '_open_config_fail'));
         }
 
@@ -139,8 +140,9 @@ class Sections extends MY_Controller
             'sections' => $this->list_options($section['id']),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
-            'plugins_input' => $this->config_page->list_plugins()
+            'plugins_input' => $this->form->list_plugins()
         );
+
         $this->load->template_app('dev-sections/form', $vars);
     }
 
@@ -148,6 +150,7 @@ class Sections extends MY_Controller
     {
         $options = $this->sections_model->list_sections_select($id_section);
         $options[] = array('table' => 'wd_users', 'name' => $this->lang->line(APP . '_option_users'));
+
         return $options;
     }
     /*
@@ -364,6 +367,7 @@ class Sections extends MY_Controller
                 $default = $field['default'];
                 $comment = $field['comment'];
                 $remove = (boolean) $field['remove'];
+
                 $data_mod = array();
                 $data_mod['table'] = $data['table'];
                 $data_mod = array_merge($field, $data_mod);
@@ -404,13 +408,17 @@ class Sections extends MY_Controller
                     // Se o campo não existir, insere no banco de dados
                     $this->insert_field($data_mod);
                 }
+
                 if (!$remove) {
                     // Se o campo de remoção não for selecionado, inclui no novo xml
                     $new_config[$position] = $data_mod;
                 }
+
                 $x++;
             }
+
             ksort($new_config);
+
             return $this->save_edit_config($data, $new_config);
         }
     }
@@ -441,7 +449,6 @@ class Sections extends MY_Controller
             'default' => $data['default'],
             'comment' => $data['comment']
         );
-        // Cria a coluna no banco de dados
         $this->sections_model->create_columns($data['table'], $field_insert);
     }
     /*
@@ -450,28 +457,31 @@ class Sections extends MY_Controller
 
     private function save_edit_config($data, $new_config)
     {
-        if ($new_config) {
-            $this->load->library_app('config_page');
-            // Gera uma nova estrutura xml com os novos campos
-            $config_xml = $this->config_page->create_config_xml($new_config);
-            if ($config_xml) {
-                $path_config_xml = $this->path_view_project . $data['project_directory'] . '/' . $data['page_directory'] . '/' . $data['directory'] . '/config.xml';
-                // Abre o arquivo config.xml e atualiza a nova estrutura
-                $fp = fopen($path_config_xml, 'w');
-                fwrite($fp, $config_xml);
-                fclose($fp);
-                if (!$fp) {
-                    // Se não for possível editar o arquivo, restaura todas as modificações
-                    $this->restore_columns($new_config);
-                    setError($this->lang->line(APP . '_save_config_fail'));
-                } else {
-                    return true;
-                }
-            } else {
-                // Se houver erros na nova estrutura xml gerada, restaura todas as modificações
+        if (!$new_config) {
+            return false;
+        }
+
+        $this->load->library_app('config_page');
+        $this->load->library_app('config_xml');
+        // Gera uma nova estrutura xml com os novos campos
+        $config_xml = $this->config_xml->create_config_xml($new_config);
+        if ($config_xml) {
+            $path_config_xml = $this->path_view_project . $data['project_directory'] . '/' . $data['page_directory'] . '/' . $data['directory'] . '/config.xml';
+            // Abre o arquivo config.xml e atualiza a nova estrutura
+            $fp = fopen($path_config_xml, 'w');
+            fwrite($fp, $config_xml);
+            fclose($fp);
+            if (!$fp) {
+                // Se não for possível editar o arquivo, restaura todas as modificações
                 $this->restore_columns($new_config);
-                setError($this->lang->line(APP . '_generate_config_fail'));
+                setError($this->lang->line(APP . '_save_config_fail'));
+            } else {
+                return true;
             }
+        } else {
+            // Se houver erros na nova estrutura xml gerada, restaura todas as modificações
+            $this->restore_columns($new_config);
+            setError($this->lang->line(APP . '_generate_config_fail'));
         }
     }
     /*
@@ -485,6 +495,7 @@ class Sections extends MY_Controller
                 $arr['column'] = $arr['old_column'];
                 $arr['type'] = $arr['old_type'];
                 $arr['limit'] = $arr['old_limit'];
+
                 $this->sections_model->modify_column($arr);
             }
         }
@@ -495,7 +506,6 @@ class Sections extends MY_Controller
 
     public function remove($slug_section)
     {
-        func_only_dev();
         $this->lang->load_app('sections/remove');
         $project = get_project();
         $page = get_page();
@@ -504,6 +514,7 @@ class Sections extends MY_Controller
         if (!$section or ! $project or ! $page) {
             redirect_app();
         }
+
         $this->form_remove($section, $project, $page);
         $vars = array(
             'title' => sprintf($this->lang->line(APP . '_title_remove_section'), $section['name']),
@@ -512,6 +523,7 @@ class Sections extends MY_Controller
             'section' => $section,
             'page' => $page
         );
+
         $this->load->template_app('dev-sections/remove', $vars);
     }
     /*
@@ -523,19 +535,20 @@ class Sections extends MY_Controller
         $this->form_validation->set_rules('password', $this->lang->line(APP . '_label_password'), 'required|callback_verify_password');
         $this->form_validation->set_rules('section', $this->lang->line(APP . '_label_section'), 'trim|required|integer');
         if ($this->form_validation->run()) {
-            if ($section['id'] == $this->input->post('section')) {
-                $dir_section = $section['directory'];
-                $table = $section['table'];
-                $id_section = $section['id'];
-                $remove = $this->sections_model->remove($table, $id_section);
-                if ($remove) {
-                    // Se tudo relacionado a seção for removida do banco de dados, remove o diretório com as config xml dos formulárioss
-                    forceRemoveDir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $dir_section);
-                }
-                redirect_app('project/' . $project['slug'] . '/' . $page['slug']);
-            } else {
+            if ($section['id'] != $this->input->post('section')) {
                 redirect_app('project/' . $project['slug'] . '/' . $page['slug']);
             }
+
+            $dir_section = $section['directory'];
+            $table = $section['table'];
+            $id_section = $section['id'];
+            $remove = $this->sections_model->remove($table, $id_section);
+            if ($remove) {
+                // Se tudo relacionado a seção for removida do banco de dados, remove o diretório com as config xml dos formulárioss
+                forceRemoveDir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $dir_section);
+            }
+
+            redirect_app('project/' . $project['slug'] . '/' . $page['slug']);
         }
     }
     /*
@@ -551,6 +564,7 @@ class Sections extends MY_Controller
         // Verifica se a senha está errada
         if (!$PasswordHash->CheckPassword($v_pass, $pass_user)) {
             $this->form_validation->set_message('verify_password', $this->lang->line(APP . '_incorrect_password'));
+
             return false;
         }
 
@@ -564,6 +578,7 @@ class Sections extends MY_Controller
     {
         $this->lang->load_app('sections/form');
         $this->load->library_app('config_page');
+        $this->load->library_app('form');
         $project = get_project();
         $page = get_page();
         $this->form_create_section($project, $page);
@@ -591,9 +606,10 @@ class Sections extends MY_Controller
             'tables_import' => $this->sections_model->list_tables_import(),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
-            'plugins_input' => $this->config_page->list_plugins(),
+            'plugins_input' => $this->form->list_plugins(),
             'label_options' => ''
         );
+
         $this->load->template_app('dev-sections/form', $vars);
     }
     /*
@@ -621,10 +637,12 @@ class Sections extends MY_Controller
                 // Se não for uma importação de tabela, a tabela é criada no banco de dados
                 $this->sections_model->create_table($table);
             }
+
             // Cria o diretório da seção
             mkdir($this->path_view_project . $dir_project . '/' . $dir_page . '/' . $directory, 0755);
             // Cria os campos no arquivo config.xml e no banco de dados (caso não seja importação de tabela)
             $this->create_fields($data);
+
             redirect_app('project/' . $slug_project . '/' . $slug_page);
         } else {
             setError(validation_errors());
@@ -641,13 +659,17 @@ class Sections extends MY_Controller
         $is_dir_section = is_dir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $directory);
         if ($is_dir_section) {
             $this->form_validation->set_message('verify_dir_create', sprintf($this->lang->line(APP . '_folder_exists'), $directory));
+
             return false;
         }
+
         $is_writable_section = is_writable($this->path_view_project . $project['directory'] . '/' . $page['directory']);
         if (!$is_writable_section) {
             $this->form_validation->set_message('verify_dir_create', $this->lang->line(APP . '_not_allowed_folder_create'));
+
             return false;
         }
+
         return true;
     }
     /*
@@ -688,29 +710,33 @@ class Sections extends MY_Controller
     {
         // Filtra os campos do arquivo xml
         $fields = $this->filter_fields($data);
-        if (is_array($fields) && count($fields) > 0) {
-            $this->load->library_app('config_page');
-            // Cria estrutura xml do array
-            $config_xml = $this->config_page->create_config_xml($fields);
-            $path_config_xml = $this->path_view_project . $data['project_directory'] . '/' . $data['page_directory'] . '/' . $data['directory'];
-            // Cria o arquivo config.xml
-            $fp = \fopen($path_config_xml . '/config.xml', 'w');
-            \fwrite($fp, $config_xml);
-            \fclose($fp);
-            \chmod($path_config_xml . '/config.xml', 0640);
-            if ($fp) {
-                // Se o arquivo for criado e não for uma importação de tabelas, cria colunas dos campos no banco de dados
-                if (!$data['import']) {
-                    $this->sections_model->create_columns($data['table'], $fields);
-                }
-            } else {
-                setError(sprintf($this->lang->line(APP . '_create_config_fail'), $path_config_xml));
-                return false;
-            }
-            // Se tudo der certo, cria nova seção no banco de dados
-            $this->sections_model->create($data);
-            return true;
+        if (!is_array($fields) or count($fields) <= 0) {
+            return false;
         }
+
+        $this->load->library_app('config_xml');
+        // Cria estrutura xml do array
+        $config_xml = $this->config_xml->create_config_xml($fields);
+        $path_config_xml = $this->path_view_project . $data['project_directory'] . '/' . $data['page_directory'] . '/' . $data['directory'];
+        // Cria o arquivo config.xml
+        $fp = fopen($path_config_xml . '/config.xml', 'w');
+        fwrite($fp, $config_xml);
+        fclose($fp);
+        chmod($path_config_xml . '/config.xml', 0640);
+
+        if ($fp) {
+            // Se o arquivo for criado e não for uma importação de tabelas, cria colunas dos campos no banco de dados
+            if (!$data['import']) {
+                $this->sections_model->create_columns($data['table'], $fields);
+            }
+        } else {
+            setError(sprintf($this->lang->line(APP . '_create_config_fail'), $path_config_xml));
+
+            return false;
+        }
+        $this->sections_model->create($data);
+
+        return true;
     }
     /*
      * Método para filtrar campos do config xml
@@ -719,129 +745,131 @@ class Sections extends MY_Controller
     protected function filter_fields($data)
     {
         $total = count($data['name_field']);
-        if ($total) {
-            $this->load->library_app('config_page');
-            $fields = array();
-            // Recebe os campos que foram selecionados para ser removido
-            $remove_field = (isset($data['remove_field'])) ? $data['remove_field'] : array();
-            for ($i = 0; $i < $total; $i++) {
-                $name_field = $data['name_field'][$i];
-                $input_field = $data['input_field'][$i];
-                $list_reg_field = $data['list_reg_field'][$i];
-                $column_field = $data['column_field'][$i];
-                $type_field = $data['type_field'][$i];
-                $limit_field = $data['limit_field'][$i];
-                $required_field = $data['required_field'][$i];
-                $unique_field = $data['unique_field'][$i];
-                $default_field = $data['default_field'][$i];
-                $comment_field = $data['comment_field'][$i];
-                $plugins_field = $data['plugins_field'][$i];
-                $observation_field = $data['observation_field'][$i];
-                $attributes_field = $data['attributes_field'][$i];
-                $position = $data['position'][$i];
-                $remove = (is_array($remove_field) && array_key_exists($i, $remove_field));
-                // Campos para configurar select
-                $options_field = $data['options_table'][$i];
-                $label_options_field = $data['options_label'][$i];
-                $trigger_select_field = $data['options_trigger_select'][$i];
-                // Campos de upload
-                $extensions_allowed = $data['extensions_allowed'][$i];
-                $image_resize = $data['image_resize'][$i];
-                $image_x = $data['image_x'][$i];
-                $image_y = $data['image_y'][$i];
-                $image_ratio = $data['image_ratio'][$i];
-                $image_ratio_x = $data['image_ratio_x'][$i];
-                $image_ratio_y = $data['image_ratio_y'][$i];
-                $image_ratio_crop = $data['image_ratio_crop'][$i];
-                $image_ratio_fill = $data['image_ratio_fill'][$i];
-                $image_background_color = $data['image_background_color'][$i];
-                $image_convert = $data['image_convert'][$i];
-                $image_text = $data['image_text'][$i];
-                $image_text_color = $data['image_text_color'][$i];
-                $image_text_background = $data['image_text_background'][$i];
-                $image_text_opacity = $data['image_text_opacity'][$i];
-                $image_text_background_opacity = $data['image_text_background_opacity'][$i];
-                $image_text_padding = $data['image_text_padding'][$i];
-                $image_text_position = $data['image_text_position'][$i];
-                $image_text_direction = $data['image_text_direction'][$i];
-                $image_text_x = $data['image_text_x'][$i];
-                $image_text_y = $data['image_text_y'][$i];
-                $image_thumbnails = $data['image_thumbnails'][$i];
-                // Verifica se os campos seguem os requisitos do sistema
-                $verify = $this->verify_fields([
-                    'table' => $data['table'],
-                    'column_field' => $column_field,
-                    'name_field' => $name_field,
-                    'type_field' => $type_field,
-                    'options_field' => $options_field,
-                    'label_options_field' => $label_options_field,
-                    'input_field' => $input_field,
-                    'fields' => $fields,
-                ]);
-
-                if (!$verify) {
-                    // Se houver algum erro na verificação dos campos
-                    return false;
-                } elseif (!empty($name_field) && !empty($input_field) && !empty($column_field) && !empty($type_field)) {
-                    // Se todos os campos obrigatórios forem preenchidos corretamente
-                    if (empty($limit_field)) {
-                        // Se o limite do campo não for setado, faz uma busca para verificar um limite padrão
-                        $search = search($this->config_page->types(), 'type', $type_field);
-                        if (!empty($search[0]['constraint'])) {
-                            // Caso o limite seja encontrado, seta um limite para o campo
-                            $limit_field = $search[0]['constraint'];
-                        }
-                    }
-
-                    $fields[] = [
-                        'page' => $data['page'],
-                        'name' => $name_field,
-                        'input' => $input_field,
-                        'list_reg' => $list_reg_field,
-                        'column' => $column_field,
-                        'type' => $type_field,
-                        'limit' => $limit_field,
-                        'plugins' => $plugins_field,
-                        'observation' => $observation_field,
-                        'attributes' => $attributes_field,
-                        'required' => $required_field,
-                        'unique' => $unique_field,
-                        'default' => $default_field,
-                        'comment' => $comment_field,
-                        'remove' => $remove,
-                        'position' => $position,
-                        // Campos para configurar select
-                        'options_table' => $options_field,
-                        'options_label' => $label_options_field,
-                        'options_trigger_select' => $trigger_select_field,
-                        // Campos de upload
-                        'extensions_allowed' => $extensions_allowed,
-                        'image_resize' => $image_resize,
-                        'image_x' => $image_x,
-                        'image_y' => $image_y,
-                        'image_ratio' => $image_ratio,
-                        'image_ratio_x' => $image_ratio_x,
-                        'image_ratio_y' => $image_ratio_y,
-                        'image_ratio_crop' => $image_ratio_crop,
-                        'image_ratio_fill' => $image_ratio_fill,
-                        'image_background_color' => $image_background_color,
-                        'image_convert' => $image_convert,
-                        'image_text' => $image_text,
-                        'image_text_color' => $image_text_color,
-                        'image_text_background' => $image_text_background,
-                        'image_text_opacity' => $image_text_opacity,
-                        'image_text_background_opacity' => $image_text_background_opacity,
-                        'image_text_padding' => $image_text_padding,
-                        'image_text_position' => $image_text_position,
-                        'image_text_direction' => $image_text_direction,
-                        'image_text_x' => $image_text_x,
-                        'image_text_y' => $image_text_y,
-                        'image_thumbnails' => $image_thumbnails,
-                    ];
-                }
-            }
-            return $fields;
+        if (!$total) {
+            return false;
         }
+
+        $this->load->library_app('config_page');
+        $fields = array();
+        // Recebe os campos que foram selecionados para ser removido
+        $remove_field = (isset($data['remove_field'])) ? $data['remove_field'] : array();
+        for ($i = 0; $i < $total; $i++) {
+            $name_field = $data['name_field'][$i];
+            $input_field = $data['input_field'][$i];
+            $list_reg_field = $data['list_reg_field'][$i];
+            $column_field = $data['column_field'][$i];
+            $type_field = $data['type_field'][$i];
+            $limit_field = $data['limit_field'][$i];
+            $required_field = $data['required_field'][$i];
+            $unique_field = $data['unique_field'][$i];
+            $default_field = $data['default_field'][$i];
+            $comment_field = $data['comment_field'][$i];
+            $plugins_field = $data['plugins_field'][$i];
+            $observation_field = $data['observation_field'][$i];
+            $attributes_field = $data['attributes_field'][$i];
+            $position = $data['position'][$i];
+            $remove = (is_array($remove_field) && array_key_exists($i, $remove_field));
+            // Campos para configurar select
+            $options_field = $data['options_table'][$i];
+            $label_options_field = $data['options_label'][$i];
+            $trigger_select_field = $data['options_trigger_select'][$i];
+            // Campos de upload
+            $extensions_allowed = $data['extensions_allowed'][$i];
+            $image_resize = $data['image_resize'][$i];
+            $image_x = $data['image_x'][$i];
+            $image_y = $data['image_y'][$i];
+            $image_ratio = $data['image_ratio'][$i];
+            $image_ratio_x = $data['image_ratio_x'][$i];
+            $image_ratio_y = $data['image_ratio_y'][$i];
+            $image_ratio_crop = $data['image_ratio_crop'][$i];
+            $image_ratio_fill = $data['image_ratio_fill'][$i];
+            $image_background_color = $data['image_background_color'][$i];
+            $image_convert = $data['image_convert'][$i];
+            $image_text = $data['image_text'][$i];
+            $image_text_color = $data['image_text_color'][$i];
+            $image_text_background = $data['image_text_background'][$i];
+            $image_text_opacity = $data['image_text_opacity'][$i];
+            $image_text_background_opacity = $data['image_text_background_opacity'][$i];
+            $image_text_padding = $data['image_text_padding'][$i];
+            $image_text_position = $data['image_text_position'][$i];
+            $image_text_direction = $data['image_text_direction'][$i];
+            $image_text_x = $data['image_text_x'][$i];
+            $image_text_y = $data['image_text_y'][$i];
+            $image_thumbnails = $data['image_thumbnails'][$i];
+            // Verifica se os campos seguem os requisitos do sistema
+            $verify = $this->verify_fields([
+                'table' => $data['table'],
+                'column_field' => $column_field,
+                'name_field' => $name_field,
+                'type_field' => $type_field,
+                'options_field' => $options_field,
+                'label_options_field' => $label_options_field,
+                'input_field' => $input_field,
+                'fields' => $fields,
+            ]);
+
+            if (!$verify) {
+                return false;
+            } elseif (!empty($name_field) && !empty($input_field) && !empty($column_field) && !empty($type_field)) {
+                // Se todos os campos obrigatórios forem preenchidos corretamente
+                if (empty($limit_field)) {
+                    // Se o limite do campo não for setado, faz uma busca para verificar um limite padrão
+                    $search = search($this->config_page->types(), 'type', $type_field);
+                    if (!empty($search[0]['constraint'])) {
+                        // Caso o limite seja encontrado, seta um limite para o campo
+                        $limit_field = $search[0]['constraint'];
+                    }
+                }
+
+                $fields[] = array(
+                    'page' => $data['page'],
+                    'name' => $name_field,
+                    'input' => $input_field,
+                    'list_reg' => $list_reg_field,
+                    'column' => $column_field,
+                    'type' => $type_field,
+                    'limit' => $limit_field,
+                    'plugins' => $plugins_field,
+                    'observation' => $observation_field,
+                    'attributes' => $attributes_field,
+                    'required' => $required_field,
+                    'unique' => $unique_field,
+                    'default' => $default_field,
+                    'comment' => $comment_field,
+                    'remove' => $remove,
+                    'position' => $position,
+                    // Campos para configurar select
+                    'options_table' => $options_field,
+                    'options_label' => $label_options_field,
+                    'options_trigger_select' => $trigger_select_field,
+                    // Campos de upload
+                    'extensions_allowed' => $extensions_allowed,
+                    'image_resize' => $image_resize,
+                    'image_x' => $image_x,
+                    'image_y' => $image_y,
+                    'image_ratio' => $image_ratio,
+                    'image_ratio_x' => $image_ratio_x,
+                    'image_ratio_y' => $image_ratio_y,
+                    'image_ratio_crop' => $image_ratio_crop,
+                    'image_ratio_fill' => $image_ratio_fill,
+                    'image_background_color' => $image_background_color,
+                    'image_convert' => $image_convert,
+                    'image_text' => $image_text,
+                    'image_text_color' => $image_text_color,
+                    'image_text_background' => $image_text_background,
+                    'image_text_opacity' => $image_text_opacity,
+                    'image_text_background_opacity' => $image_text_background_opacity,
+                    'image_text_padding' => $image_text_padding,
+                    'image_text_position' => $image_text_position,
+                    'image_text_direction' => $image_text_direction,
+                    'image_text_x' => $image_text_x,
+                    'image_text_y' => $image_text_y,
+                    'image_thumbnails' => $image_thumbnails,
+                );
+            }
+        }
+
+        return $fields;
     }
     /*
      * Método para verificar se os campos seguem os requisitos do sistema
@@ -860,18 +888,22 @@ class Sections extends MY_Controller
         if ($column_field == 'id') {
             // Se o nome da coluna for id
             setError($this->lang->line(APP . '_create_column_id_not_allowed'));
+
             return false;
         } elseif ($column_field == $table) {
             // Se o nome da coluna for igual da tabela
             setError($this->lang->line(APP . '_column_equals_table'));
+
             return false;
         } elseif (count(search($fields, 'column', $column_field)) > 0) {
             // Se o nome da coluna estiver duplicado
             setError(sprintf($this->lang->line(APP . '_duplicate_field_not_allowed'), $column_field));
+
             return false;
         } elseif (!empty($name_field) && (empty($input_field) or empty($column_field) or empty($type_field))) {
             // Se o nome do campo for preenchido e as outras informações não forem preenchidas
             setError($this->lang->line(APP . '_fields_required'));
+
             return false;
         } elseif (!empty($options_field) && empty($label_options_field)) {
             // Se o campo options for preenchido, o campo Label se torna obrigatório
@@ -890,10 +922,10 @@ class Sections extends MY_Controller
         $page = $this->uri->segment(3);
         if (empty($this->page)) {
             $this->load->model_app('pages_model');
-            return $this->page = $this->pages_model->get_page($page);
-        } else {
-            return $this->page;
+            $this->page = $this->pages_model->get_page($page);
         }
+
+        return $this->page;
     }
     /*
      * Método para retornar listagem de colunas em json
@@ -910,6 +942,7 @@ class Sections extends MY_Controller
                 $cols = $this->sections_model->list_columns($table);
             }
         }
+
         echo json_encode($cols);
     }
     /*
@@ -926,6 +959,7 @@ class Sections extends MY_Controller
                 $cols = $this->sections_model->list_columns($table);
             }
         }
+
         return $cols;
     }
     /*
@@ -945,6 +979,7 @@ class Sections extends MY_Controller
 
             $new_fields[] = $field;
         }
+
         return $new_fields;
     }
 
@@ -960,10 +995,12 @@ class Sections extends MY_Controller
                 if (!$col_primary) {
                     throw new Exception($this->lang->line(APP . '_pk_required'));
                 }
+
                 $col_primary = $col_primary[0];
                 if ($col_primary['Field'] != 'id') {
                     throw new Exception(sprintf($this->lang->line(APP . '_pk_id_name_required'), $col_primary['Field']));
                 }
+
                 echo json_encode(array('error' => false, 'columns' => $columns));
             } else {
                 $validation_errors = validation_errors();
@@ -1001,64 +1038,85 @@ class Sections extends MY_Controller
         if (!empty($image_resize)) {
             $tmp->image_resize = $image_resize;
         }
+
         if (!empty($image_y)) {
             $tmp->image_y = $image_y;
         }
+
         if (!empty($image_x)) {
             $tmp->image_x = $image_x;
         }
+
         if (!empty($image_ratio)) {
             $tmp->image_ratio = $image_ratio;
         }
+
         if (!empty($image_ratio_x)) {
             $tmp->image_ratio_x = $image_ratio_x;
         }
+
         if (!empty($image_ratio_y)) {
             $tmp->image_ratio_y = $image_ratio_y;
         }
+
         if (!empty($image_ratio_crop)) {
             $tmp->image_ratio_crop = $image_ratio_crop;
         }
+
         if (!empty($image_ratio_fill)) {
             $tmp->image_ratio_fill = $image_ratio_fill;
         }
+
         if (!empty($image_background_color)) {
             $tmp->image_background_color = $image_background_color;
         }
+
         if (!empty($image_convert)) {
             $tmp->image_convert = $image_convert;
         }
+
         if (!empty($image_text)) {
             $tmp->image_text = $image_text;
         }
+
         if (!empty($image_text_color)) {
             $tmp->image_text_color = $image_text_color;
         }
+
         if (!empty($image_text_background)) {
             $tmp->image_text_background = $image_text_background;
         }
+
         if (!empty($image_text_opacity)) {
             $tmp->image_text_opacity = $image_text_opacity;
         }
+
         if (!empty($image_text_background_opacity)) {
             $tmp->image_text_background_opacity = $image_text_background_opacity;
         }
+
         if (!empty($image_text_padding)) {
             $tmp->image_text_padding = $image_text_padding;
         }
+
         if (!empty($image_text_position)) {
             $tmp->image_text_position = $image_text_position;
         }
+
         if (!empty($image_text_direction)) {
             $tmp->image_text_direction = $image_text_direction;
         }
+
         if (!empty($image_text_x)) {
             $tmp->image_text_x = $image_text_x;
         }
+
         if (!empty($image_text_y)) {
             $tmp->image_text_y = $image_text_y;
         }
+
         header('Content-type: ' . $tmp->file_src_mime);
+
         echo $tmp->Process();
     }
 
@@ -1076,12 +1134,15 @@ class Sections extends MY_Controller
                 if (!$verify_type) {
                     throw new Exception(sprintf($this->lang->line(APP . '_type_column_not_exists'), $col['Field'], $type_current));
                 }
+
                 $col['Type'] = $type_current;
                 $col['Limit'] = $limit_current;
                 $cols[] = $col;
             }
+
             $columns = $cols;
         }
+
         return $columns;
     }
 
@@ -1090,6 +1151,7 @@ class Sections extends MY_Controller
         if ($type == 'int') {
             $type = 'integer';
         }
+
         return $type;
     }
 }

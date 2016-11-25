@@ -28,14 +28,15 @@ class Users extends MY_Controller
         $users = $search['users'];
         $total_rows = $search['total_rows'];
         $pagination = $this->pagination($total_rows);
-        $data = [
+        $data = array(
             'title' => $this->data['name'],
             'user_logged' => $this->data_user,
             'users' => $users,
             'pagination' => $pagination,
             'total' => $total_rows
-        ];
+        );
         $this->include_components->app_js('js/index.js');
+
         $this->load->template_app('index', $data);
     }
     /*
@@ -51,6 +52,7 @@ class Users extends MY_Controller
         $this->form_validation->run();
         $users = $this->users_model->search($keyword, $limit, $perPage);
         $total_rows = $this->users_model->search_total_rows($keyword);
+
         return array(
             'users' => $users,
             'total_rows' => $total_rows
@@ -82,6 +84,7 @@ class Users extends MY_Controller
         $config['first_url'] = '?per_page=0';
 
         $this->pagination->initialize($config);
+
         return $this->pagination->create_links();
     }
     /*
@@ -97,7 +100,7 @@ class Users extends MY_Controller
         $this->include_components->main_js('plugins/switchery/js/switchery.js')
                 ->app_js('js/form.js')
                 ->main_css('plugins/switchery/css/switchery.css');
-        $vars = [
+        $vars = array(
             'title' => $this->lang->line(APP . '_title_add_user'),
             'name_app' => $this->data['name'],
             'user_logged' => $this->data_user,
@@ -111,7 +114,8 @@ class Users extends MY_Controller
             'about' => null,
             'permissions' => $permissions,
             'id_user' => ''
-        ];
+        );
+
         $this->load->template_app('form', $vars);
     }
     /*
@@ -134,7 +138,8 @@ class Users extends MY_Controller
                 $root = 0;
                 $allow_dev = 0;
             }
-            $data = [
+
+            $data = array(
                 'name' => $this->input->post('name'),
                 'email' => $this->input->post('email'),
                 'login' => $this->input->post('login'),
@@ -144,41 +149,58 @@ class Users extends MY_Controller
                 'about' => $this->input->post('about'),
                 'root' => $root,
                 'allow_dev' => $allow_dev
-            ];
+            );
             $user = $this->users_model->create($data);
             if ($user) {
                 $this->create_permissions($permissions, $user);
             }
+
             add_history('Criou o usuário ' . $this->input->post('name') . ' ' . $this->input->post('lastname'));
+
             redirect_app('users');
         }
     }
 
     private function create_permissions($permissions, $id_user)
     {
-        if ($permissions) {
-            $data = array();
-            foreach ($permissions as $app) {
-                $name = $app['name'];
-                $dir_app = $app['app'];
-                $is_check = (int) $this->input->post($dir_app);
-                $permissions_app = (isset($app['permissions']) ? $app['permissions'] : array());
-                $data[] = array(
-                    'fk_user' => $id_user,
-                    'app' => $dir_app,
-                    'page' => '',
-                    'method' => '',
-                    'status' => $is_check
-                );
-                foreach ($permissions_app as $page => $arr) {
-                    foreach ($arr as $key => $value) {
-                        $method = $key;
-                        $label = $value;
-                        if (!is_array($label)) {
+        if (!$permissions) {
+            return false;
+        }
+
+        $data = array();
+        foreach ($permissions as $app) {
+            $name = $app['name'];
+            $dir_app = $app['app'];
+            $is_check = (int) $this->input->post($dir_app);
+            $permissions_app = (isset($app['permissions']) ? $app['permissions'] : array());
+            $data[] = array(
+                'fk_user' => $id_user,
+                'app' => $dir_app,
+                'page' => '',
+                'method' => '',
+                'status' => $is_check
+            );
+            foreach ($permissions_app as $page => $arr) {
+                foreach ($arr as $key => $value) {
+                    $method = $key;
+                    $label = $value;
+                    if (!is_array($label)) {
+                        $is_check = (int) $this->input->post($dir_app . '-' . $method);
+                        if ($page == '/') {
+                            $page = '';
+                        }
+
+                        $data[] = array(
+                            'fk_user' => $id_user,
+                            'app' => $dir_app,
+                            'page' => $page,
+                            'method' => $method,
+                            'status' => $is_check
+                        );
+                    } else {
+                        foreach ($value as $method => $label) {
+                            $page = $key;
                             $is_check = (int) $this->input->post($dir_app . '-' . $method);
-                            if ($page == '/') {
-                                $page = '';
-                            }
                             $data[] = array(
                                 'fk_user' => $id_user,
                                 'app' => $dir_app,
@@ -186,24 +208,13 @@ class Users extends MY_Controller
                                 'method' => $method,
                                 'status' => $is_check
                             );
-                        } else {
-                            foreach ($value as $method => $label) {
-                                $page = $key;
-                                $is_check = (int) $this->input->post($dir_app . '-' . $method);
-                                $data[] = array(
-                                    'fk_user' => $id_user,
-                                    'app' => $dir_app,
-                                    'page' => $page,
-                                    'method' => $method,
-                                    'status' => $is_check
-                                );
-                            }
                         }
                     }
                 }
             }
-            $this->users_model->create_permissions($data);
         }
+
+        $this->users_model->create_permissions($data);
     }
     /*
      * Método para criação de template de edição de usuário
@@ -216,11 +227,12 @@ class Users extends MY_Controller
         if (!$user) {
             redirect_app('users');
         }
+
+        $this->include_components->app_js('js/form.js');
         $permissions = $this->apps->list_apps_permissions();
         $this->form_edit($user, $permissions);
 
-        $this->include_components->app_js('js/form.js');
-        $vars = [
+        $vars = array(
             'title' => $this->lang->line(APP . '_title_edit_user'),
             'name_app' => $this->data['name'],
             'id_user' => $user['id'],
@@ -233,7 +245,8 @@ class Users extends MY_Controller
             'allow_dev' => $user['allow_dev'],
             'about' => $user['about'],
             'permissions' => $permissions
-        ];
+        );
+
         $this->load->template_app('form', $vars);
     }
     /*
@@ -246,18 +259,20 @@ class Users extends MY_Controller
         if ($this->input->post('email') != $user['email']) {
             $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]|valid_email');
         }
+
         if ($this->input->post('login') != $user['login']) {
             $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]|min_length[3]|alpha_numeric');
         }
+
         if ($this->form_validation->run()) {
-            if ($user['root']) {
+            $root = $user['root'];
+            $allow_dev = $user['allow_dev'];
+            if ($root) {
                 $root = $this->input->post('root');
                 $allow_dev = $this->input->post('allow_dev');
-            } else {
-                $root = $user['root'];
-                $allow_dev = $user['allow_dev'];
             }
-            $data = [
+
+            $data = array(
                 'login_old' => $user['login'],
                 'name' => $this->input->post('name'),
                 'lastname' => $this->input->post('lastname'),
@@ -267,7 +282,7 @@ class Users extends MY_Controller
                 'about' => $this->input->post('about'),
                 'root' => $root,
                 'allow_dev' => $allow_dev,
-            ];
+            );
             $password = $this->input->post('password');
             if (!empty($password)) {
                 $this->load->helper('passwordhash');
@@ -276,10 +291,12 @@ class Users extends MY_Controller
             } else {
                 $data['password'] = $user['password'];
             }
+
             $this->users_model->update($data);
             $this->users_model->delete_permissions($user['id']);
             $this->create_permissions($permissions, $user['id']);
             add_history('Editou o usuário ' . $this->input->post('name'));
+
             redirect_app('users');
         }
     }
@@ -293,6 +310,7 @@ class Users extends MY_Controller
         if ($del > 1) {
             $this->users_model->delete($del);
         }
+
         redirect_app('users');
     }
     /*
@@ -315,6 +333,7 @@ class Users extends MY_Controller
         if (!$user) {
             redirect();
         }
+
         $offset = (int) $this->input->get('per_page');
         $this->include_components->app_css('css/profile.css');
         $history = read_history(array(
@@ -338,6 +357,7 @@ class Users extends MY_Controller
             'total_history' => $history['total'],
             'pagination' => $this->pagination_history($history['total'])
         );
+
         $this->load->template_app('profile', $vars);
     }
 
@@ -361,8 +381,8 @@ class Users extends MY_Controller
         $config['first_tag_open'] = '<li>';
         $config['first_tag_open'] = '</li>';
         $config['first_url'] = '?per_page=0';
-
         $this->pagination->initialize($config);
+
         return $this->pagination->create_links();
     }
 }

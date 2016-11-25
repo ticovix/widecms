@@ -18,6 +18,7 @@ class My_account extends MY_Controller
         if (!check_method('edit')) {
             redirect('apps/users/profile/' . $user['login']);
         }
+
         $this->form_edit();
         // Carregar plugin de upload
         load_gallery();
@@ -34,6 +35,7 @@ class My_account extends MY_Controller
             'image' => $user['image'],
             'about' => $user['about'],
         );
+
         $this->load->template_app('index', $vars);
     }
     /*
@@ -47,6 +49,7 @@ class My_account extends MY_Controller
         if ($this->input->post('email') != $user['email']) {
             $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]|valid_email');
         }
+
         if ($this->input->post('login') != $user['login']) {
             $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]|min_length[3]');
         }
@@ -59,19 +62,20 @@ class My_account extends MY_Controller
                 'image' => $this->input->post('image'),
                 'about' => $this->input->post('about'),
                 'login' => $this->input->post('login'),
-                'email' => $this->input->post('email')
+                'email' => $this->input->post('email'),
+                'password' => $user['password']
             ];
             $password = $this->input->post('password');
             if (!empty($password)) {
                 $this->load->helper('passwordhash');
                 $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
                 $data['password'] = $PasswordHash->HashPassword($password);
-            } else {
-                $data['password'] = $user['password'];
             }
+
             $this->load->model_app('user_model');
             $this->user_model->update($data);
             add_history($this->lang->line(APP . '_update_profile'));
+
             redirect(current_url());
         }
     }

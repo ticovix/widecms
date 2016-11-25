@@ -54,6 +54,7 @@ class Gallery extends MY_Controller
             'title' => $data['name'],
             'files' => $files
         );
+
         $this->load->template_app('index', $vars);
     }
     /*
@@ -70,6 +71,7 @@ class Gallery extends MY_Controller
         $limit = $this->limit;
         $files = $this->files_model->search($keyword, $limit, $per_page);
         $total = $this->files_model->search_total_rows($keyword);
+
         return array(
             'files' => $files,
             'total' => $total
@@ -94,6 +96,7 @@ class Gallery extends MY_Controller
                     $extensions = $json_config->extensions_allowed;
                     $filter_extensions = explode(',', $extensions);
                 }
+
                 if (isset($json_config->image_thumbnails)) {
                     $thumbs = json_decode(str_replace('\'', '"', $json_config->image_thumbnails));
                     if ($thumbs) {
@@ -107,12 +110,15 @@ class Gallery extends MY_Controller
                 }
             }
         }
+
         if (empty($limit)) {
             $limit = $this->limit;
         }
+
         $files = $this->files_model->search($keyword, $filter_extensions, $filter_thumbs, $limit, $per_page);
         $total = $this->files_model->search_total_rows($keyword, $filter_extensions, $filter_thumbs);
         $pagination = $this->pagination($total, $limit);
+
         echo json_encode(array('files' => $files, 'total' => $total, 'pagination' => $pagination));
     }
     /*
@@ -141,8 +147,8 @@ class Gallery extends MY_Controller
         $config['first_tag_open'] = '<li>';
         $config['first_tag_close'] = '</li>';
         $config['first_url'] = base_url('apps/gallery/files-list?per_page=0');
-
         $this->pagination->initialize($config);
+
         return $this->pagination->create_links();
     }
     /*
@@ -151,51 +157,55 @@ class Gallery extends MY_Controller
 
     public function upload()
     {
-        $upload = false;
-        $insert = false;
-        $path = PATH_UPLOAD;
-        if (isset($_FILES['file']['name'])) {
+        try {
+            $upload = false;
+            $insert = false;
+            $path = PATH_UPLOAD;
+            if (!isset($_FILES['file']['name'])) {
+                throw new Exception('Nenhum arquivo enviado');
+            }
+
             $name = rand(0000000000, 9999999999);
             $config_upload = $this->input->post('config_upload');
             if (!empty($config_upload)) {
                 $config_upload = json_decode(str_replace('\'', '"', $config_upload));
                 $name = $this->create_file_unique($name, $config_upload);
             }
+
             $config['file_name'] = $name;
             $config['upload_path'] = PATH_UPLOAD;
             $config['file_ext_tolower'] = TRUE;
             $config['remove_spaces'] = TRUE;
+            $config['allowed_types'] = $this->allowed_types;
             if (isset($config_upload->extensions_allowed) && !empty($config_upload->extensions_allowed)) {
                 $config['allowed_types'] = str_replace(array(','), array('|'), $config_upload->extensions_allowed);
-            } else {
-                $config['allowed_types'] = $this->allowed_types;
             }
+
             $this->load->library('upload', $config);
             $upload = $this->upload->do_upload('file');
-            if ($upload) {
-                $data = $this->upload->data();
-                $file = $data['file_name'];
-                chmod($path . $file, 0755);
-                $thumbs = array();
-                if ($config_upload && $data['is_image']) {
-                    $thumbs = $this->config_upload($config_upload, $file);
-                }
-                $insert = $this->files_model->insert_file($file, $thumbs);
-                add_history('Inseriu um novo arquivo "' . $file . '"');
+            if (!$upload) {
+                throw new Exception($this->upload->display_errors('', ''));
             }
-        }
-        if (!$upload) {
-            if (isset($config)) {
-                echo $this->upload->display_errors('', '');
-            } else {
-                echo 'Houve um erro ao tentar enviar o arquivo.';
+
+            $data = $this->upload->data();
+            $file = $data['file_name'];
+            $is_image = $data['is_image'];
+            chmod($path . $file, 0755);
+
+            $thumbs = array();
+            if ($config_upload && $is_image) {
+                $thumbs = $this->config_upload($config_upload, $file);
             }
-            header("HTTP/1.0 404 Not Found");
-        } elseif (!$insert) {
-            echo 'Houve um erro ao tentar enviar o arquivo para o banco de dados.';
-            if (isset($data)) {
+
+            $insert = $this->files_model->insert_file($file, $thumbs);
+            if (!$insert) {
                 unlink($path . $file);
+                throw new Exception('Houve um erro ao tentar enviar o arquivo para o banco de dados');
             }
+
+            add_history('Inseriu um novo arquivo "' . $file . '"');
+        } catch (Exception $e) {
+            echo $e->getMessage();
             header("HTTP/1.0 404 Not Found");
         }
     }
@@ -205,7 +215,6 @@ class Gallery extends MY_Controller
         $image_thumbnails = (isset($config->image_thumbnails) && strpos($config->image_thumbnails, '{') !== false) ? json_decode($config->image_thumbnails) : array();
         $exists = false;
         $new_file = $file;
-        $i = 0;
 
         while ($exists == true) {
             $new_file = rand(0000000000, 9999999999);
@@ -219,8 +228,8 @@ class Gallery extends MY_Controller
                     }
                 }
             }
-            $i++;
         }
+
         return $file;
     }
 
@@ -253,63 +262,83 @@ class Gallery extends MY_Controller
         if (!empty($image_resize)) {
             $upload->image_resize = $image_resize;
         }
+
         if (!empty($image_y)) {
             $upload->image_y = $image_y;
         }
+
         if (!empty($image_x)) {
             $upload->image_x = $image_x;
         }
+
         if (!empty($image_ratio)) {
             $upload->image_ratio = $image_ratio;
         }
+
         if (!empty($image_ratio_x)) {
             $upload->image_ratio_x = $image_ratio_x;
         }
+
         if (!empty($image_ratio_y)) {
             $upload->image_ratio_y = $image_ratio_y;
         }
+
         if (!empty($image_ratio_crop)) {
             $upload->image_ratio_crop = $image_ratio_crop;
         }
+
         if (!empty($image_ratio_fill)) {
             $upload->image_ratio_fill = $image_ratio_fill;
         }
+
         if (!empty($image_background_color)) {
             $upload->image_background_color = $image_background_color;
         }
+
         if (!empty($image_convert)) {
             $upload->image_convert = $image_convert;
         }
+
         if (!empty($image_text)) {
             $upload->image_text = $image_text;
         }
+
         if (!empty($image_text_color)) {
             $upload->image_text_color = $image_text_color;
         }
+
         if (!empty($image_text_background)) {
             $upload->image_text_background = $image_text_background;
         }
+
         if (!empty($image_text_opacity)) {
             $upload->image_text_opacity = $image_text_opacity;
         }
+
         if (!empty($image_text_background_opacity)) {
             $upload->image_text_background_opacity = $image_text_background_opacity;
         }
+
         if (!empty($image_text_padding)) {
             $upload->image_text_padding = $image_text_padding;
         }
+
         if (!empty($image_text_position)) {
             $upload->image_text_position = $image_text_position;
         }
+
         if (!empty($image_text_direction)) {
             $upload->image_text_direction = $image_text_direction;
         }
+
         if (!empty($image_text_x)) {
             $upload->image_text_x = $image_text_x;
         }
+
         if (!empty($image_text_y)) {
             $upload->image_text_y = $image_text_y;
         }
+
         $upload->file_overwrite = true;
         $upload->file_auto_rename = false;
         $upload->process(PATH_UPLOAD);
@@ -328,63 +357,68 @@ class Gallery extends MY_Controller
                 } else {
                     $upload->image_y = $height;
                 }
+
                 if (!empty($crop)) {
                     $upload->image_ratio_crop = $crop;
                 }
+
                 $upload->process(PATH_UPLOAD);
                 if ($upload->processed) {
                     $thumbs[] = $upload->file_dst_name;
                 }
             }
         }
+
         return $thumbs;
     }
     /*
      * Método para criar imagem de exibição com tamanho especifico
      */
 
-    public function image($type = false, $file = false)
+    public function image($type, $file)
     {
-        if ($type && $file) {
-            $file = urldecode($file);
-            $path = PATH_UPLOAD;
-            $is_image = array('jpg', 'png', 'gif', 'jpeg');
-            $explode_file = explode('.', $file);
-            $ext = array_pop($explode_file);
-            $icon = false;
-            if (!in_array($ext, $is_image)) {
-                $file = 'assets/images/icons/' . $ext . '.png';
-                if (!is_file($file)) {
-                    $file = 'assets/images/icons/other.png';
-                }
-                $icon = true;
-            } else {
-                $file = $path . $file;
+        $file = urldecode($file);
+        $path = PATH_UPLOAD;
+        $is_image = array('jpg', 'png', 'gif', 'jpeg');
+        $explode_file = explode('.', $file);
+        $ext = array_pop($explode_file);
+        $icon = false;
+        if (!in_array($ext, $is_image)) {
+            $file = 'assets/images/icons/' . $ext . '.png';
+            if (!is_file($file)) {
+                $file = 'assets/images/icons/other.png';
             }
-            $this->load->library('upload_verot');
-            $file_tmp = new Upload_verot($file);
-            if (!$file_tmp->uploaded) {
-                $file = 'assets/images/icons/' . $ext . '.png';
-                if (!is_file($file)) {
-                    $file = 'assets/images/icons/other.png';
-                }
-                $icon = true;
-                $file_tmp = new Upload_verot($file);
-            }
-            header('Content-type: ' . $file_tmp->file_src_mime);
-            if ($type == 'thumb') {
-                $file_tmp->image_resize = true;
-                if ($icon) {
-                    $file_tmp->image_crop = '0 -50 0 -50';
-                    $file_tmp->image_x = 50;
-                } else {
-                    $file_tmp->image_x = 150;
-                }
-                $file_tmp->image_y = 100;
-                $file_tmp->image_ratio_fill = true;
-            }
-            echo $file_tmp->Process();
+            $icon = true;
+        } else {
+            $file = $path . $file;
         }
+
+        $this->load->library('upload_verot');
+        $file_tmp = new Upload_verot($file);
+        if (!$file_tmp->uploaded) {
+            $file = 'assets/images/icons/' . $ext . '.png';
+            if (!is_file($file)) {
+                $file = 'assets/images/icons/other.png';
+            }
+
+            $icon = true;
+            $file_tmp = new Upload_verot($file);
+        }
+
+        header('Content-type: ' . $file_tmp->file_src_mime);
+        if ($type == 'thumb') {
+            $file_tmp->image_resize = true;
+            $file_tmp->image_ratio_fill = true;
+            $file_tmp->image_y = 100;
+            if ($icon) {
+                $file_tmp->image_crop = '0 -50 0 -50';
+                $file_tmp->image_x = 50;
+            } else {
+                $file_tmp->image_x = 150;
+            }
+        }
+
+        echo $file_tmp->Process();
     }
     /*
      * Método para remover arquivo
@@ -392,13 +426,17 @@ class Gallery extends MY_Controller
 
     public function delete()
     {
+        $path = PATH_UPLOAD;
         $file = $this->input->post('file');
         $get_file = $this->files_model->file($file);
         if (!$get_file) {
             redirect_app();
         }
-        $path = PATH_UPLOAD;
-        @unlink($path . $file);
+
+        if (is_file($path . $file)) {
+            unlink($path . $file);
+        }
+
         $this->files_model->delete($file);
         add_history('Removeu o arquivo "' . $file . '"');
         // Verifica a existencia de miniaturas e remove
@@ -407,7 +445,9 @@ class Gallery extends MY_Controller
             $thumbs = json_decode($thumbnails);
             if (count($thumbs) > 0) {
                 foreach ($thumbs as $thumb) {
-                    @unlink($path . $thumb);
+                    if (is_file($path . $thumb)) {
+                        unlink($path . $thumb);
+                    }
                 }
             }
         }
@@ -430,6 +470,7 @@ class Gallery extends MY_Controller
         } else {
             $thumbnails = '';
         }
+
         echo json_encode(array('file' => $file, 'name' => $name, 'path_file' => wd_base_url('wd-content/upload/' . $file), 'filesize' => FileSizeConvert($filesize), 'thumbnails' => $thumbnails));
     }
     /*
@@ -468,6 +509,7 @@ class Gallery extends MY_Controller
                 } else {
                     add_history('Alterou o título do arquivo para "' . $name . '"');
                 }
+
                 echo json_encode(array('message' => 'Arquivo editado com sucesso!', 'error' => 0, 'change_file' => $new_file));
             } else {
                 echo json_encode(array('message' => 'Não foi possível renomear o arquivo, você não possui permissões suficiente.', 'error' => 1));
@@ -490,9 +532,11 @@ class Gallery extends MY_Controller
         if ($file != $new_file) {
             if (is_file($path . $new_file)) {
                 $this->form_validation->set_message('verify_name', 'Já existe um arquivo com esse nome.');
+
                 return false;
             }
         }
+
         return true;
     }
 
@@ -502,12 +546,14 @@ class Gallery extends MY_Controller
         $data['app'] = check_app('gallery');
         $data['upload'] = check_method('upload', 'gallery');
         $data['view'] = check_method('view-files', 'gallery');
+
         echo json_encode($data);
     }
 
     public function list_lang()
     {
         $this->lang->load_app('gallery');
+
         echo json_encode($this->lang->language);
     }
 }

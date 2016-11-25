@@ -4,33 +4,38 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Home extends MY_Controller {
+class Home extends MY_Controller
+{
 
-    public function index() {
+    public function index()
+    {
         $widgets = $this->list_widgets();
         $vars = array(
             'widgets' => $widgets
         );
+
         $this->load->template('home/index', $vars);
     }
-    
     /*
      * Método para listar os widgets da página inicial
      */
-    private function list_widgets(){
+
+    private function list_widgets()
+    {
         $this->load->library('apps');
+
         return $this->apps->list_widgets_dashboards();
     }
-
     /*
      * Método para deslogar do painel
      */
 
-    public function logout() {
+    public function logout()
+    {
         $this->session->unset_userdata('logged_in');
         $this->session->unset_userdata('id');
         session_destroy();
+
         redirect('login');
     }
-
 }

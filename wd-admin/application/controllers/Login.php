@@ -32,16 +32,18 @@ class Login extends CI_Controller
         if ($run) {
             $this->session->set_userdata('attempts', 0);
             $url = $this->session->redirect;
+
             redirect($url);
         }
         $validation_errors = validation_errors();
         if (!empty($validation_errors)) {
             $captcha = $this->protection_brute_force();
         }
-        $data = [
+
+        $data = array(
             'title' => 'Login',
             'captcha' => $captcha
-        ];
+        );
         $this->include_components->main_css('view/login/css/style.css');
         $this->load->view('login/inc/header', $data);
         $this->load->view('login/index', $data);
@@ -70,6 +72,7 @@ class Login extends CI_Controller
             );
             $captcha = create_captcha($vals);
             $this->session->set_userdata('captchaWord', $captcha['word']);
+
             return $captcha;
         } else {
             return false;
@@ -92,6 +95,7 @@ class Login extends CI_Controller
                 return false;
             }
         }
+
         return true;
     }
     /*
@@ -121,9 +125,11 @@ class Login extends CI_Controller
                 'id' => $id,
                 'logged_in' => true
             ]);
+
             return true;
         } else {
             $this->form_validation->set_message('auth_account', 'Login ou senha incorreto, caso tenha esquecido sua senha <a href="' . base_url('login/recovery') . '">clique aqui</a>');
+
             return false;
         }
     }
@@ -155,8 +161,10 @@ class Login extends CI_Controller
                 $this->email->message($message);
                 $this->email->send();
             }
+
             redirect('login/recovery?send=true');
         }
+
         $this->load->helper('captcha');
         // numeric random number for captcha
         $random_number = substr(number_format(time() * rand(), 0, '', ''), 0, 6);
@@ -171,10 +179,10 @@ class Login extends CI_Controller
         );
         $captcha = create_captcha($vals);
         $this->session->set_userdata('captchaWordRecovery', $captcha['word']);
-        $data = [
+        $data = array(
             'title' => 'Recuperar senha',
             'captcha' => $captcha
-        ];
+        );
         add_css('view/login/css/style.css');
         $this->load->view('login/inc/header', $data);
         $this->load->view('login/recovery', $data);
@@ -193,6 +201,7 @@ class Login extends CI_Controller
             $this->form_validation->set_message('check_captcha_recovery', 'Digite corretamente o que vê na imagem.');
             return false;
         }
+
         return true;
     }
 
@@ -202,6 +211,7 @@ class Login extends CI_Controller
         if ($this->user) {
             if ($this->user['status'] == '0') {
                 $this->form_validation->set_message('check_status_user', 'Conta bloqueada, não é possível recuperar senha, entre em contato com o administrador.');
+
                 return false;
             }
         }
@@ -216,6 +226,7 @@ class Login extends CI_Controller
         if ($token or $login) {
             $this->verify_token($token, $login);
         }
+
         if (!$token && !$login && !$send) {
             redirect('login');
         }
@@ -231,11 +242,11 @@ class Login extends CI_Controller
             redirect('login/redefine-pass?send=true');
         }
 
-        $data = [
+        $data = array(
             'title' => 'Redefinir senha',
             'token' => $token,
             'login' => $login
-        ];
+        );
         add_css('view/login/css/style.css');
         $this->load->view('login/inc/header', $data);
         $this->load->view('login/redefine-pass', $data);
@@ -248,6 +259,7 @@ class Login extends CI_Controller
         if (!$user) {
             redirect('login');
         }
+
         $token_val = $user['recovery_token'];
         // Inicia helper PasswordHash
         $this->load->helper('passwordhash');
