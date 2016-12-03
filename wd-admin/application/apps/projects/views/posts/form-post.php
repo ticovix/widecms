@@ -38,11 +38,12 @@ if (!defined('BASEPATH')) {
             <div class="x_content row">
                 <?php
                 $type = $this->uri->segment(7);
+                $check = $method;
                 if ($type === 'edit' or $type === 'create') {
-                    $check_method = check_method($method . '-' . $type);
-                } else {
-                    $check_method = check_method($method);
+                    $check = $method . '-' . $type;
                 }
+
+                $check_method = check_method($method);
                 if ($check_method) {
                     ?>
                     <div id="data-project" data-project="<?php echo $slug_project ?>" data-page="<?php echo $slug_page ?>" data-section="<?php echo $slug_section ?>">
@@ -51,7 +52,7 @@ if (!defined('BASEPATH')) {
                         echo form_open('', array('class' => 'form-horizontal'));
                         if ($fields) {
                             foreach ($fields as $field) {
-                                $type = (isset($field['label'])) ? $field['type'] : '';
+                                $type = (isset($field['type'])) ? $field['type'] : '';
                                 $label = (isset($field['label'])) ? $field['label'] : '';
                                 $input = (isset($field['input'])) ? $field['input'] : '';
                                 $observation = (isset($field['observation'])) ? $field['observation'] : '';
@@ -60,8 +61,8 @@ if (!defined('BASEPATH')) {
                                 <div class="form-group <?php if (empty($label)) { ?>hide<?php } ?>">
                                     <label for="<?php echo $column ?>_field" class="label-field col-sm-2 col-xs-12 control-label" data-field="<?php echo $column ?>" id="label_<?php echo $column; ?>"><?php echo $label; ?></label>
                                     <div class="col-sm-9 col-xs-12 content-field">
-                                        <?php echo $input; ?>
                                         <?php
+                                        echo $input;
                                         if (!empty($observation)) {
                                             ?>
                                             <div class="observation"><?php echo $observation ?></div>
@@ -101,46 +102,14 @@ if (!defined('BASEPATH')) {
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="modal-edit" tabindex="-1" role="dialog" aria-labelledby="modal-edit">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel"><?php echo $this->lang->line(APP . "_title_modal_edit_file") ?></h4>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" value="" id="field-edit" class="form-control">
-                <input type="hidden" value="" id="field-file" class="form-control">
-                <input type="hidden" value="" id="field-index" class="form-control">
-                <div class="row">
-                    <div class="col-sm-3">
-                        <a href="" id="field-image-file" class="fancybox" rel="gallery" data-fancybox-group="gallery">
-                            <img src="" class="img-responsive center-block">
-                        </a>
-                    </div>
-                    <div class="col-sm-9">
-                        <div class="form-group">
-                            <label><?php echo $this->lang->line(APP . "_label_title") ?></label>
-                            <input type="text" name="title" value="" id="field-title" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label><input type="checkbox" name="checked" id="field-checked"> <?php echo $this->lang->line(APP . "_label_main") ?> </label>
-                        </div>
-                    </div>
-                </div>
-                <div id="message-edit"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line(APP . "_btn_close") ?></button>
-                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btn-save-edit"><?php echo $this->lang->line(APP . "_btn_save") ?></button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script type="text/javascript">
     var LANG = {
         select_default: '<?php echo $this->lang->line(APP . '_select_default') ?>',
+        modal_title_edit_file: '<?php echo $this->lang->line(APP . '_title_modal_edit_file') ?>',
+        modal_label_title: '<?php echo $this->lang->line(APP . '_label_title') ?>',
+        modal_label_main: '<?php echo $this->lang->line(APP . '_label_main') ?>',
+        modal_btn_close: '<?php echo $this->lang->line(APP . '_btn_close') ?>',
+        modal_btn_save: '<?php echo $this->lang->line(APP . '_btn_save') ?>',
+        modal_btn_remove: '<?php echo $this->lang->line(APP . '_btn_remove') ?>',
     }
 </script>

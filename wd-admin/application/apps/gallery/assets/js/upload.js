@@ -1,42 +1,25 @@
 $(function () {
-    var container_modal = $(".main_container > .right_col");
-    var async_default = $.ajaxSetup().async;
-    var csrf = $.ajaxSetup().data.csrf_test_name;
-    async(false);
-    var permissions = $.getJSON(url + "apps/gallery/list-permissions").responseJSON;
-    var lang = $.getJSON(url + "apps/gallery/list-lang").responseJSON;
-    async(async_default);
-    var hash = 0;
-
-    function async(bool) {
+    var hasInit = false;
+    var hash = 1;
+    var async = function (bool) {
         $.ajaxSetup({
             async: bool
         });
     }
 
-    $(".fancybox").attr('rel', 'gallery').fancybox({
-        nextEffect: 'fade',
-        prevEffect: 'fade',
-        openEffect: 'elastic',
-        closeEffect: 'elastic',
-        autoCenter: true,
-        padding: 0,
-        margin: 20,
-        arrows: true,
-        mouseWheel: true,
-        fitToView: true,
-    });
-
-    jQuery.fn.gallery = function (settings) {
-        var btn_upload = $(this);
-        var modal = $(".gallery-upload-modal");
-        var saved_list = [];
-
+    var gallery = function (el, settings) {
+        var csrf = $.ajaxSetup().data.csrf_test_name;
+        var async_default = $.ajaxSetup().async;
+        async(false);
+        var permissions = $.getJSON(url + "apps/gallery/list-permissions").responseJSON;
+        var lang = $.getJSON(url + "apps/gallery/list-lang").responseJSON;
+        async(async_default);
+        var self = this;
         var config = {
             limit_select: null, // multiple default
-            complete: null, // callback function
             files_selecteds: [], // String or Object
-            reset_selecteds: false,
+            saved_list: [],
+            complete: function (files) {}, // callback function
             /*Config upload*/
             extensions_allowed: null,
             image_resize: null,
@@ -60,12 +43,28 @@ $(function () {
             image_text_x: null,
             image_text_y: null,
             image_thumbnails: null
-        }
-        if (settings) {
-            $.extend(config, settings);
-        }
-        config.hash = hash++;
-        if (config.hash === 0) {
+        };
+        var selector = {
+            modal: ".gallery-upload-modal",
+            content_modal: ".gallery-upload-modal #files-content",
+            current_modal: null,
+            container_modal: ".main_container > .right_col",
+            btn_save: ".gallery-upload-modal #btn-save-change",
+            btn_add: ".gallery-upload-modal #list-files .btn-add",
+            modal_footer: ".modal-footer",
+            upload_config: "#upload_config",
+            image_file: ".image-file",
+            current_file: ".file"
+        };
+        config = $.extend(config, settings);
+        config.saved_list = config.files_selecteds;
+        selector.current_modal = "#gallery-upload-" + hash++;
+        var current_modal = selector.current_modal;
+        var btn_save = current_modal+selector.btn_save;
+        var btn_add = current_modal+selector.btn_add;
+        var container_modal = selector.container_modal;
+
+        var load_dependencies = function () {
             // Carrega os plugins e o modal apenas uma vez para o template
             var template_modal = new EJS({url: url + "application/apps/gallery/assets/ejs/gallery_modal/modal-upload.ejs"}).render({
                 perm: permissions,
@@ -73,8 +72,7 @@ $(function () {
                 url: url,
                 csrf_test_name: csrf
             });
-            // Inclui modal no corpo do cms
-            container_modal.append(template_modal);
+            $(container_modal).append(template_modal);
             // Carrega Dropzone
             if (typeof Dropzone == 'function') {
                 Dropzone.autoDiscover = false;
@@ -84,6 +82,19 @@ $(function () {
                     list_files({});
                 });
             }
+
+            $(".fancybox").attr('rel', 'gallery').fancybox({
+                nextEffect: 'fade',
+                prevEffect: 'fade',
+                openEffect: 'elastic',
+                closeEffect: 'elastic',
+                autoCenter: true,
+                padding: 0,
+                margin: 20,
+                arrows: true,
+                mouseWheel: true,
+                fitToView: true,
+            });
             $(".fancybox").attr('rel', 'gallery').fancybox({
                 beforeShow: function () {
                     /* Disable right click */
@@ -92,61 +103,118 @@ $(function () {
                     });
                 }
             });
-
         }
-        saved_list = JSON.parse(JSON.stringify(config.files_selecteds));
-        var modal_current = "#gallery-upload-" + config.hash;
 
-        container_modal.on("click", modal_current + " #btn-save-change", function () {
-            saved_list = JSON.parse(JSON.stringify(config.files_selecteds));
-            config.files_selecteds = [];
+        var treat_list_selected = function (el) {
+            config.files_selecteds = JSON.parse(JSON.stringify(config.saved_list));
+            var files = config.files_selecteds;
+            if (files !== null && typeof files != 'object') {
+                files = new Array();
+                files[0] = files;
+            }
+        }
+
+        var list_files = function (param) {
+            var content = $(selector.content_modal);
+            if (param.url === '' || param.url === undefined) {
+                param.url = url + "apps/gallery/files-list"
+            }
+
+            content.html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>');
+            var config_upload = $(selector.upload_config).val();
+            $.ajax({
+                url: param.url,
+                dataType: "json",
+                type: "POST",
+                data: {limit: 12, config: config_upload},
+                success: function (data) {
+                    var template = new EJS({url: url + "application/apps/gallery/assets/ejs/gallery_modal/list-files.ejs"}).render({
+                        data: data,
+                        url: url,
+                        lang: lang,
+                        config: config
+                    });
+                    content.html(template);
+                }
+            });
+        }
+
+        // public method
+        this.save_list = function () {
+            var self = this;
+            config.saved_list = JSON.parse(JSON.stringify(config.files_selecteds));
             // Callback
-            if (typeof config.complete == 'function') {
-                config.complete(saved_list);
-            }
-            $(".gallery-upload-modal").modal('hide');
-        });
+            config.complete(config.saved_list);
+        }
 
-        container_modal.on("click", modal_current + " #list-files .btn-add", function () {
-            var index = $(".btn-add").index(this);
-            var file = $(".file").eq(index).data('file');
-            if (config.limit_select === 1) {
-                config.files_selecteds = new Array();
-                config.files_selecteds[0] = file;
-                saved_list = JSON.parse(JSON.stringify(config.files_selecteds));
-                // Callback
-                if (config.reset_selecteds) {
-                    reset_selecteds();
+        // public method
+        this.reset_selecteds = function () {
+            config.files_selecteds = [];
+            config.saved_list = [];
+        }
+
+        // public method
+        this.delete_file = function (file) {
+            var self = this;
+            var files = config.files_selecteds;
+            if (files == undefined || typeof files != "object") {
+                files = new Object();
+            }
+
+            var new_list = new Array();
+            var total = Object.keys(files).length;
+            var x = 0;
+            if (typeof files[0] === "undefined") {
+                files = new Array(files);
+                total = 1;
+            }
+
+            for (var i = 0; i < total; i++) {
+                var file_current = files[i];
+                if (file_current != file) {
+                    new_list[x] = file_current;
+                    x++;
                 }
-                if (typeof config.complete == 'function') {
-                    config.complete(file);
-                }
-                $(".gallery-upload-modal").modal('hide');
+            }
+
+            config.files_selecteds = new_list;
+        }
+
+        // public method
+        this.add_file = function (file) {
+            var files = config.files_selecteds;
+            if (files == undefined || typeof files != "object") {
+                files = new Object();
+            }
+
+            var file_current = Object.keys(files).length;
+            files[file_current] = file;
+
+            config.files_selecteds = files;
+        }
+
+        if (!hasInit) {
+            load_dependencies();
+            hasInit = true;
+        }
+
+        el.click(function (e) {
+            var modal = selector.modal;
+            var modal_footer = selector.modal_footer;
+            var upload_config = selector.upload_config;
+            var limit_select = config.limit_select;
+
+            treat_list_selected(el);
+
+            $(modal).modal("show");
+            $(modal).attr("id", selector.current_modal.replace("#", ""));
+            if (permissions.app !== true || limit_select === 1) {
+                $(modal).children(modal_footer).addClass("hide");
             } else {
-                if ($(".image-file").eq(index).hasClass("active")) {
-                    delete_file(file);
-                    $(".image-file").eq(index).removeClass("active");
-                } else {
-                    add_file(file);
-                    $(".image-file").eq(index).addClass("active");
-                }
-            }
-        });
-
-        btn_upload.click(function () {
-            // Trata lista de arquivos selecionados
-            treat_list_selected();
-            //Exibe modal
-            $(".gallery-upload-modal").modal("show");
-            $(".gallery-upload-modal").attr("id", modal_current.replace("#", ""));
-            if (permissions.app !== true || config.limit_select === 1) {
-                $(".gallery-upload-modal .modal-footer").addClass("hide");
-            } else {
-                $(".gallery-upload-modal .modal-footer").removeClass("hide");
+                $(modal).children(modal_footer).removeClass("hide");
             }
 
-            // Configura upload
-            $(modal_current + " #upload_config").val(JSON.stringify({
+            $(modal).children(upload_config).val(JSON.stringify({
                 extensions_allowed: config.extensions_allowed,
                 image_resize: config.image_resize,
                 image_y: config.image_y,
@@ -171,106 +239,47 @@ $(function () {
                 image_thumbnails: config.image_thumbnails,
             }));
 
-            // Lista arquivos
             list_files({});
         });
 
-        /*
-         * Pesquisa
-         */
-        $(document).on("submit", "#search-files", function (e) {
-            var keyword = $("#search-field").val();
-            list_files({
-                url: url + 'apps/gallery/files-list?search=' + keyword
-            });
-            e.preventDefault();
-            return false;
+        $(container_modal).on("click", btn_save, function () {
+            var modal = selector.modal;
+            self.save_list();
+            $(modal).modal('hide');
         });
+        $(container_modal).on("click", btn_add, function () {
+            var modal = selector.modal;
+            var btn_add = selector.btn_add;
+            var index = $(btn_add).index(this);
+            var image_file = selector.image_file;
+            var limit_select = config.limit_select;
+            var file = $(selector.current_file).eq(index).data('file');
+            if (limit_select === 1) {
+                self.reset_selecteds();
+                self.add_file(file);
+                self.save_list();
 
-
-        /*
-         * Paginação
-         */
-        container_modal.on("click", "#list-files .btn-page", function (e) {
-            list_files({
-                url: $(this).attr("href")
-            });
-            e.preventDefault();
-            return false;
-        });
-
-        function treat_list_selected() {
-            config.files_selecteds = JSON.parse(JSON.stringify(saved_list));
-            var files = config.files_selecteds;
-            if (files !== null && typeof files != 'object') {
-                files = new Array();
-                files[0] = files;
-            }
-        }
-
-        function add_file(file) {
-            var files = config.files_selecteds;
-            if (files == undefined || typeof files != "object") {
-                files = new Object();
-            }
-            var file_current = Object.keys(files).length;
-            files[file_current] = file;
-            //config.files_selecteds = files;
-        }
-
-        function delete_file(file) {
-            var files = config.files_selecteds;
-            if (files == undefined || typeof files != "object") {
-                files = new Object();
-            }
-            var new_list = new Array();
-            var total = Object.keys(files).length;
-            var x = 0;
-            if (typeof files[0] === "undefined") {
-                files = new Array(files);
-                total = 1;
-            }
-            for (var i = 0; i < total; i++) {
-                var file_current = files[i];
-                if (file_current != file) {
-                    new_list[x] = file_current;
-                    x++;
+                $(modal).modal('hide');
+            } else {
+                if ($(image_file).eq(index).hasClass("active")) {
+                    self.delete_file(file);
+                    $(image_file).eq(index).removeClass("active");
+                } else {
+                    self.add_file(file);
+                    $(image_file).eq(index).addClass("active");
                 }
             }
-            config.files_selecteds = new_list;
-        }
-        /*
-         * Função para listar arquivos no modal
-         */
-        function list_files(param) {
-            var content = $(".gallery-upload-modal #files-content");
-            if (param.url === '' || param.url === undefined) {
-                param.url = url + "apps/gallery/files-list"
-            }
-            content.html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>');
-            var config_upload = $(".gallery-upload-modal #upload_config").val();
-            $.ajax({
-                url: param.url,
-                dataType: "json",
-                type: "POST",
-                data: {limit: 12, config: config_upload},
-                success: function (data) {
-                    var file_list = "list-files.ejs";
-                    var template = new EJS({url: url + "application/apps/gallery/assets/ejs/gallery_modal/" + file_list}).render({
-                        data: data,
-                        url: url,
-                        lang: lang,
-                        config: config,
-                        saved_list: saved_list
-                    });
-                    content.html(template);
-                }
-            });
+        });
+    }
+
+    $.fn.gallery = function (settings) {
+        var el = $(this);
+        if (el.data('gallery')) {
+            return el.data('gallery');
         }
 
-        function reset_selecteds() {
-            config.files_selecteds = [];
-            saved_list = [];
-        }
-    };
+        var plugin = new gallery(el, settings);
+        el.data('gallery', plugin);
+        return gallery;
+    }
 });

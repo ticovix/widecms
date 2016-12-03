@@ -25,3 +25,4 @@ $lang['projects_select_default'] = 'Selecione';
 $lang['projects_title_modal_edit_file'] = 'Editar';
 $lang['projects_label_title'] = 'Título';
 $lang['projects_label_main'] = 'Principal';
+$lang['projects_btn_remove'] = 'Remover';

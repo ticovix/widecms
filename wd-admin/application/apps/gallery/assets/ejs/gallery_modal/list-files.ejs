@@ -8,6 +8,7 @@
                 var total_files = files.length;
                 var total = data.total;
                 var pagination = data.pagination;
+                var saved_list = config.saved_list;
                 if(total_files){
                     for(var i=0; i < total_files; i++){
                         var file = files[i].file;
@@ -25,21 +26,21 @@
                         </div>
                         <%
                     }
-                    if (pagination) { 
+                    if (pagination) {
                         %>
                         <div class="col-sm-12">
                             <ul class="pagination pagination-sm"><%=pagination%></ul>
                         </div>
-                        <% 
-                    } 
+                        <%
+                    }
                 }else{
                 %>
-                <div class="col-sm-12"><%=lang.gallery_files_not_found%></div>    
+                <div class="col-sm-12"><%=lang.gallery_files_not_found%></div>
                 <%
                 }
             } else {
             %>
-            <div class="col-sm-12"><%=lang.gallery_files_not_found%></div>    
+            <div class="col-sm-12"><%=lang.gallery_files_not_found%></div>
             <%
             }
             %>
