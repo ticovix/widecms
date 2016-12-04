@@ -17,19 +17,17 @@ $(function () {
                 limit_select: 1,
                 files_selecteds: [],
                 reset_selecteds: true,
-                complete: function (file) {
+                complete: function (files) {
+                    var file = files[0];
                     var file_split = file.split(".");
                     var ext = file_split[file_split.length - 1];
+                    var html = '<a href="' + base_url + 'wd-content/upload/' + file + '">Arquivo</a>';
                     if ($.inArray(ext, exts) != '-1') {
-                        var html = '<img src="' + base_url + 'wd-content/upload/' + file + '">';
-                    } else {
-                        var html = '<a href="' + base_url + 'wd-content/upload/' + file + '">Arquivo</a>';
+                        html = '<img src="' + base_url + 'wd-content/upload/' + file + '">';
                     }
                     CKEDITOR.instances[field].insertHtml(html);
                 }
             });
-
-
         }
     });
 });
