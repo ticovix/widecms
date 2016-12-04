@@ -200,11 +200,11 @@ $(function () {
             }
         });
         var thumbnails = JSON.stringify(thumbs).replaceAll("\"","'");
+        var index = id_current;
+        var current_field = sort_current;
 
         if (id_current === "") {
-            var index = $("#fields .field-current").length;
-        } else {
-            var index = id_current;
+            index = current_field = $("#fields .field-current").length;
         }
         var field = new EJS({url: app_assets + "project/ejs/list-field.ejs"}).render({
             name: name_field.val(),
@@ -224,7 +224,7 @@ $(function () {
             unique: unique_field.val(),
             plugin: plugins_input,
             index: index,
-            position: sort_current,
+            position: current_field,
             options_selected: JSON.stringify(options_selected),
             // Fields of config to upload
             extensions_allowed: extensions_allowed.val(),
