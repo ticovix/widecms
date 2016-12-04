@@ -3,6 +3,31 @@ if (typeof Dropzone == "function") {
 }
 
 $(function () {
+
+    function load_fancybox() {
+        var fancybox = ".fancybox";
+        $(fancybox).attr('rel', 'gallery').fancybox({
+            nextEffect: 'fade',
+            prevEffect: 'fade',
+            openEffect: 'elastic',
+            closeEffect: 'elastic',
+            autoCenter: true,
+            padding: 0,
+            margin: 20,
+            arrows: true,
+            mouseWheel: true,
+            fitToView: true,
+        });
+
+        $(fancybox).attr('rel', 'gallery').fancybox({
+            beforeShow: function () {
+                /* Disable right click */
+                $.fancybox.wrap.bind("contextmenu", function (e) {
+                    return false;
+                });
+            }
+        });
+    }
     /*
      * Function to list files
      */
@@ -67,6 +92,7 @@ $(function () {
             success: function (data) {
                 var template = new EJS({url: app_assets + "ejs/gallery/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
+                load_fancybox();
             }
         });
     });
@@ -137,30 +163,6 @@ $(function () {
         });
         e.preventDefault();
         return false;
-    });
-
-    /*
-     * Gallery
-     */
-    $(".fancybox").attr('rel', 'gallery').fancybox({
-        beforeShow: function () {
-            /* Disable right click */
-            $.fancybox.wrap.bind("contextmenu", function (e) {
-                return false;
-            });
-        }
-    });
-    $(".fancybox").attr('rel', 'gallery').fancybox({
-        nextEffect: 'fade',
-        prevEffect: 'fade',
-        openEffect: 'elastic',
-        closeEffect: 'elastic',
-        autoCenter: true,
-        padding: 0,
-        margin: 20,
-        arrows: true,
-        mouseWheel: true,
-        fitToView: true,
     });
 
     /*
