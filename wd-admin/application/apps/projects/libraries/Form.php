@@ -84,10 +84,13 @@ class Form
         }
 
         $CI = & get_instance();
-        $this->attr = array();
         foreach ($plugins as $plugin) {
             if (isset($plugin['attr'])) {
-                $this->attr[] = $plugin['attr'];
+                if (isset($this->attr['class']) && $plugin['attr']['class']) {
+                    $plugin['attr']['class'] = $this->attr['class'] . ' ' . $plugin['attr']['class'];
+                }
+
+                $this->attr = array_merge($this->attr, $plugin['attr']);
             }
 
             $js = (isset($plugin['js_form'])) ? $this->change_path($plugin['js_form'], $plugin) : false;
