@@ -197,12 +197,12 @@ if (!defined('BASEPATH')) {
                                         }
                                         ?>"></i>
                                     </td>
-                                    <td align="center"><input type="checkbox" class="check-remove" name="remove_field[<?php echo $i ?>]" title="<?php echo $this->lang->line(APP . '_title_delete')?>"> </td>
+                                    <td align="center"><input type="checkbox" class="check-remove" name="remove_field[<?php echo $i ?>]" title="<?php echo $this->lang->line(APP . '_title_delete') ?>"> </td>
                                 </tr>
                                 <?php
                             }
                             if (!isset($name_field)) {
-                                echo '<tr class="msg-is-empty"><td colspan="6">'.$this->lang->line(APP . '_fields_not_found').'</td></tr>';
+                                echo '<tr class="msg-is-empty"><td colspan="6">' . $this->lang->line(APP . '_fields_not_found') . '</td></tr>';
                             }
                             ?>
                         </tbody>
@@ -255,7 +255,7 @@ if (!defined('BASEPATH')) {
                                                             if (count($inputs)) {
                                                                 foreach ($inputs as $input) {
                                                                     ?>
-                                                                    <option value="<?php echo $input['value']; ?>"><?php echo $input['name'] ?></option>        
+                                                                    <option value="<?php echo $input['value']; ?>"><?php echo $input['name'] ?></option>
                                                                     <?php
                                                                 }
                                                             }
@@ -338,7 +338,7 @@ if (!defined('BASEPATH')) {
                                                         if (count($types)) {
                                                             foreach ($types as $type) {
                                                                 ?>
-                                                                <option value="<?php echo $type['type']; ?>"><?php echo $type['type'] ?></option>        
+                                                                <option value="<?php echo $type['type']; ?>"><?php echo $type['type'] ?></option>
                                                                 <?php
                                                             }
                                                         }
@@ -388,7 +388,7 @@ if (!defined('BASEPATH')) {
                                                     ?>
                                                     <div class="list-group-item">
                                                         <label>
-                                                            <input type="checkbox" class="plugin_field" value="<?php echo $plugin['plugin']; ?>"> <?php echo $plugin['name'] ?>       
+                                                            <input type="checkbox" class="plugin_field" value="<?php echo $plugin['plugin']; ?>"> <?php echo $plugin['name'] ?>
                                                         </label>
                                                     </div>
                                                     <?php
@@ -441,16 +441,16 @@ if (!defined('BASEPATH')) {
                                                 <?php
                                                 if ($label_options) {
                                                     ?>
-                                                    <option value=""><?php echo $this->lang->line(APP . '_option_select') ?></option>    
+                                                    <option value=""><?php echo $this->lang->line(APP . '_option_select') ?></option>
                                                     <?php
                                                     foreach ($label_options as $col) {
                                                         ?>
-                                                        <option value="<?php echo $col ?>"><?php echo $col ?></option>    
+                                                        <option value="<?php echo $col ?>"><?php echo $col ?></option>
                                                         <?php
                                                     }
                                                 } else {
                                                     ?>
-                                                    <option value=""><?php echo $this->lang->line(APP . '_option_select') ?></option>    
+                                                    <option value=""><?php echo $this->lang->line(APP . '_option_select') ?></option>
                                                     <?php
                                                 }
                                                 ?>
@@ -494,7 +494,6 @@ if (!defined('BASEPATH')) {
                                     <h4 class="text-center"><?php echo $this->lang->line(APP . '_label_resize') ?></h4>
                                     <div class="row form-group">
                                         <div class="col-sm-12">
-                                            <label><?php echo $this->lang->line(APP . '_label_extensions') ?></label>
                                             <select class="input-large form-control" id="input_image_resize">
                                                 <option value=""><?php echo $this->lang->line(APP . '_option_no') ?></option>
                                                 <option value="true"><?php echo $this->lang->line(APP . '_option_yes') ?></option>
@@ -566,7 +565,7 @@ if (!defined('BASEPATH')) {
                                         </div>
                                     </div>
                                     <hr>
-                                    <h4 class="text-center">Conversão</h4>
+                                    <h4 class="text-center"><?php echo $this->lang->line(APP . '_subtitle_convert') ?></h4>
                                     <div class="row form-group">
                                         <div class="col-sm-12">
                                             <label><?php echo $this->lang->line(APP . '_label_convert') ?></label>
@@ -744,6 +743,5 @@ if (!defined('BASEPATH')) {
         error_name_exists: '<?php echo $this->lang->line(APP . '_name_exists') ?>',
         error_column_exists: '<?php echo $this->lang->line(APP . '_column_name_exists') ?>',
         error_column_equals_table: '<?php echo $this->lang->line(APP . '_column_equals_table') ?>',
-        
     };
 </script>
