@@ -45,6 +45,31 @@ $(function () {
         return false;
     }
 
+    function load_fancybox() {
+        var fancybox = ".fancybox";
+        $(fancybox).attr('rel', 'gallery').fancybox({
+            nextEffect: 'fade',
+            prevEffect: 'fade',
+            openEffect: 'elastic',
+            closeEffect: 'elastic',
+            autoCenter: true,
+            padding: 0,
+            margin: 20,
+            arrows: true,
+            mouseWheel: true,
+            fitToView: true,
+        });
+
+        $(fancybox).attr('rel', 'gallery').fancybox({
+            beforeShow: function () {
+                /* Disable right click */
+                $.fancybox.wrap.bind("contextmenu", function (e) {
+                    return false;
+                });
+            }
+        });
+    }
+
     String.prototype.replaceAll = function (search, replacement) {
         var target = this;
 
@@ -67,6 +92,7 @@ $(function () {
         if (checked) {
             $("#modal-edit #field-checked").prop("checked", "checked").attr("disabled", "disabled");
         }
+        load_fancybox();
     });
 
     $("#modal-edit").on("click", "#btn-save-edit", function () {
@@ -168,7 +194,7 @@ $(function () {
             }
         }
 
-        $(".btn-gallery[data-field="+field+"]").gallery($.extend(params, config_upload));
+        $(".btn-gallery[data-field=" + field + "]").gallery($.extend(params, config_upload));
     });
 
     function list_files(btn, files) {
@@ -235,7 +261,7 @@ $(function () {
     $("#modal-edit").on("click", "#btn-remove-file", function () {
         var file = $("#modal-edit #field-file").val();
         var field = $("#modal-edit #field-edit").val();
-        $(".btn-gallery[data-field="+field+"]").gallery().delete_file(file);
-        $(".btn-gallery[data-field="+field+"]").gallery().save_list();
+        $(".btn-gallery[data-field=" + field + "]").gallery().delete_file(file);
+        $(".btn-gallery[data-field=" + field + "]").gallery().save_list();
     });
 });

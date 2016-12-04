@@ -54,14 +54,20 @@ $(function () {
             modal_footer: ".modal-footer",
             upload_config: "#upload_config",
             image_file: ".image-file",
-            current_file: ".file"
+            current_file: ".file",
+            fancybox: ".fancybox",
+            input_search: ".gallery-upload-modal #search-files",
+            pagination: ".gallery-upload-modal #list-files .btn-page"
         };
         config = $.extend(config, settings);
         config.saved_list = config.files_selecteds;
         selector.current_modal = "#gallery-upload-" + hash++;
+        var fancybox = selector.fancybox;
         var current_modal = selector.current_modal;
-        var btn_save = current_modal+selector.btn_save;
-        var btn_add = current_modal+selector.btn_add;
+        var btn_save = current_modal + selector.btn_save;
+        var btn_add = current_modal + selector.btn_add;
+        var input_search = current_modal + selector.input_search;
+        var pagination = current_modal + selector.pagination;
         var container_modal = selector.container_modal;
 
         var load_dependencies = function () {
@@ -82,8 +88,10 @@ $(function () {
                     list_files({});
                 });
             }
+        }
 
-            $(".fancybox").attr('rel', 'gallery').fancybox({
+        var load_fancybox = function () {
+            $(fancybox).attr('rel', 'gallery').fancybox({
                 nextEffect: 'fade',
                 prevEffect: 'fade',
                 openEffect: 'elastic',
@@ -95,7 +103,8 @@ $(function () {
                 mouseWheel: true,
                 fitToView: true,
             });
-            $(".fancybox").attr('rel', 'gallery').fancybox({
+
+            $(fancybox).attr('rel', 'gallery').fancybox({
                 beforeShow: function () {
                     /* Disable right click */
                     $.fancybox.wrap.bind("contextmenu", function (e) {
@@ -135,6 +144,7 @@ $(function () {
                         config: config
                     });
                     content.html(template);
+                    load_fancybox();
                 }
             });
         }
@@ -214,7 +224,7 @@ $(function () {
                 $(modal).children(modal_footer).removeClass("hide");
             }
 
-            $(modal).children(upload_config).val(JSON.stringify({
+            $(upload_config).val(JSON.stringify({
                 extensions_allowed: config.extensions_allowed,
                 image_resize: config.image_resize,
                 image_y: config.image_y,
@@ -269,6 +279,31 @@ $(function () {
                     $(image_file).eq(index).addClass("active");
                 }
             }
+        });
+
+        /*
+         * Search
+         */
+        $(container_modal).on("submit", input_search, function (e) {
+            var keyword = $("#search-field").val();
+            list_files({
+                url: url + 'apps/gallery/files-list?search=' + keyword
+            });
+
+            e.preventDefault();
+            return false;
+        });
+
+        /*
+         * Pagination
+         */
+        $(container_modal).on("click", pagination, function (e) {
+            list_files({
+                url: $(this).attr("href")
+            });
+
+            e.preventDefault();
+            return false;
         });
     }
 
