@@ -145,7 +145,7 @@ if (!defined('BASEPATH')) {
                 <table class="table table-striped table-responsive table-bordered">
                     <thead>
                         <tr>
-                            <th width="20"></th>
+                            <th width="20"><span class="fa fa-list"</th>
                             <?php
                             if ($list) {
                                 foreach ($list as $arr) {
@@ -166,11 +166,11 @@ if (!defined('BASEPATH')) {
                                 $id = $row['id'];
                                 ?>
                                 <tr class="register-current">
-                                    <td align="center">
+                                    <td align="center" class="multi-options">
                                         <?php
                                         if (check_method($method . '-remove')) {
                                             ?>
-                                            <input type="checkbox" name="post[]" value="<?php echo $id; ?>" class="multiple_delete">
+                                            <input type="checkbox" name="post[]" value="<?php echo $id; ?>" class="check-post">
                                             <?php
                                         }
                                         ?>
