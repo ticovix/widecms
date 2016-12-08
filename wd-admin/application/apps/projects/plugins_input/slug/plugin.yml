@@ -1,5 +1,0 @@
-name: Slug (URL name)
-js_form:
-    - script.js
-attr:
-    class: slug
