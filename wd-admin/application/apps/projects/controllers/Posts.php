@@ -556,6 +556,7 @@ class Posts extends MY_Controller
         $post = $this->input->post('post');
         $this->lang->load_app('posts/remove');
         $this->load->library_app('config_xml');
+        $this->load->library_app('form');
         $data = $this->config_xml->load_config($project['directory'], $page['directory'], $section['directory']);
         if (!$section or ! $page or ! $data or count($post) <= 0) {
             redirect_app();
@@ -568,7 +569,6 @@ class Posts extends MY_Controller
 
         $this->form_remove($page, $project, $section);
         $this->include_components->app_css('posts/css/posts-list.css');
-
         $vars = array(
             'title' => $this->lang->line(APP . '_title_remove'),
             'list' => $data['list'],
