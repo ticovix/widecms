@@ -386,7 +386,6 @@ class Form
         $new_field['type'] = $this->type;
         $new_field['label'] = $this->label;
         $this->attr['name'] = $this->column;
-        $this->attr['type'] = $this->type;
         $this->attr['id'] = $this->column . '_field';
         $this->attr['class'] = 'form-control input-field ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
         $new_field['input'] = form_input($this->attr, htmlspecialchars_decode(set_value($this->column, $this->value), ENT_QUOTES));
@@ -472,6 +471,10 @@ class Form
 
     public function treat_list($posts, $data)
     {
+        if (!$posts) {
+            return false;
+        }
+
         $list = array();
         // Lista os registros do banco de dados
         foreach ($posts as $row) {
@@ -504,6 +507,7 @@ class Form
             }
             $list[] = $row;
         }
+
         return $list;
     }
 
