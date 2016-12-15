@@ -4803,6 +4803,10 @@ ul.notifications {
     color:#840D0D;
 }
 
-.files-list{
+.files-list img{
+    background: url('../images/transp.gif');
+}
+
+.image-file img{
     background: url('../images/transp.gif');
 }

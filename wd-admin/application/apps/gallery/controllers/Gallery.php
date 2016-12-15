@@ -409,6 +409,7 @@ class Gallery extends MY_Controller
         if ($type == 'thumb') {
             $file_tmp->image_resize = true;
             $file_tmp->image_ratio_fill = true;
+            $file_tmp->image_transparent_color = true;
             $file_tmp->image_y = 100;
             if ($icon) {
                 $file_tmp->image_crop = '0 -50 0 -50';
