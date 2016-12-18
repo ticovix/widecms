@@ -21,13 +21,14 @@ if (!defined('BASEPATH')) {
 
                 <?php echo form_open(null, ['method' => 'get']); ?>
                 <div class="input-group">
-                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="<?php echo $this->lang->line(APP . '_field_search'); ?>" class="input-sm form-control"> 
+                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="<?php echo $this->lang->line(APP . '_field_search'); ?>" class="input-sm form-control">
                     <span class="input-group-btn">
-                        <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button> 
+                        <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button>
                     </span>
                 </div>
                 <div class="btn-toolbar">
-                    <a href="<?php echo base_url_app('project/' . $project['slug'] . '/' . $page['slug'] . '/create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> <?php echo $this->lang->line(APP . '_btn_add_section'); ?></a>
+                    <a href="<?php echo base_url_app('project/' . $project['slug'] . '/' . $page['slug'] . '/create'); ?>" class="btn btn-primary"><i class="fa fa-plus"></i> <?php echo $this->lang->line(APP . '_btn_add_section'); ?></a>
+                    <a href="<?php echo base_url_app('project/' . $project['slug'] . '/' . $page['slug'] . '/import'); ?>" class="btn btn-success"><i class="fa fa-upload"></i> <?php echo $this->lang->line(APP . '_btn_import_section') ?></a>
                     <div class="btn-group"></div>
                 </div>
                 <?php echo form_close(); ?>
@@ -38,7 +39,7 @@ if (!defined('BASEPATH')) {
                             <th><?php echo $this->lang->line(APP . '_label_directory'); ?></th>
                             <th><?php echo $this->lang->line(APP . '_label_table'); ?></th>
                             <th style="width: 50px;"><?php echo $this->lang->line(APP . '_label_status'); ?></th>
-                            <th style="width: 50px;"></th>
+                            <th style="width: 70px;"></th>
                         </tr>
                     </thead>
 
@@ -71,8 +72,9 @@ if (!defined('BASEPATH')) {
                                         ?>">
                                     </td>
                                     <td align="center">
-                                        <a href="<?php echo base_url_app('project/' . $project['slug'] . '/' . $page['slug'] . '/edit/' . $arr['slug']); ?>"><i class="fa fa-pencil"></i></a>
-                                        <a href="<?php echo base_url_app('project/' . $project['slug'] . '/' . $page['slug'] . '/remove/' . $arr['slug']); ?>"><i class="fa fa-remove"></i></a>
+                                        <a href="<?php echo base_url_app('project/' . $project['slug'] . '/' . $page['slug'] . '/edit/' . $arr['slug']); ?>" title="<?php echo $this->lang->line(APP . '_btn_edit_section') ?>"><i class="fa fa-pencil"></i></a>
+                                        <a href="<?php echo base_url_app('project/' . $project['slug'] . '/' . $page['slug'] . '/export/' . $arr['slug']); ?>" title="<?php echo $this->lang->line(APP . '_btn_export_section') ?>"><i class="fa fa-download"></i></a>
+                                        <a href="<?php echo base_url_app('project/' . $project['slug'] . '/' . $page['slug'] . '/remove/' . $arr['slug']); ?>" title="<?php echo $this->lang->line(APP . '_btn_remove_section') ?>"><i class="fa fa-remove"></i></a>
                                     </td>
                                 </tr>
                                 <?php
