@@ -116,9 +116,9 @@ class Sections extends MY_Controller
         $page = get_page();
 
         if (empty($_FILES['file']['name'])) {
-            $this->form_validation->set_rules('file', $this->lang->line(APP . '_field_file'), 'required');
+            $this->form_validation->set_rules('file', $this->lang->line(APP . '_file_field'), 'required');
         } else {
-            $this->form_validation->set_rules('file', $this->lang->line(APP . '_field_file'), 'trim');
+            $this->form_validation->set_rules('file', $this->lang->line(APP . '_file_field'), 'trim');
         }
 
         $run = $this->form_validation->run();
@@ -166,7 +166,7 @@ class Sections extends MY_Controller
         }
 
         $vars = array(
-            'title' => 'Importar Seção',
+            'title' => $this->lang->line(APP . '_import_title'),
             'project' => $project,
             'page' => $page,
             'name_app' => $this->data['name'],
