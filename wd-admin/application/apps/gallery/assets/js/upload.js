@@ -135,7 +135,7 @@ $(function () {
                 url: param.url,
                 dataType: "json",
                 type: "POST",
-                data: {limit: 12, config: config_upload},
+                data: {limit: 18, config: config_upload},
                 success: function (data) {
                     var template = new EJS({url: url + "application/apps/gallery/assets/ejs/gallery_modal/list-files.ejs"}).render({
                         data: data,
