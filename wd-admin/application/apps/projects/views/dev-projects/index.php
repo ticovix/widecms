@@ -25,7 +25,6 @@ if (!defined('BASEPATH')) {
                 </div>
                 <div class="btn-toolbar">
                     <a href="<?php echo base_url_app('create'); ?>" class="btn btn-primary"><i class="fa fa-plus"></i> <?php echo $this->lang->line(APP . '_btn_add_project') ?></a>
-                    <a href="<?php echo base_url_app('import'); ?>" class="btn btn-success"><i class="fa fa-upload"></i> <?php echo $this->lang->line(APP . '_btn_import_project') ?></a>
                     <div class="btn-group"></div>
                 </div>
                 <?php echo form_close(); ?>
@@ -48,22 +47,15 @@ if (!defined('BASEPATH')) {
                                 ?>
                                 <tr>
                                     <td>
-                                        <a href="<?php echo base_url_app('project/' . $arr['slug']) ?>">
+                                        <a href="<?php echo base_url_app('project/' . $arr['directory']) ?>">
                                             <?php echo $arr["name"] ?>
                                         </a>
                                     </td>
                                     <td><?php echo $arr["directory"] ?></td>
-                                    <td><i class="fa fa-lg <?php
-                                        if ($arr['status'] === '1') {
-                                            echo 'fa-check';
-                                        } elseif ($arr['status'] === '0') {
-                                            echo 'fa-times';
-                                        }
-                                        ?>"></td>
+                                    <td><i class="fa fa-lg <?php echo ($arr['status'] === '1') ? 'fa-check' : 'fa-times'; ?>"></td>
                                     <td align="center">
-                                        <a href="<?php echo base_url_app('edit/' . $arr["slug"]); ?>" title="<?php echo $this->lang->line(APP . '_btn_edit_project') ?>"><i class="fa fa-pencil"></i></a>
-                                        <a href="<?php echo base_url_app('export/' . $arr["slug"]); ?>" title="<?php echo $this->lang->line(APP . '_btn_export_project') ?>"><i class="fa fa-download"></i></a>
-                                        <a href="<?php echo base_url_app('remove/' . $arr["slug"]); ?>" title="<?php echo $this->lang->line(APP . '_btn_remove_project') ?>"><i class="fa fa-remove"></i></a>
+                                        <a href="<?php echo base_url_app('edit/' . $arr["directory"]); ?>" title="<?php echo $this->lang->line(APP . '_btn_edit_project') ?>"><i class="fa fa-pencil"></i></a>
+                                        <a href="<?php echo base_url_app('remove/' . $arr["directory"]); ?>" title="<?php echo $this->lang->line(APP . '_btn_remove_project') ?>"><i class="fa fa-remove"></i></a>
                                     </td>
                                 </tr>
                                 <?php
@@ -79,7 +71,6 @@ if (!defined('BASEPATH')) {
                     }
                     ?>
                 </table>
-                <ul class="pagination pagination-sm"><?php echo $pagination; ?></ul>
             </div>
         </div>
     </div>

@@ -1,12 +1,9 @@
 $(function () {
 
     var fields = $("#fields");
-    var btn_save_field = $("#btn-save");
     var btn_add_field = $("#btn-add-field");
     var modal_new_field = $("#modal-new-field");
     var modal_select = $("#modal-select");
-    var form_import = $("#form-import");
-    var btn_edit = $(".btn-edit");
 
     // Fields
     var name_field = $("#name_field");
@@ -16,8 +13,6 @@ $(function () {
     var options_field = $("#options_field");
     var label_options_field = $("#label_options_field");
     var trigger_select_field = $("#trigger_select_field");
-    var param_attr_field = $(".param_attr_field");
-    var value_attr_field = $(".value_attr_field");
     var observation_field = $("#observation_field");
     var column_field = $("#column_field");
     var type_column_field = $("#type_field");
@@ -51,11 +46,6 @@ $(function () {
     var image_text_x = $("#input_image_text_x");
     var image_text_y = $("#input_image_text_y");
     var btn_refresh_image = $("#btn_refresh_image");
-    //Config thumbnails
-    var image_thumb_preffix = $(".image_thumb_preffix");
-    var image_thumb_width = $(".image_thumb_width");
-    var image_thumb_height = $(".image_thumb_height");
-    var image_thumb_ratio_crop = $(".image_thumb_ratio_crop");
     var thumbs = new Object();
     // Image example
     var image_example = $("#image_example");
@@ -121,6 +111,7 @@ $(function () {
 
     String.prototype.replaceAll = function (search, replacement) {
         var target = this;
+
         return target.replace(new RegExp(search, 'g'), replacement);
     };
 
@@ -131,13 +122,14 @@ $(function () {
             clean_inputs();
             modal_new_field.attr("data-current","");
         }
+
         list_selects_trigger();
     });
 
 
     $(".x_content").on("click","#btn-save",function () {
         var attributes = new Object();
-        var plugins_input = '';
+        var plugins_input = new Array();
         var options_selected = new Array();
         var id_current = modal_new_field.attr("data-index");
         var sort_current = modal_new_field.attr("data-current");
@@ -170,17 +162,22 @@ $(function () {
             var value = $(".value_attr_field").eq(index).val();
             if (param != '' && value != '') {
                 attributes[i] = {[param]:value};
+                i++;
             }
-            i++;
         });
+
         var attributes_json = JSON.stringify(attributes);
+        var i = 0;
         plugins_field.each(function () {
             var checked = $(this).prop("checked");
             if (checked) {
                 var plugin = $(this).val();
-                plugins_input += plugin + '|';
+                plugins_input[i] = plugin;
+                i++;
             }
+
         });
+        plugins_input = plugins_input.join('|');
 
         var i = 0;
         $(".image_thumb_preffix").each(function(){
@@ -199,6 +196,7 @@ $(function () {
                 i++;
             }
         });
+
         var thumbnails = JSON.stringify(thumbs).replaceAll("\"","'");
         var index = id_current;
         var current_field = sort_current;
@@ -206,6 +204,7 @@ $(function () {
         if (id_current === "") {
             index = current_field = $("#fields .field-current").length;
         }
+
         var field = new EJS({url: app_assets + "project/ejs/list-field.ejs"}).render({
             name: name_field.val(),
             input: type_input_field.val(),
@@ -256,6 +255,7 @@ $(function () {
         } else {
             fields.append(field);
         }
+
         clean_inputs();
         $(".msg-is-empty").remove();
         modal_new_field.modal("toggle");
@@ -325,12 +325,14 @@ $(function () {
                     }
                 });
             }
+
             if (attributes_val != '') {
                 if (attributes_val.indexOf('{') != '-1') {
                     var attr = $.parseJSON(attributes_val.replaceAll("'","\""));
                 } else {
                     var attr = new Object();
                 }
+
                 var total = Object.keys(attr).length;
                 $(".attr-current").html("");
                 if(total>0){
@@ -345,12 +347,14 @@ $(function () {
                     add_attr('','');
                 }
             }
+
             if(image_thumbnails_val != ''){
                 if (image_thumbnails_val.indexOf('{') != '-1') {
                     var thumbs = $.parseJSON(image_thumbnails_val.replaceAll("'","\""));
                 } else {
                     var thumbs = new Object();
                 }
+
                 var total = Object.keys(thumbs).length;
                 $(".thumbnails").html("");
                 if(total>0){
@@ -376,6 +380,7 @@ $(function () {
                         label_options_field.append($("<option>").val(col).text(col));
                     }
                 }
+
                 label_options_field.val(label_options_val);
             }
 
@@ -422,88 +427,6 @@ $(function () {
             list_selects_trigger(column_val);
         }
     });
-    form_import.submit(function () {
-        var fields = fields;
-        var table = $("#table-value").val();
-        $.ajax({
-            url: app_path + "sections/list-columns-import",
-            type: "POST",
-            dataType: "json",
-            data: $(this).serialize(),
-            success: function (data) {
-                if (data.error) {
-                    $("#msg-import").html("<div class='alert alert-danger'>" + data.message + "</div>");
-                } else {
-                    var columns = data.columns;
-                    var total_columns = columns.length;
-                    $("#dig_name, #dir_name, #table_name").val(table).attr('readonly', '');
-                    if (total_columns > 0) {
-                        $(".msg-is-empty, .field-current, #btn-add-field").remove();
-                        for (var i = 0; i < total_columns; i++) {
-                            var col_name = columns[i].Field;
-                            var col_type = columns[i].Type;
-                            var col_limit = columns[i].Limit;
-                            var col_default = columns[i].Default;
-                            var primary = columns[i].Key;
-                            if (primary != 'PRI') {
-                                var index = $("#fields .field-current").length;
-                                var field = new EJS({url: app_assets + "project/ejs/list-field.ejs"}).render({
-                                    name: col_name,
-                                    input: "text",
-                                    list_registers: 0,
-                                    required: 0,
-                                    options: '',
-                                    label_options: '',
-                                    trigger_select: '',
-                                    attributes: '',
-                                    observation: '',
-                                    column: col_name,
-                                    type_column: col_type,
-                                    limit_column: col_limit,
-                                    default_column: col_default,
-                                    comment_column: '',
-                                    unique: '',
-                                    plugin: '',
-                                    index: index,
-                                    position: index,
-                                    options_selected: '',
-                                    // Fields of config to upload
-                                    extensions_allowed: '',
-                                    image_resize: '',
-                                    image_x: '',
-                                    image_y: '',
-                                    image_ratio: '',
-                                    image_ratio_x: '',
-                                    image_ratio_y: '',
-                                    image_ratio_crop: '',
-                                    image_ratio_fill: '',
-                                    image_background_color: '',
-                                    image_convert: '',
-                                    image_text: '',
-                                    image_text_color: '',
-                                    image_text_background: '',
-                                    image_text_opacity: '',
-                                    image_text_background_opacity: '',
-                                    image_text_padding: '',
-                                    image_text_position: '',
-                                    image_text_direction: '',
-                                    image_text_x: '',
-                                    image_text_y: '',
-                                    image_thumbnails: ''
-                                });
-                                fields.append(field);
-                            }
-                        }
-                    }
-                    $("#column_field, #type_field, #limit_column_field, #default_field, #comment_field").attr('readonly', '');
-                    $(".field-current input[type=checkbox]").attr('disabled', '');
-                    $("#modal-import").modal('toggle');
-                    $("#import-value").val("true");
-                }
-            }
-        });
-        return false;
-    });
 
     image_resize.change(function(){
         if_image_resize();
@@ -549,6 +472,7 @@ $(function () {
         } else {
             $(".options-field, .label-options-field").addClass('hide');
         }
+
         if (input == "select") {
             $(".trigger-field").removeClass('hide');
         } else {
@@ -572,78 +496,97 @@ $(function () {
         if(image_resize.val()!="false"){
                 arr[x] = "image_resize="+image_resize.val();
         }
+
         if(image_x.val()!=""){
                 x++;
                 arr[x] = "image_x="+image_x.val();
         }
+
         if(image_y.val()!=""){
                 x++;
                 arr[x] = "image_y="+image_y.val();
         }
+
         if(image_ratio.val()!=""){
                 x++;
                 arr[x] = "image_ratio="+image_ratio.val();
         }
+
         if(image_ratio_x.val()!=""){
                 x++;
                 arr[x] = "image_ratio_x="+image_ratio_x.val();
         }
+
         if(image_ratio_y.val()!=""){
                 x++;
                 arr[x] = "image_ratio_y="+image_ratio_y.val();
         }
+
         if(image_ratio_crop.val()!=""){
                 x++;
                 arr[x] = "image_ratio_crop="+image_ratio_crop.val();
         }
+
         if(image_ratio_fill.val()!=""){
                 x++;
                 arr[x] = "image_ratio_fill="+image_ratio_fill.val();
         }
+
         if(image_background_color.val()!=""){
                 x++;
                 arr[x] = "image_background_color="+image_background_color.val().replace('#','');
         }
+
         if(image_convert.val()!=""){
                 x++;
                 arr[x] = "image_convert="+image_convert.val();
         }
+
         if(image_text.val()!=""){
                 x++;
                 arr[x] = "image_text="+image_text.val();
         }
+
         if(image_text_color.val()!=""){
                 x++;
                 arr[x] = "image_text_color="+image_text_color.val().replace('#','');
         }
+
         if(image_text_background.val()!=""){
                 x++;
                 arr[x] = "image_text_background="+image_text_background.val().replace('#','');
         }
+
         if(image_text_opacity.val()!=""){
                 x++;
                 arr[x] = "image_text_opacity="+image_text_opacity.val();
         }
+
         if(image_text_background_opacity.val()!=""){
                 x++;
                 arr[x] = "image_text_background_opacity="+image_text_background_opacity.val();
         }
+
         if(image_text_padding.val()!=""){
                 x++;
                 arr[x] = "image_text_padding="+image_text_padding.val();
         }
+
         if(image_text_position.val()!=""){
                 x++;
                 arr[x] = "image_text_position="+image_text_position.val();
         }
+
         if(image_text_direction.val()!=""){
                 x++;
                 arr[x] = "image_text_direction="+image_text_direction.val();
         }
+
         if(image_text_x.val()!=""){
                 x++;
                 arr[x] = "image_text_x="+image_text_x.val();
         }
+
         if(image_text_y.val()!=""){
                 x++;
                 arr[x] = "image_text_y="+image_text_y.val();
@@ -689,6 +632,7 @@ $(function () {
                 $(this).removeAttr('checked');
             }
         });
+
         $(".plugin_field").prop("checked",false);
         $("#modal-new-field select option").prop("selected",false);
         $("#options_field option").prop("selected",false);
@@ -759,6 +703,7 @@ $(function () {
         var width = (data.width!=undefined)?data.width:'';
         var height = (data.height!=undefined)?data.height:'';
         var crop = (data.crop!=undefined)?data.crop:'';
+
         $(".thumbnails").append(
                 '<div class="row form-group">'+
                 '<div class="col-sm-3">'+

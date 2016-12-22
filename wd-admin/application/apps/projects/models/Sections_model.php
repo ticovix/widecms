@@ -6,19 +6,83 @@ if (!defined('BASEPATH')) {
 
 class Sections_model extends CI_Model
 {
+    private $config_path = 'application/apps/projects/projects/';
 
-    public function get_section($slug, $id_page)
+    public function __construct()
     {
-        return $this->db->get_where('wd_sections', array('slug' => $slug, 'fk_page' => $id_page))->row_array();
+        parent::__construct();
+        $this->load->library('spyc');
     }
 
-    public function search_sections($page, $keyword = null, $total = null, $offset = null)
+    public function list_sections($project_dir, $page_dir)
     {
-        $this->db->like('name', $keyword);
-        $this->db->limit($total, $offset);
-        $this->db->order_by('id DESC');
-        $this->db->where('fk_page', $page);
-        return $this->db->get('wd_sections')->result_array();
+        $page_path = $this->config_path . $project_dir . '/' . $page_dir;
+        if (!is_dir($page_path)) {
+            return false;
+        }
+
+        $files = array();
+        $path = opendir($page_path);
+        while (false !== ($filename = readdir($path))) {
+            if (is_file($this->config_path . $project_dir . '/' . $page_dir . '/' . $filename . '/section.yml')) {
+                $files[] = $this->get_section($project_dir, $page_dir, $filename);
+            }
+        }
+
+        return $files;
+    }
+
+    public function total_sections($dir_project, $page_dir)
+    {
+        $sections = $this->list_sections($dir_project, $page_dir);
+        return count($sections);
+    }
+
+    public function get_section($project_dir, $page_dir, $section_dir)
+    {
+        $section = $this->config_path . $project_dir . '/' . $page_dir . '/' . $section_dir . '/section.yml';
+        $config = spyc_load_file($section);
+        if (!$config) {
+            return false;
+        }
+
+        return $config;
+    }
+
+    public function get_tmp_config($section_path)
+    {
+        $config = spyc_load_file($section_path);
+        if (!$config) {
+            return false;
+        }
+
+        return $config;
+    }
+
+    public function save($data, $project_dir, $page_dir, $section_dir)
+    {
+        $section = $this->config_path . $project_dir . '/' . $page_dir . '/' . $section_dir . '/section.yml';
+        $data_section = spyc_dump($data);
+        $fp = fopen($section, 'w');
+        if (!$fp) {
+            return false;
+        }
+
+        fwrite($fp, $data_section);
+        fclose($fp);
+        chmod($section, 0640);
+
+        return true;
+    }
+
+    public function search($project_dir, $page_dir, $keyword = null)
+    {
+        $pages = $this->list_sections($project_dir, $page_dir);
+        if (!empty($keyword)) {
+            $pages = search($pages, 'name', '' . $keyword . '', true);
+        }
+
+        return $pages;
     }
 
     public function search_sections_total_rows($page, $keyword = null)
@@ -26,35 +90,137 @@ class Sections_model extends CI_Model
         $this->db->select('count(id) total');
         $this->db->like('name', $keyword);
         $this->db->where('fk_page', $page);
+
         return $this->db->get('wd_sections')->row()->total;
     }
 
-    public function list_sections_select($section = null)
+    public function list_sections_select($project_dir, $page_dir, $section_dir = null)
     {
-        $this->db->order_by('id DESC');
-        //$this->db->where('fk_page', $page);
-        if ($section) {
-            $this->db->where('id!=', $section);
+        $sections = $this->list_sections($project_dir, $page_dir);
+        $aux = array();
+        foreach ($sections as $section) {
+            if ($section_dir != $section['directory']) {
+                $aux[] = array('table' => $section['table'], 'name' => $section['name']);
+            }
         }
-        return $this->db->get('wd_sections')->result_array();
+
+        return $aux;
     }
 
-    public function create($data)
+    public function create($config, $project_dir, $page_dir, $section_dir)
     {
-        $set = [
-            'fk_page' => $data['page'],
-            'name' => $data['name'],
-            'directory' => $data['directory'],
-            'table' => $data['table'],
-            'status' => $data['status'],
-            'slug' => $data['slug']
-        ];
-        $this->db->insert('wd_sections', $set);
-    }
+        $data = array(
+            'name' => $config['name'],
+            'directory' => $config['directory'],
+            'table' => $config['table'],
+            'status' => $config['status']
+        );
+        $fields = $config['fields'];
+        foreach ($fields as $field) {
+            $name = $field['name'];
+            $input = $field['input'];
+            $list_reg = $field['list_reg'];
+            $column = $field['column'];
+            $type = $field['type'];
+            $limit = $field['limit'];
+            $plugins = $field['plugins'];
+            $observation = $field['observation'];
+            $attributes = $field['attributes'];
+            $required = $field['required'];
+            $unique = $field['unique'];
+            $default = $field['default'];
+            $comment = $field['comment'];
 
-    public function list_sections($page)
-    {
-        return $this->db->get_where('wd_sections', ['fk_page' => $page, 'status' => '1'])->result_array();
+            $new_field = array();
+            $new_field['input']['type'] = $input;
+            $new_field['input']['required'] = $required;
+            $new_field['input']['observation'] = $observation;
+            $new_field['input']["label"] = $name;
+            $new_field['input']["list_registers"] = $list_reg;
+            if (!empty($plugins)) {
+                $new_field['input']["plugins"] = $plugins;
+            }
+
+            if (!empty($attributes)) {
+                $new_field['input']["attributes"] = str_replace('"', '\'', $attributes);
+            }
+
+            $new_field["database"] = array(
+                'column' => $column,
+                'type_column' => $type,
+                'unique' => $unique,
+                'default' => $default,
+                'limit' => $limit,
+                'comment' => $comment,
+            );
+            if ($input == 'select' or $input == 'checkbox') {
+                $options_table = $field['options_table'];
+                $options_label = $field['options_label'];
+                $options_trigger_select = $field['options_trigger_select'];
+                if (!empty($options_table)) {
+                    $new_field['input']['options']["table"] = $options_table;
+                }
+
+                if (!empty($options_label)) {
+                    $new_field['input']['options']["options_label"] = $options_label;
+                }
+
+                if (!empty($options_trigger_select)) {
+                    $new_field['input']['options']["trigger_select"] = $options_trigger_select;
+                }
+            } elseif ($input == 'file' or $input == 'multifile') {
+                $extensions_allowed = $field['extensions_allowed'];
+                $image_resize = $field['image_resize'];
+                $image_x = $field['image_x'];
+                $image_y = $field['image_y'];
+                $image_ratio = $field['image_ratio'];
+                $image_ratio_x = $field['image_ratio_x'];
+                $image_ratio_y = $field['image_ratio_y'];
+                $image_ratio_crop = $field['image_ratio_crop'];
+                $image_ratio_fill = $field['image_ratio_fill'];
+                $image_background_color = $field['image_background_color'];
+                $image_convert = $field['image_convert'];
+                $image_text = $field['image_text'];
+                $image_text_color = $field['image_text_color'];
+                $image_text_background = $field['image_text_background'];
+                $image_text_opacity = $field['image_text_opacity'];
+                $image_text_background_opacity = $field['image_text_background_opacity'];
+                $image_text_padding = $field['image_text_padding'];
+                $image_text_position = $field['image_text_position'];
+                $image_text_direction = $field['image_text_direction'];
+                $image_text_x = $field['image_text_x'];
+                $image_text_y = $field['image_text_y'];
+                $image_thumbnails = $field['image_thumbnails'];
+                $new_field['input']['upload'] = array(
+                    'extensions_allowed' => $extensions_allowed,
+                    'image_resize' => $image_resize,
+                    'image_x' => $image_x,
+                    'image_y' => $image_y,
+                    'image_ratio' => $image_ratio,
+                    'image_ratio_x' => $image_ratio_x,
+                    'image_ratio_y' => $image_ratio_y,
+                    'image_ratio_crop' => $image_ratio_crop,
+                    'image_ratio_fill' => $image_ratio_fill,
+                    'image_background_color' => $image_background_color,
+                    'image_convert' => $image_convert,
+                    'image_text' => $image_text,
+                    'image_text_color' => $image_text_color,
+                    'image_text_background' => $image_text_background,
+                    'image_text_opacity' => $image_text_opacity,
+                    'image_text_background_opacity' => $image_text_background_opacity,
+                    'image_text_padding' => $image_text_padding,
+                    'image_text_position' => $image_text_position,
+                    'image_text_direction' => $image_text_direction,
+                    'image_text_x' => $image_text_x,
+                    'image_text_y' => $image_text_y,
+                    'image_thumbnails' => $image_thumbnails,
+                );
+            }
+
+            $data['fields'][] = $new_field;
+        }
+
+        return $this->save($data, $project_dir, $page_dir, $section_dir);
     }
 
     public function remove($table, $section)
@@ -124,9 +290,8 @@ class Sections_model extends CI_Model
         return $remove;
     }
 
-    public function modify_column($data)
+    public function modify_column($data, $table)
     {
-        $table = $data['table'];
         $column = $data['column'];
         $old_column = $data['old_column'];
         $type = $data['type'];
@@ -150,37 +315,10 @@ class Sections_model extends CI_Model
         return $modify;
     }
 
-    public function edit($data)
+    public function rename_table($current_table, $new_table)
     {
-        $old_config = $data['old_config'];
-        $old_section = $data['old_section'];
-        $table = $data['table'];
-        $old_table = $old_section['table'];
-        $name = $data['name'];
-        $directory = $data['directory'];
-        $status = $data['status'];
-        $slug = $data['slug'];
-        $id = $old_section['id'];
-        $rename = false;
-        $update = false;
-        if ($table != $old_table) {
-            $this->load->dbforge();
-            $rename = $this->dbforge->rename_table($old_table, $table);
-        }
-        if ($table != $old_table && $rename or $table == $old_table) {
-            $set = array(
-                'name' => $name,
-                'slug' => $slug,
-                'directory' => $directory,
-                'table' => $table,
-                'status' => $status
-            );
-            $where = array(
-                'id' => $id
-            );
-            $update = $this->db->update('wd_sections', $set, $where);
-        }
-        return $update;
+        $this->load->dbforge();
+        return $this->dbforge->rename_table($current_table, $new_table);
     }
 
     public function list_columns($table)
@@ -208,9 +346,43 @@ class Sections_model extends CI_Model
         $db = $this->db->database;
         $this->db->select('information_schema.tables.*');
         $this->db->not_like('TABLE_NAME', 'wd_');
-        $this->db->join('wd_sections', 'wd_sections.table=information_schema.tables.TABLE_NAME', 'left');
-        $this->db->where('wd_sections.id IS NULL');
-        return $this->db->get_where('information_schema.tables', array('table_schema' => $db))->result_array();
+        $tables = $this->db->get_where('information_schema.tables', array('table_schema' => $db))->result_array();
+        $aux = array();
+        if ($tables) {
+            foreach ($tables as $table) {
+                $exists = $this->config_exists($table['TABLE_NAME']);
+                if (!$exists) {
+                    $aux[] = $table;
+                }
+            }
+        }
+        return $aux;
+    }
+
+    private function config_exists($table)
+    {
+        $this->load->model_app('projects_model');
+        $this->load->model_app('pages_model');
+        $projects = $this->projects_model->list_projects();
+        if ($projects) {
+            foreach ($projects as $project) {
+                $project_dir = $project['directory'];
+                $pages = $this->pages_model->list_pages($project_dir);
+                if ($pages) {
+                    foreach ($pages as $page) {
+                        $page_dir = $page['directory'];
+                        $sections = $this->list_sections($project_dir, $page_dir);
+                        if ($sections) {
+                            foreach ($sections as $section) {
+                                if ($section['table'] === $table) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public function list_columns_import($table)

@@ -7,21 +7,14 @@ if (!defined('BASEPATH')) {
 <ul class="breadcrumb">
     <li><a href="<?php echo base_url() ?>"><i class="fa fa-home"></i></a></li>
     <li><a href="<?php echo base_url_app() ?>"><?php echo $name_app ?></a></li>
-    <li><a href="<?php echo base_url_app('project/' . $project['slug']) ?>"><?php echo $project['name'] ?></a></li>
-    <li><a href="<?php echo base_url_app('project/' . $project['slug'] . '/' . $page['slug']) ?>"><?php echo $page['name'] ?></a></li>
+    <li><a href="<?php echo base_url_app('project/' . $project['directory']) ?>"><?php echo $project['name'] ?></a></li>
+    <li><a href="<?php echo base_url_app('project/' . $project['directory'] . '/' . $page['directory']) ?>"><?php echo $page['name'] ?></a></li>
     <li class="active"><?php echo $title ?></li>
 </ul>
 <div class="row">
     <div class="col-md-12">
         <div class="x_panel">
             <div class="x_title">
-                <?php
-                if ($this->uri->segment('6') == 'create') {
-                    ?>
-                    <a href="#modal-import" class="btn btn-primary pull-right" data-toggle="modal"><span class="fa fa-fw fa-arrow-down"></span> <?php echo $this->lang->line(APP . '_btn_import_table') ?></a>
-                    <?php
-                }
-                ?>
                 <h2><?php echo $title ?></h2>
                 <div class="clearfix"></div>
             </div>
@@ -29,9 +22,8 @@ if (!defined('BASEPATH')) {
                 <?php
                 echo getErrors();
                 if ($this->uri->segment('4') != 'edit-section' or $this->uri->segment('4') == 'edit-section' && $fields) {
-                    echo form_open(null);
+                    echo form_open(current_url() . '?' . $this->input->server('QUERY_STRING'));
                     ?>
-                    <input type="hidden" name="import" id="import-value" value="false">
                     <h3><?php echo $this->lang->line(APP . '_subtitle_data_basic') ?></h3>
                     <p><?php echo $this->lang->line(APP . '_text_data_basic') ?></p>
                     <div class="row">
@@ -91,53 +83,55 @@ if (!defined('BASEPATH')) {
                                 $total = count($fields);
                             }
                             for ($i = 0; $i < $total; $i++) {
+                                $input = (isset($fields[$i]['input'])) ? $fields[$i]['input'] : '';
+                                $database = (isset($fields[$i]['database'])) ? $fields[$i]['database'] : '';
 
-                                $name_field = (isset($fields[$i]['label'])) ? $fields[$i]['label'] : '';
-                                $type_field = (isset($fields[$i]['type'])) ? strtolower($fields[$i]['type']) : '';
-                                $list_registers = (isset($fields[$i]['list_registers'])) ? $fields[$i]['list_registers'] : '';
-                                $column = (isset($fields[$i]['column'])) ? $fields[$i]['column'] : '';
-                                $type_column = (isset($fields[$i]['type_column'])) ? $fields[$i]['type_column'] : '';
-                                $limit = (isset($fields[$i]['limit'])) ? $fields[$i]['limit'] : '';
-                                $required = (isset($fields[$i]['required'])) ? $fields[$i]['required'] : '';
-                                $unique = (isset($fields[$i]['unique'])) ? $fields[$i]['unique'] : '';
-                                $default = (isset($fields[$i]['default'])) ? $fields[$i]['default'] : '';
-                                $comment = (isset($fields[$i]['comment'])) ? $fields[$i]['comment'] : '';
-                                $remove = (isset($fields[$i]['remove'])) ? $fields[$i]['remove'] : '';
-                                $plugin_field = (isset($fields[$i]['plugins'])) ? $fields[$i]['plugins'] : '';
-                                $observation = (isset($fields[$i]['observation'])) ? $fields[$i]['observation'] : '';
-                                $attributes = (isset($fields[$i]['attributes'])) ? $fields[$i]['attributes'] : '';
+                                $name_field = (isset($input['label'])) ? $input['label'] : '';
+                                $type_field = (isset($input['type'])) ? strtolower($input['type']) : '';
+                                $list_registers = (isset($input['list_registers'])) ? $input['list_registers'] : '';
+                                $column = (isset($database['column'])) ? $database['column'] : '';
+                                $type_column = (isset($database['type_column'])) ? $database['type_column'] : '';
+                                $limit = (isset($database['limit'])) ? $database['limit'] : '';
+                                $required = (isset($database['required'])) ? $database['required'] : '';
+                                $unique = (isset($database['unique'])) ? $database['unique'] : '';
+                                $default = (isset($database['default'])) ? $database['default'] : '';
+                                $comment = (isset($database['comment'])) ? $database['comment'] : '';
+                                $remove = (isset($input['remove'])) ? $input['remove'] : '';
+                                $plugin_field = (isset($input['plugins'])) ? $input['plugins'] : '';
+                                $observation = (isset($input['observation'])) ? $input['observation'] : '';
+                                $attributes = (isset($input['attributes'])) ? $input['attributes'] : '';
                                 /*
                                  * Vars of config to select
                                  */
-                                $options_field = (isset($fields[$i]['options_table'])) ? $fields[$i]['options_table'] : '';
-                                $select_trigger_field = (isset($fields[$i]['options_trigger_select'])) ? $fields[$i]['options_trigger_select'] : '';
-                                $label_options_field = (isset($fields[$i]['options_label'])) ? $fields[$i]['options_label'] : '';
-                                $label_options = (isset($fields[$i]['label_options_'])) ? $fields[$i]['label_options_'] : array();
+                                $options_field = (isset($input['options_table'])) ? $input['options_table'] : '';
+                                $select_trigger_field = (isset($input['options_trigger_select'])) ? $input['options_trigger_select'] : '';
+                                $label_options_field = (isset($input['options_label'])) ? $input['options_label'] : '';
+                                $label_options = (isset($input['label_options_'])) ? $input['label_options_'] : array();
                                 /*
                                  * Vars of config to upload
                                  */
-                                $extensions_allowed = (isset($fields[$i]['extensions_allowed'])) ? $fields[$i]['extensions_allowed'] : '';
-                                $image_resize = (isset($fields[$i]['image_resize'])) ? $fields[$i]['image_resize'] : '';
-                                $image_x = (isset($fields[$i]['image_x'])) ? $fields[$i]['image_x'] : '';
-                                $image_y = (isset($fields[$i]['image_y'])) ? $fields[$i]['image_y'] : '';
-                                $image_ratio = (isset($fields[$i]['image_ratio'])) ? $fields[$i]['image_ratio'] : '';
-                                $image_ratio_x = (isset($fields[$i]['image_ratio_x'])) ? $fields[$i]['image_ratio_x'] : '';
-                                $image_ratio_y = (isset($fields[$i]['image_ratio_y'])) ? $fields[$i]['image_ratio_y'] : '';
-                                $image_ratio_crop = (isset($fields[$i]['image_ratio_crop'])) ? $fields[$i]['image_ratio_crop'] : '';
-                                $image_ratio_fill = (isset($fields[$i]['image_ratio_fill'])) ? $fields[$i]['image_ratio_fill'] : '';
-                                $image_background_color = (isset($fields[$i]['image_background_color'])) ? $fields[$i]['image_background_color'] : '';
-                                $image_convert = (isset($fields[$i]['image_convert'])) ? $fields[$i]['image_convert'] : '';
-                                $image_text = (isset($fields[$i]['image_text'])) ? $fields[$i]['image_text'] : '';
-                                $image_text_color = (isset($fields[$i]['image_text_color'])) ? $fields[$i]['image_text_color'] : '';
-                                $image_text_background = (isset($fields[$i]['image_text_background'])) ? $fields[$i]['image_text_background'] : '';
-                                $image_text_opacity = (isset($fields[$i]['image_text_opacity'])) ? $fields[$i]['image_text_opacity'] : '';
-                                $image_text_background_opacity = (isset($fields[$i]['image_text_background_opacity'])) ? $fields[$i]['image_text_background_opacity'] : '';
-                                $image_text_padding = (isset($fields[$i]['image_text_padding'])) ? $fields[$i]['image_text_padding'] : '';
-                                $image_text_position = (isset($fields[$i]['image_text_position'])) ? $fields[$i]['image_text_position'] : '';
-                                $image_text_direction = (isset($fields[$i]['image_text_direction'])) ? $fields[$i]['image_text_direction'] : '';
-                                $image_text_x = (isset($fields[$i]['image_text_x'])) ? $fields[$i]['image_text_x'] : '';
-                                $image_text_y = (isset($fields[$i]['image_text_y'])) ? $fields[$i]['image_text_y'] : '';
-                                $image_thumbnails = (isset($fields[$i]['image_thumbnails'])) ? $fields[$i]['image_thumbnails'] : '';
+                                $extensions_allowed = (isset($input['extensions_allowed'])) ? $input['extensions_allowed'] : '';
+                                $image_resize = (isset($input['image_resize'])) ? $input['image_resize'] : '';
+                                $image_x = (isset($input['image_x'])) ? $input['image_x'] : '';
+                                $image_y = (isset($input['image_y'])) ? $input['image_y'] : '';
+                                $image_ratio = (isset($input['image_ratio'])) ? $input['image_ratio'] : '';
+                                $image_ratio_x = (isset($input['image_ratio_x'])) ? $input['image_ratio_x'] : '';
+                                $image_ratio_y = (isset($input['image_ratio_y'])) ? $input['image_ratio_y'] : '';
+                                $image_ratio_crop = (isset($input['image_ratio_crop'])) ? $input['image_ratio_crop'] : '';
+                                $image_ratio_fill = (isset($input['image_ratio_fill'])) ? $input['image_ratio_fill'] : '';
+                                $image_background_color = (isset($input['image_background_color'])) ? $input['image_background_color'] : '';
+                                $image_convert = (isset($input['image_convert'])) ? $input['image_convert'] : '';
+                                $image_text = (isset($input['image_text'])) ? $input['image_text'] : '';
+                                $image_text_color = (isset($input['image_text_color'])) ? $input['image_text_color'] : '';
+                                $image_text_background = (isset($input['image_text_background'])) ? $input['image_text_background'] : '';
+                                $image_text_opacity = (isset($input['image_text_opacity'])) ? $input['image_text_opacity'] : '';
+                                $image_text_background_opacity = (isset($input['image_text_background_opacity'])) ? $input['image_text_background_opacity'] : '';
+                                $image_text_padding = (isset($input['image_text_padding'])) ? $input['image_text_padding'] : '';
+                                $image_text_position = (isset($input['image_text_position'])) ? $input['image_text_position'] : '';
+                                $image_text_direction = (isset($input['image_text_direction'])) ? $input['image_text_direction'] : '';
+                                $image_text_x = (isset($input['image_text_x'])) ? $input['image_text_x'] : '';
+                                $image_text_y = (isset($input['image_text_y'])) ? $input['image_text_y'] : '';
+                                $image_thumbnails = (isset($input['image_thumbnails'])) ? $input['image_thumbnails'] : '';
                                 ?>
                                 <tr class="field-current btn-edit" data-index="<?php echo $i ?>">
                                     <td>
@@ -679,48 +673,6 @@ if (!defined('BASEPATH')) {
                         </div>
                     </div>
                 </div>
-                <?php
-                if ($this->uri->segment('6') == 'create') {
-                    ?>
-                    <!-- Modal -->
-                    <div class="modal fade" id="modal-import" data-index="" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                        <div class="modal-dialog" role="document">
-                            <?php echo form_open(null, array('id' => 'form-import')); ?>
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title" id="myModalLabel"><?php echo $this->lang->line(APP . '_title_import_table') ?></h4>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="alert alert-warning"><?php echo $this->lang->line(APP . '_warning_import') ?></div>
-                                    <div class="form-group">
-                                        <label for="table"><?php echo $this->lang->line(APP . '_label_select_table') ?></label>
-                                        <select name="table" id="table-value" class="form-control">
-                                            <option value=""><?php echo $this->lang->line(APP . '_option_select') ?></option>
-                                            <?php
-                                            if (count($tables_import) > 0) {
-                                                foreach ($tables_import as $arr) {
-                                                    ?>
-                                                    <option class="<?php echo $arr['TABLE_NAME'] ?>"><?php echo $arr['TABLE_NAME'] ?></option>
-                                                    <?php
-                                                }
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-                                    <div id="msg-import"></div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line(APP . '_btn_close') ?></button>
-                                    <button type="submit" class="btn btn-primary" id="btn-save-import"><?php echo $this->lang->line(APP . '_btn_select') ?></button>
-                                </div>
-                            </div>
-                            <?php echo form_close(); ?>
-                        </div>
-                    </div>
-                    <?php
-                }
-                ?>
             </div>
         </div>
     </div>

@@ -6,37 +6,26 @@ if (!defined('BASEPATH')) {
 
 class Projects extends MY_Controller
 {
-    private $path_view_project = '';
-
-    /*
-     * Variável pública com o limite de projetos por página
-     */
-    public $limit = 10;
+    private $config_path = '';
 
     public function __construct()
     {
         parent::__construct();
         $this->load->model_app('projects_model');
-        $this->path_view_project = 'application/' . APP_PATH . '/views/project/';
+        $this->config_path = 'application/' . APP_PATH . 'projects/';
         $this->data = $this->apps->data_app();
     }
-    /*
-     * Método para listar os projetos
-     */
 
     public function index()
     {
         $this->lang->load_app('projects/projects');
-        $search = $this->form_search();
-        $projects = $search['projects'];
-        $total_rows = $search['total_rows'];
-        $pagination = $this->pagination($total_rows);
+        $projects = $this->form_search();
+        $total = $this->projects_model->total_projects($this->data_user['dev_mode']);
 
         $vars = array(
             'title' => $this->data['name'],
             'projects' => $projects,
-            'pagination' => $pagination,
-            'total' => $total_rows
+            'total' => $total
         );
         if ($this->data_user['dev_mode']) {
             // Template modo desenvolvedor
@@ -46,53 +35,14 @@ class Projects extends MY_Controller
             $this->load->template_app('projects/index', $vars);
         }
     }
-    /*
-     * Método para busca e projetos
-     */
 
     private function form_search()
     {
         $this->form_validation->set_rules('search', $this->lang->line(APP . '_field_search'), 'trim|required');
         $this->form_validation->run();
         $dev_mode = $this->data_user['dev_mode'];
-        $limit = $this->limit;
         $keyword = $this->input->get('search');
-        $perPage = $this->input->get('per_page');
-        $projects = $this->projects_model->search($dev_mode, $keyword, $limit, $perPage);
-        $total_rows = $this->projects_model->search_total_rows($dev_mode, $keyword);
-
-        return array(
-            'projects' => $projects,
-            'total_rows' => $total_rows
-        );
-    }
-    /*
-     * Método de criação de template da páginação da listagem de projetos
-     */
-
-    private function pagination($total_rows)
-    {
-        $this->load->library('pagination');
-        $config['total_rows'] = $total_rows;
-        $config['per_page'] = $this->limit;
-        $config['page_query_string'] = true;
-        $config['reuse_query_string'] = true;
-        $config['num_tag_open'] = '<li>';
-        $config['num_tag_close'] = '</li>';
-        $config['cur_tag_open'] = '<li class="active"><a>';
-        $config['cur_tag_close'] = '</a></li>';
-        $config['prev_tag_open'] = '<li>';
-        $config['prev_tag_close'] = '</li>';
-        $config['next_tag_open'] = '<li>';
-        $config['next_tag_close'] = '</li>';
-        $config['last_tag_open'] = '<li>';
-        $config['last_tag_close'] = '</li>';
-        $config['first_tag_open'] = '<li>';
-        $config['first_tag_close'] = '</li>';
-        $config['first_url'] = '?per_page=0';
-        $this->pagination->initialize($config);
-
-        return $this->pagination->create_links();
+        return $this->projects_model->search($dev_mode, $keyword);
     }
 
     public function create()
@@ -115,9 +65,6 @@ class Projects extends MY_Controller
 
         $this->load->template_app('dev-projects/form', $vars);
     }
-    /*
-     * Método para criação de projeto
-     */
 
     private function form_create()
     {
@@ -127,45 +74,48 @@ class Projects extends MY_Controller
         if (!$this->input->post('main')) {
             $this->form_validation->set_rules('preffix', 'Prefixo', 'required|max_length[6]');
         }
+        try {
+            $run = $this->form_validation->run();
+            if ($run) {
+                $name = $this->input->post('name');
+                $dir = slug($this->input->post('dir'));
+                $main = $this->input->post('main');
+                $extract_ci = $this->input->post('extract_ci');
+                $preffix = $this->input->post('preffix');
 
-        if ($this->form_validation->run()) {
-            $name = $this->input->post('name');
-            $slug = $this->slug($name);
-            $dir = slug($this->input->post('dir'));
-            $main = $this->input->post('main');
-            $extract_ci = $this->input->post('extract_ci');
-            $preffix = $this->input->post('preffix');
-            if (!empty($preffix)) {
-                $preffix = str_replace('_', '', $preffix) . '_';
+                if (!empty($preffix)) {
+                    $preffix = str_replace('_', '', $preffix) . '_';
+                }
+
+                $status = $this->input->post('status');
+
+                $user = $this->data_user;
+                $data = array(
+                    'name' => $name,
+                    'dir' => $dir,
+                    'id_user' => $user['id'],
+                    'preffix' => $preffix,
+                    'main' => $main,
+                    'extract_ci' => $extract_ci,
+                    'status' => $status
+                );
+                $this->createDir($data);
+                $this->projects_model->create($data);
+
+                if ($extract_ci) {
+                    $this->extractProject($data);
+                }
+
+                redirect_app();
             }
-            $status = $this->input->post('status');
-
-            $user = $this->data_user;
-            $data = array(
-                'name' => $name,
-                'dir' => $dir,
-                'slug' => $slug,
-                'id_user' => $user['id'],
-                'preffix' => $preffix,
-                'main' => $main,
-                'extract_ci' => $extract_ci,
-                'status' => $status
-            );
-            $this->createDir($data);
-            $create = $this->projects_model->create($data);
-            if ($create && $extract_ci) {
-                // Se o projeto for criado com sucesso, é extraido um projeto em codeigniter na pasta inicial
-                $this->extractProject($data);
+            $validation_errors = validation_errors();
+            if (!empty($validation_errors)) {
+                setError($validation_errors);
             }
-
-            redirect_app();
-        } else {
-            setError(validation_errors());
+        } catch (Exception $e) {
+            setError($e->getMessage());
         }
     }
-    /*
-     * Método para editar projeto
-     */
 
     public function edit($slug_project)
     {
@@ -185,45 +135,38 @@ class Projects extends MY_Controller
             'directory' => $project['directory'],
             'preffix' => $preffix,
             'status' => $project['status'],
-            'main' => $project['main']
+            'main' => $project['main_project']
         );
 
         $this->load->template_app('dev-projects/form', $vars);
     }
-    /*
-     * Método de configuração dos requisitos para edição de projeto
-     */
 
     private function form_edit($project)
     {
         $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'trim|required');
+
         if ($this->form_validation->run()) {
             $name = $this->input->post('name');
-            $slug = $this->slug($name, $project['id']);
             $status = $this->input->post('status');
             $data = array(
                 'name' => $name,
-                'slug' => $slug,
-                'status' => $status,
-                'project' => $project['id']
+                'status' => $status
             );
-            $this->projects_model->edit($data);
+            $config = array_merge($project, $data);
+            $this->projects_model->save($config, $project['directory']);
 
             redirect_app();
         } else {
             setError(validation_errors());
         }
     }
-    /*
-     * Método para verificar existencia de diretório
-     */
 
     public function verify_dir($dir)
     {
         $main = $this->input->post('main');
         $extract = $this->input->post('extract_ci');
         $dir_project = '../';
-        $dir_admin = $this->path_view_project;
+        $dir_admin = $this->config_path;
         if ($main) {
             $mainExists = $this->projects_model->main_exists();
             if ($mainExists && is_dir('../' . $mainExists['directory'])) {
@@ -234,17 +177,14 @@ class Projects extends MY_Controller
         }
 
         if ((is_dir($dir_project . $dir) && $extract == '1') or is_dir($dir_admin . $dir)) {
-            // Se o diretório já existir no admin ou no diretório inicial
             $this->form_validation->set_message('verify_dir', $this->lang->line(APP . '_folder_exists'));
 
             return false;
         } elseif (!is_writable($dir_project)) {
-            // Se não for possível criar o diretório do projeto
             $this->form_validation->set_message('verify_dir', sprintf($this->lang->line(APP . '_only_read_permission'), $dir_project));
 
             return false;
         } elseif (!is_writable($dir_admin)) {
-            // Se não for possível criar o diretório do projeto
             $this->form_validation->set_message('verify_dir', sprintf($this->lang->line(APP . '_only_read_permission'), $dir_admin));
 
             return false;
@@ -252,16 +192,13 @@ class Projects extends MY_Controller
 
         return true;
     }
-    /*
-     * Método para criar diretórios
-     */
 
     protected function createDir($data)
     {
         $dir = $data['dir'];
         $extract_ci = $data['extract_ci'];
         $dir_project = '../';
-        $dir_admin = $this->path_view_project;
+        $dir_admin = $this->config_path;
         if (is_writable($dir_admin)) {
             mkdir($dir_admin . $dir, 0755);
             if (is_writable($dir_project) && $extract_ci) {
@@ -271,9 +208,6 @@ class Projects extends MY_Controller
             return true;
         }
     }
-    /*
-     * Método de extração de projeto codeigniter padrão
-     */
 
     protected function extractProject($data)
     {
@@ -285,20 +219,14 @@ class Projects extends MY_Controller
         $zip = new ZipArchive;
         $zip->open($file);
         if ($zip->extractTo($to)) {
-            // Se extraido com sucesso, faz as configurações necessárias para o novo projeto
             $this->configProject($data);
         }
 
         $zip->close();
     }
-    /*
-     * Método para configuração do projeto extraido
-     */
 
     protected function configProject($data)
     {
-        $this->load->helper('passwordhash');
-        $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
         $dir_project = $data['dir'];
         $main = $data['main'];
         $dir_system = '../' . DIR_ADMIN_DEFAULT . 'system';
@@ -326,7 +254,7 @@ class Projects extends MY_Controller
         $path_config = '../' . $dir_project . '/application/config/config.php';
         $file_config = file_get_contents($path_config);
 
-        $encryption_key = $PasswordHash->HashPassword(rand(0, 99999) . time());
+        $encryption_key = md5(uniqid(rand(), true));
         $config = str_replace(array(
             '[[encryption_key]]'
                 ), array(
@@ -338,31 +266,6 @@ class Projects extends MY_Controller
             rename($path_index, '../index.php');
         }
     }
-    /*
-     * Método para verificar a existencia do slug no banco de dados
-     */
-
-    protected function slug($name, $id = false)
-    {
-        $return = true;
-        $slug = null;
-        $i = 0;
-        while ($return == true) {
-            $slug = slug($name);
-            if ($i > 0) {
-                $slug .= $i;
-            }
-
-            $exe = $this->projects_model->verify_slug($slug, $id);
-            ++$i;
-            $return = ($exe);
-        }
-
-        return $slug;
-    }
-    /*
-     * Método para remover projeto
-     */
 
     public function remove($slug_project)
     {
@@ -382,28 +285,21 @@ class Projects extends MY_Controller
 
         $this->load->template_app('dev-projects/remove', $vars);
     }
-    /*
-     * Método com configuração dos requisitos para remover projeto
-     */
 
     private function form_remove($project)
     {
         $this->form_validation->set_rules('password', $this->lang->line(APP . '_field_password'), 'required|callback_verify_password');
-        $this->form_validation->set_rules('project', $this->lang->line(APP . '_field_project'), 'trim|required|integer');
+        $this->form_validation->set_rules('project', $this->lang->line(APP . '_field_project'), 'trim|required');
         if ($this->form_validation->run()) {
-            if ($project['id'] == $this->input->post('project')) {
+            if ($project['directory'] == $this->input->post('project')) {
                 $delete_all = $this->input->post('delete_all');
-                $this->projects_model->delete($project['id']);
                 $dir_project = $project['directory'];
-                $main = $project['main'];
-                // Remove todos controllers
-                $dir_module = getcwd() . '/application/' . APP_PATH . 'modules/' . $dir_project;
-                if (is_dir($dir_module)) {
-                    forceRemoveDir($dir_module);
-                }
+                $main = $project['main_project'];
+
+                $this->delete_tables($project);
 
                 // Remove todos arquivos de views
-                $dir_views_project = $this->path_view_project . $dir_project;
+                $dir_views_project = $this->config_path . $dir_project;
                 if (is_dir($dir_views_project)) {
                     forceRemoveDir($dir_views_project);
                 }
@@ -423,9 +319,29 @@ class Projects extends MY_Controller
             }
         }
     }
-    /*
-     * Método para verificar senha
-     */
+
+    private function delete_tables($project)
+    {
+        $this->load->model_app('pages_model');
+        $this->load->model_app('sections_model');
+        $project_dir = $project['directory'];
+        $pages = $this->pages_model->list_pages($project_dir);
+        if ($pages) {
+            foreach ($pages as $page) {
+                $page_dir = $page['directory'];
+                $sections = $this->sections_model->list_sections($project_dir, $page_dir);
+                if ($sections) {
+                    foreach ($sections as $section) {
+                        $table = $section['table'];
+                        $check = $this->sections_model->check_table_exists($table);
+                        if ($check) {
+                            $this->sections_model->remove_table($table);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     public function verify_password($v_pass)
     {

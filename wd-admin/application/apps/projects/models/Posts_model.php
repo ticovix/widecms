@@ -11,17 +11,19 @@ class Posts_model extends CI_Model
     {
         if (count($form_search) > 0) {
             foreach ($form_search as $field) {
-                $column = $field['column'];
-                $value = $field['value'];
-                $type_column = $field['type_column'];
-                $type = $field['type'];
+                $input = $field['input'];
+                $database = $field['database'];
+                $column = $database['column'];
+                $value = $input['value'];
+                $type_column = $database['type_column'];
+                $type = $input['type'];
                 if (!empty($value)) {
                     if ($type == 'select') {
                         $this->db->where($column, $value);
                     } elseif ($type == 'checkbox') {
                         $this->db->like($column, '"' . $value . '"');
                     } elseif ($type_column == 'date' || $type_column == 'datetime') {
-                        $type_date = $field['type_date'];
+                        $type_date = $input['type_date'];
 
                         if ($type_date == 'of') {
                             $this->db->where($column . ' >=', $value);
@@ -29,7 +31,7 @@ class Posts_model extends CI_Model
                             $this->db->where($column . ' <=', $value);
                         }
                     } else {
-                        $value_type = $field['value_type'];
+                        $value_type = $input['value_type'];
                         switch ($value_type) {
                             case 'equals':
                                 $this->db->where($column, $value);
@@ -56,24 +58,24 @@ class Posts_model extends CI_Model
         if (!empty($keyword)) {
             $this->db->group_start();
             foreach ($data['fields'] as $arr) {
-                $col = $arr['column'];
+                $col = $arr['database']['column'];
                 $this->db->or_like($col, $keyword);
             }
             $this->db->group_end();
         }
     }
 
-    public function search($form_search, $data, $section, $keyword = null, $total = null, $offset = null)
+    public function search($form_search, $section, $keyword = null, $total = null, $offset = null)
     {
         $get = array();
-        $select = implode(',', $data['select_query']);
-        $this->filter_search($form_search, $data, $keyword);
+        $select = implode(',', $section['select_query']);
+        $this->filter_search($form_search, $section, $keyword);
         $this->db->select('id,' . $select);
         $this->db->limit($total, $offset);
         $this->db->order_by('id DESC');
         $get['rows'] = $this->db->get($section['table'])->result_array();
         if ($get) {
-            $this->filter_search($form_search, $data, $keyword);
+            $this->filter_search($form_search, $section, $keyword);
             $get['total'] = $this->db->count_all_results($section['table']);
         }
         return $get;

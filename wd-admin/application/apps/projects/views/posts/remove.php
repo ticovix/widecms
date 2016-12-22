@@ -7,12 +7,12 @@ if (!defined('BASEPATH')) {
 <ul class="breadcrumb">
     <li><a href="<?php echo base_url() ?>"><i class="fa fa-home"></i></a></li>
     <li><a href="<?php echo base_url_app() ?>"><?php echo $name_app ?></a></li>
-    <li><a href="<?php echo base_url_app('project/' . $slug_project); ?>"><?php echo $name_project ?></a></li>
+    <li><a href="<?php echo base_url_app('project/' . $project_dir); ?>"><?php echo $name_project ?></a></li>
     <?php
     if ($dev_mode) {
         ?>
-        <li><a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page); ?>"><?php echo $name_page ?></a></li>
-        <li><a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section); ?>"><?php echo $name_section ?></a></li>
+        <li><a href="<?php echo base_url_app('project/' . $project_dir . '/' . $page_dir); ?>"><?php echo $name_page ?></a></li>
+        <li><a href="<?php echo base_url_app('project/' . $project_dir . '/' . $page_dir . '/' . $section_dir); ?>"><?php echo $name_section ?></a></li>
         <?php
     }
     ?>
@@ -42,7 +42,7 @@ if (!defined('BASEPATH')) {
                             if ($list) {
                                 foreach ($list as $arr) {
                                     ?>
-                                    <th><?php echo $arr['label']; ?></th>
+                                    <th><?php echo $arr['input']['label']; ?></th>
                                     <?php
                                 }
                             }
@@ -65,7 +65,7 @@ if (!defined('BASEPATH')) {
                                         <?php
                                         echo $value;
                                         ?>
-                                    </td>    
+                                    </td>
                                     <?php
                                 }
                             }

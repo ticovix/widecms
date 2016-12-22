@@ -22,7 +22,7 @@ if (!defined('BASEPATH')) {
                 echo validation_errors('<p class="alert alert-danger">', '</p>');
                 echo form_open(null, ['class' => 'form-horizontal']);
                 ?>
-                <input type="hidden" name="project" value="<?php echo $project['id'] ?>">
+                <input type="hidden" name="project" value="<?php echo $project['directory'] ?>">
                 <div class="alert alert-danger">
                     <h4><?php printf($this->lang->line(APP . '_ask_remove_project'), $project['name']) ?></h4>
                     <p><?php echo $this->lang->line(APP . '_warning_remove'); ?></p>

@@ -9,20 +9,15 @@ class Form
     private $form = array();
     private $plugins;
 
-    /*
-     * Método para criação do template com todos os campos do config xml
-     */
-
     public function fields_template($fields, $post = null)
     {
         $CI = & get_instance();
         $CI->lang->load_app('posts/form', 'projects');
         $this->fields = $fields;
         $this->post = $post;
-
         foreach ($fields as $field) {
             $this->field = $field;
-            $type = strtolower($field['type']);
+            $type = strtolower($field['input']['type']);
 
             switch ($type) {
                 case 'file':
@@ -45,14 +40,19 @@ class Form
     private function input_template()
     {
         $field = $this->field;
+        $input = $field['input'];
+        $database = $field['database'];
         $post = $this->post;
-        if (isset($field['attributes']) && strpos($field['attributes'], '{') !== false) {
-            $this->attributes = $field['attributes'];
+        if (isset($input['attributes']) && strpos($input['attributes'], '{') !== false) {
+            $this->attributes = $input['attributes'];
         }
-        $this->column = $field['column'];
-        $this->type = strtolower($field['type']);
-        $this->plugins = $this->get_plugins($field['plugins']);
-        $this->label = ($field['required']) ? $field['label'] . '<span>*</span>' : $field['label'];
+        $this->column = $database['column'];
+        $this->type = strtolower($input['type']);
+        if (isset($input['plugins'])) {
+            $this->plugins = $this->get_plugins($input['plugins']);
+        }
+
+        $this->label = ($input['required']) ? $input['label'] . '<span>*</span>' : $input['label'];
         $this->value = (!empty($post)) ? $post[$this->column] : '';
         $this->attr = $this->treat_attributes();
         if ($this->plugins) {
@@ -72,9 +72,6 @@ class Form
 
         $this->form[] = $this->new_field;
     }
-    /*
-     * Método para alterar valor do input, caso tenha algum método para tratar a saida do valor do banco de dados
-     */
 
     private function add_plugins()
     {
@@ -161,9 +158,6 @@ class Form
             return '../plugins_input/' . $plugin['plugin'] . '/assets/' . $path;
         }
     }
-    /*
-     * Método para criar template do input file
-     */
 
     private function multifile()
     {
@@ -212,36 +206,33 @@ class Form
         $this->multifile();
         return $this;
     }
-    /*
-     * Método para criar atributo de configuração do campo upload
-     */
 
     private function config_upload()
     {
-        $field = $this->field;
+        $config = $this->field['input']['upload'];
         $config_upload = array(
-            'extensions_allowed' => $field['extensions_allowed'],
-            'image_resize' => $field['image_resize'],
-            'image_x' => $field['image_x'],
-            'image_y' => $field['image_y'],
-            'image_ratio' => $field['image_ratio'],
-            'image_ratio_x' => $field['image_ratio_x'],
-            'image_ratio_y' => $field['image_ratio_y'],
-            'image_ratio_crop' => $field['image_ratio_crop'],
-            'image_ratio_fill' => $field['image_ratio_fill'],
-            'image_background_color' => $field['image_background_color'],
-            'image_convert' => $field['image_convert'],
-            'image_text' => $field['image_text'],
-            'image_text_color' => $field['image_text_color'],
-            'image_text_background' => $field['image_text_background'],
-            'image_text_opacity' => $field['image_text_opacity'],
-            'image_text_background_opacity' => $field['image_text_background_opacity'],
-            'image_text_padding' => $field['image_text_padding'],
-            'image_text_position' => $field['image_text_position'],
-            'image_text_direction' => $field['image_text_direction'],
-            'image_text_x' => $field['image_text_x'],
-            'image_text_y' => $field['image_text_y'],
-            'image_thumbnails' => str_replace('\'', '"', $field['image_thumbnails']),
+            'extensions_allowed' => $config['extensions_allowed'],
+            'image_resize' => $config['image_resize'],
+            'image_x' => $config['image_x'],
+            'image_y' => $config['image_y'],
+            'image_ratio' => $config['image_ratio'],
+            'image_ratio_x' => $config['image_ratio_x'],
+            'image_ratio_y' => $config['image_ratio_y'],
+            'image_ratio_crop' => $config['image_ratio_crop'],
+            'image_ratio_fill' => $config['image_ratio_fill'],
+            'image_background_color' => $config['image_background_color'],
+            'image_convert' => $config['image_convert'],
+            'image_text' => $config['image_text'],
+            'image_text_color' => $config['image_text_color'],
+            'image_text_background' => $config['image_text_background'],
+            'image_text_opacity' => $config['image_text_opacity'],
+            'image_text_background_opacity' => $config['image_text_background_opacity'],
+            'image_text_padding' => $config['image_text_padding'],
+            'image_text_position' => $config['image_text_position'],
+            'image_text_direction' => $config['image_text_direction'],
+            'image_text_x' => $config['image_text_x'],
+            'image_text_y' => $config['image_text_y'],
+            'image_thumbnails' => str_replace('\'', '"', $config['image_thumbnails']),
         );
 
         $config_upload = array_filter($config_upload, function($val) {
@@ -250,9 +241,6 @@ class Form
 
         return str_replace('"', '\'', json_encode($config_upload));
     }
-    /*
-     * Método para criar template do textarea
-     */
 
     private function textarea()
     {
@@ -267,9 +255,6 @@ class Form
 
         return $this;
     }
-    /*
-     * Método para criar template do checkbox
-     */
 
     private function checkbox()
     {
@@ -312,9 +297,6 @@ class Form
 
         return $this;
     }
-    /*
-     * Método para criar template do select
-     */
 
     private function select()
     {
@@ -360,9 +342,6 @@ class Form
 
         return $this;
     }
-    /*
-     * Método para criar template do input hidden
-     */
 
     private function hidden()
     {
@@ -376,9 +355,6 @@ class Form
 
         return $this;
     }
-    /*
-     * Método para criar template do input
-     */
 
     private function input()
     {
@@ -393,9 +369,6 @@ class Form
 
         return $this;
     }
-    /*
-     * Método para listar as opções de um select
-     */
 
     private function set_options($table, $column, $data_trigger = null)
     {
@@ -422,9 +395,6 @@ class Form
         }
         return $options;
     }
-    /*
-     * Método para montar template da listagem de arquivos
-     */
 
     private function list_files($files, $cols = 2, $edit_file = false)
     {
@@ -463,13 +433,22 @@ class Form
         $ctt .= '</div>';
         return $ctt;
     }
-    /*
-     * Método para tratar a listagem de registros
-     * Param posts - contém os registros do banco de dados
-     * Param data - contém os dados dos campos de listagem do config xml
-     */
 
-    public function treat_list($posts, $data)
+    private function search_field($column, $section)
+    {
+        $fields = $section['fields'];
+        $field_find = array();
+        if ($fields) {
+            foreach ($fields as $field) {
+                if ($field['database']['column'] == $column) {
+                    $field_find = $field;
+                }
+            }
+        }
+        return $field_find;
+    }
+
+    public function treat_list($posts, $section)
     {
         if (!$posts) {
             return false;
@@ -478,17 +457,17 @@ class Form
         $list = array();
         // Lista os registros do banco de dados
         foreach ($posts as $row) {
-            foreach ($row as $key => $value) {
+            foreach ($row as $column => $value) {
                 // Busca a coluna nos campos do config xml
-                $field = search($data['fields'], 'column', $key);
-                if (isset($field[0])) {
-                    $field = $field[0];
+                $field = $this->search_field($column, $section);
+                if ($field) {
+                    $input = $field['input'];
                     // Se o campo for encontrada, faz diversas filtragens no valor da coluna
-                    $type = strtolower($field['type']);
-                    if (isset($field['plugins']) && !empty($field['plugins'])) {
+                    $type = strtolower($input['type']);
+                    if (isset($input['plugins']) && !empty($input['plugins'])) {
                         // Se houver um parametro mask setado
-                        $plugins = $field['plugins'];
-                        $value = $this->plugins_output($plugins, $value, $field, $data);
+                        $plugins = $input['plugins'];
+                        $value = $this->plugins_output($plugins, $value, $field, $section);
                     }
                     switch ($type) {
                         case 'select':
@@ -503,7 +482,7 @@ class Form
                             break;
                     }
                 }
-                $row[$key] = $value;
+                $row[$column] = $value;
             }
             $list[] = $row;
         }

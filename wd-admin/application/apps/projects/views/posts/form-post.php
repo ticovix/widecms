@@ -6,14 +6,14 @@ if (!defined('BASEPATH')) {
 <ul class="breadcrumb">
     <li><a href="<?php echo base_url(); ?>"><i class="fa fa-home"></i></a></li>
     <li><a href="<?php echo base_url_app(); ?>"><?php echo $name_app ?></a></li>
-    <li><a href="<?php echo base_url_app('project/' . $slug_project); ?>"><?php echo $name_project ?></a></li>
+    <li><a href="<?php echo base_url_app('project/' . $project_dir); ?>"><?php echo $name_project ?></a></li>
     <?php if ($dev_mode) { ?>
-        <li><a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page); ?>"><?php echo $name_page ?></a></li>
+        <li><a href="<?php echo base_url_app('project/' . $project_dir . '/' . $page_dir); ?>"><?php echo $name_page ?></a></li>
     <?php } ?>
     <?php
     if ($breadcrumb_section) {
         ?>
-        <li><a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section); ?>"><?php echo $name_section ?></a></li>
+        <li><a href="<?php echo base_url_app('project/' . $project_dir . '/' . $page_dir . '/' . $section_dir); ?>"><?php echo $name_section ?></a></li>
         <?php
     }
     ?>
@@ -46,7 +46,7 @@ if (!defined('BASEPATH')) {
                 $check_method = check_method($method);
                 if ($check_method) {
                     ?>
-                    <div id="data-project" data-project="<?php echo $slug_project ?>" data-page="<?php echo $slug_page ?>" data-section="<?php echo $slug_section ?>">
+                    <div id="data-project" data-project="<?php echo $project_dir ?>" data-page="<?php echo $page_dir ?>" data-section="<?php echo $section_dir ?>">
                         <?php
                         echo getErrors();
                         echo form_open('', array('class' => 'form-horizontal'));
@@ -79,7 +79,7 @@ if (!defined('BASEPATH')) {
                                 <div class="col-sm-11">
                                     <a href="<?php
                                     if ($dev_mode) {
-                                        echo base_url_app('project/' . $slug_project);
+                                        echo base_url_app('project/' . $project_dir);
                                     }
                                     ?>" onclick="return confirm('<?php echo $this->lang->line(APP . "_ask_cancel") ?>');" class="btn btn-default"><?php echo $this->lang->line(APP . "_btn_cancel") ?></a>
                                     <input type="submit" value="<?php echo $this->lang->line(APP . "_btn_save") ?>" class="btn btn-primary">

@@ -2,7 +2,7 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-/*TEMPLATE*/
+/* TEMPLATE */
 $lang['projects_title_add_section'] = 'Criar nova seção em %s';
 $lang['projects_title_edit_section'] = 'Editar - %s';
 $lang['projects_subtitle_data_basic'] = 'Dados básicos da seção';
@@ -32,13 +32,13 @@ $lang['projects_btn_close'] = 'Fechar';
 $lang['projects_btn_select'] = 'Selecionar';
 $lang['projects_fields_not_found'] = 'Nenhum campo adicionado';
 
-/*OPTION DEFAULT*/
+/* OPTION DEFAULT */
 $lang['projects_option_select'] = 'Selecione';
 $lang['projects_option_yes'] = 'Sim';
 $lang['projects_option_no'] = 'Não';
 $lang['projects_option_users'] = 'Usuários';
 
-/*MODAL ADD FIELD*/
+/* MODAL ADD FIELD */
 $lang['projects_title_config_field'] = 'Configurar campo';
 $lang['projects_tab_html'] = 'HTML';
 $lang['projects_tab_database'] = 'Banco de dados';
@@ -63,13 +63,13 @@ $lang['projects_db_label_default'] = 'Padrão';
 $lang['projects_db_label_comment'] = 'Comentário';
 $lang['projects_plugin_subtitle_config'] = 'Plugins';
 
-/*MODAL IMPORT TABLE*/
+/* MODAL IMPORT TABLE */
 $lang['projects_title_import_table'] = 'Importar tabela';
 $lang['projects_warning_import'] = 'Atenção: Ao importar uma tabela, todos os campos criados anteriormente serão apagados';
 $lang['projects_label_select_table'] = 'Selecione a tabela';
 
 
-/*MODAL CONFIG FILE*/
+/* MODAL CONFIG FILE */
 $lang['projects_title_config_upload'] = 'Configurar Envio';
 $lang['projects_subtitle_resize'] = 'Redimensionamento';
 $lang['projects_subtitle_convert'] = 'Conversão';
@@ -126,23 +126,23 @@ $lang['projects_btn_thumbnail'] = 'Miniatura';
 $lang['projects_btn_update_image'] = 'Atualizar visualização';
 $lang['projects_label_pre_visualization'] = 'Pré-visualização';
 
-/*MODAL CONFIG SELECT OR CHECKBOX*/
+/* MODAL CONFIG SELECT OR CHECKBOX */
 $lang['projects_title_config_select'] = 'Configurar Select';
 $lang['projects_label_options'] = 'Opções';
 $lang['projects_label_label'] = 'Rótulo';
 $lang['projects_label_select_trigger'] = 'Select gatilho';
 
 
-/*ERRORS*/
+/* ERRORS */
 $lang['projects_folder_exists'] = 'Já existe um diretório com o nome %s';
 $lang['projects_not_allowed_folder_rename'] = 'Não foi possível renomear o diretório para %s, já existe ou você não possui permissões suficiente';
 $lang['projects_not_allowed_folder_create'] = 'Você não tem permissões suficiente para criar esse diretório';
 $lang['projects_table_exists'] = 'A tabela %s já existe no banco de dados';
 $lang['projects_not_allowed_preffix_wd'] = 'Nomes iniciados por "wd_" são reservados pelo sistema';
 $lang['projects_save_config_fail'] = 'Não foi possível salvar o novo config.xml com as alterações';
-$lang['projects_generate_config_fail'] = 'Não foi possível gerar um novo config.xml';
-$lang['projects_create_config_fail'] = 'Não foi possível criar o arquivo config.xml em %s';
-$lang['projects_open_config_fail'] = 'Não foi possível abrir o config.xml dessa seção, deseja <a href="javascript:window.history.go(-1)">voltar</a>?';
+$lang['projects_generate_config_fail'] = 'Não foi possível gerar um novo config.yml';
+$lang['projects_create_config_fail'] = 'Não foi possível criar o arquivo config.yml em %s';
+$lang['projects_open_config_fail'] = 'Não foi possível abrir o section.yml dessa seção, deseja <a href="javascript:window.history.go(-1)">voltar</a>?';
 $lang['projects_not_allowed_column_equals_table'] = 'O nome da coluna não pode ser igual ao da tabela';
 $lang['projects_fields_required'] = 'Ao preencher o nome do campo, os campos Input, Coluna, Tipo se tornam obrigatórios';
 $lang['projects_options_select_required'] = 'Ao preencher o campo "Options", o campo "Label Options" é obrigatório, selecione uma opção no campo %s';
@@ -151,11 +151,8 @@ $lang['projects_not_allowed_column_modify'] = 'Não foi possível modificar a co
 $lang['projects_column_equals_table'] = 'O nome da coluna não pode ser igual ao nome da tabela';
 $lang['projects_create_column_id_not_allowed'] = 'O campo "id" é criado automaticamente pelo sistema, informe outro nome';
 $lang['projects_duplicate_field_not_allowed'] = 'O campo %s foi duplicado';
-/*ERRORS IMPORT TABLE*/
-$lang['projects_pk_required'] = 'Para importar uma tabela é necessário que exista uma coluna "id" com chave primária';
-$lang['projects_pk_id_name_required'] = 'O nome da coluna com chave primaria é %s, altere o nome para "id" para conseguir importar a tabela';
-$lang['projects_type_column_not_exists'] = 'A coluna "%s" possui o tipo de entrada "%s", o CMS não possui esse tipo de entrada por padrão. <br>Para corrigir altere o tipo de entrada no banco de dados ou insira no arquivo "wd-admin/application/apps/projects/libraries/Config_page.php", método <strong>types()</strong>.';
-/*ERRORS JS*/
+$lang['projects_required_field'] = 'É obrigatório criar no mínimo um campo';
+/* ERRORS JS */
 $lang['projects_all_fields_required'] = 'Todos os campos com asterísco são obrigatórios';
 $lang['projects_name_exists'] = 'O nome desse campo já existe, tente outro';
 $lang['projects_column_name_exists'] = 'O nome dessa coluna já existe, tente outro';

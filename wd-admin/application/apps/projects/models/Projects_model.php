@@ -4,70 +4,110 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Projects_model extends CI_Model {
+class Projects_model extends CI_Model
+{
+    private $config_path = 'application/apps/projects/projects/';
 
-    public function create($data) {
-        $set = [
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->library('spyc');
+    }
+
+    public function list_projects()
+    {
+        $files = array();
+        $path = opendir($this->config_path);
+        while (false !== ($filename = readdir($path))) {
+            if (is_file($this->config_path . $filename . '/project.yml')) {
+                $files[] = $this->get_project($filename);
+            }
+        }
+
+        return $files;
+    }
+
+    public function total_projects($dev_mode)
+    {
+        $projects = $this->list_projects();
+        if ($dev_mode) {
+            return count($projects);
+        }
+
+        return count(search($projects, 'status', '1'));
+    }
+
+    public function get_project($project_dir)
+    {
+        $project = $this->config_path . $project_dir . '/project.yml';
+        $config = spyc_load_file($project);
+        if (!$config) {
+            return false;
+        }
+
+        return $config;
+    }
+
+    public function save($data, $project_dir)
+    {
+        $project = $this->config_path . $project_dir . '/project.yml';
+        $data_project = spyc_dump($data);
+        $fp = fopen($project, 'w');
+        if (!$fp) {
+            return false;
+        }
+
+        fwrite($fp, $data_project);
+        fclose($fp);
+        chmod($project, 0640);
+
+        return true;
+    }
+
+    public function create($data)
+    {
+        $set = array(
             'name' => $data['name'],
             'directory' => $data['dir'],
-            'fk_user' => $data['id_user'],
-            'slug' => $data['slug'],
-            'main' => $data['main'],
-            'preffix' => $data['preffix']
-        ];
-        return $this->db->insert('wd_projects', $set);
+            'main_project' => $data['main'],
+            'status' => $data['status'],
+            'preffix' => $data['preffix'],
+            'user_id' => $data['id_user'],
+        );
+
+        $this->save($set, $data['dir']);
     }
 
-    public function edit($data) {
-        $set = [
-            'name' => $data['name'],
-            'slug' => $data['slug'],
-            'status' => $data['status']
-        ];
-        return $this->db->update('wd_projects', $set, ['id' => $data['project']]);
-    }
-
-    public function verify_slug($slug, $id = NULL) {
-        $this->db->select('id');
-        $this->db->where('slug', $slug);
-        $this->db->where('id!=', $id);
-        return $this->db->get('wd_projects')->num_rows();
-    }
-
-    public function search($dev_mode, $keyword = null, $total = null, $offset = null) {
-        $this->db->group_start();
-        $this->db->like('name', $keyword);
-        $this->db->or_like('directory', $keyword);
-        $this->db->group_end();
-        $this->db->limit($total, $offset);
-        $this->db->order_by('main DESC, name');
-        if ($dev_mode == '0') {
-            $this->db->where('status', '1');
+    public function search($dev_mode, $keyword = null)
+    {
+        $projects = $this->list_projects();
+        if (!empty($keyword)) {
+            $projects = search($projects, 'name', '' . $keyword . '', true);
         }
-        return $this->db->get('wd_projects')->result_array();
-    }
 
-    public function search_total_rows($dev_mode, $keyword = null) {
-        $this->db->select('count(id) total');
-        $this->db->group_start();
-        $this->db->like('name', $keyword);
-        $this->db->or_like('directory', $keyword);
-        $this->db->group_end();
         if ($dev_mode == '0') {
-            $this->db->where('status', '1');
+            $projects = search('projects', 'status', '1');
         }
-        return $this->db->get('wd_projects')->row()->total;
+
+        return $projects;
     }
 
-    public function main_exists() {
-        return $this->db->get_where('wd_projects', ['main' => '1'])->row_array();
+    public function main_exists()
+    {
+        $projects = $this->list_projects();
+        if ($projects) {
+            foreach ($projects as $project) {
+                if ($project['main_project'] == '1') {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
-    public function get_project($slug) {
-        return $this->db->get_where('wd_projects', ['slug' => $slug])->row_array();
-    }
-
-    public function delete($id) {
+    public function delete($id)
+    {
         $this->db->select('wd_sections.table');
         $this->db->join('wd_pages', 'wd_pages.id=wd_sections.fk_page');
         $this->db->join('wd_projects', 'wd_projects.id=wd_pages.fk_project');
@@ -83,10 +123,10 @@ class Projects_model extends CI_Model {
         return $this->db->delete('wd_projects', ['id' => $id]);
     }
 
-    public function list_projects_permissions() {
+    public function list_projects_permissions()
+    {
         $this->db->select('id, name, slug, directory');
         $this->db->where('status', 1);
         return $this->db->get('wd_projects')->result_array();
     }
-
 }

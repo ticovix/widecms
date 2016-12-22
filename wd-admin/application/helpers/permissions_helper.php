@@ -25,7 +25,7 @@ if (!function_exists('check_url')) {
             return true;
         }
         $CI->load->model('permissions_model', null, null, true);
-        $pages = $CI->permissions_model->list_pages($app);
+        $pages = $CI->permissions_model->list_sections($app);
         if ($pages) {
             foreach ($pages as $page) {
                 $url_page = str_replace('/', '\/', $page['page']);

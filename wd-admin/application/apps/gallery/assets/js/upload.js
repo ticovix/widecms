@@ -218,10 +218,11 @@ $(function () {
 
             $(modal).modal("show");
             $(modal).attr("id", selector.current_modal.replace("#", ""));
+            console.log(limit_select);
             if (permissions.app !== true || limit_select === 1) {
-                $(modal).children(modal_footer).addClass("hide");
+                $(modal_footer).addClass("hide");
             } else {
-                $(modal).children(modal_footer).removeClass("hide");
+                $(modal_footer).removeClass("hide");
             }
 
             $(upload_config).val(JSON.stringify({

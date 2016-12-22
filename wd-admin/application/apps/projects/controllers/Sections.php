@@ -6,11 +6,7 @@ if (!defined('BASEPATH')) {
 
 class Sections extends MY_Controller
 {
-    private $path_view_project = '';
-    /*
-     * Variável pública com o limite de seções por página
-     */
-    public $limit = 10;
+    private $config_path = '';
 
     public function __construct()
     {
@@ -18,7 +14,7 @@ class Sections extends MY_Controller
         func_only_dev();
         $this->data = $this->apps->data_app();
         $this->load->model_app('sections_model');
-        $this->path_view_project = 'application/' . APP_PATH . 'views/project/';
+        $this->config_path = 'application/' . APP_PATH . 'projects/';
     }
     /*
      * Método para listar seções
@@ -29,17 +25,15 @@ class Sections extends MY_Controller
         $this->lang->load_app('sections/sections');
         $project = get_project();
         $page = get_page();
-        $search = $this->form_search($page);
-        $sections = $search['sections'];
-        $total_rows = $search['total_rows'];
-        $pagination = $this->pagination($total_rows);
-
+        $project_dir = $project['directory'];
+        $page_dir = $page['directory'];
+        $sections = $this->form_search($project_dir, $page_dir);
+        $total = $this->sections_model->total_sections($project_dir, $page_dir);
         $vars = array(
             'title' => $page['name'],
             'name_app' => $this->data['name'],
             'sections' => $sections,
-            'pagination' => $pagination,
-            'total' => $total_rows,
+            'total' => $total,
             'project' => $project,
             'page' => $page
         );
@@ -50,71 +44,152 @@ class Sections extends MY_Controller
      * Método de busca de seção
      */
 
-    private function form_search($page)
+    private function form_search($project_dir, $page_dir)
     {
         $this->form_validation->set_rules('search', $this->lang->line(APP . '_field_search'), 'trim|required');
         $this->form_validation->run();
-        $id_page = $page['id'];
         $keyword = $this->input->get('search');
-        $perPage = $this->input->get('per_page');
-        $limit = $this->limit;
-        $sections = $this->sections_model->search_sections($id_page, $keyword, $limit, $perPage);
-        $total_rows = $this->sections_model->search_sections_total_rows($id_page, $keyword);
-
-        return array(
-            'sections' => $sections,
-            'total_rows' => $total_rows
-        );
+        return $this->sections_model->search($project_dir, $page_dir, $keyword);
     }
-    /*
-     * Método para paginação da listagem de seções
-     */
 
-    private function pagination($total_rows)
+    public function export($section_dir)
     {
-        $this->load->library('pagination');
-        $config['total_rows'] = $total_rows;
-        $config['per_page'] = $this->limit;
-        $config['page_query_string'] = true;
-        $config['reuse_query_string'] = true;
-        $config['num_tag_open'] = '<li>';
-        $config['num_tag_close'] = '</li>';
-        $config['cur_tag_open'] = '<li class="active"><a>';
-        $config['cur_tag_close'] = '</a></li>';
-        $config['prev_tag_open'] = '<li>';
-        $config['prev_tag_close'] = '</li>';
-        $config['next_tag_open'] = '<li>';
-        $config['next_tag_close'] = '</li>';
-        $config['last_tag_open'] = '<li>';
-        $config['last_tag_close'] = '</li>';
-        $config['first_tag_open'] = '<li>';
-        $config['first_tag_close'] = '</li>';
-        $config['first_url'] = '?per_page=0';
+        $this->lang->load_app('sections/form');
+        $project = get_project();
+        $page = get_page();
+        $project_dir = $project['directory'];
+        $page_dir = $page['directory'];
+        $section = $this->sections_model->get_section($project_dir, $page_dir, $section_dir);
+        if (!$section) {
+            redirect();
+        }
 
-        $this->pagination->initialize($config);
-        $pagination = $this->pagination->create_links();
+        $path_section = $this->config_path . $project_dir . '/' . $page_dir . '/' . $section_dir . '/';
+        $cache = APPPATH . 'cache/';
+        if (!is_file($path_section . 'section.yml')) {
+            throw new Exception('Não é possível exportar a seção ' . $section['name'] . ', arquivo de configuração não encontrado.');
+        }
 
-        return $pagination;
+        if (!is_writable($cache)) {
+            throw new Exception('Não é possível exportar a seção ' . $section['name'] . ', você não tem permissões para escrever no diretório de cache.');
+        }
+
+        $name_zip = 'section-' . strtolower($section['name']) . '.zip';
+        $path_zip = $cache . $name_zip;
+        $source = str_replace('\\', '/', realpath($path_section)) . '/';
+        $zip = new ZipArchive;
+        $zip->open($path_zip, ZIPARCHIVE::CREATE);
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST);
+        foreach ($files as $file) {
+            $file = str_replace('\\', '/', realpath($file));
+            if (is_dir($file) === true) {
+                $zip->addEmptyDir('section/' . str_replace($source, '', $file . '/'));
+            } elseif (is_file($file) === true) {
+                $zip->addFile($file, 'section/' . str_replace($source, '', $file));
+            }
+        }
+
+        $zip->close();
+
+        header('Pragma: public');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', filemtime($path_zip)) . ' GMT');
+        header('Content-Type: application/force-download');
+        header('Content-Disposition: inline; filename="' . $name_zip . '"');
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Length: ' . filesize($path_zip));
+        header('Connection: close');
+        readfile($path_zip);
+
+        if (is_file($path_zip)) {
+            unlink($path_zip);
+        }
+
+        exit();
+    }
+
+    public function import()
+    {
+        $project = get_project();
+        $page = get_page();
+
+        if (empty($_FILES['file']['name'])) {
+            $this->form_validation->set_rules('file', 'Arquivo Zip', 'required');
+        } else {
+            $this->form_validation->set_rules('file', 'Arquivo Zip', 'trim');
+        }
+
+        $run = $this->form_validation->run();
+        try {
+            if ($run) {
+                $upload_path = APPPATH . APP_PATH . 'tmp/';
+                if (is_dir($upload_path)) {
+                    forceRemoveDir($upload_path);
+                }
+
+                mkdir($upload_path, 0750);
+
+                $config['upload_path'] = $upload_path;
+                $config['allowed_types'] = 'zip';
+                $this->load->library('upload', $config);
+                $upload = $this->upload->do_upload('file');
+                if (!$upload) {
+                    throw new Exception($this->upload->display_errors('', ''));
+                }
+
+                $data = $this->upload->data();
+                $file_zip = $data['file_name'];
+
+                $zip = new ZipArchive;
+                $zip->open($upload_path . $file_zip, ZIPARCHIVE::CREATE);
+                $zip->extractTo($upload_path);
+                $zip->close();
+                unlink($upload_path . $file_zip);
+
+                $section_path = $upload_path . 'section';
+                if (!is_file($section_path . '/section.yml')) {
+                    forceRemoveDir($upload_path);
+                    throw new Exception('Não é possível importar essa seção, não foi possível encontrar o caminho /section/section.yml');
+                }
+
+                redirect_app('project/' . $project['directory'] . '/' . $page['directory'] . '/create?import=true');
+            }
+
+            $validation_errors = validation_errors();
+            if (!empty($validation_errors)) {
+                throw new Exception($validation_errors);
+            }
+        } catch (Exception $e) {
+            setError($e->getMessage());
+        }
+
+        $vars = array(
+            'title' => 'Importar Seção',
+            'project' => $project,
+            'page' => $page,
+            'name_app' => $this->data['name'],
+        );
+        $this->load->template_app('dev-sections/import', $vars);
     }
     /*
      * Método para chamar a view de edição da seção
      */
 
-    public function edit($slug_section)
+    public function edit($section_dir)
     {
         $this->lang->load_app('sections/form');
         $project = get_project();
         $page = get_page();
-        $id_page = $page['id'];
         $fields = false;
-        $section = $this->sections_model->get_section($slug_section, $id_page);
+        $project_dir = $project['directory'];
+        $page_dir = $page['directory'];
+        $section = $this->sections_model->get_section($project_dir, $page_dir, $section_dir);
         $this->load->library_app('config_page');
-        $this->load->library_app('config_xml');
         $this->load->library_app('form');
-        $config = $this->config_xml->load_config($project['directory'], $page['directory'], $section['directory']);
-        if ($config) {
-            $fields = $this->treat_fields($config['fields']);
-            $this->form_edit_section($project, $page, $section, $config);
+        if ($section) {
+            $fields = $this->treat_fields($section['fields']);
+            $this->form_edit_section($project, $page, $section);
         } else {
             setError($this->lang->line(APP . '_open_config_fail'));
         }
@@ -137,7 +212,7 @@ class Sections extends MY_Controller
             'project' => $project,
             'page' => $page,
             'section' => $section,
-            'sections' => $this->list_options($section['id']),
+            'sections' => $this->list_options($project_dir, $page_dir, $section_dir),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
             'plugins_input' => $this->form->list_plugins()
@@ -146,9 +221,9 @@ class Sections extends MY_Controller
         $this->load->template_app('dev-sections/form', $vars);
     }
 
-    private function list_options($id_section = null)
+    private function list_options($project_dir, $page_dir, $section_dir = null)
     {
-        $options = $this->sections_model->list_sections_select($id_section);
+        $options = $this->sections_model->list_sections_select($project_dir, $page_dir, $section_dir);
         $options[] = array('table' => 'wd_users', 'name' => $this->lang->line(APP . '_option_users'));
 
         return $options;
@@ -157,28 +232,25 @@ class Sections extends MY_Controller
      * Método com o formulário de edição da seção
      */
 
-    private function form_edit_section($project, $page, $section, $config)
+    private function form_edit_section($project, $page, $section)
     {
         $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'trim|required');
         $this->form_validation->set_rules('directory', $this->lang->line(APP . '_label_directory'), 'trim|required|callback_verify_dir_edit');
         $this->form_validation->set_rules('table', $this->lang->line(APP . '_label_table'), 'trim|required|callback_verify_table_edit');
         if ($this->form_validation->run()) {
-            $dir_project = $project['directory'];
-            $slug_project = $project['slug'];
-            $dir_page = $page['directory'];
-            $slug_page = $page['slug'];
-            $dir_section = $section['directory'];
+            $project_dir = $project['directory'];
+            $page_dir = $page['directory'];
+            $section_dir = $section['directory'];
             /* Array com todos os os campos enviados pelo método post */
             $data = $this->get_post_data($project, $page, $section);
-            $data['old_config'] = $config;
+            $data['old_config'] = $section;
             $directory = $data['directory'];
 
-            $dir = $this->path_view_project . $dir_project . '/' . $dir_page . '/';
-            rename($dir . $dir_section, $dir . $directory);
-            $this->sections_model->edit($data);
-            $this->edit_fields($data);
+            $dir = $this->config_path . $project_dir . '/' . $page_dir . '/';
+            rename($dir . $section_dir, $dir . $directory);
+            $this->edit_config($data, $project_dir, $page_dir, $section_dir);
 
-            redirect_app('project/' . $slug_project . '/' . $slug_page);
+            redirect_app('project/' . $project_dir . '/' . $page_dir);
         } else {
             setError(validation_errors());
         }
@@ -192,7 +264,7 @@ class Sections extends MY_Controller
         $dir_project = $project['directory'];
         $dir_page = $page['directory'];
         $dir_section = $section['directory'];
-        $dir = $this->path_view_project . $dir_project . '/' . $dir_page . '/';
+        $dir = $this->config_path . $dir_project . '/' . $dir_page . '/';
         if ($section['directory'] != $directory) {
             if (!is_writable($dir . $dir_section)) {
                 $this->form_validation->set_message('verify_dir_edit', sprintf($this->lang->line(APP . '_not_allowed_folder_rename'), $directory));
@@ -228,7 +300,7 @@ class Sections extends MY_Controller
 
             // Verifica se a tabela possui o prefixo wd_
             $preffix_wd = substr($table, 0, 3);
-            if ($preffix_wd == 'wd_' && !$import) {
+            if ($preffix_wd == 'wd_') {
                 $this->form_validation->set_message('verify_table_edit', $this->lang->line(APP . '_not_allowed_preffix_wd'));
 
                 return false;
@@ -295,7 +367,6 @@ class Sections extends MY_Controller
             'old_section' => $section,
             'project_directory' => $project['directory'],
             'page_directory' => $page['directory'],
-            'page' => $page['id'],
             'name' => $name,
             'slug' => slug($directory),
             'directory' => $directory,
@@ -349,97 +420,86 @@ class Sections extends MY_Controller
      * Método para editar campos da seção
      */
 
-    private function edit_fields($data)
+    private function edit_config($data, $project_dir, $page_dir, $section_dir)
     {
-        // Recebe os campos com as edições atuais a ser atualizadas no xml e banco de dados
-        $fields = $this->filter_fields($data);
-        // Recebe os campos atuais
+        $config = $this->treat_config($data);
+        $fields = $config['fields'];
+        $table = $data['table'];
+        $old_section = $data['old_section'];
+        $current_table = $old_section['table'];
         $old_fields = $data['old_config']['fields'];
-        if ($fields) {
-            $x = 0;
-            $new_config = array();
-            foreach ($fields as $field) {
-                // Lista os campos a ser atualizado
-                $position = $field['position'];
-                $column = $field['column'];
-                $type = $field['type'];
-                $limit = $field['limit'];
-                $default = $field['default'];
-                $comment = $field['comment'];
-                $remove = (boolean) $field['remove'];
+        if (!$fields) {
+            return false;
+        }
 
-                $data_mod = array();
-                $data_mod['table'] = $data['table'];
-                $data_mod = array_merge($field, $data_mod);
-                // Verifica se o campo existe no xml atual
-                if (isset($old_fields[$x])) {
+        if ($table != $current_table) {
+            $this->sections_model->rename_table($current_table, $table);
+        }
 
-                    $old_column = $old_fields[$x]['column'];
-                    $old_type = strtolower($old_fields[$x]['type_column']);
-                    $old_limit = (isset($old_fields[$x]['limit'])) ? $old_fields[$x]['limit'] : '';
-                    $old_default = (isset($old_fields[$x]['default'])) ? $old_fields[$x]['default'] : '';
-                    $old_comment = (isset($old_fields[$x]['comment'])) ? $old_fields[$x]['comment'] : '';
-                    $data_mod['old_column'] = $old_column;
-                    $data_mod['old_limit'] = $old_limit;
+        $x = 0;
+        $new_config = array(
+            'name' => $data['name'],
+            'directory' => $data['directory'],
+            'table' => $data['table'],
+            'status' => $data['status'],
+            'fields' => array()
+        );
 
-                    if ($remove) {
-                        // Se a opção para remover o campo for selecionada
-                        $this->remove_field($data_mod);
-                    } elseif ($old_column != $column or
-                            $old_type != $type or
-                            $old_limit != $limit or
-                            $old_default != $default or
-                            $old_comment != $comment) {
+        foreach ($fields as $field) {
+            $position = $field['position'];
+            $column = $field['column'];
+            $type = $field['type'];
+            $limit = $field['limit'];
+            $default = $field['default'];
+            $comment = $field['comment'];
+            $remove = (boolean) $field['remove'];
 
-                        // Se houver atualizações no nome da coluna ou no tipo da coluna
-                        // atualiza a coluna com os novos dados
-                        $modify = $this->sections_model->modify_column($data_mod);
-                        if (!$modify) {
-                            // Se não atualizar
-                            $data_mod['column'] = $old_column;
-                            $data_mod['type'] = $old_type;
-                            $data_mod['limit'] = $old_limit;
-                            $data_mod['default'] = $old_default;
-                            $data_mod['comment'] = $old_comment;
-                            setError(sprintf($this->lang->line(APP . '_not_allowed_column_modify'), $old_column));
-                        }
+            if (isset($old_fields[$x]) && $remove) {
+                $this->remove_field($field);
+            } elseif (isset($old_fields[$x])) {
+                $old = $old_fields[$x]['database'];
+                $old_column = $old['column'];
+                $old_type = strtolower($old['type_column']);
+                $old_limit = (isset($old['limit'])) ? $old['limit'] : '';
+                $old_default = (isset($old['default'])) ? $old['default'] : '';
+                $old_comment = (isset($old['comment'])) ? $old['comment'] : '';
+                if ($old_column != $column || $old_type != $type || $old_limit != $limit || $old_default != $default || $old_comment != $comment) {
+                    $field['old_column'] = $old_column;
+                    $modify = $this->sections_model->modify_column($field, $table);
+                    if (!$modify) {
+                        // Se não atualizar
+                        $field['column'] = $old_column;
+                        $field['type'] = $old_type;
+                        $field['limit'] = $old_limit;
+                        $field['default'] = $old_default;
+                        $field['comment'] = $old_comment;
+                        setError(sprintf($this->lang->line(APP . '_not_allowed_column_modify'), $old_column));
                     }
-                } else {
-                    // Se o campo não existir, insere no banco de dados
-                    $this->insert_field($data_mod);
                 }
-
-                if (!$remove) {
-                    // Se o campo de remoção não for selecionado, inclui no novo xml
-                    $new_config[$position] = $data_mod;
-                }
-
-                $x++;
+            } else {
+                $this->insert_field($table, $field);
             }
 
-            ksort($new_config);
+            if (!$remove) {
+                $new_config['fields'][$position] = $field;
+            }
 
-            return $this->save_edit_config($data, $new_config);
+            $x++;
         }
+
+        ksort($new_config['fields']);
+        $this->sections_model->create($new_config, $project_dir, $page_dir, $data['directory']);
     }
-    /*
-     * Método para remover coluna do banco de dados
-     */
 
     private function remove_field($data)
     {
-        // Remove a coluna
         $remove = $this->sections_model->remove_column($data);
         if (!$remove) {
-            // Se a coluna não for removida
             setError(sprintf($this->lang->line(APP . '_not_allowed_column_remove'), $data['old_column']));
         }
     }
-    /*
-     * Método para inserir campo no banco de dados
-     */
 
-    private function insert_field($data)
+    private function insert_field($table, $data)
     {
         $field_insert = array();
         $field_insert[] = array(
@@ -449,68 +509,15 @@ class Sections extends MY_Controller
             'default' => $data['default'],
             'comment' => $data['comment']
         );
-        $this->sections_model->create_columns($data['table'], $field_insert);
+        $this->sections_model->create_columns($table, $field_insert);
     }
-    /*
-     * Método para salvar configuração no xml
-     */
 
-    private function save_edit_config($data, $new_config)
-    {
-        if (!$new_config) {
-            return false;
-        }
-
-        $this->load->library_app('config_page');
-        $this->load->library_app('config_xml');
-        // Gera uma nova estrutura xml com os novos campos
-        $config_xml = $this->config_xml->create_config_xml($new_config);
-        if ($config_xml) {
-            $path_config_xml = $this->path_view_project . $data['project_directory'] . '/' . $data['page_directory'] . '/' . $data['directory'] . '/config.xml';
-            // Abre o arquivo config.xml e atualiza a nova estrutura
-            $fp = fopen($path_config_xml, 'w');
-            fwrite($fp, $config_xml);
-            fclose($fp);
-            if (!$fp) {
-                // Se não for possível editar o arquivo, restaura todas as modificações
-                $this->restore_columns($new_config);
-                setError($this->lang->line(APP . '_save_config_fail'));
-            } else {
-                return true;
-            }
-        } else {
-            // Se houver erros na nova estrutura xml gerada, restaura todas as modificações
-            $this->restore_columns($new_config);
-            setError($this->lang->line(APP . '_generate_config_fail'));
-        }
-    }
-    /*
-     * Método para restaurar as alterações feita nas colunas de uma determinada tabela
-     */
-
-    private function restore_columns($data)
-    {
-        if ($data) {
-            foreach ($data as $arr) {
-                $arr['column'] = $arr['old_column'];
-                $arr['type'] = $arr['old_type'];
-                $arr['limit'] = $arr['old_limit'];
-
-                $this->sections_model->modify_column($arr);
-            }
-        }
-    }
-    /*
-     * Método para remover seção
-     */
-
-    public function remove($slug_section)
+    public function remove($section_dir)
     {
         $this->lang->load_app('sections/remove');
         $project = get_project();
         $page = get_page();
-        $id_page = $page['id'];
-        $section = $this->sections_model->get_section($slug_section, $id_page);
+        $section = $this->sections_model->get_section($project['directory'], $project['directory'], $section_dir);
         if (!$section or ! $project or ! $page) {
             redirect_app();
         }
@@ -533,22 +540,24 @@ class Sections extends MY_Controller
     private function form_remove($section, $project, $page)
     {
         $this->form_validation->set_rules('password', $this->lang->line(APP . '_label_password'), 'required|callback_verify_password');
-        $this->form_validation->set_rules('section', $this->lang->line(APP . '_label_section'), 'trim|required|integer');
+        $this->form_validation->set_rules('section', $this->lang->line(APP . '_label_section'), 'trim|required');
         if ($this->form_validation->run()) {
-            if ($section['id'] != $this->input->post('section')) {
-                redirect_app('project/' . $project['slug'] . '/' . $page['slug']);
+            $project_dir = $project['directory'];
+            $page_dir = $page['directory'];
+            if ($section['directory'] != $this->input->post('section')) {
+                redirect_app('project/' . $project_dir . '/' . $page_dir);
             }
 
-            $dir_section = $section['directory'];
+            $section_dir = $section['directory'];
             $table = $section['table'];
-            $id_section = $section['id'];
-            $remove = $this->sections_model->remove($table, $id_section);
-            if ($remove) {
-                // Se tudo relacionado a seção for removida do banco de dados, remove o diretório com as config xml dos formulárioss
-                forceRemoveDir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $dir_section);
+            $check = $this->sections_model->check_table_exists($table);
+            if ($check) {
+                $this->sections_model->remove_table($table);
             }
 
-            redirect_app('project/' . $project['slug'] . '/' . $page['slug']);
+            forceRemoveDir($this->config_path . $project_dir . '/' . $page_dir . '/' . $section_dir);
+
+            redirect_app('project/' . $project_dir . '/' . $page_dir);
         }
     }
     /*
@@ -602,48 +611,68 @@ class Sections extends MY_Controller
             'preffix' => $project['preffix'],
             'project' => $project,
             'page' => $page,
-            'sections' => $this->list_options(),
-            'tables_import' => $this->sections_model->list_tables_import(),
+            'sections' => $this->list_options($project['directory'], $page['directory']),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
             'plugins_input' => $this->form->list_plugins(),
             'label_options' => ''
         );
 
+        $import = (bool) $this->input->get('import');
+        if ($import) {
+            $section_path = APPPATH . APP_PATH . 'tmp/section/';
+            $config = $this->sections_model->get_tmp_config($section_path . 'section.yml');
+            $vars['name'] = $config['name'];
+            $vars['directory'] = $config['directory'];
+            $vars['table'] = $config['table'];
+            $vars['status'] = $config['status'];
+            $vars['fields'] = $config['fields'];
+        }
+
         $this->load->template_app('dev-sections/form', $vars);
     }
-    /*
-     * Método com configurações do formulário para criar seção
-     */
 
     private function form_create_section($project, $page)
     {
         $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'trim|required');
-        $this->form_validation->set_rules('directory', $this->lang->line(APP . '_label_directory'), 'trim|required|is_unique[wd_sections.directory]|callback_verify_dir_create');
+        $this->form_validation->set_rules('directory', $this->lang->line(APP . '_label_directory'), 'trim|required|callback_verify_dir_create');
         $this->form_validation->set_rules('table', $this->lang->line(APP . '_label_table'), 'trim|required|callback_verify_table_create');
         if ($this->form_validation->run()) {
-            $import = ($this->input->post('import') == 'true');
-            $dir_project = $project['directory'];
-            $slug_project = $project['slug'];
-            $dir_page = $page['directory'];
-            $slug_page = $page['slug'];
-            // Array com todos os os campos enviados pelo método post
+            $import = (bool) $this->input->get('import');
+            $project_dir = $project['directory'];
+            $page_dir = $page['directory'];
             $data = $this->get_post_data($project, $page);
-            $data['import'] = $import;
             $directory = $data['directory'];
             $table = $data['table'];
 
-            if (!$import) {
-                // Se não for uma importação de tabela, a tabela é criada no banco de dados
-                $this->sections_model->create_table($table);
+            $config = $this->treat_config($data);
+            if (!$config) {
+                return false;
             }
 
-            // Cria o diretório da seção
-            mkdir($this->path_view_project . $dir_project . '/' . $dir_page . '/' . $directory, 0755);
-            // Cria os campos no arquivo config.xml e no banco de dados (caso não seja importação de tabela)
-            $this->create_fields($data);
+            $dir_section = $this->config_path . $project_dir . '/' . $page_dir . '/' . $directory;
+            mkdir($dir_section, 0755);
 
-            redirect_app('project/' . $slug_project . '/' . $slug_page);
+            $this->sections_model->create($config, $data['project_directory'], $data['page_directory'], $data['directory']);
+            $this->sections_model->create_table($table);
+            $this->sections_model->create_columns($table, $config['fields']);
+
+
+            if ($import) {
+                $upload_path = APPPATH . APP_PATH . 'tmp/';
+                $section_path = $upload_path . 'section/';
+                if (is_dir($section_path)) {
+                    $opendir = opendir($section_path);
+                    while (false !== ($file = readdir($opendir))) {
+                        if ($file != 'section.yml') {
+                            rename($section_path . $file, $dir_section . '/' . $file);
+                        }
+                    }
+                    forceRemoveDir($upload_path);
+                }
+            }
+
+            redirect_app('project/' . $project_dir . '/' . $page_dir);
         } else {
             setError(validation_errors());
         }
@@ -656,14 +685,14 @@ class Sections extends MY_Controller
     {
         $project = get_project();
         $page = get_page();
-        $is_dir_section = is_dir($this->path_view_project . $project['directory'] . '/' . $page['directory'] . '/' . $directory);
+        $is_dir_section = is_dir($this->config_path . $project['directory'] . '/' . $page['directory'] . '/' . $directory);
         if ($is_dir_section) {
             $this->form_validation->set_message('verify_dir_create', sprintf($this->lang->line(APP . '_folder_exists'), $directory));
 
             return false;
         }
 
-        $is_writable_section = is_writable($this->path_view_project . $project['directory'] . '/' . $page['directory']);
+        $is_writable_section = is_writable($this->config_path . $project['directory'] . '/' . $page['directory']);
         if (!$is_writable_section) {
             $this->form_validation->set_message('verify_dir_create', $this->lang->line(APP . '_not_allowed_folder_create'));
 
@@ -702,56 +731,23 @@ class Sections extends MY_Controller
 
         return true;
     }
-    /*
-     * Método para criar campos
-     */
 
-    protected function create_fields($data)
-    {
-        // Filtra os campos do arquivo xml
-        $fields = $this->filter_fields($data);
-        if (!is_array($fields) or count($fields) <= 0) {
-            return false;
-        }
-
-        $this->load->library_app('config_xml');
-        // Cria estrutura xml do array
-        $config_xml = $this->config_xml->create_config_xml($fields);
-        $path_config_xml = $this->path_view_project . $data['project_directory'] . '/' . $data['page_directory'] . '/' . $data['directory'];
-        // Cria o arquivo config.xml
-        $fp = fopen($path_config_xml . '/config.xml', 'w');
-        fwrite($fp, $config_xml);
-        fclose($fp);
-        chmod($path_config_xml . '/config.xml', 0640);
-
-        if ($fp) {
-            // Se o arquivo for criado e não for uma importação de tabelas, cria colunas dos campos no banco de dados
-            if (!$data['import']) {
-                $this->sections_model->create_columns($data['table'], $fields);
-            }
-        } else {
-            setError(sprintf($this->lang->line(APP . '_create_config_fail'), $path_config_xml));
-
-            return false;
-        }
-        $this->sections_model->create($data);
-
-        return true;
-    }
-    /*
-     * Método para filtrar campos do config xml
-     */
-
-    protected function filter_fields($data)
+    protected function treat_config($data)
     {
         $total = count($data['name_field']);
         if (!$total) {
+            setError($this->lang->line(APP . '_required_field'));
             return false;
         }
 
         $this->load->library_app('config_page');
-        $fields = array();
-        // Recebe os campos que foram selecionados para ser removido
+        $config = array(
+            'name' => $data['name'],
+            'directory' => $data['directory'],
+            'table' => $data['table'],
+            'status' => $data['status']
+        );
+
         $remove_field = (isset($data['remove_field'])) ? $data['remove_field'] : array();
         for ($i = 0; $i < $total; $i++) {
             $name_field = $data['name_field'][$i];
@@ -769,11 +765,11 @@ class Sections extends MY_Controller
             $attributes_field = $data['attributes_field'][$i];
             $position = $data['position'][$i];
             $remove = (is_array($remove_field) && array_key_exists($i, $remove_field));
-            // Campos para configurar select
+            // Select
             $options_field = $data['options_table'][$i];
             $label_options_field = $data['options_label'][$i];
             $trigger_select_field = $data['options_trigger_select'][$i];
-            // Campos de upload
+            // Upload
             $extensions_allowed = $data['extensions_allowed'][$i];
             $image_resize = $data['image_resize'][$i];
             $image_x = $data['image_x'][$i];
@@ -796,7 +792,7 @@ class Sections extends MY_Controller
             $image_text_x = $data['image_text_x'][$i];
             $image_text_y = $data['image_text_y'][$i];
             $image_thumbnails = $data['image_thumbnails'][$i];
-            // Verifica se os campos seguem os requisitos do sistema
+
             $verify = $this->verify_fields([
                 'table' => $data['table'],
                 'column_field' => $column_field,
@@ -805,24 +801,21 @@ class Sections extends MY_Controller
                 'options_field' => $options_field,
                 'label_options_field' => $label_options_field,
                 'input_field' => $input_field,
-                'fields' => $fields,
+                'fields' => $config,
             ]);
-
             if (!$verify) {
                 return false;
-            } elseif (!empty($name_field) && !empty($input_field) && !empty($column_field) && !empty($type_field)) {
-                // Se todos os campos obrigatórios forem preenchidos corretamente
+            }
+
+            if (!empty($name_field) && !empty($input_field) && !empty($column_field) && !empty($type_field)) {
                 if (empty($limit_field)) {
-                    // Se o limite do campo não for setado, faz uma busca para verificar um limite padrão
                     $search = search($this->config_page->types(), 'type', $type_field);
                     if (!empty($search[0]['constraint'])) {
-                        // Caso o limite seja encontrado, seta um limite para o campo
                         $limit_field = $search[0]['constraint'];
                     }
                 }
 
-                $fields[] = array(
-                    'page' => $data['page'],
+                $config['fields'][] = array(
                     'name' => $name_field,
                     'input' => $input_field,
                     'list_reg' => $list_reg_field,
@@ -838,11 +831,11 @@ class Sections extends MY_Controller
                     'comment' => $comment_field,
                     'remove' => $remove,
                     'position' => $position,
-                    // Campos para configurar select
+                    // Select
                     'options_table' => $options_field,
                     'options_label' => $label_options_field,
                     'options_trigger_select' => $trigger_select_field,
-                    // Campos de upload
+                    // Upload
                     'extensions_allowed' => $extensions_allowed,
                     'image_resize' => $image_resize,
                     'image_x' => $image_x,
@@ -869,11 +862,8 @@ class Sections extends MY_Controller
             }
         }
 
-        return $fields;
+        return $config;
     }
-    /*
-     * Método para verificar se os campos seguem os requisitos do sistema
-     */
 
     protected function verify_fields($data)
     {
@@ -922,7 +912,7 @@ class Sections extends MY_Controller
         $page = $this->uri->segment(3);
         if (empty($this->page)) {
             $this->load->model_app('pages_model');
-            $this->page = $this->pages_model->get_page($page);
+            $this->page = $this->pages_model->get_section($page);
         }
 
         return $this->page;

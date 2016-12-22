@@ -7,11 +7,11 @@ if (!defined('BASEPATH')) {
 <ul class="breadcrumb">
     <li><a href="<?php echo base_url(); ?>"><i class="fa fa-home"></i></a></li>
     <li><a href="<?php echo base_url_app(); ?>"><?php echo $name_app ?></a></li>
-    <li><a href="<?php echo base_url_app('project/' . $slug_project); ?>"><?php echo $name_project ?></a></li>
+    <li><a href="<?php echo base_url_app('project/' . $project_dir); ?>"><?php echo $name_project ?></a></li>
     <?php
     if ($dev_mode) {
         ?>
-        <li><a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page); ?>"><?php echo $name_page ?></a></li>
+        <li><a href="<?php echo base_url_app('project/' . $project_dir . '/' . $page_dir); ?>"><?php echo $name_page ?></a></li>
         <?php
     }
     ?>
@@ -24,7 +24,7 @@ if (!defined('BASEPATH')) {
                 <h2><?php echo $title ?></h2>
                 <div class="clearfix"></div>
             </div>
-            <div class="x_content" id="data-project" data-project="<?php echo $slug_project ?>" data-page="<?php echo $slug_page ?>" data-section="<?php echo $slug_section ?>">
+            <div class="x_content" id="data-project" data-project="<?php echo $project_dir ?>" data-page="<?php echo $page_dir ?>" data-section="<?php echo $section_dir ?>">
                 <?php echo form_open(null, ['method' => 'get']); ?>
                 <div class="row form-group">
                     <div class="col-sm-9">
@@ -54,12 +54,15 @@ if (!defined('BASEPATH')) {
                             <div class="row">
                                 <?php
                                 $count = 1;
+                                $cols = 4;
                                 foreach ($form_search as $field) {
-                                    $label = $field['label'];
-                                    $column = $field['column'];
                                     $input = $field['input'];
-                                    $type = $field['type'];
-                                    $type_column = $field['type_column'];
+                                    $database = $field['database'];
+                                    $label = $input['label'];
+                                    $column = $database['column'];
+                                    $input_html = $input['html'];
+                                    $type = $input['type'];
+                                    $type_column = $database['type_column'];
                                     $clearfix = '<div class="clearfix"></div>';
                                     $has_type_search = ($type_column != 'date' && $type_column != 'datetime' && $type != 'select' && $type != 'checkbox');
                                     ?>
@@ -72,9 +75,9 @@ if (!defined('BASEPATH')) {
                                         }
                                         ?>">
                                                  <?php
-                                                 echo $input;
+                                                 echo $input_html;
                                                  if ($has_type_search) {
-                                                     $value_type = $field['value_type'];
+                                                     $value_type = $input['value_type'];
                                                      ?>
                                                 <div class="dropdown input-group-addon">
                                                     <a href="javascript:void(0);" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-cog"></span></a>
@@ -107,9 +110,10 @@ if (!defined('BASEPATH')) {
                                     </div>
 
                                     <?php
-                                    if ($count % 4 == 0) {
+                                    if ($count % $cols == 0) {
                                         echo $clearfix;
                                     }
+
                                     $count++;
                                 }
                                 ?>
@@ -126,10 +130,11 @@ if (!defined('BASEPATH')) {
                         <a class="pull-right" role="button" data-toggle="collapse" href="#search-advanced" aria-expanded="false" aria-controls="collapseExample"><?php echo $this->lang->line(APP . '_btn_search_advanced') ?></a>
                         <?php
                     }
+
                     if (check_method($method . '-create')) {
                         ?>
                         <div class="btn-toolbar">
-                            <a href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> <?php echo $this->lang->line(APP . '_btn_add_post') ?></a>
+                            <a href="<?php echo base_url_app('project/' . $project_dir . '/' . $page_dir . '/' . $section_dir . '/create'); ?>" class="btn btn-primary"><i class="icon-plus"></i> <?php echo $this->lang->line(APP . '_btn_add_post') ?></a>
                             <div class="btn-group"></div>
                         </div>
                         <?php
@@ -138,7 +143,7 @@ if (!defined('BASEPATH')) {
                 </div>
                 <?php
                 echo form_close();
-                echo form_open(APP_PATH . 'project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/remove');
+                echo form_open(APP_PATH . 'project/' . $project_dir . '/' . $page_dir . '/' . $section_dir . '/remove');
                 ?>
 
                 <button class="btn btn-danger hide" id="btn-del-selected"><i class="fa fa-remove remove_register"></i> <?php echo $this->lang->line(APP . '_btn_remove_selected') ?></button>
@@ -150,7 +155,7 @@ if (!defined('BASEPATH')) {
                             if ($list) {
                                 foreach ($list as $arr) {
                                     ?>
-                                    <th><?php echo $arr['label']; ?></th>
+                                    <th><?php echo $arr['input']['label']; ?></th>
                                     <?php
                                 }
                             }
@@ -183,7 +188,7 @@ if (!defined('BASEPATH')) {
                                                 <?php
                                                 $allow_edit = check_method($method . '-edit');
                                                 if ($allow_edit) {
-                                                    echo '<a href="' . base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section . '/edit/' . $id) . '">';
+                                                    echo '<a href="' . base_url_app('project/' . $project_dir . '/' . $page_dir . '/' . $section_dir . '/edit/' . $id) . '">';
                                                 }
                                                 echo $value;
                                                 if ($allow_edit) {

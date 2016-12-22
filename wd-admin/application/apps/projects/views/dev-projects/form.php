@@ -6,7 +6,7 @@ if (!defined('BASEPATH')) {
 
 <ul class="breadcrumb">
     <li><a href="<?php echo base_url() ?>"><i class="fa fa-home"></i></a></li>
-    <li><a href="<?php echo base_url_app() ?>"><?php echo $name_app?></a></li>
+    <li><a href="<?php echo base_url_app() ?>"><?php echo $name_app ?></a></li>
     <li class="active"><?php echo $title ?></li>
 </ul>
 <div class="row">
@@ -32,11 +32,7 @@ if (!defined('BASEPATH')) {
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label><?php echo $this->lang->line(APP . '_label_directory'); ?>*</label>
-                                <input type="text" name="dir" id="dir" value="<?php echo set_value('dir', $directory) ?>" class="form-control" <?php
-                                if ($this->uri->segment('3') == 'edit') {
-                                    echo 'disabled';
-                                }
-                                ?>>
+                                <input type="text" name="dir" id="dir" value="<?php echo set_value('dir', $directory) ?>" class="form-control" <?php echo ($this->uri->segment('3') == 'edit') ? 'disabled' : '' ?>>
                             </div>
                         </div>
                     </div>
@@ -44,11 +40,7 @@ if (!defined('BASEPATH')) {
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label><?php echo $this->lang->line(APP . '_label_preffix'); ?>*</label>
-                                <input type="text" name="preffix" id="preffix" maxlength="6" value="<?php echo set_value('preffix', $preffix) ?>" class="form-control" <?php
-                                if ($this->uri->segment('3') == 'edit') {
-                                    echo 'disabled';
-                                }
-                                ?>>
+                                <input type="text" name="preffix" id="preffix" maxlength="6" value="<?php echo set_value('preffix', $preffix) ?>" class="form-control" <?php echo ($this->uri->segment('3') == 'edit') ? 'disabled' : '' ?>>
                             </div>
                         </div>
                         <div class="col-md-6">

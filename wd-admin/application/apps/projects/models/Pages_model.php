@@ -4,53 +4,101 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-class Pages_model extends CI_Model {
-    
-    public function get_page($slug) {
-        return $this->db->get_where('wd_pages', ['slug' => $slug])->row_array();
-    }
-    
-    public function search($project, $dev_mode, $keyword = null, $total = null, $offset = null) {
-        $this->db->like('name', $keyword);
-        $this->db->limit($total, $offset);
-        $this->db->order_by('order, name');
-        $this->db->where('fk_project', $project);
-        if (!$dev_mode) {
-            $this->db->where('status', '1');
-        }
-        return $this->db->get('wd_pages')->result_array();
+class Pages_model extends CI_Model
+{
+    private $config_path = 'application/apps/projects/projects/';
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->library('spyc');
     }
 
-    public function search_total_rows($project, $dev_mode, $keyword = null) {
-        $this->db->select('count(id) total');
-        $this->db->like('name', $keyword);
-        $this->db->where('fk_project', $project);
-        if (!$dev_mode) {
-            $this->db->where('status', '1');
+    public function list_pages($project_dir)
+    {
+        $files = array();
+        $path = opendir($this->config_path . $project_dir);
+        while (false !== ($filename = readdir($path))) {
+            if (is_file($this->config_path . $project_dir . '/' . $filename . '/page.yml')) {
+                $files[] = $this->get_page($project_dir, $filename);
+            }
         }
-        return $this->db->get('wd_pages')->row()->total;
+
+        return $files;
     }
-    
-    public function verify_slug_page($slug, $id = NULL) {
+
+    public function total_pages($dir_project, $dev_mode)
+    {
+        $pages = $this->list_pages($dir_project);
+        if ($dev_mode) {
+            return count($pages);
+        }
+
+        return count(search($pages, 'status', '1'));
+    }
+
+    public function get_page($project_dir, $page_dir)
+    {
+        $page = $this->config_path . $project_dir . '/' . $page_dir . '/page.yml';
+        $config = spyc_load_file($page);
+        if (!$config) {
+            return false;
+        }
+
+        return $config;
+    }
+
+    public function save($data, $project_dir, $page_dir)
+    {
+        $page = $this->config_path . $project_dir . '/' . $page_dir . '/page.yml';
+        $data_page = spyc_dump($data);
+        $fp = fopen($page, 'w');
+        if (!$fp) {
+            return false;
+        }
+
+        fwrite($fp, $data_page);
+        fclose($fp);
+        chmod($page, 0640);
+
+        return true;
+    }
+
+    public function search($project_dir, $dev_mode, $keyword = null)
+    {
+        $pages = $this->list_pages($project_dir);
+        if (!empty($keyword)) {
+            $pages = search($pages, 'name', '' . $keyword . '', true);
+        }
+
+        if ($dev_mode == '0') {
+            $pages = search('projects', 'status', '1');
+        }
+
+        return $pages;
+    }
+
+    public function verify_slug_page($slug, $id = NULL)
+    {
         $this->db->select('id');
         $this->db->where('slug', $slug);
         $this->db->where('id!=', $id);
         return $this->db->get('wd_pages')->num_rows();
     }
 
-    public function create($data) {
+    public function create($data)
+    {
         $set = array(
             'name' => $data['name'],
             'status' => $data['status'],
-            'slug' => $data['slug'],
             'directory' => $data['directory'],
-            'fk_project' => $data['id_project'],
-            'fk_user' => $data['id_user']
+            'user_id' => $data['user_id']
         );
-        $this->db->insert('wd_pages', $set);
+        $this->save($set, $data['project_dir'], $data['directory']);
     }
-    
-    public function edit($data) {
+
+    public function edit($data)
+    {
         $set = array(
             'name' => $data['name'],
             'status' => $data['status'],
@@ -63,7 +111,8 @@ class Pages_model extends CI_Model {
         $this->db->update('wd_pages', $set, $where);
     }
 
-    public function remove($page) {
+    public function remove($page)
+    {
         $sections = $this->db->get_where('wd_sections', array('fk_page' => $page))->result_array();
         if ($sections) {
             $this->load->model_app('sections_model');
@@ -75,12 +124,12 @@ class Pages_model extends CI_Model {
         }
         return $this->db->delete('wd_pages', array('id' => $page));
     }
-    
-    public function list_pages_permissions($id_project){
+
+    public function list_pages_permissions($id_project)
+    {
         $this->db->select('id, name, slug, directory');
-        $this->db->where('status',1);
+        $this->db->where('status', 1);
         $this->db->where('fk_project', $id_project);
         return $this->db->get('wd_pages')->result_array();
     }
-    
 }

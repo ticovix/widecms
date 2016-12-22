@@ -7,6 +7,8 @@ if (!defined('BASEPATH')) {
 <ul class="breadcrumb">
     <li><a href="<?php echo base_url() ?>"><i class="fa fa-home"></i></a></li>
     <li><a href="<?php echo base_url_app() ?>"><?php echo $name_app ?></a></li>
+    <li><a href="<?php echo base_url_app('project/' . $project['directory']) ?>"><?php echo $project['name'] ?></a></li>
+    <li><a href="<?php echo base_url_app('project/' . $project['directory'] . '/' . $page['directory']) ?>"><?php echo $page['name'] ?></a></li>
     <li class="active"><?php echo $title ?></li>
 </ul>
 
@@ -19,20 +21,15 @@ if (!defined('BASEPATH')) {
             </div>
             <div class="x_content">
                 <?php
-                echo validation_errors('<p class="alert alert-danger">', '</p>');
-                echo form_open(null, ['class' => 'form-horizontal']);
+                echo getErrors();
+                echo form_open_multipart(null, ['class' => 'form-horizontal']);
                 ?>
-                <input type="hidden" name="page" value="<?php echo $page['directory'] ?>">
-                <div class="alert alert-danger">
-                    <h4><?php printf($this->lang->line(APP . '_ask_remove_page'), $page['name']); ?></h4>
-                    <p><?php echo $this->lang->line(APP . '_warning_remove'); ?></p>
-                </div>
                 <div class="form-group">
-                    <label><?php echo $this->lang->line(APP . '_label_confirm_password'); ?></label>
-                    <input type="password" class="form-control" name="password">
+                    <label for="file">Arquivo Zip</label>
+                    <input type="file" name="file" id="file" required="">
                 </div>
                 <div class="form-group text-right">
-                    <input class="btn btn-danger" value="<?php echo $this->lang->line(APP . '_btn_remove'); ?>" name="send" type="submit">
+                    <input class="btn btn-danger" value="Importar" name="import" type="submit">
                 </div>
                 <?php echo form_close(); ?>
             </div>

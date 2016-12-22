@@ -1,5 +1,9 @@
 /*
 !wd-admin
+<<<<<<< HEAD
+=======
+wd-admin/application/apps/projects/projects/*
+>>>>>>> 0c39200... Alterações no modo de configuração de projetos, páginas e seções
 */config/development
 */logs/log-*.php
 */logs/!index.html

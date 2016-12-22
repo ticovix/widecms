@@ -59,7 +59,7 @@ if (!function_exists('search')) {
                 $results = array_merge($results, search($array, $key, $val, $regex));
             }
         } elseif (is_array($array) && !is_array($value)) {
-            if ((isset($array[$key]) && $array[$key] == $value) or ( $regex == true && isset($array[$key]) && preg_match('/' . $value . '/', $array[$key]) > 0)) {
+            if ((isset($array[$key]) && $array[$key] == $value) or ( $regex == true && isset($array[$key]) && preg_match('/' . $value . '/i', $array[$key]) > 0)) {
                 $results[] = $array;
             }
 
@@ -174,7 +174,8 @@ if (!function_exists('generateXML') && !function_exists('arrayToXML')) {
                 $attributes = array();
             }
         endforeach;
-        return $return;
+
+        return format_xml_string($return);
     }
 }
 
@@ -282,10 +283,12 @@ if (!function_exists('get_page')) {
     function get_page()
     {
         $CI = & get_instance();
+        $project = get_project();
         $page = $CI->uri->segment(5);
         if (empty($CI->page)) {
             $CI->load->model_app('pages_model', 'projects');
-            return $CI->page = $CI->pages_model->get_page($page);
+
+            return $CI->page = $CI->pages_model->get_page($project['directory'], $page);
         } else {
             return $CI->page;
         }
@@ -303,10 +306,11 @@ if (!function_exists('get_section')) {
             $section = $CI->uri->segment(6);
         }
         if (empty($CI->section)) {
+            $project = get_project();
             $page = get_page();
-            $id_page = $page['id'];
             $CI->load->model_app('sections_model', 'projects');
-            return $CI->section = $CI->sections_model->get_section($section, $id_page);
+
+            return $CI->section = $CI->sections_model->get_section($project['directory'], $page['directory'], $section);
         } else {
             return $CI->section;
         }
