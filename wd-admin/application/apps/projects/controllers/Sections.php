@@ -54,7 +54,7 @@ class Sections extends MY_Controller
 
     public function export($section_dir)
     {
-        $this->lang->load_app('sections/form');
+        $this->lang->load_app('sections/sections');
         $project = get_project();
         $page = get_page();
         $project_dir = $project['directory'];
@@ -67,11 +67,11 @@ class Sections extends MY_Controller
         $path_section = $this->config_path . $project_dir . '/' . $page_dir . '/' . $section_dir . '/';
         $cache = APPPATH . 'cache/';
         if (!is_file($path_section . 'section.yml')) {
-            throw new Exception('Não é possível exportar a seção ' . $section['name'] . ', arquivo de configuração não encontrado.');
+            exit();
         }
 
         if (!is_writable($cache)) {
-            throw new Exception('Não é possível exportar a seção ' . $section['name'] . ', você não tem permissões para escrever no diretório de cache.');
+            exit();
         }
 
         $name_zip = 'section-' . strtolower($section['name']) . '.zip';
@@ -111,13 +111,14 @@ class Sections extends MY_Controller
 
     public function import()
     {
+        $this->lang->load_app('sections/import');
         $project = get_project();
         $page = get_page();
 
         if (empty($_FILES['file']['name'])) {
-            $this->form_validation->set_rules('file', 'Arquivo Zip', 'required');
+            $this->form_validation->set_rules('file', $this->lang->line(APP . '_field_file'), 'required');
         } else {
-            $this->form_validation->set_rules('file', 'Arquivo Zip', 'trim');
+            $this->form_validation->set_rules('file', $this->lang->line(APP . '_field_file'), 'trim');
         }
 
         $run = $this->form_validation->run();
@@ -150,7 +151,7 @@ class Sections extends MY_Controller
                 $section_path = $upload_path . 'section';
                 if (!is_file($section_path . '/section.yml')) {
                     forceRemoveDir($upload_path);
-                    throw new Exception('Não é possível importar essa seção, não foi possível encontrar o caminho /section/section.yml');
+                    throw new Exception($this->lang->line(APP . '_section_not_found'));
                 }
 
                 redirect_app('project/' . $project['directory'] . '/' . $page['directory'] . '/create?import=true');
