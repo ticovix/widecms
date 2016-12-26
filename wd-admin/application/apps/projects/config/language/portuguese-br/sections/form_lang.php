@@ -152,6 +152,7 @@ $lang['projects_column_equals_table'] = 'O nome da coluna não pode ser igual ao
 $lang['projects_create_column_id_not_allowed'] = 'O campo "id" é criado automaticamente pelo sistema, informe outro nome';
 $lang['projects_duplicate_field_not_allowed'] = 'O campo %s foi duplicado';
 $lang['projects_required_field'] = 'É obrigatório criar no mínimo um campo';
+$lang['projects_plugins_not_found'] = '<i class="fa fa-warning"></i> Nenhum plugin encontrado';
 /* ERRORS JS */
 $lang['projects_all_fields_required'] = 'Todos os campos com asterísco são obrigatórios';
 $lang['projects_name_exists'] = 'O nome desse campo já existe, tente outro';

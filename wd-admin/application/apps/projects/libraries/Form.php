@@ -7,6 +7,7 @@ if (!defined('BASEPATH')) {
 class Form
 {
     private $form = array();
+    private $list_plugins = array();
     private $plugins;
 
     public function fields_template($fields, $post = null)

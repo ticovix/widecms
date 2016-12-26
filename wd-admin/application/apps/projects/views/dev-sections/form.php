@@ -387,6 +387,8 @@ if (!defined('BASEPATH')) {
                                                     </div>
                                                     <?php
                                                 }
+                                            } else {
+                                                echo $this->lang->line(APP . '_plugins_not_found');
                                             }
                                             ?>
                                         </div>
