@@ -92,7 +92,7 @@ if (!defined('BASEPATH')) {
                                 $column = (isset($database['column'])) ? $database['column'] : '';
                                 $type_column = (isset($database['type_column'])) ? $database['type_column'] : '';
                                 $limit = (isset($database['limit'])) ? $database['limit'] : '';
-                                $required = (isset($database['required'])) ? $database['required'] : '';
+                                $required = (isset($input['required'])) ? $input['required'] : '';
                                 $unique = (isset($database['unique'])) ? $database['unique'] : '';
                                 $default = (isset($database['default'])) ? $database['default'] : '';
                                 $comment = (isset($database['comment'])) ? $database['comment'] : '';
