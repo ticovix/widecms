@@ -72,18 +72,12 @@ class Pages_model extends CI_Model
         }
 
         if ($dev_mode == '0') {
-            $pages = search('projects', 'status', '1');
+            $pages = search($pages, 'status', '1');
         }
 
-        return $pages;
-    }
+        asort($pages);
 
-    public function verify_slug_page($slug, $id = NULL)
-    {
-        $this->db->select('id');
-        $this->db->where('slug', $slug);
-        $this->db->where('id!=', $id);
-        return $this->db->get('wd_pages')->num_rows();
+        return $pages;
     }
 
     public function create($data)
@@ -125,11 +119,9 @@ class Pages_model extends CI_Model
         return $this->db->delete('wd_pages', array('id' => $page));
     }
 
-    public function list_pages_permissions($id_project)
+    public function list_pages_permissions($project_dir)
     {
-        $this->db->select('id, name, slug, directory');
-        $this->db->where('status', 1);
-        $this->db->where('fk_project', $id_project);
-        return $this->db->get('wd_pages')->result_array();
+        $list_pages = $this->list_pages($project_dir);
+        return search($list_pages, 'status', '1');
     }
 }

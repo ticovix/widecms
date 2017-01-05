@@ -6,9 +6,6 @@ if (!defined('BASEPATH')) {
 
 class Users extends MY_Controller
 {
-    /*
-     * Variável pública com o limite de usuários por página
-     */
     public $limit = 10;
 
     public function __construct()
@@ -17,9 +14,6 @@ class Users extends MY_Controller
         $this->load->model_app('users_model');
         $this->data = $this->apps->data_app();
     }
-    /*
-     * Método com template de listagem de usuários
-     */
 
     public function index()
     {
@@ -39,9 +33,6 @@ class Users extends MY_Controller
 
         $this->load->template_app('index', $data);
     }
-    /*
-     * Método para pesquisa de listagem de usuários
-     */
 
     private function form_search()
     {
@@ -58,9 +49,6 @@ class Users extends MY_Controller
             'total_rows' => $total_rows
         );
     }
-    /*
-     * Método para gerar template de páginação para listagem de usuários
-     */
 
     private function pagination($total_rows)
     {
@@ -87,9 +75,6 @@ class Users extends MY_Controller
 
         return $this->pagination->create_links();
     }
-    /*
-     * Método para criação de template para criar usuário
-     */
 
     public function create()
     {
@@ -118,9 +103,6 @@ class Users extends MY_Controller
 
         $this->load->template_app('form', $vars);
     }
-    /*
-     * Método para criação de usuário
-     */
 
     private function form_create($permissions)
     {
@@ -216,9 +198,6 @@ class Users extends MY_Controller
 
         $this->users_model->create_permissions($data);
     }
-    /*
-     * Método para criação de template de edição de usuário
-     */
 
     public function edit($login)
     {
@@ -249,9 +228,6 @@ class Users extends MY_Controller
 
         $this->load->template_app('form', $vars);
     }
-    /*
-     * Método para edição de usuário
-     */
 
     private function form_edit($user, $permissions)
     {
@@ -300,9 +276,6 @@ class Users extends MY_Controller
             redirect_app('users');
         }
     }
-    /*
-     * Método para deletar usuário
-     */
 
     public function delete()
     {
@@ -313,9 +286,6 @@ class Users extends MY_Controller
 
         redirect_app('users');
     }
-    /*
-     * Método para ativar e desativar o modo desenvolvedor, acionado por js
-     */
 
     public function dev_mode()
     {

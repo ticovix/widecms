@@ -85,15 +85,6 @@ class Sections_model extends CI_Model
         return $pages;
     }
 
-    public function search_sections_total_rows($page, $keyword = null)
-    {
-        $this->db->select('count(id) total');
-        $this->db->like('name', $keyword);
-        $this->db->where('fk_page', $page);
-
-        return $this->db->get('wd_sections')->row()->total;
-    }
-
     public function list_sections_select($project_dir, $page_dir, $section_dir = null)
     {
         $sections = $this->list_sections($project_dir, $page_dir);
@@ -333,12 +324,10 @@ class Sections_model extends CI_Model
         return $col;
     }
 
-    public function list_sections_permissions($id_page)
+    public function list_sections_permissions($dir_project, $dir_page)
     {
-        $this->db->select('id, name, slug, directory');
-        $this->db->where('fk_page', $id_page);
-        $this->db->where('status', 1);
-        return $this->db->get('wd_sections')->result_array();
+        $list_sections = $this->list_sections($dir_project, $dir_page);
+        return search($list_sections, 'status', '1');
     }
 
     public function list_tables_import()

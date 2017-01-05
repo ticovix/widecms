@@ -86,8 +86,10 @@ class Projects_model extends CI_Model
         }
 
         if ($dev_mode == '0') {
-            $projects = search('projects', 'status', '1');
+            $projects = search($projects, 'status', '1');
         }
+
+        asort($projects);
 
         return $projects;
     }
@@ -106,27 +108,9 @@ class Projects_model extends CI_Model
         return false;
     }
 
-    public function delete($id)
-    {
-        $this->db->select('wd_sections.table');
-        $this->db->join('wd_pages', 'wd_pages.id=wd_sections.fk_page');
-        $this->db->join('wd_projects', 'wd_projects.id=wd_pages.fk_project');
-        $this->db->where('wd_projects.id', $id);
-        $sections = $this->db->get('wd_sections')->result_array();
-        if ($sections) {
-            $this->load->dbforge();
-            foreach ($sections as $section) {
-                $table = $section['table'];
-                $this->dbforge->drop_table($table, TRUE);
-            }
-        }
-        return $this->db->delete('wd_projects', ['id' => $id]);
-    }
-
     public function list_projects_permissions()
     {
-        $this->db->select('id, name, slug, directory');
-        $this->db->where('status', 1);
-        return $this->db->get('wd_projects')->result_array();
+        $list_projects = $this->list_projects();
+        return search($list_projects, 'status', '1');
     }
 }

@@ -1,11 +1,12 @@
 <?php
 
-class Apps {
-
+class Apps
+{
     public $path = 'application/apps/';
     private $apps = array();
 
-    public function list_apps() {
+    public function list_apps()
+    {
         $path_apps = $this->path;
         $this->apps = array();
         $opendir = \opendir($path_apps);
@@ -19,20 +20,22 @@ class Apps {
                 }
             }
         }
+
         closedir($opendir);
+
         return $this->apps;
     }
 
-    private function set_app($path, $app) {
+    private function set_app($path, $app)
+    {
         $CI = &get_instance();
         $CI->load->library('spyc');
         $config = $CI->spyc->loadFile($path, false);
         if (is_array($config)) {
             $config['app'] = $app;
-            // Verifica se possui tradução
             if (isset($config['name']) && is_array($config['name'])) {
                 $language = $CI->config->item('language');
-                if(isset($config['name'][$language])){
+                if (isset($config['name'][$language])) {
                     $config['name'] = $config['name'][$language];
                 }
             } elseif (empty($config['name'])) {
@@ -42,16 +45,19 @@ class Apps {
             if (!isset($config['icon']) or isset($config['icon']) && empty($config['icon'])) {
                 $config['icon'] = 'fa-exclamation-triangle';
             }
+
             if (isset($config['status']) && $config['status'] == 1) {
                 return $this->apps[] = $config;
             }
         }
     }
 
-    public function list_apps_permissions() {
+    public function list_apps_permissions()
+    {
         if (empty($this->apps)) {
             $apps = $this->list_apps();
         }
+
         $apps = $this->apps;
         $config_permissions = array();
         foreach ($apps as $app) {
@@ -66,19 +72,23 @@ class Apps {
                         unset($permission);
                     }
                 }
+
                 $config_permissions[] = $app;
             }
         }
+
         return $config_permissions;
     }
 
-    public function list_widgets_dashboards() {
+    public function list_widgets_dashboards()
+    {
         if (empty($this->apps)) {
             $apps = $this->list_apps();
         }
+
         $apps = $this->apps;
         $widgets = array();
-        
+
         $CI = &get_instance();
         foreach ($apps as $app) {
             $col = 6;
@@ -90,15 +100,15 @@ class Apps {
                 $path = $this->path . $dir_app . '/libraries/widgets/';
                 if (is_dir($path)) {
                     $opendir = \opendir($path);
-                    
                     while (false !== ($widget = readdir($opendir))) {
                         if (is_file($path . $widget) && strpos($widget, '_dashboard.php') !== false) {
                             ob_start();
                             $CI->load->library_app('widgets/' . $widget, $dir_app);
                             $class = strtolower(str_replace('.php', '', $widget));
-                            if(isset($CI->$class->col) && $CI->$class->col === 12){
+                            if (isset($CI->$class->col) && $CI->$class->col === 12) {
                                 $col = $CI->$class->col;
                             }
+
                             $content = ob_get_contents();
                             ob_end_clean();
                             if (!empty($content)) {
@@ -115,16 +125,17 @@ class Apps {
                 }
             }
         }
+
         return $widgets;
     }
-    
-    public function data_app($app=APP){
-        $search = search($this->apps,'app',$app);
-        if($search){
+
+    public function data_app($app = APP)
+    {
+        $search = search($this->apps, 'app', $app);
+        if ($search) {
             return $search[0];
-        }else{
+        } else {
             return false;
         }
     }
-
 }
