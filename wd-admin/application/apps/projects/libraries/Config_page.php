@@ -6,9 +6,6 @@ if (!defined('BASEPATH')) {
 
 class Config_page
 {
-    /*
-     * Método com lista de inputs disponíveis
-     */
 
     public function inputs()
     {
@@ -24,9 +21,6 @@ class Config_page
 
         return $input;
     }
-    /*
-     * Método com lista de tipos de colunas do banco de dados
-     */
 
     public function types()
     {

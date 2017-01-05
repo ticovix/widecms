@@ -104,12 +104,10 @@ class Form
             }
 
             if (is_file($class_plugin)) {
-                // Se houver um método de saida
                 $CI->load->library_app('../plugins_input/' . $plugin['plugin'] . '/' . $class);
                 $method_exists = method_exists($class, 'output');
                 if ($method_exists) {
                     $class = strtolower($class);
-                    // Se o método existir, aciona e seta o novo valor
                     $this->value = $CI->$class->output($this->value, $this->field, $this->fields);
                 }
             }
@@ -268,7 +266,6 @@ class Form
         $this->attr['id'] = $this->column . '_field';
         $this->attr['name'] = $this->column . '[]';
         $this->attr['class'] = (isset($this->attr['class']) ? $this->attr['class'] : '');
-        // Lista registros para o select
         $CI->load->model('posts_model');
         $table = $this->field['options_table'];
         $column = $this->field['options_label'];
@@ -377,23 +374,22 @@ class Form
         if (is_array($data_trigger) && empty($data_trigger['value'])) {
             return array('' => sprintf($CI->lang->line('projects_label_subselect'), $data_trigger['label']));
         }
-        // Lista registros para o select
+
         $CI->load->model('posts_model');
         $posts = $CI->posts_model->list_posts_select($table, $column, $data_trigger);
 
         $options = array();
         if ($posts) {
-            // Se for encontrado registros
             $options[''] = 'Selecione';
             foreach ($posts as $post) {
                 $id = $post['value'];
                 $value = $post['label'];
-                // Seta os options
                 $options[$id] = $value;
             }
         } else {
             $options[''] = $CI->lang->line('projects_options_not_found');
         }
+
         return $options;
     }
 
@@ -406,6 +402,7 @@ class Form
             if (isset($files['file'])) {
                 $files = array($files);
             }
+
             foreach ($files as $file) {
                 if (!is_object($file)) {
                     $file = (object) $file;
@@ -446,6 +443,7 @@ class Form
                 }
             }
         }
+
         return $field_find;
     }
 
@@ -456,17 +454,13 @@ class Form
         }
 
         $list = array();
-        // Lista os registros do banco de dados
         foreach ($posts as $row) {
             foreach ($row as $column => $value) {
-                // Busca a coluna nos campos do config xml
                 $field = $this->search_field($column, $section);
                 if ($field) {
                     $input = $field['input'];
-                    // Se o campo for encontrada, faz diversas filtragens no valor da coluna
                     $type = strtolower($input['type']);
                     if (isset($input['plugins']) && !empty($input['plugins'])) {
-                        // Se houver um parametro mask setado
                         $plugins = $input['plugins'];
                         $value = $this->plugins_output($plugins, $value, $field, $section);
                     }
@@ -503,10 +497,8 @@ class Form
                 $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin . '/' . $class . '.php';
                 if (is_file($class_plugin)) {
                     $CI->load->library_app('../plugins_input/' . $plugin . '/' . $class . '.php');
-                    // Verifica se possui um método de saida
                     if (method_exists($class, 'output')) {
                         $class = strtolower($class);
-                        // Se o método de saída existir, aciona
                         $value = $CI->$class->output($value, $field, $fields);
                     }
                 }
@@ -538,17 +530,14 @@ class Form
     private function treat_options($value, $field)
     {
         if (!empty($value) && $value > 0) {
-            // Se o valor da coluna não estiver vazio
             $CI = & get_instance();
             $CI->load->model('posts_model');
             $field = $field;
             $table = (isset($field['options_table'])) ? $field['options_table'] : '';
             $column = (isset($field['options_label'])) ? $field['options_label'] : '';
             if ($table && $column) {
-                // Se tabela e coluna existir, lista o valor selecionado pelo campo
                 $val = $CI->posts_model->get_post_selected($table, $column, $value);
                 if ($val) {
-                    // Se um valor for encontrado, seta value com o valor encontrado
                     $value = $val[$column];
                 }
             }
@@ -564,19 +553,12 @@ class Form
     private function treat_value_json($value, $field)
     {
         if (!empty($value)) {
-            // Se o valor da coluna não estiver vazio
-            // Decodifica o json
             $files = json_decode($value);
-            // Monta o template com as imagens selecionadas e seta no value
             $value = $this->list_files($files, 1);
         }
 
         return $value;
     }
-    /*
-     * Método para listar os plugins para usar nos inputs
-     * return Array
-     */
 
     public function list_plugins()
     {
@@ -597,10 +579,6 @@ class Form
 
         return $this->list_plugins;
     }
-    /*
-     * Método para buscar o arquivo yml e setar o plugin
-     * return Array
-     */
 
     private function set_plugin($path, $plugin)
     {
@@ -617,10 +595,6 @@ class Form
             return $this->list_plugins[] = $config;
         }
     }
-    /*
-     * Método para buscar um plugin
-     * return String
-     */
 
     public function get_plugins($plugins)
     {
@@ -632,7 +606,7 @@ class Form
         $arr_plugins = array();
         foreach ($plugins as $plugin) {
             if (!empty($plugin)) {
-                if (!isset($this->list_plugins)) {
+                if (empty($this->list_plugins)) {
                     $plugins = $this->list_plugins();
                 } else {
                     $plugins = $this->list_plugins;
