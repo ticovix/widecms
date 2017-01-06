@@ -8,7 +8,7 @@ class Form
 {
     private $form = array();
     private $list_plugins = array();
-    private $plugins;
+    private $plugins = array();
 
     public function fields_template($fields, $post = null)
     {
@@ -18,6 +18,8 @@ class Form
         $this->post = $post;
         foreach ($fields as $field) {
             $this->field = $field;
+            $this->plugins = array();
+
             $type = strtolower($field['input']['type']);
 
             switch ($type) {
