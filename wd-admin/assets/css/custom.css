@@ -188,7 +188,7 @@ body .container.body .right_col {
 .nav_title {
     width: 230px;
     float: left;
-    background: #720c0c;
+    background: #292929;
     border-radius: 0;
     height: 57px;
 }
@@ -309,7 +309,7 @@ body .container.body .right_col {
 }
 body {
     color: #73879C;
-    background: #840d0d;
+    background: #333;
     /*#ECF0F1; #FCFCFC*/
     font-family: "Helvetica Neue", Roboto, Arial, "Droid Sans", sans-serif;
     font-size: 13px;
@@ -538,7 +538,7 @@ a:hover, a:focus {
     padding: 13px 15px 12px;
 }
 .nav.side-menu> li.current-page, .nav.side-menu> li.active {
-    border-right: 5px solid #9e0f0f;
+    border-right: 5px solid #555;
 }
 .nav li.current-page {
     background: rgba(255, 255, 255, 0.05);
@@ -565,7 +565,7 @@ a:hover, a:focus {
     font-weight: 400;
     font-size: 22px;
     width: 100%;
-    color: #ECF0F1 !important;
+    color: #fff !important;
     margin-left: 0 !important;
     line-height: 52px;
     display: block;
@@ -4786,15 +4786,16 @@ ul.notifications {
 /*Dev mode*/
 
 .btn-primary{
-    background-color: #840D0D;
-    border-color:#720C0C;
+    background-color: #EF4A23;
+    border-color:#EF4A23;
 }
 .btn-primary:hover{
-    background-color: #720C0C;
+    background-color: #ED1C24;
+    border-color: #ED1C24;
 }
 .pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover{
-    background-color: #840D0D;
-    border-color:#720C0C;
+    background-color: #EF4A23;
+    border-color: #EF4A23;
 }
 .pagination>li>a, .pagination>li>span{
     color:#888;
