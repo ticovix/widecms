@@ -27,6 +27,7 @@ class Pages extends MY_Controller
         $vars = array(
             'title' => $project['name'],
             'name_app' => $this->data['name'],
+            'pages' => $pages,
             'total' => $total,
             'project' => $project
         );
