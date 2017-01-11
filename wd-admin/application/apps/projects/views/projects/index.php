@@ -17,9 +17,9 @@ if (!defined('BASEPATH')) {
             <div class="x_content">
                 <?php echo form_open(null, ['method' => 'get']); ?>
                 <div class="input-group">
-                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="<?php echo $this->lang->line(APP . '_field_search'); ?>" class="input-sm form-control"> 
+                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="<?php echo $this->lang->line(APP . '_field_search'); ?>" class="input-sm form-control">
                     <span class="input-group-btn">
-                        <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button> 
+                        <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button>
                     </span>
                 </div>
                 <?php echo form_close(); ?>
@@ -28,20 +28,19 @@ if (!defined('BASEPATH')) {
                     if ($projects) {
                         foreach ($projects as $arr) {
                             ?>
-                            <a href="<?php echo base_url_app('project/' . $arr['slug']) ?>" class="list-group-item">
-                                <?php if ($arr['main']) { ?><span class="fa fa-star"></span> <?php } ?> <?php echo $arr["name"] ?>
+                            <a href="<?php echo base_url_app('project/' . $arr['directory']) ?>" class="list-group-item">
+                                <?php if ($arr['main_project']) { ?><span class="fa fa-star"></span> <?php } ?> <?php echo $arr["name"] ?>
                             </a>
                             <?php
                         }
                         ?>
-                        <strong><hr><?php printf($this->lang->line(APP . '_registers_found'), $total); ?></strong>
+                        <strong><?php printf($this->lang->line(APP . '_registers_found'), $total); ?></strong>
                         <?php
                     } else {
                         echo $this->lang->line(APP . '_registers_not_found');
                     }
                     ?>
                 </div>
-                <ul class="pagination pagination-sm"><?php echo $pagination; ?></ul>
             </div>
         </div>
     </div>

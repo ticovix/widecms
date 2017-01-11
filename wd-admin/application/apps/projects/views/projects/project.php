@@ -19,13 +19,13 @@ if (!defined('BASEPATH')) {
             <div class="x_content">
                 <?php echo form_open(null, ['method' => 'get']); ?>
                 <div class="input-group">
-                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="<?php echo $this->lang->line(APP . '_field_search'); ?>" class="input-sm form-control"> 
+                    <input type="text" name="search" value="<?php echo $this->input->get('search') ?>" placeholder="<?php echo $this->lang->line(APP . '_field_search'); ?>" class="input-sm form-control">
                     <span class="input-group-btn">
-                        <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button> 
+                        <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button>
                     </span>
                 </div>
                 <?php echo form_close(); ?>
-                <div class="list-group" id="nav-pages" role="tablist" aria-multiselectable="true">   
+                <div class="list-group" id="nav-pages" role="tablist" aria-multiselectable="true">
                     <?php
                     $exists = false;
                     if ($pages) {
@@ -33,37 +33,37 @@ if (!defined('BASEPATH')) {
                         foreach ($pages as $arr) {
                             $sections = $arr['sections'];
                             $total_sections = count($sections);
-                            $name_page = $arr['name'];
-                            $slug_project = $project['slug'];
-                            $slug_page = $arr['slug'];
+                            $page_name = $arr['name'];
+                            $project_dir = $project['directory'];
+                            $page_dir = $arr['directory'];
                             if ($total_sections > 0) {
                                 $exists = true;
-                                $first_name_section = $sections[0]['name'];
-                                $first_slug_section = $sections[0]['slug'];
+                                $first_section_name = $sections[0]['name'];
+                                $first_section_dir = $sections[0]['directory'];
                                 ?>
                                 <a href="<?php
-                                if ($total_sections == 1 && $first_name_section == $name_page) {
-                                    echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $first_slug_section);
+                                if ($total_sections == 1 && $first_section_name == $page_name) {
+                                    echo base_url_app('project/' . $project_dir . '/' . $page_dir . '/' . $first_section_dir);
                                 } else {
                                     echo '#collapse' . $x;
                                 }
-                                ?>" class="page-current list-group-item" <?php if ($total_sections > 1 or $total_sections == 1 && $first_name_section != $name_page) { ?>data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse<?php echo $x; ?>"<?php } ?>>
-                                   <?php echo $name_page ?>
-                                    <?php if ($total_sections > 1 or $total_sections == 1 && $first_name_section != $name_page) { ?><span class="fa fa-caret-down pull-right"></span><?php } ?>
+                                ?>" class="page-current list-group-item" <?php if ($total_sections > 1 or $total_sections == 1 && $first_section_name != $page_name) { ?>data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse<?php echo $x; ?>"<?php } ?>>
+                                   <?php echo $page_name ?>
+                                    <?php if ($total_sections > 1 or $total_sections == 1 && $first_section_name != $page_name) { ?><span class="fa fa-caret-down pull-right"></span><?php } ?>
                                 </a>
                                 <?php
-                                if ($total_sections > 1 or $total_sections == 1 && $first_name_section != $name_page) {
+                                if ($total_sections > 1 or $total_sections == 1 && $first_section_name != $page_name) {
                                     ?>
                                     <div id="collapse<?php echo $x; ?>" class="panel-collapse collapse" role="tabpanel">
                                         <?php
                                         if ($total_sections) {
                                             foreach ($sections as $section) {
-                                                $slug_section = $section['slug'];
-                                                $name_section = $section['name'];
-                                                if (check_method($slug_project . '-' . $slug_page . '-' . $slug_section)) {
+                                                $section_dir = $section['directory'];
+                                                $section_name = $section['name'];
+                                                if (check_method($project_dir . '-' . $page_dir . '-' . $section_dir)) {
                                                     ?>
-                                                    <a class="list-group-item" href="<?php echo base_url_app('project/' . $slug_project . '/' . $slug_page . '/' . $slug_section) ?>">
-                                                        &nbsp;&nbsp; <?php echo $name_section ?>                                                
+                                                    <a class="list-group-item" href="<?php echo base_url_app('project/' . $project_dir . '/' . $page_dir . '/' . $section_dir) ?>">
+                                                        &nbsp;&nbsp; <?php echo $section_name ?>
                                                     </a>
                                                     <?php
                                                 }
@@ -74,22 +74,21 @@ if (!defined('BASEPATH')) {
                                     <?php
                                 } elseif (count($sections) == 0) {
                                     ?>
-                                    <ul class="nav nav-list collapse"><li class="no-sections"><?php echo $this->lang->line(APP . '_sections_not_found') ?></li></ul>        
-                                    <?php
+                                    <ul class="nav nav-list collapse"><li class="no-sections"><?php echo $this->lang->line(APP . '_sections_not_found') ?></li></ul>
+                                            <?php
+                                        }
+                                        ?>
+                                        <?php
+                                        $x++;
+                                    }
                                 }
-                                ?>
-                                <?php
-                                $x++;
                             }
-                        }
-                    }
 
-                    if (!$exists) {
-                        echo '<strong>' . $this->lang->line(APP . '_registers_not_found') . '</strong>';
-                    }
-                    ?>
+                            if (!$exists) {
+                                echo '<strong>' . $this->lang->line(APP . '_registers_not_found') . '</strong>';
+                            }
+                            ?>
                 </div>
-                <ul class="pagination pagination-sm"><?php echo $pagination; ?></ul>
             </div>
         </div>
     </div>

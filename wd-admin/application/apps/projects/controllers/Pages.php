@@ -27,13 +27,13 @@ class Pages extends MY_Controller
         $vars = array(
             'title' => $project['name'],
             'name_app' => $this->data['name'],
-            'pages' => $this->include_sections($pages),
             'total' => $total,
             'project' => $project
         );
         if ($dev_mode) {
             $this->load->template_app('dev-pages/index', $vars);
         } else {
+            $vars['pages'] = $this->include_sections($project, $pages);
             $this->load->template_app('projects/project', $vars);
         }
     }
@@ -46,12 +46,12 @@ class Pages extends MY_Controller
         return $this->pages_model->search($project['directory'], $dev_mode, $keyword);
     }
 
-    private function include_sections($pages)
+    private function include_sections($project, $pages)
     {
         $this->load->model_app('sections_model');
         if (count($pages)) {
             foreach ($pages as $page) {
-                //$page['sections'] = $this->sections_model->list_sections($page['directory']);
+                $page['sections'] = $this->sections_model->list_sections($project['directory'], $page['directory']);
                 $arr[] = $page;
             }
 
