@@ -6,23 +6,14 @@ if (!defined('BASEPATH')) {
 
 class Gallery extends MY_Controller
 {
-    /*
-     * Variável pública com extensões permitidas para upload
-     */
     public $allowed_types = 'xls|xml|pdf|gif|jpg|jpeg|png|doc|docx|rar|3gp|7z|ace|ai|aif|aiff|amr|asf|asx|bmp|bup|cab|cbr|cda|cdl|cdr|chm|dat|divx|dmg|dss|dvf|dwg|eml|eps|flv|gz|hqx|htm|html|ifo|indd|iso|jar|js|lnk|log|m4a|m4b|m4p|m4v|mcd|mdb|mid|mov|mp2|mp3|mp4|mpeg|mpg|msi|ogg|pdf|pps|ps|psd|pst|ptb|pub|qbb|qbw|qxd|ram|rm|rmvb|rtf|svg|sea|ses|sit|sitx|ss|swf|tgz|thm|tif|tmp|torrent|ttf|txt|vcd|vob|wav|wmv|wps|xpi|xcf|zip|avi|sql|css';
-    /*
-     * Variável pública com o limite de usuários por página
-     */
     public $limit = 18;
 
     public function __construct()
     {
         parent::__construct();
-        $this->load->model_app('files_model');
+        $this->load->app()->model('files_model');
     }
-    /*
-     * Método para criação de template da listagem de arquivos
-     */
 
     public function index()
     {
@@ -50,19 +41,22 @@ class Gallery extends MY_Controller
                 ->app_js('js/script.js')
                 ->app_css('css/style.css');
 
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => $data['name'],
-            'files' => $files
-        );
+            'files' => $files,
+            'check_upload' => check_method('upload'),
+            'check_view' => check_method('view-files'),
+            'check_edit' => check_method('edit'),
+            'check_remove' => check_method('remove'),
+            'search' => $this->input->get('search')
+        ));
 
-        $this->load->template_app('index', $vars);
+        echo $this->load->app()->render('index.twig', $this->data);
     }
-    /*
-     * Método para pesquisar arquivos
-     */
 
     private function form_search()
     {
+        $this->load->library('form_validation');
         $keyword = $this->input->get('search');
         $per_page = (int) $this->input->get('per_page') or 0;
         $this->form_validation->set_rules('search', 'Pesquisa', 'trim|required');
@@ -77,9 +71,6 @@ class Gallery extends MY_Controller
             'total' => $total
         );
     }
-    /*
-     * Método para listar arquivos, acionado por js
-     */
 
     public function files_list()
     {
@@ -121,9 +112,6 @@ class Gallery extends MY_Controller
 
         echo json_encode(array('files' => $files, 'total' => $total, 'pagination' => $pagination));
     }
-    /*
-     * Método para criação de template da paginação
-     */
 
     private function pagination($total, $limit)
     {
@@ -151,9 +139,6 @@ class Gallery extends MY_Controller
 
         return $this->pagination->create_links();
     }
-    /*
-     * Método para enviar arquivo
-     */
 
     public function upload()
     {

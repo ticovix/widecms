@@ -106,7 +106,7 @@ class Form
             }
 
             if (is_file($class_plugin)) {
-                $CI->load->library_app('../plugins_input/' . $plugin['plugin'] . '/' . $class);
+                $CI->load->app()->library('../plugins_input/' . $plugin['plugin'] . '/' . $class);
                 $method_exists = method_exists($class, 'output');
                 if ($method_exists) {
                     $class = strtolower($class);
@@ -498,7 +498,7 @@ class Form
                 $class = ucfirst($plugin);
                 $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin . '/' . $class . '.php';
                 if (is_file($class_plugin)) {
-                    $CI->load->library_app('../plugins_input/' . $plugin . '/' . $class . '.php');
+                    $CI->load->app()->library('../plugins_input/' . $plugin . '/' . $class . '.php');
                     if (method_exists($class, 'output')) {
                         $class = strtolower($class);
                         $value = $CI->$class->output($value, $field, $fields);

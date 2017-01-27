@@ -1,0 +1,68 @@
+{% extends "template.twig" %}
+{% block content %}
+    <ul class="breadcrumb">
+        <li><a href="{{base_url()}}"><i class="fa fa-home"></i></a></li>
+        <li><a href="{{base_app_url()}}">{{name_app}}</a></li>
+        <li class="active">{{title}}</li>
+    </ul>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>{{title}}</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    {{form_open(null, {'method': 'get'})|raw}}
+                    <div class="input-group">
+                        <input type="text" name="search" value="{{search}}" placeholder="{{lang.line(APP ~ '_field_search')}}" class="input-sm form-control">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                    {{form_close()|raw}}
+                    <div class="list-group" id="nav-pages" role="tablist" aria-multiselectable="true">
+                        {% set exists = false%}
+                        {% if pages %}
+                            {% set x = 0%}
+                            {% for page in pages %}
+                                {% if total_sections > 0 %}
+                                    <a href="{% if total_sections == 1 and page.sections[0].name == page.name %}{{base_app_url('project/' ~ project.directory ~ '/' ~ page.directory ~ '/' ~ page.sections[0].directory)}}{% else %}#collapse{{x}}{% endif %}" class="page-current list-group-item" {% if total_sections > 1 or total_sections == 1 and page.sections[0].name != page.name%}data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse{{x}}"{% endif %}>
+                                        {{page.name}}
+                                        {% if total_sections > 1 or total_sections == 1 and page.sections[0].name != page.name%}
+                                            <span class="fa fa-caret-down pull-right"></span>
+                                        {% endif %}
+                                    </a>
+                                    {% if total_sections > 1 or total_sections == 1 and page.sections[0].name != page.name%}
+                                        <div id="collapse{{x}}" class="panel-collapse collapse" role="tabpanel">
+                                            {% if total_sections %}
+                                                {% for section in sections %}
+                                                    {% if check_method(project.directory ~ '-' ~ page.directory ~ '-' ~ section.directory)%}
+                                                        <a class="list-group-item" href="{{base_app_url('project/' ~ project.directory ~ '/' ~ page.directory ~ '/' ~ section.directory)}}">
+                                                            &nbsp;&nbsp; {{section.name}}
+                                                        </a>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    {% elseif count(sections == 0 )%}
+                                        <ul class="nav nav-list collapse">
+                                            <li class="no-sections">
+                                                {{lang.line(APP ~ '_sections_not_found')}}
+                                            </li>
+                                        </ul>
+                                    {% endif %}
+                                    {% set x = (x+1)%}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        {% if exists == false%}
+                            <strong>{{lang.line(APP ~ '_registers_not_found')}}</strong>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

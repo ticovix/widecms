@@ -1,0 +1,42 @@
+{% extends "login/template.twig" %}
+{% block content %}
+    <div class="">
+        <a class="hiddenanchor" id="toregister"></a>
+        <a class="hiddenanchor" id="tologin"></a>
+
+        <div id="wrapper">
+            <div id="login" class=" form">
+                <section class="login_content">
+                    {{form_open()|raw}}
+                    <div align="center">
+                        <img src="{{base_url('assets/images/widecms.png')}}" class="logo img-responsive">
+                    </div>
+                    {%if sended %}
+                        <div class="alert alert-info">
+                            {{lang.line('recovery_message_success')|raw}}
+                        </div>
+                        <a class="reset_pass" href="{{base_url('login')}}"><i class="fa fa-arrow-left fa-fw"></i> {{lang.line('recovery_return_btn')}}</a>
+                    {% else %}
+                        <p>{{lang.line('recovery_text_about_recovery')|raw}}</p>
+                        <div>
+                            <input type="text" name="email" value="{{set_value('email')}}" class="form-control" placeholder="{{lang.line('recovery_email_field')}}" required="" />
+                        </div>
+                        {% if captcha %}
+                            <div>
+                                <label for="captcha">{{captcha.image|raw}}</label>
+                                <br>
+                                <input type="text" class="form-control" autocomplete="off" name="captcha" placeholder="{{lang.line('recovery_captcha_field')}}" value="{{set_value('captcha')}}" />
+                            </div>
+                        {% endif %}
+                        <div>
+                            <input value="{{lang.line('recovery_send_email_btn')}}" name="access" class="btn btn-primary pull-right" type="submit">
+                            <a class="reset_pass" href="{{base_url('login')}}"><i class="fa fa-arrow-left fa-fw"></i> {{lang.line('recovery_return_btn')}}</a>
+                        </div>
+                    {% endif %}
+                    {{form_close()|raw}}
+                    {{validation_errors('<p class="alert alert-danger">', '</p>')|raw}}
+                </section>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "template.twig" %}
+{% block content %}
+    <ul class="breadcrumb">
+        <li><a href="{{base_url()}}"><i class="fa fa-home"></i></a></li>
+        <li><a href="{{base_app_url()}}">{{name_app}}</a></li>
+        <li><a href="{{base_app_url('project/' ~ project_dir)}}">{{name_project}}</a></li>
+            {% if dev_mode%}
+            <li><a href="{{base_app_url('project/' ~ project_dir ~ '/' ~ page_dir)}}">{{name_page}}</a></li>
+            {% endif %}
+            {% if breadcrumb_section%}
+            <li><a href="{{base_app_url('project/' ~ project_dir ~ '/' ~ page_dir ~ '/' ~ section_dir)}}">{{name_section}}</a></li>
+            {% endif %}
+        <li class="active">{{title}}</li>
+    </ul>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>{{title}}</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content row">
+                    {% set type = uri.segment('7') %}
+                    {% set check = method %}
+                    {% if type == 'edit' or type == 'create'%}
+                        {% set check = method ~ '-' ~ type%}
+                    {% endif%}
+                    {% set check_method = check_method(method) %}
+                    {% if check_method %}
+                        <div id="data-project" data-project="{{project_dir}}" data-page="{{page_dir}}" data-section="{{section_dir}}">
+                            {{errors|raw}}
+                            {{form_open('', {'class':'form-horizontal'})|raw}}
+                            {% for field in fields %}
+                                <div class="form-group {% if field.label is null %}hide{% endif %}">
+                                    <label for="{{field.column}}_field" class="label-field col-sm-2 col-xs-12 control-label" data-field="{{field.column}}" id="label_{{field.column}}">{{field.label}}</label>
+                                    <div class="col-sm-9 col-xs-12 content-field">
+                                        {{field.input|raw}}
+                                        {% if field.observation is not null %}
+                                            <div class="observation">{{field.observation|raw}}</div>
+                                        {% endif %}
+                                        <div class="clearfix"></div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                            <div class="form-group text-right">
+                                <div class="col-sm-11">
+                                    <a href="{% if dev_mode %} {{base_app_url('project/' ~ project_dir)}} {% endif %}" onclick="return confirm('{{lang.line(APP ~ '_ask_cancel')}}');" class="btn btn-default">
+                                        {{lang.line(APP ~ '_btn_cancel')}}
+                                    </a>
+                                    <input type="submit" value="{{lang.line(APP ~ '_btn_save')}}" class="btn btn-primary">
+                                </div>
+                            </div>
+                            {{form_close()|raw}}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-danger">{{lang.line(APP ~ '_section_not_allowed')}}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var LANG = {
+            select_default: '{{lang.line(APP ~ '_select_default')}}',
+            modal_title_edit_file: '{{lang.line(APP ~ '_title_modal_edit_file')}}',
+            modal_label_title: '{{lang.line(APP ~ '_label_title')}}',
+            modal_label_main: '{{lang.line(APP ~ '_label_main')}}',
+            modal_btn_close: '{{lang.line(APP ~ '_btn_close')}}',
+            modal_btn_save: '{{lang.line(APP ~ '_btn_save')}}',
+            modal_btn_remove: '{{lang.line(APP ~ '_btn_remove')}}',
+        }
+    </script>
+{% endblock %}

@@ -12,8 +12,8 @@ class Sections extends MY_Controller
     {
         parent::__construct();
         func_only_dev();
-        $this->data = $this->apps->data_app();
-        $this->load->model_app('sections_model');
+        $this->app_data = $this->apps->data_app();
+        $this->load->app()->model('sections_model');
         $this->config_path = 'application/' . APP_PATH . 'projects/';
     }
     /*
@@ -29,16 +29,17 @@ class Sections extends MY_Controller
         $page_dir = $page['directory'];
         $sections = $this->form_search($project_dir, $page_dir);
         $total = $this->sections_model->total_sections($project_dir, $page_dir);
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => $page['name'],
-            'name_app' => $this->data['name'],
+            'name_app' => $this->app_data['name'],
             'sections' => $sections,
             'total' => $total,
             'project' => $project,
-            'page' => $page
-        );
+            'page' => $page,
+            'search' => $this->input->get('search')
+        ));
 
-        $this->load->template_app('dev-sections/index', $vars);
+        echo $this->load->app()->render('dev-sections/index.twig', $this->data);
     }
     /*
      * Método de busca de seção
@@ -46,6 +47,7 @@ class Sections extends MY_Controller
 
     private function form_search($project_dir, $page_dir)
     {
+        $this->load->library('form_validation');
         $this->form_validation->set_rules('search', $this->lang->line(APP . '_field_search'), 'trim|required');
         $this->form_validation->run();
         $keyword = $this->input->get('search');
@@ -112,6 +114,8 @@ class Sections extends MY_Controller
     public function import()
     {
         $this->lang->load_app('sections/import');
+        $this->load->library('form_validation');
+        $this->load->library('error_reporting');
         $project = get_project();
         $page = get_page();
 
@@ -154,7 +158,7 @@ class Sections extends MY_Controller
                     throw new Exception($this->lang->line(APP . '_section_not_found'));
                 }
 
-                redirect_app('project/' . $project['directory'] . '/' . $page['directory'] . '/create?import=true');
+                app_redirect('project/' . $project['directory'] . '/' . $page['directory'] . '/create?import=true');
             }
 
             $validation_errors = validation_errors();
@@ -162,16 +166,18 @@ class Sections extends MY_Controller
                 throw new Exception($validation_errors);
             }
         } catch (Exception $e) {
-            setError($e->getMessage());
+            $this->error_reporting->set_error($e->getMessage());
         }
 
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => $this->lang->line(APP . '_import_title'),
             'project' => $project,
             'page' => $page,
-            'name_app' => $this->data['name'],
-        );
-        $this->load->template_app('dev-sections/import', $vars);
+            'name_app' => $this->app_data['name'],
+            'errors' => $this->error_reporting->get_errors()
+        ));
+
+        echo $this->load->app()->render('dev-sections/import.twig', $this->data);
     }
     /*
      * Método para chamar a view de edição da seção
@@ -186,13 +192,13 @@ class Sections extends MY_Controller
         $project_dir = $project['directory'];
         $page_dir = $page['directory'];
         $section = $this->sections_model->get_section($project_dir, $page_dir, $section_dir);
-        $this->load->library_app('config_page');
-        $this->load->library_app('form');
+        $this->load->app()->library('config_page');
+        $this->load->app()->library('form');
         if ($section) {
             $fields = $this->treat_fields($section['fields']);
             $this->form_edit_section($project, $page, $section);
         } else {
-            setError($this->lang->line(APP . '_open_config_fail'));
+            $this->error_reporting->set_error($this->lang->line(APP . '_open_config_fail'));
         }
 
         $this->include_components
@@ -201,10 +207,10 @@ class Sections extends MY_Controller
                 ->main_js('plugins/embeddedjs/ejs.js')
                 ->app_js(array('js/masks/js/jquery.meio.js', 'project/js/form-section.js'))
                 ->app_css('project/css/form-section.css');
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'fields' => $fields,
             'title' => sprintf($this->lang->line(APP . '_title_edit_section'), $section['name']),
-            'name_app' => $this->data['name'],
+            'name_app' => $this->app_data['name'],
             'name' => $section['name'],
             'directory' => $section['directory'],
             'table' => str_replace($project['preffix'], '', $section['table']),
@@ -216,10 +222,13 @@ class Sections extends MY_Controller
             'sections' => $this->list_options($project_dir, $page_dir, $section_dir),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
-            'plugins_input' => $this->form->list_plugins()
-        );
+            'plugins_input' => $this->form->list_plugins(),
+            'errors' => $this->error_reporting->get_errors(),
+            'query_string' => $this->input->server('QUERY_STRING'),
+            'total' => count($this->input->post('name_field'))
+        ));
 
-        $this->load->template_app('dev-sections/form', $vars);
+        echo $this->load->app()->render('dev-sections/form.twig', $this->data);
     }
 
     private function list_options($project_dir, $page_dir, $section_dir = null)
@@ -229,12 +238,11 @@ class Sections extends MY_Controller
 
         return $options;
     }
-    /*
-     * Método com o formulário de edição da seção
-     */
 
     private function form_edit_section($project, $page, $section)
     {
+        $this->load->library('form_validation');
+        $this->load->library('error_reporting');
         $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'trim|required');
         $this->form_validation->set_rules('directory', $this->lang->line(APP . '_label_directory'), 'trim|required|callback_verify_dir_edit');
         $this->form_validation->set_rules('table', $this->lang->line(APP . '_label_table'), 'trim|required|callback_verify_table_edit');
@@ -242,7 +250,6 @@ class Sections extends MY_Controller
             $project_dir = $project['directory'];
             $page_dir = $page['directory'];
             $section_dir = $section['directory'];
-            /* Array com todos os os campos enviados pelo método post */
             $data = $this->get_post_data($project, $page, $section);
             $data['old_config'] = $section;
             $directory = $data['directory'];
@@ -251,9 +258,9 @@ class Sections extends MY_Controller
             rename($dir . $section_dir, $dir . $directory);
             $this->edit_config($data, $project_dir, $page_dir, $section_dir);
 
-            redirect_app('project/' . $project_dir . '/' . $page_dir);
+            app_redirect('project/' . $project_dir . '/' . $page_dir);
         } else {
-            setError(validation_errors());
+            $this->error_reporting->set_error(validation_errors());
         }
     }
 
@@ -474,7 +481,7 @@ class Sections extends MY_Controller
                         $field['limit'] = $old_limit;
                         $field['default'] = $old_default;
                         $field['comment'] = $old_comment;
-                        setError(sprintf($this->lang->line(APP . '_not_allowed_column_modify'), $old_column));
+                        $this->error_reporting->set_error(sprintf($this->lang->line(APP . '_not_allowed_column_modify'), $old_column));
                     }
                 }
             } else {
@@ -496,7 +503,7 @@ class Sections extends MY_Controller
     {
         $remove = $this->sections_model->remove_column($data);
         if (!$remove) {
-            setError(sprintf($this->lang->line(APP . '_not_allowed_column_remove'), $data['old_column']));
+            $this->error_reporting->set_error(sprintf($this->lang->line(APP . '_not_allowed_column_remove'), $data['old_column']));
         }
     }
 
@@ -518,21 +525,21 @@ class Sections extends MY_Controller
         $this->lang->load_app('sections/remove');
         $project = get_project();
         $page = get_page();
-        $section = $this->sections_model->get_section($project['directory'], $project['directory'], $section_dir);
+        $section = $this->sections_model->get_section($project['directory'], $page['directory'], $section_dir);
         if (!$section or ! $project or ! $page) {
-            redirect_app();
+            app_redirect();
         }
 
         $this->form_remove($section, $project, $page);
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => sprintf($this->lang->line(APP . '_title_remove_section'), $section['name']),
-            'name_app' => $this->data['name'],
+            'name_app' => $this->app_data['name'],
             'project' => $project,
             'section' => $section,
             'page' => $page
-        );
+        ));
 
-        $this->load->template_app('dev-sections/remove', $vars);
+        echo $this->load->app()->render('dev-sections/remove.twig', $this->data);
     }
     /*
      * Método com configuração dos requisitos para remover projeto
@@ -540,13 +547,14 @@ class Sections extends MY_Controller
 
     private function form_remove($section, $project, $page)
     {
+        $this->load->library('form_validation');
         $this->form_validation->set_rules('password', $this->lang->line(APP . '_label_password'), 'required|callback_verify_password');
         $this->form_validation->set_rules('section', $this->lang->line(APP . '_label_section'), 'trim|required');
         if ($this->form_validation->run()) {
             $project_dir = $project['directory'];
             $page_dir = $page['directory'];
             if ($section['directory'] != $this->input->post('section')) {
-                redirect_app('project/' . $project_dir . '/' . $page_dir);
+                app_redirect('project/' . $project_dir . '/' . $page_dir);
             }
 
             $section_dir = $section['directory'];
@@ -558,7 +566,7 @@ class Sections extends MY_Controller
 
             forceRemoveDir($this->config_path . $project_dir . '/' . $page_dir . '/' . $section_dir);
 
-            redirect_app('project/' . $project_dir . '/' . $page_dir);
+            app_redirect('project/' . $project_dir . '/' . $page_dir);
         }
     }
     /*
@@ -567,7 +575,7 @@ class Sections extends MY_Controller
 
     public function verify_password($v_pass)
     {
-        $pass_user = $this->data_user['password'];
+        $pass_user = $this->user_data['password'];
         // Inicia helper PasswordHash
         $this->load->helper('passwordhash');
         $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
@@ -587,8 +595,8 @@ class Sections extends MY_Controller
     public function create()
     {
         $this->lang->load_app('sections/form');
-        $this->load->library_app('config_page');
-        $this->load->library_app('form');
+        $this->load->app()->library('config_page');
+        $this->load->app()->library('form');
         $project = get_project();
         $page = get_page();
         $this->form_create_section($project, $page);
@@ -601,14 +609,9 @@ class Sections extends MY_Controller
                 ))
                 ->app_css('project/css/form-section.css');
 
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => sprintf($this->lang->line(APP . '_title_edit_section'), $page['name']),
-            'name_app' => $this->data['name'],
-            'name' => '',
-            'directory' => '',
-            'table' => '',
-            'status' => '',
-            'fields' => '',
+            'name_app' => $this->app_data['name'],
             'preffix' => $project['preffix'],
             'project' => $project,
             'page' => $page,
@@ -616,25 +619,29 @@ class Sections extends MY_Controller
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
             'plugins_input' => $this->form->list_plugins(),
-            'label_options' => ''
-        );
+            'errors' => $this->error_reporting->get_errors(),
+            'query_string' => $this->input->server('QUERY_STRING'),
+            'total' => count($this->input->post('name_field'))
+        ));
 
         $import = (bool) $this->input->get('import');
         if ($import) {
             $section_path = APPPATH . APP_PATH . 'tmp/section/';
             $config = $this->sections_model->get_tmp_config($section_path . 'section.yml');
-            $vars['name'] = $config['name'];
-            $vars['directory'] = $config['directory'];
-            $vars['table'] = $config['table'];
-            $vars['status'] = $config['status'];
-            $vars['fields'] = $config['fields'];
+            $this->data['name'] = $config['name'];
+            $this->data['directory'] = $config['directory'];
+            $this->data['table'] = $config['table'];
+            $this->data['status'] = $config['status'];
+            $this->data['fields'] = $config['fields'];
         }
 
-        $this->load->template_app('dev-sections/form', $vars);
+        echo $this->load->app()->render('dev-sections/form.twig', $this->data);
     }
 
     private function form_create_section($project, $page)
     {
+        $this->load->library('form_validation');
+        $this->load->library('error_reporting');
         $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'trim|required');
         $this->form_validation->set_rules('directory', $this->lang->line(APP . '_label_directory'), 'trim|required|callback_verify_dir_create');
         $this->form_validation->set_rules('table', $this->lang->line(APP . '_label_table'), 'trim|required|callback_verify_table_create');
@@ -673,9 +680,9 @@ class Sections extends MY_Controller
                 }
             }
 
-            redirect_app('project/' . $project_dir . '/' . $page_dir);
+            app_redirect('project/' . $project_dir . '/' . $page_dir);
         } else {
-            setError(validation_errors());
+            $this->error_reporting->set_error(validation_errors());
         }
     }
     /*
@@ -737,11 +744,11 @@ class Sections extends MY_Controller
     {
         $total = count($data['name_field']);
         if (!$total) {
-            setError($this->lang->line(APP . '_required_field'));
+            $this->error_reporting->set_error($this->lang->line(APP . '_required_field'));
             return false;
         }
 
-        $this->load->library_app('config_page');
+        $this->load->app()->library('config_page');
         $config = array(
             'name' => $data['name'],
             'directory' => $data['directory'],
@@ -878,27 +885,27 @@ class Sections extends MY_Controller
         $label_options_field = $data['label_options_field'];
         if ($column_field == 'id') {
             // Se o nome da coluna for id
-            setError($this->lang->line(APP . '_create_column_id_not_allowed'));
+            $this->error_reporting->set_error($this->lang->line(APP . '_create_column_id_not_allowed'));
 
             return false;
         } elseif ($column_field == $table) {
             // Se o nome da coluna for igual da tabela
-            setError($this->lang->line(APP . '_column_equals_table'));
+            $this->error_reporting->set_error($this->lang->line(APP . '_column_equals_table'));
 
             return false;
         } elseif (count(search($fields, 'column', $column_field)) > 0) {
             // Se o nome da coluna estiver duplicado
-            setError(sprintf($this->lang->line(APP . '_duplicate_field_not_allowed'), $column_field));
+            $this->error_reporting->set_error(sprintf($this->lang->line(APP . '_duplicate_field_not_allowed'), $column_field));
 
             return false;
         } elseif (!empty($name_field) && (empty($input_field) or empty($column_field) or empty($type_field))) {
             // Se o nome do campo for preenchido e as outras informações não forem preenchidas
-            setError($this->lang->line(APP . '_fields_required'));
+            $this->error_reporting->set_error($this->lang->line(APP . '_fields_required'));
 
             return false;
         } elseif (!empty($options_field) && empty($label_options_field)) {
             // Se o campo options for preenchido, o campo Label se torna obrigatório
-            setError(sprintf($this->lang->line(APP . '_options_select_required'), $name_field));
+            $this->error_reporting->set_error(sprintf($this->lang->line(APP . '_options_select_required'), $name_field));
         } else {
             // Se não houver nenhum erro
             return true;
@@ -912,7 +919,7 @@ class Sections extends MY_Controller
     {
         $page = $this->uri->segment(3);
         if (empty($this->page)) {
-            $this->load->model_app('pages_model');
+            $this->load->app()->model('pages_model');
             $this->page = $this->pages_model->get_section($page);
         }
 
@@ -1006,14 +1013,14 @@ class Sections extends MY_Controller
     {
         $image_y = $this->input->get("image_y");
         $image_x = $this->input->get("image_x");
-        $image_resize = to_boolean($this->input->get("image_resize"));
-        $image_ratio = to_boolean($this->input->get("image_ratio"));
+        $image_resize = boolval($this->input->get("image_resize"));
+        $image_ratio = boolval($this->input->get("image_ratio"));
         $image_ratio_x = $this->input->get("image_ratio_x");
         $image_ratio_y = $this->input->get("image_ratio_y");
-        $image_ratio_crop = to_boolean($this->input->get("image_ratio_crop"));
-        $image_ratio_fill = to_boolean($this->input->get("image_ratio_fill"));
+        $image_ratio_crop = boolval($this->input->get("image_ratio_crop"));
+        $image_ratio_fill = boolval($this->input->get("image_ratio_fill"));
         $image_background_color = $this->input->get("image_background_color");
-        $image_convert = to_boolean($this->input->get("image_convert"));
+        $image_convert = boolval($this->input->get("image_convert"));
         $image_text = $this->input->get("image_text");
         $image_text_color = $this->input->get("image_text_color");
         $image_text_background = $this->input->get("image_text_background");
@@ -1114,7 +1121,7 @@ class Sections extends MY_Controller
     private function treat_columns($columns)
     {
         if ($columns) {
-            $this->load->library_app('config_page');
+            $this->load->app()->library('config_page');
             $types = $this->config_page->types();
             $cols = array();
             foreach ($columns as $col) {

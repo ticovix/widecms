@@ -1,6 +1,6 @@
 .image-file{
     text-align: center;
-    height: 100px;
+    max-height: 100px;
     padding: 2px;
     border:1px solid #ccc;
     margin-bottom: 5px;

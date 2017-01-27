@@ -5,171 +5,134 @@ if (!defined('BASEPATH'))
 
 class MY_Loader extends CI_Loader
 {
-    private $segments = false;
-    private $vars = array();
+    private $app_path_views;
+    private $app_path_libraries;
+    private $app_path_helpers;
+    private $app_path_models;
 
     public function __construct()
     {
         parent::__construct();
     }
 
-    private function view_template($path = '', $template, $vars = array(), $return = false)
+    public function app($app = APP)
     {
-        $content = $this->view('/template/header', $this->vars, $return)->output->final_output;
+        $this->app_path_views = '../apps/' . $app . '/views/';
+        $this->app_path_libraries = '../apps/' . $app . '/libraries/';
+        $this->app_path_helpers = '../apps/' . $app . '/helpers/';
+        $this->app_path_models = '../apps/' . $app . '/models/';
 
-        if (!is_array($template)) {
-            $content .= $this->view($path . $template, $this->vars, $return)->output->final_output;
-        } else {
-            foreach ($template as $temp) {
-                $content .= $this->view($temp, $this->vars, $return)->output->final_output;
+        return $this;
+    }
+
+    public function clear_app_vars()
+    {
+        $this->app_path_views = null;
+        $this->app_path_libraries = null;
+        $this->app_path_helpers = null;
+        $this->app_path_models = null;
+    }
+
+    public function module($module = null)
+    {
+        if (!$module) {
+            $project = get_project();
+            $page = get_page();
+            $section = get_section();
+            $module = $project['directory'] . '/' . $page['directory'] . '/' . $section['directory'];
+        }
+
+        $this->app_path_views = '../apps/projects/modules/' . $module . '/views/';
+        $this->app_path_libraries = '../apps/projects/modules/' . $module . '/libraries/';
+        $this->app_path_helpers = '../apps/projects/modules/' . $module . '/helpers/';
+        $this->app_path_models = '../apps/projects/modules/' . $module . '/models/';
+
+        return $this;
+    }
+
+    public function render($name, array $context = array())
+    {
+        $path_views = array();
+        $path_views[] = APPPATH . 'views/';
+        if (!empty($this->app_path_views)) {
+            $path_views[] = APPPATH . 'views/' . $this->app_path_views;
+        }
+
+        $options = array();
+        if (ENVIRONMENT == 'development') {
+            $options = array_merge($options, array(
+                'debug' => true
+            ));
+        }
+
+        $loader = new Twig_Loader_Filesystem($path_views);
+        $twig = new Twig_Environment($loader);
+        foreach (get_defined_functions() as $functions) {
+            foreach ($functions as $function) {
+                $twig->addFunction($function, new Twig_Function_Function($function));
             }
         }
 
-        $content .= $this->view('/template/footer', $this->vars, $return)->output->final_output;
-        return $content;
+        $this->clear_app_vars();
+
+        return $twig->render($name, $context);
     }
 
-    public function setVars($vars = array())
+    public function view($views = array(), $vars = array(), $return = false)
     {
-        if (!empty($vars)) {
-            $this->vars = array_merge($this->vars, $vars);
+        if (!empty($this->app_path_views)) {
+            if (is_array($views)) {
+                $aux = array();
+                foreach ($views as $view) {
+                    $aux[] = $this->app_path_views . $view;
+                }
+
+                $views = $aux;
+            } else {
+                $views = $this->app_path_views . $views;
+            }
         }
+
+        $this->clear_app_vars();
+        return $this->_ci_load(array('_ci_view' => $views, '_ci_vars' => $this->_ci_object_to_array($vars), '_ci_return' => $return));
     }
 
-    public function template($template, $vars = array(), $return = false)
+    public function library($library, $params = NULL, $object_name = NULL)
     {
-
-        $this->vars = array_merge($this->vars, $vars);
-        $content = $this->view_template(null, $template, $vars, $return);
-        if ($return) {
-            return $content;
+        if (!empty($this->app_path_libraries)) {
+            $library = $this->app_path_libraries . $library;
         }
-    }
-    /* LOAD APPS */
 
-    public function view_app($template, $app = APP, $vars = array(), $return = false, $path_default = false)
-    {
-        $template = '../apps/' . $app . '/views/' . $template;
-        return $this->_ci_load(array('_ci_view' => $template, '_ci_vars' => $this->_ci_object_to_array($vars), '_ci_return' => $return));
-    }
-
-    public function library_app($library, $app = APP, $params = NULL, $object_name = NULL)
-    {
-        $library = '../apps/' . $app . '/libraries/' . $library;
+        $this->clear_app_vars();
         parent::library($library, $params, $object_name);
     }
 
-    public function helper_app($helpers = array(), $app = APP)
+    public function helper($helpers = array())
     {
-        if (is_array($helpers)) {
-            foreach ($helpers as $helper) {
-                $this->helper_app($helper, $app);
-            }
-        } else {
-            if (!empty($app)) {
-                $helpers = '../apps/' . $app . '/helpers/' . $helpers;
+        if (!empty($this->app_path_helpers)) {
+            if (is_array($helpers)) {
+                $aux = array();
+                foreach ($helpers as $helper) {
+                    $aux[] = $this->app_path_helpers . $helper;
+                }
+
+                $helpers = $aux;
+            } else {
+                $helpers = $this->app_path_helpers . $helpers;
             }
         }
 
+        $this->clear_app_vars();
         parent::helper($helpers);
     }
 
-    public function model_app($model, $app = APP, $name = '', $db_conn = FALSE)
+    public function model($model, $name = '', $db_conn = FALSE)
     {
-        $model = '../apps/' . $app . '/models/' . $model;
+        if (!empty($this->app_path_models)) {
+            $model = $this->app_path_models . $model;
+        }
 
+        $this->clear_app_vars();
         parent::model($model, $name, $db_conn);
-    }
-
-    public function template_app($template, $vars = array(), $app = APP, $return = false)
-    {
-        $app = '../apps/' . $app . '/views/';
-        $this->vars = array_merge($this->vars, $vars);
-        $content = $this->view_template($app, $template, $vars, $return);
-        if ($return) {
-            return $content;
-        }
-    }
-    /* LOAD MODULES */
-
-    public function view_module($template, $module = null, $vars = array(), $return = false, $path_default = false)
-    {
-        if ($module === null) {
-            $project = get_project();
-            $page = get_page();
-            $section = get_section();
-            $module = $project['directory'] . '/' . $page['directory'] . '/' . $section['directory'];
-        }
-
-        $template = '../apps/projects/modules/' . $module . '/views/' . $template;
-
-        return $this->_ci_load(array('_ci_view' => $template, '_ci_vars' => $this->_ci_object_to_array($vars), '_ci_return' => $return));
-    }
-
-    public function library_module($library, $module = null, $params = NULL, $object_name = NULL)
-    {
-        if ($module === null) {
-            $project = get_project();
-            $page = get_page();
-            $section = get_section();
-            $module = $project['directory'] . '/' . $page['directory'] . '/' . $section['directory'];
-        }
-
-        $library = '../apps/projects/modules/' . $module . '/libraries/' . $library;
-
-        parent::library($library, $params, $object_name);
-    }
-
-    public function helper_module($helpers = array(), $module = null)
-    {
-        if ($module === null) {
-            $project = get_project();
-            $page = get_page();
-            $section = get_section();
-            $module = $project['directory'] . '/' . $page['directory'] . '/' . $section['directory'];
-        }
-
-        if (is_array($helpers)) {
-            foreach ($helpers as $helper) {
-                $this->helper_app($helper, $module);
-            }
-        } else {
-            if (!empty($module)) {
-                $helpers = '../apps/projects/modules/' . $module . '/helpers/' . $helpers;
-            }
-        }
-
-        parent::helper($helpers);
-    }
-
-    public function model_module($model, $module = null, $name = '', $db_conn = FALSE)
-    {
-        if ($module === null) {
-            $project = get_project();
-            $page = get_page();
-            $section = get_section();
-            $module = $project['directory'] . '/' . $page['directory'] . '/' . $section['directory'];
-        }
-
-        $model = '../apps/projects/modules/' . $module . '/models/' . $model;
-
-        parent::model($model, $name, $db_conn);
-    }
-
-    public function template_module($template, $vars = array(), $module = null, $return = false)
-    {
-        if ($module === null) {
-            $project = get_project();
-            $page = get_page();
-            $section = get_section();
-            $module = $project['directory'] . '/' . $page['directory'] . '/' . $section['directory'];
-        }
-
-        $module = '../apps/projects/modules/' . $module . '/views/';
-        $this->vars = array_merge($this->vars, $vars);
-        $content = $this->view_template($module, $template, $vars, $return);
-        if ($return) {
-            return $content;
-        }
     }
 }

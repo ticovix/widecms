@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta name="robots" content="noindex" />
+        <meta name="googlebot" content="noindex" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <!-- Meta, title, CSS, favicons, etc. -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% if title is not null%} {{title}} | {%endif%}WIDECMS</title>
+        <link rel="icon" type="image/png" href="{{base_url('assets/images/favicon.png')}}" />
+
+        <!-- Bootstrap -->
+        <link href="{{base_url('../vendor/components/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
+
+        <!-- Font Awesome -->
+        <link href="{{base_url('../vendor/components/font-awesome/css/font-awesome.min.css')}}" rel="stylesheet">
+
+        <!-- Switchery -->
+        {% if user_data.allow_dev%}
+            <link rel="stylesheet" href="{{base_url('assets/plugins/switchery/css/switchery.css')}}">
+        {% endif%}
+
+        <!-- Custom Theme Style -->
+        <link href="{{base_url('assets/css/custom.css')}}" rel="stylesheet">
+
+        {{include_components.put_css|raw}}
+
+        {% block head %}
+        {% endblock %}
+
+    </head>
+
+    <body class="nav-md">
+        <div class="container body">
+            <div class="main_container">
+                <div class="col-md-3 left_col">
+                    <div class="left_col scroll-view">
+                        <div class="navbar nav_title" style="border: 0;">
+                            <a href="{{base_url()}}" class="site_title">
+                                <img src="{{base_url('assets/images/widecms_sm.png')}}">
+                            </a>
+                        </div>
+
+                        <div class="clearfix"></div>
+
+                        <!-- menu profile quick info -->
+                        <div class="profile">
+                            <div class="profile_pic">
+                                <img src="{{user_data.profile_image}}" class="img-circle profile_img" height="56">
+                            </div>
+                            <div class="profile_info">
+                                <span>{{lang.line('panel_welcome')}}</span>
+                                <h2>{{user_data.name}}</h2>
+                            </div>
+                        </div>
+                        <!-- /menu profile quick info -->
+
+                        <br />
+
+                        <!-- sidebar menu -->
+                        <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                            <div class="clearfix"></div>
+                            <div class="menu_section">
+                                <ul class="nav side-menu">
+                                    <li>
+                                        <a href="{{base_url()}}" class="{% if uri.segment(2) == '' or uri.segment(2) == 'home'%}current-page{% endif %}">
+                                            <i class="fa fa-dashboard"></i> {{lang.line('panel_btn_dashboard')}}
+                                        </a>
+                                    </li>
+                                    {% for nav in list_apps%}
+                                        {% if nav.show_nav == 1 or nav.show_nav is null%}
+                                            <li class="{% if uri.segment(2) == nav.app%}current-page{% endif %}">
+                                                <a href="{{base_url('apps/' ~ nav.app)}}">
+                                                    {% if nav.is_icon_fa %}
+                                                        <i class="fa {{nav.icon}}"></i>
+                                                    {% else %}
+                                                        <img src="{{base_url('application/apps/' ~ nav.app ~ '/assets/' ~ nav.icon)}}" class="fa">
+                                                    {% endif %}
+                                                    {{nav.name}}
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor%}
+                                </ul>
+                            </div>
+
+                        </div>
+                        <!-- /sidebar menu -->
+                    </div>
+                </div>
+
+                <!-- top navigation -->
+                <div class="top_nav">
+
+                    <div class="nav_menu">
+                        <nav class="" role="navigation">
+                            <div class="nav toggle">
+                                <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                            </div>
+
+                            <ul class="nav navbar-nav navbar-right">
+                                <li class="">
+                                    <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                        <img src="{{user_data.profile_image}}" height="29"> {{user_data.name}}
+                                        <span class=" fa fa-angle-down"></span>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                        <li>
+                                            <a href="{{base_url('logout')}}"><i class="fa fa-sign-out pull-right"></i> {{lang.line('panel_logout')}}</a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <li class="dev-mode">
+                                    {% if user_data.allow_dev%}
+                                        {{lang.line('panel_dev_mode')}}
+                                        <input type="checkbox" id="allow_dev" {% if user_data.dev_mode%}checked{% endif%}/>
+                                    {% endif%}
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                </div>
+                <!-- /top navigation -->
+
+                <!-- page content -->
+                <div class="right_col" role="main">
+                    {% block content %}
+                    {% endblock %}
+                </div>
+                <!-- footer content -->
+                <footer>
+                    <div class="pull-left">
+                        Version - 1.0
+                    </div>
+                    <div class="pull-right">
+                        <img src="{{base_url('assets/images/widecms_footer.png')}}">
+                    </div>
+                    <div class="clearfix"></div>
+                </footer>
+                <!-- /footer content -->
+            </div>
+        </div>
+        <script type="text/javascript">
+            var url = "{{base_url()}}";
+            var base_url = "{{wd_base_url()}}";
+            var app = "{{APP}}";
+            var app_path = "{{base_url(APP_PATH)}}";
+            var app_assets = "{{base_url(APP_ASSETS)}}";
+        </script>
+
+        <!-- jQuery -->
+        <script src="{{base_url('../vendor/components/jquery/jquery.min.js')}}"></script>
+
+        <!-- Bootstrap -->
+        <script src="{{base_url('../vendor/components/bootstrap/js/bootstrap.min.js')}}"></script>
+
+        <!-- Jquery Cookie -->
+        <script src="{{base_url('assets/plugins/jquery-cookie/jquery.cookie.js')}}"></script>
+
+        <!-- Custom Theme Scripts -->
+        <script src="{{base_url('assets/js/custom.js')}}"></script>
+
+        {% if user_data.allow_dev%}
+            <script src="{{base_url('assets/plugins/switchery/js/switchery.js')}}"></script>
+            <script src="{{base_url('assets/js/dev_mode.js')}}"></script>
+        {%endif%}
+
+        {{include_components.put_js|raw}}
+
+        {% block footer %}
+        {% endblock %}
+    </body>
+</html>

@@ -3,9 +3,9 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 $path_modules = 'application/apps/projects/projects/';
 $CI = &get_instance();
-$CI->load->model_app('projects_model', 'projects');
-$CI->load->model_app('pages_model', 'projects');
-$CI->load->model_app('sections_model', 'projects');
+$CI->load->app('projects')->model('projects_model');
+$CI->load->app('projects')->model('pages_model');
+$CI->load->app('projects')->model('sections_model');
 
 function check_list($fields)
 {

@@ -1,0 +1,33 @@
+{% extends "template.twig" %}
+{% block content %}
+    <ul class="breadcrumb">
+        <li><a href="{{base_url()}}"><i class="fa fa-home"></i></a></li>
+        <li><a href="{{base_app_url()}}">{{name_app}}</a></li>
+        <li><a href="{{base_app_url('project/' ~ project.directory)}}">{{project.name}}</a></li>
+        <li><a href="{{base_app_url('project/' ~ project.directory ~ '/' ~ page.directory)}}">{{page.name}}</a></li>
+        <li class="active">{{title}}</li>
+    </ul>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>{{title}}</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    {{errors|raw}}
+                    {{form_open_multipart(null, {'class':'form-horizontal'})|raw}}
+                    <div class="form-group">
+                        <label for="file">Arquivo Zip</label>
+                        <input type="file" name="file" id="file" required="">
+                    </div>
+                    <div class="form-group text-right">
+                        <input class="btn btn-danger" value="Importar" name="import" type="submit">
+                    </div>
+                    {{form_close()|raw}}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

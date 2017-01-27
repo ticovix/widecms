@@ -1,7 +1,6 @@
 <?php
 
-if (!defined('BASEPATH'))
-    exit('Não é permitido o acesso direto ao arquivo.');
+defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Login extends CI_Controller
 {
@@ -11,23 +10,18 @@ class Login extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        // Carrega a model login
-        $this->load->model_app('users_model', 'users');
+        $this->load->app('users')->model('users_model');
+        $this->load->library('form_validation');
     }
-    /*
-     * Método para criar template de login
-     */
 
     public function index()
     {
         $this->lang->load('cms/login/login');
 
-        // Validação de formulário
         $captcha = false;
-        $this->form_validation->set_rules('login', 'Login', 'trim|required');
-        $this->form_validation->set_rules('password', 'Senha', 'trim|callback_auth_account');
-        $this->form_validation->set_rules('captcha', 'Captcha', 'callback_check_captcha');
-        // Verifica se o formulário foi enviado e se houve algum erro
+        $this->form_validation->set_rules('login', $this->lang->line('login_login_field'), 'trim|required');
+        $this->form_validation->set_rules('password', $this->lang->line('login_password_field'), 'trim|callback_auth_account');
+        $this->form_validation->set_rules('captcha', $this->lang->line('login_captcha_field'), 'callback_check_captcha');
         $run = $this->form_validation->run();
         if ($run) {
             $this->session->set_userdata('attempts', 0);
@@ -41,17 +35,12 @@ class Login extends CI_Controller
         }
 
         $data = array(
-            'title' => 'Login',
-            'captcha' => $captcha
+            'title' => $this->lang->line('login_title'),
+            'captcha' => $captcha,
+            'lang' => $this->lang
         );
-        $this->include_components->main_css('view/login/css/style.css');
-        $this->load->view('login/inc/header', $data);
-        $this->load->view('login/index', $data);
-        $this->load->view('login/inc/footer');
+        echo $this->load->render('login/login.twig', $data);
     }
-    /*
-     * Método para verificar e exibir captcha caso seja detectado força bruta
-     */
 
     private function protection_brute_force()
     {
@@ -59,9 +48,7 @@ class Login extends CI_Controller
         $this->session->set_userdata(array('attempts' => $attempts));
         if ($attempts > $this->max_attempts) {
             $this->load->helper('captcha');
-            // numeric random number for captcha
             $random_number = substr(number_format(time() * rand(), 0, '', ''), 0, 6);
-            // setting up captcha config
             $vals = array(
                 'word' => $random_number,
                 'img_path' => $this->path_captcha,
@@ -78,9 +65,6 @@ class Login extends CI_Controller
             return false;
         }
     }
-    /*
-     * Método para checar captcha caso seja detectado acesso por força bruta
-     */
 
     public function check_captcha($str)
     {
@@ -91,7 +75,7 @@ class Login extends CI_Controller
             if (strcmp(strtoupper($str), strtoupper($word)) == 0) {
                 return true;
             } else {
-                $this->form_validation->set_message('check_captcha', 'Digite corretamente o que vê na imagem.');
+                $this->form_validation->set_message('check_captcha', $this->lang->line('login_error_captcha_invalid'));
                 return false;
             }
         }
@@ -111,7 +95,7 @@ class Login extends CI_Controller
         $pass = $account['password'];
         $id = $account['id'];
         if (!$account) {
-            $this->form_validation->set_message('auth_account', 'Login ou senha incorreto, caso tenha esquecido sua senha <a href="' . base_url('login/recovery') . '">clique aqui</a>');
+            $this->form_validation->set_message('auth_account', sprintf($this->lang->line('login_error_invalid_login'), base_url('login/recovery')));
             return false;
         }
 
@@ -119,26 +103,26 @@ class Login extends CI_Controller
         $this->load->helper('passwordhash');
         $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
         // Verifica se a senha confere
-        if ($PasswordHash->CheckPassword($password, $pass)) {
-            // Cria sessão
-            $this->session->set_userdata([
-                'id' => $id,
-                'logged_in' => true
-            ]);
-
-            return true;
-        } else {
-            $this->form_validation->set_message('auth_account', 'Login ou senha incorreto, caso tenha esquecido sua senha <a href="' . base_url('login/recovery') . '">clique aqui</a>');
+        if (!$PasswordHash->CheckPassword($password, $pass)) {
+            $this->form_validation->set_message('auth_account', sprintf($this->lang->line('login_error_invalid_login'), base_url('login/recovery')));
 
             return false;
         }
+
+        // Cria sessão
+        $this->session->set_userdata([
+            'id' => $id,
+            'logged_in' => true
+        ]);
+
+        return true;
     }
 
     public function recovery()
     {
         $this->lang->load('cms/login/recovery');
-        $this->form_validation->set_rules('captcha', 'Captcha', 'callback_check_captcha_recovery');
-        $this->form_validation->set_rules('email', 'E-mail', 'trim|required|valid_email|callback_check_status_user');
+        $this->form_validation->set_rules('captcha', $this->lang->line('recovery_captcha_field'), 'callback_check_captcha_recovery');
+        $this->form_validation->set_rules('email', $this->lang->line('recovery_email_field'), 'trim|required|valid_email|callback_check_status_user');
         if ($this->form_validation->run()) {
             $user = $this->user;
             if ($user) {
@@ -149,16 +133,18 @@ class Login extends CI_Controller
                 $token = $PasswordHash->HashPassword($token_val);
                 $this->users_model->change_recovery_token($token_val, $user['id']);
                 $login = $user['login'];
-                $this->load->library('email');
-                $email = $this->input->post('email');
-                $message = '
-                    <h1>Redefinição de senha</h1>
-                    <p>Você solicitou a redefinição de senha? Se sim clique nesse <a href="' . base_url('login/redefine-pass?token=' . $token . '&login=' . $login) . '">link</a> para redefinir a senha, caso não tenha solicitado, ignore esse e-mail.</p>
+                $title = $this->lang->line('recovery_email_title');
+                $message = sprintf($this->lang->line('recovery_email_message'), base_url('login/redefine-pass?token=' . $token . '&login=' . $login));
+                $body = '
+                    <h1>' . $title . '</h1>
+                    <p>' . $message . '</p>
                 ';
-                $this->email->from($email, 'Wide CMS');
-                $this->email->to($email);
-                $this->email->subject('Email para redefinição de senha');
-                $this->email->message($message);
+                $email = $this->input->post('email');
+                $this->load->library('email');
+                $this->email->from($email, 'WIDECMS');
+                $this->email->to($email, $user['name']);
+                $this->email->subject($title);
+                $this->email->message($body);
                 $this->email->send();
             }
 
@@ -180,13 +166,12 @@ class Login extends CI_Controller
         $captcha = create_captcha($vals);
         $this->session->set_userdata('captchaWordRecovery', $captcha['word']);
         $data = array(
-            'title' => 'Recuperar senha',
-            'captcha' => $captcha
+            'title' => $this->lang->line('recovery_title'),
+            'captcha' => $captcha,
+            'sended' => ($this->input->get('send') === 'true'),
+            'lang' => $this->lang
         );
-        add_css('view/login/css/style.css');
-        $this->load->view('login/inc/header', $data);
-        $this->load->view('login/recovery', $data);
-        $this->load->view('login/inc/footer');
+        echo $this->load->render('login/recovery.twig', $data);
     }
     /*
      * Método para checar captcha da página de recuperação de senha
@@ -198,7 +183,7 @@ class Login extends CI_Controller
         if (strcmp(strtoupper($str), strtoupper($word)) == 0) {
             return true;
         } else {
-            $this->form_validation->set_message('check_captcha_recovery', 'Digite corretamente o que vê na imagem.');
+            $this->form_validation->set_message('check_captcha_recovery', $this->lang->line('recovery_error_captcha_invalid'));
             return false;
         }
 
@@ -210,11 +195,13 @@ class Login extends CI_Controller
         $this->user = $this->users_model->list_user_email($email);
         if ($this->user) {
             if ($this->user['status'] == '0') {
-                $this->form_validation->set_message('check_status_user', 'Conta bloqueada, não é possível recuperar senha, entre em contato com o administrador.');
+                $this->form_validation->set_message('check_status_user', $this->lang->line('recovery_error_user_blocked'));
 
                 return false;
             }
         }
+
+        return true;
     }
 
     public function redefine_pass()
@@ -231,8 +218,8 @@ class Login extends CI_Controller
             redirect('login');
         }
 
-        $this->form_validation->set_rules('pass', 'Senha', 'required|trim|min_length[3]');
-        $this->form_validation->set_rules('re_pass', 'Repetir senha', 'required|trim|matches[pass]');
+        $this->form_validation->set_rules('pass', $this->lang->line('redefine_pass_field'), 'required|trim|min_length[3]');
+        $this->form_validation->set_rules('re_pass', $this->lang->line('redefine_repass_field'), 'required|trim|matches[pass]');
         if ($this->form_validation->run()) {
             // Inicia helper PasswordHash
             $this->load->helper('passwordhash');
@@ -243,14 +230,13 @@ class Login extends CI_Controller
         }
 
         $data = array(
-            'title' => 'Redefinir senha',
+            'title' => $this->lang->line('redefine_title'),
             'token' => $token,
-            'login' => $login
+            'login' => $login,
+            'sended' => ($this->input->get('send') === 'true'),
+            'lang' => $this->lang
         );
-        add_css('view/login/css/style.css');
-        $this->load->view('login/inc/header', $data);
-        $this->load->view('login/redefine-pass', $data);
-        $this->load->view('login/inc/footer');
+        echo $this->load->render('login/redefine-pass.twig', $data);
     }
 
     private function verify_token($token, $login)

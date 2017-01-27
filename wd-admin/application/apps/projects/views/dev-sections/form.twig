@@ -1,0 +1,620 @@
+{% extends "template.twig" %}
+{% block content %}
+    <ul class="breadcrumb">
+        <li><a href="{{base_url()}}"><i class="fa fa-home"></i></a></li>
+        <li><a href="{{base_app_url()}}">{{name_app}}</a></li>
+        <li><a href="{{base_app_url('project/' ~ project.directory)}}">{{project.name}}</a></li>
+        <li><a href="{{base_app_url('project/' ~ project.directory ~ '/' ~ page.directory)}}">{{page.name}}</a></li>
+        <li class="active">{{title}}</li>
+    </ul>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>{{title}}</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    {{errors|raw}}
+                    {#!/* if uri.segment('4') != 'edit-section' or uri.segment('4') == 'edit-section' and fields#}
+                    {{form_open(current_url() ~ '?' ~ query_string)|raw}}
+                    <h3>{{lang.line(APP ~ '_subtitle_data_basic')}}</h3>
+                    <p>{{lang.line(APP ~ '_text_data_basic')}}</p>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>{{lang.line(APP ~ '_label_name')}}*</label>
+                                <input type="text" name="name" id="dig_name" value="{{set_value('name', name)}}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>{{lang.line(APP ~ '_label_directory')}}*</label>
+                                <input type="text" name="directory" id="dir_name" value="{{set_value('directory', directory)}}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>{{lang.line(APP ~ '_label_table')}}*</label>
+                                {% if preffix != null%}
+                                    <div class="input-group">
+                                        <div class="input-group-addon">{{preffix}}</div>
+                                    {% endif %}
+                                    <input type="text" name="table" id="table_name" value="{{set_value('table', table)}}" class="form-control">
+                                    {% if preffix != null%}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>{{lang.line(APP ~ '_label_status')}}*</label>
+                                <select name="status" class="form-control">
+                                    <option value="1" {{set_select('status', '1', (status == '1'))}}>{{lang.line(APP ~ '_status_option_enabled')}}</option>
+                                    <option value="0" {{set_select('status', '0', (status == '0'))}}>{{lang.line(APP ~ '_status_option_disabled')}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <h3>{{lang.line(APP ~ '_subtitle_config_advanced')}}</h3>
+                    <p>{{lang.line(APP ~ '_text_data_advanced')}}</p>
+                    <button type="button" class="btn btn-default btn-primary" id="btn-add-field" data-toggle="modal" data-target="#modal-new-field"> <span class="fa fa-plus"></span> {{lang.line(APP ~ '_btn_add_field')}}</button>
+                    <table class="table table-striped table-responsive table-bordered" id="fields">
+                        <thead>
+                            <tr>
+                                <th>{{lang.line(APP ~ '_label_name')}}</th>
+                                <th>{{lang.line(APP ~ '_label_input')}}</th>
+                                <th>{{lang.line(APP ~ '_label_column')}}</th>
+                                <th>{{lang.line(APP ~ '_label_type')}}</th>
+                                <th width="30">{{lang.line(APP ~ '_label_list')}}</th>
+                                <th width="30">{{lang.line(APP ~ '_label_delete')}}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sortable">
+                            {% if total == 0 and is_array(fields)%}
+                                {% set total = count(fields)%}
+                            {% endif%}
+                            {% if total > 0%}
+                                {% for i in 1..total%}
+                                    {% set i = i-1 %}
+                                    {% set field = fields[i]%}
+                                    {% set input = field.input%}
+                                    {% set database = field.database%}
+                                    <tr class="field-current btn-edit" data-index="{{i}}">
+                                        <td>
+                                            <input type="hidden" class="name-val" name="name_field[{{i}}]" value="{{set_value('name_field['~i~']', input.label)}}">
+                                            <input type="hidden" class="input-val" name="input_field[{{i}}]" value="{{set_value('input_field['~i~']', input.type)}}">
+                                            <input type="hidden" class="list-registers-val" name="list_registers_field[{{i}}]" value="{{set_value('list_registers_field['~i~']', input.list_registers)}}">
+                                            <input type="hidden" class="column-val" name="column_field[{{i}}]" value="{{set_value('column_field['~i~']', database.column)}}">
+                                            <input type="hidden" class="type-val" name="type_field[{{i}}]" value="{{set_value('type_field['~i~']', database.type_column)}}">
+                                            <input type="hidden" class="limit-val" name="limit_field[{{i}}]" value="{{set_value('limit_field['~i~']', database.limit)}}">
+                                            <input type="hidden" class="unique-val" name="unique_field[{{i}}]" value="{{set_value('unique_field['~i~']', database.unique)}}">
+                                            <input type="hidden" class="comment-val" name="comment_field[{{i}}]" value="{{set_value('comment_field['~i~']', input.comment)}}">
+                                            <input type="hidden" class="default-val" name="default_field[{{i}}]" value="{{set_value('default_field['~i~']', input.default)}}">
+                                            <input type="hidden" class="plugins-val" name="plugins_field[{{i}}]" value="{{set_value('plugin_field['~i~']', input.plugins)}}">
+                                            <input type="hidden" class="attributes-val" name="attributes_field[{{i}}]" value="{{set_value('attributes_field['~i~']', input.attributes)}}">
+                                            <input type="hidden" class="require-val" name="required_field[{{i}}]" value="{{set_value('required_field['~i~']', input.required)}}">
+                                            <input type="hidden" class="observation-val" name="observation_field[{{i}}]" value="{{set_value('observation_field['~i~']', input.observation)}}">
+                                            <input type="hidden" class="position-val" name="position[{{i}}]" value="{{set_value('name_field['~i~']', i)}}">
+                                            <!--Inputs of config to select and checkbox-->
+                                            <input type="hidden" class="options-val" name="options_field[{{i}}]" value="{{set_value('options_field['~i~']', input.options_table)}}">
+                                            <input type="hidden" class="label-options-val" name="label_options_field[{{i}}]" value="{{set_value('label_options_field['~i~']', input.options_label)}}">
+                                            <input type="hidden" class="trigger-select-val" name="trigger_select_field[{{i}}]" value="{{set_value('trigger_select_field['~i~']', input.options_trigger_select)}}">
+                                            <input type="hidden" class="options-selected" name="options_selected[{{i}}]" value="{{set_value('options_selected['~i~']', input.label_options_)}}">
+                                            <!--Inputs of config to upload-->
+                                            <input type="hidden" class="extensions-allowed-val" name="extensions_allowed[{{i}}]" value="{{set_value('extensions_allowed['~i~']', input.extensions_allowed)}}">
+                                            <input type="hidden" class="image-resize-val" name="image_resize[{{i}}]" value="{{set_value('image_resize['~i~']', input.image_resize)}}">
+                                            <input type="hidden" class="image-x-val" name="image_x[{{i}}]" value="{{set_value('image_x['~i~']', input.image_x)}}">
+                                            <input type="hidden" class="image-y-val" name="image_y[{{i}}]" value="{{set_value('image_y['~i~']', input.image_y)}}">
+                                            <input type="hidden" class="image-ratio-val" name="image_ratio[{{i}}]" value="{{set_value('image_ratio['~i~']', input.image_ratio)}}">
+                                            <input type="hidden" class="image-ratio-x-val" name="image_ratio_x[{{i}}]" value="{{set_value('image_ratio_x['~i~']', input.image_ratio_x)}}">
+                                            <input type="hidden" class="image-ratio-y-val" name="image_ratio_y[{{i}}]" value="{{set_value('image_ratio_y['~i~']', input.image_ratio_y)}}">
+                                            <input type="hidden" class="image-ratio-crop-val" name="image_ratio_crop[{{i}}]" value="{{set_value('image_ratio_crop['~i~']', input.image_ratio_crop)}}">
+                                            <input type="hidden" class="image-ratio-fill-val" name="image_ratio_fill[{{i}}]" value="{{set_value('image_ratio_fill['~i~']', input.image_ratio_fill)}}">
+                                            <input type="hidden" class="image-background-color-val" name="image_background_color[{{i}}]" value="{{set_value('image_background_color['~i~']', input.image_background_color)}}">
+                                            <input type="hidden" class="image-convert-val" name="image_convert[{{i}}]" value="{{set_value('image_convert['~i~']', input.image_convert)}}">
+                                            <input type="hidden" class="image-text-val" name="image_text[{{i}}]" value="{{set_value('image_text['~i~']', input.image_text)}}">
+                                            <input type="hidden" class="image-text-color-val" name="image_text_color[{{i}}]" value="{{set_value('image_text_color['~i~']', input.image_text_color)}}">
+                                            <input type="hidden" class="image-text-background-val" name="image_text_background[{{i}}]" value="{{set_value('image_text_background['~i~']', input.image_text_background)}}">
+                                            <input type="hidden" class="image-text-opacity-val" name="image_text_opacity[{{i}}]" value="{{set_value('image_text_opacity['~i~']', input.image_text_opacity)}}">
+                                            <input type="hidden" class="image-text-background-opacity-val" name="image_text_background_opacity[{{i}}]" value="{{set_value('image_text_background_opacity['~i~']', input.image_text_background_opacity)}}">
+                                            <input type="hidden" class="image-text-padding-val" name="image_text_padding[{{i}}]" value="{{set_value('image_text_padding['~i~']', input.image_text_padding)}}">
+                                            <input type="hidden" class="image-text-position-val" name="image_text_position[{{i}}]" value="{{set_value('image_text_position['~i~']', input.image_text_position)}}">
+                                            <input type="hidden" class="image-text-direction-val" name="image_text_direction[{{i}}]" value="{{set_value('image_text_direction['~i~']', input.image_text_direction)}}">
+                                            <input type="hidden" class="image-text-x-val" name="image_text_x[{{i}}]" value="{{set_value('image_text_x['~i~']', input.image_text_x)}}">
+                                            <input type="hidden" class="image-text-y-val" name="image_text_y[{{i}}]" value="{{set_value('image_text_y['~i~']', input.image_text_y)}}">
+                                            <input type="hidden" class="image-thumbnails-val" name="image_thumbnails[{{i}}]" value="{{set_value('image_thumbnails['~i~']', input.image_thumbnails)}}">
+                                            {{set_value('name_field['~i~']', input.label)}}
+                                        </td>
+                                        <td>{{set_value('name_field['~i~']', input.type)}}</td>
+                                        <td>{{set_value('name_field['~i~']', database.column)}}</td>
+                                        <td>{{set_value('name_field['~i~']', database.type_column)}}</td>
+                                        <td align="center"><i class="fa {% if set_value('list_registers_field[' ~ i ~ ']', input.list_registers)%}fa-check{%else%}fa-remove{% endif %}"></i>
+                                        </td>
+                                        <td align="center"><input type="checkbox" class="check-remove" name="remove_field[{{i}}]" title="{{lang.line(APP ~ '_title_delete')}}"> </td>
+                                    </tr>
+                                {% endfor%}
+                            {% else %}
+                                <tr class="msg-is-empty">
+                                    <td colspan="6">
+                                        {{lang.line(APP ~ '_fields_not_found')}}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group text-right">
+                                <input class="btn btn-primary" value="{{lang.line(APP ~ '_btn_save')}}" name="send" type="submit">
+                            </div>
+                        </div>
+                    </div>
+                    {{form_close()|raw}}
+                    <!-- Modal add/change field -->
+                    <div class="modal fade" id="modal-new-field" data-index="" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myModalLabel">{{lang.line(APP ~ '_title_config_field')}}</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- Nav tabs -->
+                                    <ul class="nav nav-tabs" role="tablist">
+                                        <li role="presentation" class="nav-tab active">
+                                            <a href="#html" aria-controls="html" role="tab" data-toggle="tab">{{lang.line(APP ~ '_tab_html')}}</a>
+                                        </li>
+                                        <li role="presentation" class="nav-tab">
+                                            <a href="#database" aria-controls="database" role="tab" data-toggle="tab">{{lang.line(APP ~ '_tab_database')}}</a>
+                                        </li>
+                                        <li role="presentation" class="nav-tab">
+                                            <a href="#plugins" aria-controls="plugins" role="tab" data-toggle="tab">{{lang.line(APP ~ '_tab_plugins')}}</a>
+                                        </li>
+                                    </ul>
+
+                                    <!-- Tab panes -->
+                                    <div class="tab-content">
+                                        <div role="tabpanel" class="tab-pane active" id="html">
+                                            <h4>{{lang.line(APP ~ '_html_subtitle_config')}}</h4>
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>{{lang.line(APP ~ '_html_label_name')}}*</label>
+                                                        <input type="text" id="name_field" maxlength="45" class="form-control dig_name">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>{{lang.line(APP ~ '_html_label_input')}}*</label>
+                                                        <div id="content-field">
+                                                            <select id="input_field" class="form-control select-input">
+                                                                <option value="">{{lang.line(APP ~ '_option_select')}}</option>
+                                                                {% for input in inputs%}
+                                                                    <option value="{{input.value}}">{{input.name}}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                            <a href="#modal" class="input-group-addon hide" id="btn-config" role="button" data-toggle="modal"><span class="fa fa-cog"></span></a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>{{lang.line(APP ~ '_html_label_list')}}</label>
+                                                        <select id="list_registers_field" class="form-control">
+                                                            <option value="0">{{lang.line(APP ~ '_option_no')}}</option>
+                                                            <option value="1">{{lang.line(APP ~ '_option_yes')}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>{{lang.line(APP ~ '_html_label_required')}}</label>
+                                                        <select id="required_field" class="form-control">
+                                                            <option value="0">{{lang.line(APP ~ '_option_no')}}</option>
+                                                            <option value="1">{{lang.line(APP ~ '_option_yes')}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <hr>
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <h4>{{lang.line(APP ~ '_html_subtitle_additional_attributes')}}</h4>
+                                                    <div id="attributes">
+                                                        <div class="row attr-current">
+                                                            <div class="col-sm-6">
+                                                                <div class="form-group">
+                                                                    <input type="text" value="" class="form-control param_attr_field" placeholder="{{lang.line(APP ~ '_label_attribute')}}">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <div class="form-group">
+                                                                    <input type="text" value="" class="form-control value_attr_field" placeholder="{{lang.line(APP ~ '_label_value')}}">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button type="button" id="add-attr" class="btn">
+                                                        <i class="fa fa-fw fa-plus"></i> {{lang.line(APP ~ '_html_btn_plus')}}
+                                                    </button>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h4>{{lang.line(APP ~ '_html_subtitle_others')}}</h4>
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <div class="form-group">
+                                                                <label>{{lang.line(APP ~ '_html_label_observation')}}</label>
+                                                                <textarea class="form-control" id="observation_field"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane" id="database">
+                                            <h4>{{lang.line(APP ~ '_db_subtitle_config')}}</h4>
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>{{lang.line(APP ~ '_db_label_column')}}*</label>
+                                                        <input type="text" id="column_field" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>{{lang.line(APP ~ '_db_label_type')}}*</label>
+                                                        <select id="type_field" class="form-control">
+                                                            <option value="">{{lang.line(APP ~ '_option_select')}}</option>
+                                                            {% for type in types%}
+                                                                <option value="{{type.type}}">{{type.type}}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>{{lang.line(APP ~ '_db_label_limit')}}</label>
+                                                        <input type="text" id="limit_column_field" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>{{lang.line(APP ~ '_db_label_unique')}}</label>
+                                                        <select id="unique_field" class="form-control">
+                                                            <option value="0">{{lang.line(APP ~ '_option_no')}}</option>
+                                                            <option value="1">{{lang.line(APP ~ '_option_yes')}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>{{lang.line(APP ~ '_db_label_default')}}</label>
+                                                        <input type="text" id="default_field" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label>{{lang.line(APP ~ '_db_label_comment')}}</label>
+                                                        <input type="text" id="comment_field" class="form-control">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane" id="plugins">
+                                            <h4>{{lang.line(APP ~ '_plugin_subtitle_config')}}</h4>
+                                            <div class="list-group">
+                                                {% if plugins_input%}
+                                                    {% for plugin in plugins_input %}
+                                                        <div class="list-group-item">
+                                                            <label>
+                                                                <input type="checkbox" class="plugin_field" value="{{plugin.plugin}}"> {{plugin.name}}
+                                                            </label>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    {{lang.line(APP ~ '_plugins_not_found')}}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div id="msg-modal" class="hide alert alert-danger"></div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">{{lang.line(APP ~ '_btn_close')}}</button>
+                                    <button type="button" class="btn btn-primary" id="btn-save">{{lang.line(APP ~ '_btn_save')}}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Modal Select-->
+                    <div id="modal-select" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                    <h4>{{lang.line(APP ~ '_title_config_select')}}</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-4 options-field hide">
+                                            <div class="form-group">
+                                                <label>{{lang.line(APP ~ '_label_options')}}</label>
+                                                <select id="options_field" class="form-control select-options">
+                                                    <option value="">{{lang.line(APP ~ '_option_select')}}</option>
+                                                    {% for section in sections %}
+                                                        <option value="{{section.table}}">{{section.name}} ({{section.table}})</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 label-options-field hide">
+                                            <div class="form-group">
+                                                <label>{{lang.line(APP ~ '_label_label')}}</label>
+                                                <select id="label_options_field" class="form-control select-label">
+                                                    {% if label_options %}
+                                                        <option value="">{{lang.line(APP ~ '_option_select')}}</option>
+                                                        {% for col in label_options %}
+                                                            <option value="{{col}}">{{col}}</option>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <option value="">{{lang.line(APP ~ '_option_select')}}</option>
+                                                    {% endif %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 trigger-field hide">
+                                            <div class="form-group">
+                                                <label>{{lang.line(APP ~ '_label_select_trigger')}}</label>
+                                                <select id="trigger_select_field" class="form-control">
+                                                    <option value="">{{lang.line(APP ~ '_option_select')}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn" data-dismiss="modal" aria-hidden="true">{{lang.line(APP ~ '_btn_close')}}</button>
+                                    <button class="btn btn-primary" id="btn-save-select" data-dismiss="modal" aria-hidden="true">{{lang.line(APP ~ '_btn_save')}}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Modal Upload-->
+                    <div id="modal-upload" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                    <h4>{{lang.line(APP ~ '_title_config_upload')}}</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row form-group">
+                                        <div class="col-sm-12">
+                                            <label title="">{{lang.line(APP ~ '_label_extensions')}}</label>
+                                            <input type="text" class="input-large form-control" id="extensions_allowed" placeholder="{{lang.line(APP ~ '_placeholder_extensions')}}">
+                                        </div>
+                                    </div>
+                                    <div id="config-upload-image">
+                                        <hr>
+                                        <h4 class="text-center">{{lang.line(APP ~ '_label_resize')}}</h4>
+                                        <div class="row form-group">
+                                            <div class="col-sm-12">
+                                                <select class="input-large form-control" id="input_image_resize">
+                                                    <option value="">{{lang.line(APP ~ '_option_no')}}</option>
+                                                    <option value="true">{{lang.line(APP ~ '_option_yes')}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-sm-6">
+                                                <label>{{lang.line(APP ~ '_label_width')}}</label>
+                                                <input type="text" class="input-large form-control" id="input_image_x">
+
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label>{{lang.line(APP ~ '_label_height')}}</label>
+                                                <input type="text" class="input-large form-control" id="input_image_y">
+
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-sm-6">
+                                                <label>{{lang.line(APP ~ '_label_auto_resize')}}</label>
+                                                <select class="input-large form-control" id="input_image_ratio">
+                                                    <option value="">{{lang.line(APP ~ '_option_no')}}</option>
+                                                    <option value="true">{{lang.line(APP ~ '_option_yes')}}</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label>{{lang.line(APP ~ '_label_auto_resize_width')}}</label>
+                                                <select class="input-large form-control" id="input_image_ratio_x">
+                                                    <option value="">{{lang.line(APP ~ '_option_no')}}</option>
+                                                    <option value="true">{{lang.line(APP ~ '_option_yes')}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-sm-6">
+                                                <label>{{lang.line(APP ~ '_label_auto_resize_height')}}</label>
+                                                <select class="input-large form-control" id="input_image_ratio_y">
+                                                    <option value="">{{lang.line(APP ~ '_option_no')}}</option>
+                                                    <option value="true">{{lang.line(APP ~ '_option_yes')}}</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label>{{lang.line(APP ~ '_label_crop')}}</label>
+                                                <select class="input-large form-control" id="input_image_ratio_crop">
+                                                    <option value="">{{lang.line(APP ~ '_option_no')}}</option>
+                                                    <option value="true">{{lang.line(APP ~ '_crop_option_align_center')}}</option>
+                                                    <option value="L">{{lang.line(APP ~ '_crop_option_align_left')}}</option>
+                                                    <option value="R">{{lang.line(APP ~ '_crop_option_align_right')}}</option>
+                                                </select>
+
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-sm-6">
+                                                <label>{{lang.line(APP ~ '')}}</label>
+                                                <select class="input-large form-control" id="input_image_ratio_fill">
+                                                    <option value="">{{lang.line(APP ~ '_option_no')}}</option>
+                                                    <option value="true">{{lang.line(APP ~ '_fill_option_align_center')}}</option>
+                                                    <option value="L">{{lang.line(APP ~ '_fill_option_align_left')}}</option>
+                                                    <option value="R">{{lang.line(APP ~ '_fill_option_align_right')}}</option>
+                                                </select>
+
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label>{{lang.line(APP ~ '_label_background_color')}}</label>
+                                                <input type="text" class="input-large form-control" id="input_image_background_color">
+
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <h4 class="text-center">{{lang.line(APP ~ '_subtitle_convert')}}</h4>
+                                        <div class="row form-group">
+                                            <div class="col-sm-12">
+                                                <label>{{lang.line(APP ~ '_label_convert')}}</label>
+                                                <select class="input-large form-control" id="input_image_convert">
+                                                    <option value="">{{lang.line(APP ~ '_option_no')}}</option>
+                                                    <option value="jpg">JPG/JPEG</option>
+                                                    <option value="png">PNG</option>
+                                                    <option value="gif">GIF</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <h4 class="text-center">{{lang.line(APP ~ '_subtitle_water_mark')}}</h4>
+                                        <div class="row form-group">
+                                            <div class="col-sm-4">
+                                                <label title="">{{lang.line(APP ~ '_label_text')}}</label>
+                                                <input type="text" class="input-large form-control" id="input_image_text">
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <label>{{lang.line(APP ~ '_label_text_color')}}</label>
+                                                <input type="color" class="input-large form-control" id="input_image_text_color">
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <label>{{lang.line(APP ~ '_label_background_text')}}</label>
+                                                <input type="color" class="input-large form-control" id="input_image_text_background">
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-sm-4">
+                                                <label>{{lang.line(APP ~ '_label_opacity_text')}}</label>
+                                                <input type="text" class="input-large form-control" id="input_image_text_opacity">
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <label>{{lang.line(APP ~ '_label_opacity_background')}}</label>
+                                                <input type="text" class="input-large form-control" id="input_image_text_background_opacity">
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <label >{{lang.line(APP ~ '_label_padding')}}</label>
+                                                <input type="text" class="input-large form-control" id="input_image_text_padding">
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-sm-6">
+                                                <label>{{lang.line(APP ~ '_label_position')}}</label>
+                                                <select class="input-large form-control" id="input_image_text_position">
+                                                    <option value="">{{lang.line(APP ~ '_option_no')}}</option>
+                                                    <option value="TL">{{lang.line(APP ~ '_position_option_top_left')}}</option>
+                                                    <option value="TR">{{lang.line(APP ~ '_position_option_top_right')}}</option>
+                                                    <option value="L">{{lang.line(APP ~ '_position_option_center_left')}}</option>
+                                                    <option value="R">{{lang.line(APP ~ '_position_option_center_right')}}</option>
+                                                    <option value="BL">{{lang.line(APP ~ '_position_option_bottom_left')}}</option>
+                                                    <option value="BR">{{lang.line(APP ~ '')}}</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label>{{lang.line(APP ~ '_label_orientation')}}</label>
+                                                <select class="input-large form-control" id="input_image_text_direction">
+                                                    <option value="">{{lang.line(APP ~ '_orientation_option_horizontal')}}</option>
+                                                    <option value="v">{{lang.line(APP ~ '_orientation_option_vertical')}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-sm-6">
+                                                <label>{{lang.line(APP ~ '_label_position_x')}}</label>
+                                                <input type="text" class="input-large form-control" id="input_image_text_x">
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label>{{lang.line(APP ~ '_label_position_y')}}</label>
+                                                <input type="text" class="input-large form-control" id="input_image_text_y">
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <h4 class="text-center">{{lang.line(APP ~ '_subtitle_thumbnails')}}</h4>
+                                        <div class="thumbnails">
+                                            <div class="row form-group">
+                                                <div class="col-sm-3">
+                                                    <label>{{lang.line(APP ~ '_label_preffix')}}*</label>
+                                                    <input type="text" class="input-large form-control image_thumb_preffix">
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <label>{{lang.line(APP ~ '_label_width')}}*</label>
+                                                    <input type="text" class="input-large form-control image_thumb_width">
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <label>{{lang.line(APP ~ '_label_height')}}</label>
+                                                    <input type="text" class="input-large form-control image_thumb_height">
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <label>{{lang.line(APP ~ '_label_crop')}}</label>
+                                                    <select class="input-large form-control image_thumb_ratio_crop">
+                                                        <option value="">{{lang.line(APP ~ '_option_no')}}</option>
+                                                        <option value="true">{{lang.line(APP ~ '_crop_option_align_center')}}</option>
+                                                        <option value="L">{{lang.line(APP ~ '_crop_option_align_left')}}</option>
+                                                        <option value="R">{{lang.line(APP ~ '_crop_option_align_right')}}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <a class="btn btn-default" id="btn-add-thumbnail"><span class="fa fa-plus"></span> {{lang.line(APP ~ '_btn_thumbnail')}}</a><br>
+                                        <br><br>
+                                        <a class="btn btn-default btn-block" id="btn_refresh_image">{{lang.line(APP ~ '_btn_update_image')}}</a>
+                                        <strong>{{lang.line(APP ~ '_label_pre_visualization')}}</strong><br>
+                                        <img id="image_example" src="{{base_app_url('sections/image-example')}}" style="background-image: url('{{base_url(APP_ASSETS ~ 'images/transp.gif')}}') !important; max-width:100%;">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn" data-dismiss="modal" aria-hidden="true">{{lang.line(APP ~ '_btn_close')}}</button>
+                                    <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">{{lang.line(APP ~ '_btn_save')}}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var LANG = {
+            label_loading: '{{lang.line(APP ~ '_loading')}}',
+            label_preffix: '{{lang.line(APP ~ '_label_preffix')}}',
+            label_width: '{{lang.line(APP ~ '_label_width')}}',
+            label_height: '{{lang.line(APP ~ '_label_height')}}',
+            label_crop: '{{lang.line(APP ~ '_label_crop')}}',
+            option_crop_center: '{{lang.line(APP ~ '_crop_option_align_center')}}',
+            option_crop_left: '{{lang.line(APP ~ '_crop_option_align_left')}}',
+            option_crop_right: '{{lang.line(APP ~ '_crop_option_align_right')}}',
+            option_no: '{{lang.line(APP ~ '_option_no')}}',
+            option_select: '{{lang.line(APP ~ '_option_select')}}',
+            label_attribute: '{{lang.line(APP ~ '_html_label_attribute')}}',
+            label_value: '{{lang.line(APP ~ '_html_label_value')}}',
+            error_all_fields_required: '{{lang.line(APP ~ '_all_fields_required')}}',
+            error_name_exists: '{{lang.line(APP ~ '_name_exists')}}',
+            error_column_exists: '{{lang.line(APP ~ '_column_name_exists')}}',
+            error_column_equals_table: '{{lang.line(APP ~ '_column_equals_table')}}',
+        };
+    </script>
+{% endblock %}

@@ -7,6 +7,8 @@ class Apps
 
     public function list_apps()
     {
+        $CI = &get_instance();
+        $CI->load->library('spyc');
         $path_apps = $this->path;
         $this->apps = array();
         $opendir = \opendir($path_apps);
@@ -29,7 +31,6 @@ class Apps
     private function set_app($path, $app)
     {
         $CI = &get_instance();
-        $CI->load->library('spyc');
         $config = $CI->spyc->loadFile($path, false);
         if (is_array($config)) {
             $config['app'] = $app;
@@ -45,6 +46,8 @@ class Apps
             if (!isset($config['icon']) or isset($config['icon']) && empty($config['icon'])) {
                 $config['icon'] = 'fa-exclamation-triangle';
             }
+
+            $config['is_icon_fa'] = (strpos($config['icon'], '/') == false && strpos($config['icon'], 'fa-') >= 0);
 
             if (isset($config['status']) && $config['status'] == 1) {
                 return $this->apps[] = $config;
@@ -103,7 +106,7 @@ class Apps
                     while (false !== ($widget = readdir($opendir))) {
                         if (is_file($path . $widget) && strpos($widget, '_dashboard.php') !== false) {
                             ob_start();
-                            $CI->load->library_app('widgets/' . $widget, $dir_app);
+                            $CI->load->app($dir_app)->library('widgets/' . $widget);
                             $class = strtolower(str_replace('.php', '', $widget));
                             if (isset($CI->$class->col) && $CI->$class->col === 12) {
                                 $col = $CI->$class->col;

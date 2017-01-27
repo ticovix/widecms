@@ -11,8 +11,8 @@ class Users extends MY_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model_app('users_model');
-        $this->data = $this->apps->data_app();
+        $this->load->app()->model('users_model');
+        $this->app_data = $this->apps->data_app();
     }
 
     public function index()
@@ -22,20 +22,24 @@ class Users extends MY_Controller
         $users = $search['users'];
         $total_rows = $search['total_rows'];
         $pagination = $this->pagination($total_rows);
-        $data = array(
-            'title' => $this->data['name'],
-            'user_logged' => $this->data_user,
+        $this->data = array_merge($this->data, array(
+            'title' => $this->app_data['name'],
             'users' => $users,
             'pagination' => $pagination,
-            'total' => $total_rows
-        );
+            'total' => $total_rows,
+            'search' => $this->input->get('search'),
+            'check_create' => check_method('create'),
+            'check_delete' => check_method('delete'),
+            'check_edit' => check_method('edit'),
+        ));
         $this->include_components->app_js('js/index.js');
 
-        $this->load->template_app('index', $data);
+        echo $this->load->app()->render('users.twig', $this->data);
     }
 
     private function form_search()
     {
+        $this->load->library('form_validation');
         $this->form_validation->set_rules('search', 'Search', 'trim|required');
         $keyword = $this->input->get('search');
         $perPage = $this->input->get('per_page');
@@ -85,38 +89,31 @@ class Users extends MY_Controller
         $this->include_components->main_js('plugins/switchery/js/switchery.js')
                 ->app_js('js/form.js')
                 ->main_css('plugins/switchery/css/switchery.css');
-        $vars = array(
-            'title' => $this->lang->line(APP . '_title_add_user'),
-            'name_app' => $this->data['name'],
-            'user_logged' => $this->data_user,
-            'name' => null,
-            'last_name' => null,
-            'email' => null,
-            'login' => null,
-            'status' => null,
-            'root' => null,
-            'allow_dev' => null,
-            'about' => null,
-            'permissions' => $permissions,
-            'id_user' => ''
-        );
 
-        $this->load->template_app('form', $vars);
+        $this->data = array_merge($this->data, array(
+            'title' => $this->lang->line(APP . '_title_add_user'),
+            'name_app' => $this->app_data['name'],
+            'user_logged' => $this->user_data,
+            'permissions' => $permissions
+        ));
+
+        echo $this->load->app()->render('form.twig', $this->data);
     }
 
     private function form_create($permissions)
     {
-        $this->form_validation->set_rules('name', 'Nome', 'trim|required');
-        $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]|valid_email');
-        $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]|min_length[3]|alpha_numeric');
-        $this->form_validation->set_rules('password', 'Senha', 'trim|required');
+        $this->load->library('form_validation');
+        $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'trim|required');
+        $this->form_validation->set_rules('email', $this->lang->line(APP . '_label_email'), 'trim|required|is_unique[wd_users.email]|valid_email');
+        $this->form_validation->set_rules('login', $this->lang->line(APP . '_label_login'), 'trim|required|is_unique[wd_users.login]|min_length[3]|alpha_numeric');
+        $this->form_validation->set_rules('password', $this->lang->line(APP . '_label_password'), 'trim|required');
 
         if ($this->form_validation->run()) {
             $this->load->helper('passwordhash');
             $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
             $root = $this->input->post('root');
             $allow_dev = $this->input->post('allow_dev');
-            if ($this->data_user['root'] != '1') {
+            if ($this->user_data['root'] != '1') {
                 $root = 0;
                 $allow_dev = 0;
             }
@@ -137,9 +134,9 @@ class Users extends MY_Controller
                 $this->create_permissions($permissions, $user);
             }
 
-            add_history('Criou o usuário ' . $this->input->post('name') . ' ' . $this->input->post('lastname'));
+            add_history($this->lang->line(APP . '_profile_create') . ' ' . $this->input->post('name') . ' ' . $this->input->post('lastname'));
 
-            redirect_app('users');
+            app_redirect('users');
         }
     }
 
@@ -201,19 +198,20 @@ class Users extends MY_Controller
 
     public function edit($login)
     {
+        $this->load->library('form_validation');
         $this->lang->load_app('form');
         $user = $this->users_model->get_user_edit($login);
         if (!$user) {
-            redirect_app('users');
+            app_redirect('users');
         }
 
         $this->include_components->app_js('js/form.js');
         $permissions = $this->apps->list_apps_permissions();
         $this->form_edit($user, $permissions);
 
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => $this->lang->line(APP . '_title_edit_user'),
-            'name_app' => $this->data['name'],
+            'name_app' => $this->app_data['name'],
             'id_user' => $user['id'],
             'name' => $user['name'],
             'last_name' => $user['last_name'],
@@ -224,20 +222,20 @@ class Users extends MY_Controller
             'allow_dev' => $user['allow_dev'],
             'about' => $user['about'],
             'permissions' => $permissions
-        );
+        ));
 
-        $this->load->template_app('form', $vars);
+        echo $this->load->app()->render('form.twig', $this->data);
     }
 
     private function form_edit($user, $permissions)
     {
-        $this->form_validation->set_rules('name', 'Nome', 'trim|required');
+        $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'trim|required');
         if ($this->input->post('email') != $user['email']) {
-            $this->form_validation->set_rules('email', 'E-mail', 'trim|required|is_unique[wd_users.email]|valid_email');
+            $this->form_validation->set_rules('email', $this->lang->line(APP . '_label_email'), 'trim|required|is_unique[wd_users.email]|valid_email');
         }
 
         if ($this->input->post('login') != $user['login']) {
-            $this->form_validation->set_rules('login', 'Login', 'trim|required|is_unique[wd_users.login]|min_length[3]|alpha_numeric');
+            $this->form_validation->set_rules('login', $this->lang->line(APP . '_label_login'), 'trim|required|is_unique[wd_users.login]|min_length[3]|alpha_numeric');
         }
 
         if ($this->form_validation->run()) {
@@ -271,9 +269,9 @@ class Users extends MY_Controller
             $this->users_model->update($data);
             $this->users_model->delete_permissions($user['id']);
             $this->create_permissions($permissions, $user['id']);
-            add_history('Editou o usuário ' . $this->input->post('name'));
+            add_history($this->lang->line(APP . '_profile_update') . ' ' . $this->input->post('name'));
 
-            redirect_app('users');
+            app_redirect('users');
         }
     }
 
@@ -284,20 +282,22 @@ class Users extends MY_Controller
             $this->users_model->delete($del);
         }
 
-        redirect_app('users');
+        app_redirect('users');
     }
 
     public function dev_mode()
     {
+        $this->load->library('form_validation');
         $this->form_validation->set_rules('dev', 'Dev', 'required');
         if ($this->form_validation->run()) {
             $dev = $this->input->post('dev');
-            $this->users_model->change_mode(['dev' => $dev, 'id_user' => $this->data_user['id']]);
+            $this->users_model->change_mode(['dev' => $dev, 'id_user' => $this->user_data['id']]);
         }
     }
 
     public function profile($login)
     {
+        $this->load->library('form_validation');
         $this->lang->load_app('profile');
         $user = $this->users_model->get_user_edit($login);
         if (!$user) {
@@ -314,21 +314,22 @@ class Users extends MY_Controller
                 'wd_users.login' => $login
             )
         ));
-        $vars = array(
+
+        $this->data = array_merge($this->data, array(
             'title' => $user['name'] . ' ' . $user['last_name'],
-            'name_app' => $this->data['name'],
+            'name_app' => $this->app_data['name'],
             'name' => $user['name'],
             'login' => $user['login'],
             'last_name' => $user['last_name'],
             'email' => $user['email'],
-            'image' => $user['image'],
+            'profile_image' => $user['profile_image'],
             'about' => $user['about'],
             'history' => $history,
             'total_history' => $history['total'],
             'pagination' => $this->pagination_history($history['total'])
-        );
+        ));
 
-        $this->load->template_app('profile', $vars);
+        echo $this->load->app()->render('profile.twig', $this->data);
     }
 
     private function pagination_history($total_rows)

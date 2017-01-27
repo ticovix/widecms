@@ -1,0 +1,65 @@
+{% extends "template.twig" %}
+{% block content %}
+    <ul class="breadcrumb">
+        <li><a href="{{base_url}}"><i class="fa fa-home"></i></a></li>
+        <li class="active">{{title}}</li>
+    </ul>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>{{title}}</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    {% if check_upload %}
+                        {{form_open_multipart(APP_PATH ~ 'upload', {'id':'dropzone_gallery', 'class': 'dropzone form-group'})|raw}}
+                        <div class="dropzone-previews"></div>
+                        <div class="dz-default dz-message"></div>
+                        {{form_close()|raw}}
+                    {% endif %}
+
+                    {% if check_view %}
+                        {{form_open(null, {'method':'get', 'id':'search-files'})|raw}}
+                        <div class="input-group">
+                            <input type="text" name="search" id="search-field" value="{{search}}" placeholder="{{lang.line(APP ~ '_search_field')}}" class="input-sm form-control">
+                            <span class="input-group-btn">
+                                <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                        {{form_close()|raw}}
+                        <div id="files-list"><!--EJS--></div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="details" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <!--EJS-->
+            </div>
+        </div>
+    </div>
+
+    {% if check_edit %}
+        <!-- Modal -->
+        <div class="modal fade" id="edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <!--EJS-->
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <script type="text/javascript">
+        var edit_file = "{{check_edit}}";
+        var remove_file = "{{check_remove}}";
+        var LANG = {
+            ask_remove_file: "{{lang.line(APP ~ '_ask_remove_file')}}",
+            loading: "{{lang.line(APP ~ '_loading')}}"
+        };
+    </script>
+{% endblock %}

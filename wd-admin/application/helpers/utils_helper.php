@@ -7,38 +7,6 @@ if (!function_exists('only_number')) {
         return preg_replace('/[^0-9]/', '', $str);
     }
 }
-if (!function_exists('is_nav_active')) {
-
-    function is_nav_active($page_current = null, $keys = null, $result = "active")
-    {
-        $return = null;
-        if (!is_array($keys)) {
-            $keys = [$keys];
-        }
-        if (in_array($page_current, $keys)) {
-            $return = $result;
-        }
-        return $return;
-    }
-}
-
-if (!function_exists('to_boolean')) {
-
-    function to_boolean($value)
-    {
-        switch (strtolower($value)) {
-            case "true":
-                return true;
-                break;
-            case "false":
-                return false;
-                break;
-            default:
-                return $value;
-                break;
-        }
-    }
-}
 
 if (!function_exists('verify_permission')) {
 
@@ -128,88 +96,6 @@ if (!function_exists('forceRemoveDir')) {
     }
 }
 
-
-if (!function_exists('generateXML') && !function_exists('arrayToXML')) {
-
-    function generateXML($tag_in, $value_in = "", $attribute_in = "", $cdata)
-    {
-        $return = "";
-        $attributes_out = "";
-        if (is_array($attribute_in)) {
-            if (count($attribute_in) != 0) {
-                foreach ($attribute_in as $k => $v):
-                    $attributes_out .= " " . $k . "=\"" . $v . "\"";
-                endforeach;
-            }
-        }
-        if (!is_array($value_in) && $cdata) {
-            $value_in = '<![CDATA[' . $value_in . ']]>';
-        }
-        if (!is_numeric($tag_in)) {
-            return "<" . $tag_in . "" . $attributes_out . ((trim($value_in) == "") ? "/>" : ">" . $value_in . "</" . $tag_in . ">" );
-        } else {
-            return $value_in;
-        }
-    }
-
-    function arrayToXML($array_in, $cdata = false, $header = true)
-    {
-        $return = '';
-        if ($header) {
-            $header = 1;
-            $return = '<?xml version="1.0" encoding="UTF-8"?>';
-        }
-        $attributes = array();
-        foreach ($array_in as $k => $v):
-            if ($k[0] == "@") {
-                $attributes[str_replace("@", "", $k)] = $v;
-            } elseif (is_array($v)) {
-                $return .= generateXML($k, arrayToXML($v, $cdata, false), $attributes, false);
-                $attributes = array();
-            } else if (is_bool($v)) {
-                $return .= generateXML($k, (($v == true) ? "true" : "false"), $attributes, false);
-                $attributes = array();
-            } else {
-                $return .= generateXML($k, htmlspecialchars($v, ENT_NOQUOTES), $attributes, $cdata);
-                $attributes = array();
-            }
-        endforeach;
-
-        return format_xml_string($return);
-    }
-}
-
-
-if (!function_exists('setError') && !function_exists('getErrors') && !function_exists('hasError')) {
-
-    function setError($message)
-    {
-        $CI = & get_instance();
-        if ($CI->load->is_loaded('error_reporting')) {
-            $CI->error_reporting->set_error($message);
-        } else {
-            return false;
-        }
-    }
-
-    function getErrors($prefix = '<div class="alert alert-danger">', $suffix = '</div>')
-    {
-        $CI = & get_instance();
-        if ($CI->load->is_loaded('error_reporting')) {
-            return $CI->error_reporting->get_errors($prefix, $suffix);
-        } else {
-            return false;
-        }
-    }
-
-    function hasError()
-    {
-        $CI = & get_instance();
-        if ($CI->load->is_loaded('error_reporting')) {
-            return $CI->error_reporting->has_error();
-        }
-    }
-}
 if (!function_exists('FileSizeConvert')) {
 
     function FileSizeConvert($bytes)
@@ -256,7 +142,7 @@ if (!function_exists('projects')) {
         $CI = & get_instance();
         $CI->load->model('projects_model');
         $id_user = $CI->session->userdata('id');
-        return $CI->projects_model->search($CI->data_user['dev_mode']);
+        return $CI->projects_model->search($CI->user_data['dev_mode']);
     }
 }
 
@@ -268,7 +154,7 @@ if (!function_exists('get_project')) {
         $CI = & get_instance();
         if (!isset($CI->project)) {
             $slug_project = $CI->uri->segment(4);
-            $CI->load->model_app('projects_model', 'projects');
+            $CI->load->app('projects')->model('projects_model');
             return $CI->project = $CI->projects_model->get_project($slug_project);
         } else {
             return $CI->project;
@@ -286,7 +172,7 @@ if (!function_exists('get_page')) {
         $project = get_project();
         $page = $CI->uri->segment(5);
         if (empty($CI->page)) {
-            $CI->load->model_app('pages_model', 'projects');
+            $CI->load->app('projects')->model('pages_model');
 
             return $CI->page = $CI->pages_model->get_page($project['directory'], $page);
         } else {
@@ -308,7 +194,7 @@ if (!function_exists('get_section')) {
         if (empty($CI->section)) {
             $project = get_project();
             $page = get_page();
-            $CI->load->model_app('sections_model', 'projects');
+            $CI->load->app('projects')->model('sections_model');
 
             return $CI->section = $CI->sections_model->get_section($project['directory'], $page['directory'], $section);
         } else {
@@ -321,7 +207,7 @@ if (!function_exists('func_only_dev')) {
     function func_only_dev()
     {
         $CI = & get_instance();
-        if (!$CI->data_user['dev_mode']) {
+        if (!$CI->user_data['dev_mode']) {
             header('HTTP/1.1 403 Forbidden');
             die();
         }
@@ -345,18 +231,18 @@ if (!function_exists('segments')) {
     }
 }
 
-if (!function_exists('base_url_app')) {
+if (!function_exists('base_app_url')) {
 
-    function base_url_app($uri = '', $protocol = null)
+    function base_app_url($uri = '', $protocol = null)
     {
         $base_url = base_url(APP_PATH . $uri, $protocol);
         return $base_url;
     }
 }
 
-if (!function_exists('redirect_app')) {
+if (!function_exists('app_redirect')) {
 
-    function redirect_app($url, $method = 'auto', $code = null)
+    function app_redirect($url, $method = 'auto', $code = null)
     {
         if (strpos($url, '://') === false) {
             $url = APP_PATH . $url;
@@ -365,9 +251,9 @@ if (!function_exists('redirect_app')) {
     }
 }
 
-if (!function_exists('redirect_module')) {
+if (!function_exists('module_redirect')) {
 
-    function redirect_module($url, $method = 'auto', $code = null)
+    function module_redirect($url, $method = 'auto', $code = null)
     {
         $segments = segments();
         $project = $segments[3];
@@ -377,9 +263,9 @@ if (!function_exists('redirect_module')) {
     }
 }
 
-if (!function_exists('base_url_module')) {
+if (!function_exists('base_module_url')) {
 
-    function base_url_module($uri = '', $protocol = null)
+    function base_module_url($uri = '', $protocol = null)
     {
         $segments = segments();
         $project = $segments[3];
@@ -434,6 +320,7 @@ if (!function_exists('diff_date_today') && !function_exists('month_name')) {
             default: $month = "ERROR";
                 break;
         }
+
         return $month;
     }
 
@@ -462,6 +349,7 @@ if (!function_exists('diff_date_today') && !function_exists('month_name')) {
         } elseif ($year > 0) {
             $result = $datetime1->format('d') . ' de ' . month_name($datetime1->format('m')) . ' de ' . $datetime1->format('Y');
         }
+
         return $result;
     }
 }
@@ -491,6 +379,7 @@ if (!function_exists('format_xml_string')) {
             $token = strtok("\n");
             $pad += $indent;
         endwhile;
+
         return $result;
     }
 }

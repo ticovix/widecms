@@ -3,14 +3,17 @@
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
-class MY_Lang extends CI_Lang {
+class MY_Lang extends CI_Lang
+{
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
-    public function load_app($langfile, $app = APP, $idiom = '', $return = FALSE, $add_suffix = TRUE, $alt_path = '') {
-        $base_app = APPPATH.'apps/' . $app . '/config/';
+    public function load_app($langfile, $app = APP, $idiom = '', $return = FALSE, $add_suffix = TRUE, $alt_path = '')
+    {
+        $base_app = APPPATH . 'apps/' . $app . '/config/';
         if (is_array($langfile)) {
             foreach ($langfile as $value) {
                 $this->load($value, $idiom, $return, $add_suffix, $alt_path);
@@ -83,5 +86,4 @@ class MY_Lang extends CI_Lang {
         log_message('info', 'Language file loaded: language/' . $idiom . '/' . $langfile);
         return TRUE;
     }
-
 }

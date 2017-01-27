@@ -1,0 +1,36 @@
+{% extends "template.twig" %}
+{% block content %}
+    <ul class="breadcrumb">
+        <li><a href="{{base_url()}}"><i class="fa fa-home"></i></a></li>
+        <li><a href="{{base_app_url()}}">{{name_app}}</a></li>
+        <li class="active">{{title}}</li>
+    </ul>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>{{title}}</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    {{validation_errors('<p class="alert alert-danger">', '</p>')|raw}}
+                    {{form_open(null, {'class' : 'form-horizontal'})|raw}}
+                    <input type="hidden" name="page" value="{{page.directory}}">
+                    <div class="alert alert-danger">
+                        <h4>{{sprintf(lang.line(APP ~ '_ask_remove_page'), page.name)|raw}}</h4>
+                        <p>{{lang.line(APP ~ '_warning_remove')|raw}}</p>
+                    </div>
+                    <div class="form-group">
+                        <label>{{lang.line(APP ~ '_label_confirm_password')}}</label>
+                        <input type="password" class="form-control" name="password">
+                    </div>
+                    <div class="form-group text-right">
+                        <input class="btn btn-danger" value="{{lang.line(APP ~ '_btn_remove')}}" name="send" type="submit">
+                    </div>
+                    {{form_close()|raw}}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

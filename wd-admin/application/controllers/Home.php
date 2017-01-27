@@ -1,8 +1,6 @@
 <?php
 
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
+defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Home extends MY_Controller
 {
@@ -10,11 +8,9 @@ class Home extends MY_Controller
     public function index()
     {
         $widgets = $this->list_widgets();
-        $vars = array(
-            'widgets' => $widgets
-        );
+        $this->data['widgets'] = $widgets;
 
-        $this->load->template('home/index', $vars);
+        echo $this->load->render('home/index.twig', $this->data);
     }
     /*
      * Método para listar os widgets da página inicial

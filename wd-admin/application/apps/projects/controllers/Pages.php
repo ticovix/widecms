@@ -11,36 +11,40 @@ class Pages extends MY_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model_app('pages_model');
+        $this->load->app()->model('pages_model');
         $this->config_path = 'application/' . APP_PATH . 'projects/';
-        $this->data = $this->apps->data_app();
+        $this->app_data = $this->apps->data_app();
     }
 
     public function index()
     {
         $this->lang->load_app('pages/pages');
         $project = get_project();
-        $dev_mode = $this->data_user['dev_mode'];
+        $dev_mode = $this->user_data['dev_mode'];
         $pages = $this->form_search($project, $dev_mode);
-        $total = $this->pages_model->total_pages($project['directory'], $this->data_user['dev_mode']);
+        $total = $this->pages_model->total_pages($project['directory'], $this->user_data['dev_mode']);
 
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => $project['name'],
-            'name_app' => $this->data['name'],
+            'name_app' => $this->app_data['name'],
             'pages' => $pages,
             'total' => $total,
-            'project' => $project
-        );
+            'project' => $project,
+            'search' => $this->input->get('search')
+        ));
         if ($dev_mode) {
-            $this->load->template_app('dev-pages/index', $vars);
+            $template = $this->load->app()->render('dev-pages/index.twig', $this->data);
         } else {
-            $vars['pages'] = $this->include_sections($project, $pages);
-            $this->load->template_app('projects/project', $vars);
+            $this->data['pages'] = $this->include_sections($project, $pages);
+            $template = $this->load->app()->render('projects/project.twig', $this->data);
         }
+
+        echo $template;
     }
 
     private function form_search($project, $dev_mode)
     {
+        $this->load->library('form_validation');
         $this->form_validation->set_rules('search', $this->lang->line(APP . '_field_search'), 'trim|required');
         $keyword = $this->input->get('search');
         $this->form_validation->run();
@@ -49,7 +53,7 @@ class Pages extends MY_Controller
 
     private function include_sections($project, $pages)
     {
-        $this->load->model_app('sections_model');
+        $this->load->app()->model('sections_model');
         if (count($pages)) {
             foreach ($pages as $page) {
                 $page['sections'] = $this->sections_model->list_sections($project['directory'], $page['directory']);
@@ -66,20 +70,21 @@ class Pages extends MY_Controller
         $this->lang->load_app('pages/form');
         $project = get_project();
         $this->form_create($project);
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => $this->lang->line(APP . '_title_add_page'),
-            'name_app' => $this->data['name'],
+            'name_app' => $this->app_data['name'],
             'project' => $project,
-            'name' => '',
-            'status' => ''
-        );
+            'errors' => $this->error_reporting->get_errors()
+        ));
 
-        $this->load->template_app('dev-pages/form', $vars);
+        echo $this->load->app()->render('dev-pages/form.twig', $this->data);
     }
 
     public function form_create($project)
     {
         try {
+            $this->load->library('form_validation');
+            $this->load->library('error_reporting');
             $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'required');
             $this->form_validation->set_rules('status', $this->lang->line(APP . '_label_status'), 'required|integer');
             $run = $this->form_validation->run();
@@ -93,10 +98,10 @@ class Pages extends MY_Controller
                 }
 
                 if (is_dir($project_dir . $directory)) {
-                    throw new Exception('A página que você está tentando criar já existe.');
+                    throw new Exception($this->lang->line(APP . '_create_folder_exists'));
                 }
 
-                $user_id = $this->data_user['id'];
+                $user_id = $this->user_data['id'];
                 $data = array(
                     'name' => $name,
                     'status' => $status,
@@ -107,12 +112,12 @@ class Pages extends MY_Controller
                 mkdir($project_dir . $directory);
                 $this->pages_model->create($data);
 
-                redirect_app('project/' . $project['directory']);
+                app_redirect('project/' . $project['directory']);
             } else {
-                setError(validation_errors());
+                $this->error_reporting->set_error(validation_errors());
             }
         } catch (Exception $e) {
-            setError($e->getMessage());
+            $this->error_reporting->set_error($e->getMessage());
         }
     }
 
@@ -123,24 +128,26 @@ class Pages extends MY_Controller
         $project = get_project();
         $page = $this->pages_model->get_page($project['directory'], $slug_page);
         if (!$project or ! $page) {
-            redirect_app('project/' . $project['directory']);
+            app_redirect('project/' . $project['directory']);
         }
 
         $this->form_edit($project, $page);
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => $this->lang->line(APP . '_title_edit_page'),
-            'name_app' => $this->data['name'],
+            'name_app' => $this->app_data['name'],
             'project' => $project,
             'name' => $page['name'],
             'status' => $page['status']
-        );
+        ));
 
-        $this->load->template_app('dev-pages/form', $vars);
+        echo $this->load->app()->render('dev-pages/form.twig', $this->data);
     }
 
     public function form_edit($project, $page)
     {
         try {
+            $this->load->library('form_validation');
+            $this->load->library('error_reporting');
             $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'required');
             $this->form_validation->set_rules('status', $this->lang->line(APP . '_label_status'), 'required|integer');
             $name = $this->input->post('name');
@@ -152,7 +159,7 @@ class Pages extends MY_Controller
             if ($this->form_validation->run()) {
                 $page_dir = slug($name);
                 $project_dir = $this->config_path . $project['directory'] . '/';
-                if ($page_dir != $page['slug']) {
+                if ($page_dir != $page['directory']) {
                     if (is_dir($project_dir . $page_dir)) {
                         throw new Exception($this->lang->line(APP . '_folder_exists'));
                     }
@@ -171,12 +178,12 @@ class Pages extends MY_Controller
                 $config = array_merge($page, $data);
                 $this->pages_model->save($config, $project['directory'], $page_dir);
 
-                redirect_app('project/' . $project['directory']);
+                app_redirect('project/' . $project['directory']);
             } else {
-                setError(validation_errors());
+                $this->error_reporting->set_error(validation_errors());
             }
         } catch (Exception $e) {
-            setError($e->getMessage());
+            $this->error_reporting->set_error($e->getMessage());
         }
     }
 
@@ -187,22 +194,23 @@ class Pages extends MY_Controller
         $project = get_project();
         $page = $this->pages_model->get_page($project['directory'], $page_dir);
         if (!$page or ! $project) {
-            redirect_app();
+            app_redirect();
         }
 
         $this->form_remove($page, $project);
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => sprintf($this->lang->line(APP . '_title_remove_page'), $page['name']),
-            'name_app' => $this->data['name'],
+            'name_app' => $this->app_data['name'],
             'project' => $project,
             'page' => $page
-        );
+        ));
 
-        $this->load->template_app('dev-pages/remove', $vars);
+        echo $this->load->app()->render('dev-pages/remove.twig', $this->data);
     }
 
     private function form_remove($page, $project)
     {
+        $this->load->library('form_validation');
         $this->form_validation->set_rules('password', $this->lang->line(APP . '_label_password'), 'required|callback_verify_password');
         $this->form_validation->set_rules('page', $this->lang->line(APP . '_label_page'), 'trim|required');
         if ($this->form_validation->run()) {
@@ -213,9 +221,9 @@ class Pages extends MY_Controller
                 $this->delete_tables($project, $page);
                 forceRemoveDir($this->config_path . $project_dir . '/' . $page_dir);
 
-                redirect_app('project/' . $project_dir);
+                app_redirect('project/' . $project_dir);
             } else {
-                redirect_app('project/' . $project_dir . '/' . $page_dir);
+                app_redirect('project/' . $project_dir . '/' . $page_dir);
             }
         }
     }
@@ -239,7 +247,7 @@ class Pages extends MY_Controller
 
     public function verify_password($v_pass)
     {
-        $pass_user = $this->data_user['password'];
+        $pass_user = $this->user_data['password'];
         $this->load->helper('passwordhash');
         $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
         if (!$PasswordHash->CheckPassword($v_pass, $pass_user)) {

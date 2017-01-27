@@ -1,9 +1,3 @@
-/**
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 var URL = window.location.href.split('?')[0],
     $BODY = $('body'),
     $MENU_TOGGLE = $('#menu_toggle'),
@@ -49,7 +43,7 @@ $(function() {
                 $SIDEBAR_MENU.find('li.active').addClass('active-sm').removeClass('active');
             }
 
-            $LOGO.children('img').attr('src',url+'assets/images/cms_wide_xs.png');
+            $LOGO.children('img').attr('src',url+'assets/images/widecms_xs.png');
         } else {
             $BODY.removeClass('nav-sm').addClass('nav-md');
 
@@ -57,7 +51,7 @@ $(function() {
                 $SIDEBAR_MENU.find('li.active-sm').addClass('active').removeClass('active-sm');
             }
 
-            $LOGO.children('img').attr('src',url+'assets/images/cms_wide_sm.png');
+            $LOGO.children('img').attr('src',url+'assets/images/widecms_sm.png');
         }
 
         setContentHeight();
@@ -85,9 +79,7 @@ $(document).ready(function() {
     if ($(".js-switch")[0]) {
         var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
         elems.forEach(function (html) {
-            var switchery = new Switchery(html, {
-                color: '#26B99A'
-            });
+            new Switchery(html, {color: '#26B99A'});
         });
     }
 });

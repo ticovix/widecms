@@ -11,26 +11,23 @@ class Posts extends MY_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->data = $this->apps->data_app();
-        $this->load->model_app('posts_model');
+        $this->app_data = $this->apps->data_app();
+        $this->load->app()->model('posts_model');
     }
 
-    public function index($project_dir, $page_dir, $section_dir)
+    public function index($project_dir, $page_dir)
     {
         $section = $this->treat_section(get_section());
         $project = get_project();
         $page = get_page();
         if (!$section or ! $page) {
-            redirect_app('project/' . $project_dir . '/' . $page_dir);
+            app_redirect('project/' . $project_dir . '/' . $page_dir);
         }
 
 
         $this->lang->load_app('posts/posts');
-        $this->load->library_app('form');
-
-        $this->load->setVars(array(
-            'dev_mode' => $this->data_user['dev_mode']
-        ));
+        $this->load->library('form_validation');
+        $this->load->app()->library('form');
 
         if (isset($section['list'])) {
             // Se algum campo estiver para ser listado, significa que o administrador pode inserir mais de um registro
@@ -72,9 +69,10 @@ class Posts extends MY_Controller
         $this->form_edit_post($data_fields, $section, $post);
 
         $fields = $this->form->fields_template($data_fields, $post);
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => $section['name'],
-            'name_app' => $this->data['name'],
+            'dev_mode' => $this->user_data['dev_mode'],
+            'name_app' => $this->app_data['name'],
             'breadcrumb_section' => false,
             'fields' => $fields,
             'section_dir' => $section['directory'],
@@ -84,13 +82,14 @@ class Posts extends MY_Controller
             'name_page' => $page['name'],
             'name_project' => $project['name'],
             'method' => $project['directory'] . '-' . $page['directory'] . '-' . $section['directory']
-        );
+        ));
 
         $this->include_components->app_js(array(
             'js/masks/js/jquery.meio.js',
             'posts/js/form.js'
         ))->app_css('posts/css/post-form.css');
-        $this->load->template_app('posts/form-post', $vars);
+
+        echo $this->load->app()->render('posts/form-post.twig', $this->data);
     }
     /*
      * Método para listar os registros com possibilidade de inserir, editar e deletar registros
@@ -104,9 +103,10 @@ class Posts extends MY_Controller
         $total_rows = $search['total_rows'];
         $pagination = $this->pagination($total_rows);
 
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => $section['name'],
-            'name_app' => $this->data['name'],
+            'dev_mode' => $this->user_data['dev_mode'],
+            'name_app' => $this->app_data['name'],
             'list' => $section['list'],
             'total_list' => (count($section['list']) + 1),
             'posts' => $this->form->treat_list($posts['rows'], $section),
@@ -119,14 +119,17 @@ class Posts extends MY_Controller
             'form_search' => $form_search,
             'pagination' => $pagination,
             'total' => $total_rows,
-            'method' => $project['directory'] . '-' . $page['directory'] . '-' . $section['directory']
-        );
+            'method' => $project['directory'] . '-' . $page['directory'] . '-' . $section['directory'],
+            'search' => $this->input->get('wd_search'),
+            'limit' => $this->input->get('wd_limit'),
+        ));
 
         $this->include_components->app_js(array(
             'js/masks/js/jquery.meio.js',
             'posts/js/posts.js',
         ))->app_css('posts/css/posts-list.css');
-        $this->load->template_app('posts/index', $vars);
+
+        echo $this->load->app()->render('posts/index.twig', $this->data);
     }
     /*
      * Montagem de formulário para pesquisa avançada na index
@@ -350,7 +353,7 @@ class Posts extends MY_Controller
                     $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
                     if (is_file($class_plugin)) {
                         // Se o campo possui método de entrada
-                        $this->load->library_app('../plugins_input/' . $plugin['plugin'] . '/' . $class);
+                        $this->load->app()->library('../plugins_input/' . $plugin['plugin'] . '/' . $class);
                         if (method_exists($class, 'input')) {
                             $class = strtolower($class);
                             // Se o método existir, aciona e modifica o valor
@@ -381,10 +384,10 @@ class Posts extends MY_Controller
         $page = get_page();
 
         if (!$section or ! $project or ! $page) {
-            redirect_app();
+            app_redirect();
         }
 
-        $this->load->library_app('form');
+        $this->load->app()->library('form');
 
         $data_fields = $section['fields'];
         $this->form_create_post($data_fields, $project, $page, $section);
@@ -392,7 +395,7 @@ class Posts extends MY_Controller
         $fields = $this->form->fields_template($data_fields);
         $vars = array(
             'title' => $this->lang->line(APP . '_title_add_post'),
-            'name_app' => $this->data['name'],
+            'name_app' => $this->app_data['name'],
             'breadcrumb_section' => true,
             'fields' => $fields,
             'section_dir' => $section_dir,
@@ -401,7 +404,7 @@ class Posts extends MY_Controller
             'name_section' => $section['name'],
             'name_page' => $page['name'],
             'name_project' => $project['name'],
-            'dev_mode' => $this->data_user['dev_mode'],
+            'dev_mode' => $this->user_data['dev_mode'],
             'method' => $project_dir . '-' . $page_dir . '-' . $section_dir
         );
 
@@ -445,13 +448,13 @@ class Posts extends MY_Controller
 
         if ($this->form_validation->run()) {
             // Se o envio for acionado e todos os campos estiverem corretos
-            if (!hasError()) {
+            if (!$this->error_reporting->has_error()) {
                 $this->posts_model->create($current_field, $section);
 
-                redirect_app('project/' . $project['directory'] . '/' . $page['directory'] . '/' . $section['directory']);
+                app_redirect('project/' . $project['directory'] . '/' . $page['directory'] . '/' . $section['directory']);
             }
         } else {
-            setError(validation_errors());
+            $this->error_reporting->set_error(validation_errors());
         }
 
         $this->include_components->app_js(array(
@@ -470,16 +473,16 @@ class Posts extends MY_Controller
         $page = get_page();
         $post = $this->posts_model->get_post($section, $id_post);
         if (!$section or ! $project or ! $page or ! $post) {
-            redirect_app();
+            app_redirect();
         }
 
-        $this->load->library_app('form');
+        $this->load->app()->library('form');
         $data_fields = $section['fields'];
         $this->form_edit_post($data_fields, $section, $post);
         $fields = $this->form->fields_template($data_fields, $post);
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => $this->lang->line(APP . '_title_edit_post'),
-            'name_app' => $this->data['name'],
+            'name_app' => $this->app_data['name'],
             'breadcrumb_section' => true,
             'fields' => $fields,
             'section_dir' => $section_dir,
@@ -488,12 +491,12 @@ class Posts extends MY_Controller
             'name_section' => $section['name'],
             'name_page' => $page['name'],
             'name_project' => $project['name'],
-            'dev_mode' => $this->data_user['dev_mode'],
+            'dev_mode' => $this->user_data['dev_mode'],
             'method' => $project_dir . '-' . $page_dir . '-' . $section_dir
-        );
+        ));
 
         $this->include_components->app_css('posts/css/post-form.css');
-        $this->load->template_app('posts/form-post', $vars);
+        echo $this->load->app()->render('posts/form-post.twig', $this->data);
     }
     /*
      * Método para configuração de requisitos para edição do registro
@@ -505,6 +508,8 @@ class Posts extends MY_Controller
             return false;
         }
 
+        $this->load->library('form_validation');
+        $this->load->library('error_reporting');
         $project = get_project();
         $page = get_page();
 
@@ -535,17 +540,17 @@ class Posts extends MY_Controller
 
         if ($this->form_validation->run()) {
             // Se o envio for acionado e todos os campos estiverem corretos
-            if (!hasError()) {
+            if (!$this->error_reporting->has_error()) {
                 $this->posts_model->edit($current_field, $post, $section);
                 $list = search($data_fields, 'list_registers', '1');
                 if ($list) {
-                    redirect_app('project/' . $project['directory'] . '/' . $page['directory'] . '/' . $section['directory']);
+                    app_redirect('project/' . $project['directory'] . '/' . $page['directory'] . '/' . $section['directory']);
                 } else {
-                    redirect_app(current_url());
+                    app_redirect(current_url());
                 }
             }
         } else {
-            setError(validation_errors());
+            $this->error_reporting->set_error(validation_errors());
         }
 
         $this->include_components->app_js(array(
@@ -564,37 +569,38 @@ class Posts extends MY_Controller
         $page = get_page();
         $post = $this->input->post('post');
         $this->lang->load_app('posts/remove');
-        $this->load->library_app('form');
+        $this->load->app()->library('form');
         if (!$section or ! $page or count($post) <= 0) {
-            redirect_app();
+            app_redirect();
         }
 
         $posts = $this->posts_model->get_posts_remove($section, $section['table'], $post);
         if (!$posts) {
-            redirect_app();
+            app_redirect();
         }
 
         $this->form_remove($page, $project, $section);
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => $this->lang->line(APP . '_title_remove'),
             'list' => $section['list'],
             'posts' => $this->form->treat_list($posts, $section),
-            'name_app' => $this->data['name'],
+            'name_app' => $this->app_data['name'],
             'project_dir' => $project_dir,
             'page_dir' => $page_dir,
             'section_dir' => $section_dir,
             'name_project' => $project['name'],
             'name_section' => $section['name'],
             'name_page' => $page['name'],
-            'dev_mode' => $this->data_user['dev_mode']
-        );
+            'dev_mode' => $this->user_data['dev_mode']
+        ));
 
         $this->include_components->app_css('posts/css/posts-list.css');
-        $this->load->template_app('posts/remove', $vars);
+        echo $this->load->app()->render('posts/remove.twig', $this->data);
     }
 
     private function form_remove($page, $project, $section)
     {
+        $this->load->library('form_validation');
         $pass = $this->input->post('password');
         if (!empty($pass)) {
             $this->form_validation->set_rules('password', $this->lang->line(APP . '_label_password'), 'callback_verify_password');
@@ -607,7 +613,7 @@ class Posts extends MY_Controller
                 $this->posts_model->remove($table_section, $posts);
             }
 
-            redirect_app('project/' . $project['directory'] . '/' . $page['directory'] . '/' . $section['directory']);
+            app_redirect('project/' . $project['directory'] . '/' . $page['directory'] . '/' . $section['directory']);
         }
     }
     /*
@@ -616,7 +622,7 @@ class Posts extends MY_Controller
 
     public function verify_password($v_pass)
     {
-        $pass_user = $this->data_user['password'];
+        $pass_user = $this->user_data['password'];
         // Inicia helper PasswordHash
         $this->load->helper('passwordhash');
         $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);

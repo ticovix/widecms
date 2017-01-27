@@ -1,0 +1,79 @@
+{% extends "template.twig" %}
+{% block content %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{{base_url()}}"><i class="fa fa-home"></i></a>
+        </li>
+        <li>
+            <a href="{{base_app_url()}}">{{name_app}}</a>
+        </li>
+        <li>
+            <a href="{{base_app_url('project/' ~ project_dir)}}">{{name_project}}</a>
+        </li>
+        {% if dev_mode %}
+            <li>
+                <a href="{{base_app_url('project/' ~ project_dir ~ '/' ~ page_dir)}}">{{name_page}}</a>
+            </li>
+            <li>
+                <a href="{{base_app_url('project/' ~ project_dir ~ '/' ~ page_dir ~ '/' ~ section_dir)}}">{{name_section}}</a>
+            </li>
+        {% endif %}
+        <li class="active">{{title}}</li>
+    </ul>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>{{title}}</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    {{validation_errors('<p class="alert alert-danger">', '</p>')|raw}}
+                    {{form_open(null, {'class' : 'form-horizontal'})|raw}}
+                    <div class="alert alert-danger">
+                        <h4>{{lang.line(APP ~ '_ask_remove')|raw}}</h4>
+                        <p>{{lang.line(APP ~ '_warning_remove')|raw}}</p>
+                    </div>
+                    <table class="table table-striped table-responsive table-bordered">
+                        <thead>
+                            <tr>
+                                {% for ls in list%}
+                                    <th>{{ls.input.label}}</th>
+                                    {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {%if posts %}
+                                {% for post in posts%}
+                                    <tr class="register-current">
+                                <input type="hidden" name="post[]" value="{{post.id}}">
+                                {% for key, value in post %}
+                                    {% if key != 'id'%}
+                                        <td>
+                                            {{value}}
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td>{{lang.line(APP ~ '_registers_not_found')}}</td>
+                            </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                    <div class="form-group">
+                        <label>{{lang.line(APP ~ '_label_confirm_password')}}</label>
+                        <input type="password" class="form-control" name="password">
+                    </div>
+                    <div class="form-group text-right">
+                        <input class="btn btn-danger" value="{{lang.line(APP ~ '_btn_remove')}}" name="send" type="submit">
+                    </div>
+                    {{form_close()|raw}}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

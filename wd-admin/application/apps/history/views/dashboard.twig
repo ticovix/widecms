@@ -1,0 +1,16 @@
+<div class="row">
+    {% if history.result%}
+        {% for register in history.result %}
+            <div class="col-xs-12 form-group">
+                <a href="{{base_url('apps/users/profile/' ~ register.login)}}" class="pull-left">
+                    <img src="{{register.profile_image}}" alt="{{register.name}}" class="img-circle img-thumbnail img-profile-history" height="56">
+                </a>
+                <strong><a href="{{base_url('apps/users/profile/' ~ register.login)}}">{{register.name}}</a></strong>
+                <br>{{register.message}}<br>
+                <small>{{register.date}}</small>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class='col-sm-12'>{{lang.line('history_registers_not_found')}}</div>
+    {% endif %}
+</div>

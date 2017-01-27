@@ -1,0 +1,93 @@
+{% extends "template.twig" %}
+{% block content %}
+    <ul class="breadcrumb">
+        <li><a href="{{base_url()}}"><i class="fa fa-home"></i></a></li>
+        <li><a href="{{base_app_url()}}">{{name_app}}</a></li>
+        <li class="active">{{title}}</li>
+    </ul>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>{{title}}</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="btn-toolbar">
+
+                    </div>
+                    {{validation_errors('<p class="alert alert-danger">', '</p>')|raw}}
+                    {{form_open(null, {'class':'form-horizontal'})|raw}}
+                    <div class="tab-pane active in" id="home">
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <a href="#gallery" class=" btn-upload" data-toggle="modal">
+                                    <img src="{{profile_image}}" alt="Avatar" class="img-circle profile_img" id="img-profile">
+                                </a>
+                            </div>
+                            <div class="col-sm-10">
+                                <div class="hr-line-dashed"></div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{lang.line(APP ~ '_label_name')}}*</label><br>
+                                            {{email}}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{lang.line(APP ~ '_label_login')}}*</label><br>
+                                            {{login}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label>{{lang.line(APP ~ '_label_about')}}</label><br>
+                                            {{nl2br(about)}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{form_close()|raw}}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>{{lang.line(APP ~ '_title_activities')}}</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="row">
+                        {% if count(history.result) > 0 %}
+                            {% for result in history.result %}
+                                <div class="col-sm-12">
+                                    <a href="{{base_url('apps/users/profile/' ~ result.login)}}" class="pull-left">
+                                        <img src="{{result.profile_image}}" alt="{{name}}" class="img-circle img-thumbnail img-profile-history" height="56">
+                                    </a>
+                                    <strong><a href="{{base_url('apps/users/profile/' ~ result.login)}}}}">{{result.name}}</a></strong> <br>
+                                    {{result.message}} <br>
+                                    <small>{{date}}</small>
+                                    <hr>
+                                </div>
+                            {% endfor%}
+                        {% else%}
+                            <div class="col-sm-12">{{lang.line(APP ~ '_msg_activities_not_found')}}</div>
+                        {% endif%}
+                    </div>
+                    {% if total_history > 10 %}
+                        <ul class="pagination">
+                            {{pagination}}
+                        </ul>
+                    {% endif%}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

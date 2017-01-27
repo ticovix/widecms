@@ -1,0 +1,68 @@
+{% extends "template.twig" %}
+{% block content %}
+    <ul class="breadcrumb">
+        <li><a href="{{base_url()}}"><i class="fa fa-home"></i></a></li>
+        <li><a href="{{base_app_url()}}">{{name_app}}</a></li>
+        <li class="active">{{title}}</li>
+    </ul>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>{{title}}</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    {{errors|raw}}
+                    {{form_open(null, {'class' : 'form-horizontal'})|raw}}
+                    <div class="tab-pane active in" id="home">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{lang.line(APP ~ '_label_name')}}*</label>
+                                    <input type="text" name="name" id="dig_name" value="{{set_value('name', name)}}" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{lang.line(APP ~ '_label_directory')}}*</label>
+                                    <input type="text" name="dir" id="dir" value="{{set_value('dir', directory)}}" class="form-control" {% if uri.segment('3') == 'edit' %} disabled="disabled" {% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{lang.line(APP ~ '_label_preffix')}}*</label>
+                                    <input type="text" name="preffix" id="preffix" maxlength="6" value="{{set_value('preffix', preffix)}}" class="form-control" {% if uri.segment('3') == 'edit' %} disabled="disabled" {% endif %}>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{lang.line(APP ~ '_label_status')}}*</label>
+                                    <select name="status" class="form-control">
+                                        <option value="1" {{set_select('status', '1', (status == '1'))}}>{{lang.line(APP ~ '_status_option_enabled')}}</option>
+                                        <option value="0" {{set_select('status', '0', (status == '0'))}}>{{lang.line(APP ~ '_status_option_disabled')}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        {% if uri.segment(3) == 'create' %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label><input type="checkbox" value="1" name="extract_ci" {{set_checkbox('extract_ci', '1')}}> {{lang.line(APP ~ '_field_extract_ci')}}</label><br>
+                                <label><input type="checkbox" value="1" name="main" {{set_checkbox('main', '1')}}> {{lang.line(APP ~ '_field_main_project')}}</label>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="form-group text-right">
+                            <input class="btn btn-primary" value="{{lang.line(APP ~ '_btn_save')}}" name="send" type="submit">
+                        </div>
+                    </div>
+                    {{form_close()|raw}}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

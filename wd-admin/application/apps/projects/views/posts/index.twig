@@ -1,0 +1,159 @@
+{% extends "template.twig" %}
+{% block content %}
+    <ul class="breadcrumb">
+        <li><a href="{{base_url()}}"><i class="fa fa-home"></i></a></li>
+        <li><a href="{{base_app_url()}}">{{name_app}}</a></li>
+        <li><a href="{{base_app_url('project/' ~ project_dir)}}">{{name_project}}</a></li>
+            {% if dev_mode%}
+            <li><a href="{{base_app_url('project/' ~ project_dir ~ '/' ~ page_dir)}}">{{name_page}}</a></li>
+            {% endif %}
+        <li class="active">{{title}}</li>
+    </ul>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>{{title}}</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content" id="data-project" data-project="{{project_dir}}" data-page="{{page_dir}}" data-section="{{section_dir}}">
+                    {{form_open(null, {'method': 'get'})|raw}}
+                    <div class="row form-group">
+                        <div class="col-sm-9">
+                            <input type="text" name="wd_search" value="{{search}}" placeholder="{{lang.line(APP ~ '_field_search')}}" class="form-control">
+                        </div>
+                        <div class="col-sm-2">
+                            <select name="wd_limit" class="form-control">
+                                {% for i in 1..10%}
+                                    <option value="{{(i*10)}}" {{set_select('wd_limit', i, (i == limit))}}>{{(i*10)}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-sm-1">
+                            <button type="submit" class="btn btn-primary btn-group-justified"> <i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="collapse" id="search-advanced">
+                        <div class="well">
+                            <div class="row">
+                                {% set count = 1%}
+                                {% set cols = 4%}
+                                {% for field in form_search%}
+                                    {% set input = field.input%}
+                                    {% set database = field.database%}
+                                    {% set has_type_search = (database.type_column != 'date' and database.type_column != 'datetime' and input.type != 'select' and input.type != 'checkbox')%}
+                                    <div class="col-sm-3">
+                                        <label>{{input.label}}</label>
+
+                                        <div class="{% if has_type_search %}input-group{% endif %}">
+                                            {{input_html|raw}}
+                                            {% if has_type_search %}
+                                                <div class="dropdown input-group-addon">
+                                                    <a href="javascript:void(0);" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-cog"></span></a>
+                                                    <ul class="dropdown-menu" data-field="{{database.column}}" aria-labelledby="dLabel">
+                                                        <li class="{% if input.value_type == 'both' or input.value_type == '' %}active{% endif %} btn-config-field">
+                                                            <a href="javascript:void(0);" data-value="both">{{lang.line(APP ~ '_option_both')}}</a>
+                                                        </li>
+                                                        <li class="{% if input.value_type == 'equals'%}active{% endif %} btn-config-field">
+                                                            <a href="javascript:void(0);" data-value="equals">{{lang.line(APP ~ '_option_equals')}}</a>
+                                                        </li>
+                                                        <li class="{% if input.value_type == 'after'%}active{% endif %} btn-config-field">
+                                                            <a href="javascript:void(0);" data-value="after">{{lang.line(APP ~ '_option_after')}}</a>
+                                                        </li>
+                                                        <li class="{% if input.value_type == 'before'%}active{% endif %} btn-config-field">
+                                                            <a href="javascript:void(0);" data-value="before">{{lang.line(APP ~ '_option_before')}}</a>
+                                                        </li>
+                                                        <li class="{% if input.value_type == 'greater'%}active{% endif %} btn-config-field">
+                                                            <a href="javascript:void(0);" data-value="greater">{{lang.line(APP ~ '_option_greater')}}</a>
+                                                        </li>
+                                                        <li class="{% if input.value_type == 'smaller'%}active{% endif %} btn-config-field">
+                                                            <a href="javascript:void(0);" data-value="smaller">{{lang.line(APP ~ '_option_smaller')}}</a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                    </div>
+                                    {% if (count%cols) == 0 %}
+                                        <div class="clearfix"></div>
+                                    {% endif%}
+                                    {% set count = count+1%}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {% if form_search %}
+                            <a class="pull-right" role="button" data-toggle="collapse" href="#search-advanced" aria-expanded="false" aria-controls="collapseExample">{{lang.line(APP ~ '_btn_search_advanced')}}</a>
+                        {% endif %}
+                        {% if check_method(method ~ '-create')%}
+                            <div class="btn-toolbar">
+                                <a href="{{base_app_url('project/' ~ project_dir ~ '/' ~ page_dir ~ '/' ~ section_dir ~ '/create')}}" class="btn btn-primary"><i class="icon-plus"></i> {{lang.line(APP ~ '_btn_add_post')}}</a>
+                                <div class="btn-group"></div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {{form_close()|raw}}
+                    {{form_open(APP_PATH ~ 'project/' ~ project_dir ~ '/' ~ page_dir ~ '/' ~ section_dir ~ '/remove')|raw}}
+                    <button class="btn btn-danger hide" id="btn-del-selected"><i class="fa fa-remove remove_register"></i> {{lang.line(APP ~ '_btn_remove_selected')}}</button>
+                    <table class="table table-striped table-responsive table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="20"><span class="fa fa-list"</th>
+                                    {% for ls in list%}
+                                    <th>{{ls.input.label}}</th>
+                                    {% endfor %}
+                            </tr>
+                        </thead>
+                        {% if posts %}
+                            <tbody>
+                                {% for post in posts %}
+                                    <tr class="register-current">
+                                        <td align="center" class="multi-options">
+                                            {% if check_method(method ~ '-remove')%}
+                                                <input type="checkbox" name="post[]" value="{{post.id}}" class="check-post">
+                                            {% endif%}
+                                        </td>
+                                        {% for key, value in post %}
+                                            {% if key != 'id' %}
+                                                <td>
+                                                    {% if check_method(method ~ '-edit') %}
+                                                        <a href="{{base_app_url('project/' ~ project_dir ~ '/' ~ page_dir ~ '/' ~ section_dir ~ '/edit/' ~ post.id)}}" class="btn-group-justified">{{value|raw}}</a>
+                                                    {% else %}
+                                                        {{value}}
+                                                    {% endif %}
+                                                </td>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="{{(total_list+1)}}">
+                                        <strong>{{sprintf(lang.line(APP ~ '_registers_found'), total)}}</strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        {% else %}
+                            <tfoot>
+                                <tr>
+                                    <td colspan="{{(total_list+1)}}">{{lang.line(APP ~ '_registers_not_found')}}</td>
+                                </tr>
+                            </tfoot>
+                        {% endif %}
+                    </table>
+                    {{form_close()|raw}}
+                    <ul class="pagination pagination-sm">{{pagination|raw}}</ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var LANG = {
+            select_default: '{{lang.line(APP ~ '_select_default')}}',
+        }
+    </script>
+{% endblock %}

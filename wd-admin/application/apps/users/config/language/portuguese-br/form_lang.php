@@ -2,7 +2,7 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-/*TEMPLATE*/
+/* TEMPLATE */
 
 $lang['users_title_edit_user'] = 'Editar usuário';
 $lang['users_title_add_user'] = 'Novo usuário';
@@ -33,10 +33,11 @@ $lang['users_btn_gen_password'] = 'Gerar senha';
 $lang['users_btn_change_photo'] = 'Alterar';
 $lang['users_btn_save'] = 'Salvar';
 
-/*MODAL*/
+/* MODAL */
 $lang['users_title_modal'] = 'Senha gerada';
 $lang['users_btn_cancel'] = 'Cancelar';
 $lang['users_btn_save_password'] = 'Copiado';
 
-/*HISTORY*/
-$lang['users_update_profile'] = 'Atualizou o perfil';
+/* HISTORY */
+$lang['users_profile_update'] = 'Editou o usuário';
+$lang['users_profile_create'] = 'Criou o usuário';

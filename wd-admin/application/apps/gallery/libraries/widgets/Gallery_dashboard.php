@@ -2,12 +2,12 @@
 
 class Gallery_dashboard
 {
-    public $limit = 6;
+    public $limit = 9;
 
     public function __construct()
     {
         $CI = & get_instance();
-        $CI->lang->load_app('gallery', 'gallery');
+        $CI->load->library('form_validation');
         $search = $this->form_search();
         $files = $search['files'];
         if (check_method('upload', 'gallery')) {
@@ -31,10 +31,15 @@ class Gallery_dashboard
         $vars = array(
             'title' => 'Galeria',
             'files' => $files,
-            'lang' => $CI->lang
+            'lang' => $CI->lang,
+            'search' => $CI->input->get('search'),
+            'check_upload' => check_method('upload', 'gallery'),
+            'check_view' => check_method('view-files', 'gallery'),
+            'check_edit' => check_method('edit', 'gallery'),
+            'check_remove' => check_method('remove', 'gallery'),
         );
 
-        $CI->load->view_app('dashboard', 'gallery', $vars);
+        echo $CI->load->app('gallery')->render('dashboard.twig', $vars);
     }
     /*
      * Método para pesquisar arquivos
@@ -49,7 +54,7 @@ class Gallery_dashboard
         $CI->form_validation->run();
 
         $limit = $this->limit;
-        $CI->load->model_app('files_model', 'gallery');
+        $CI->load->app('gallery')->model('files_model');
         $files = $CI->files_model->search($keyword, $limit, $per_page);
         $total = $CI->files_model->search_total_rows($keyword);
 

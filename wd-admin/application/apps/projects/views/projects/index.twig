@@ -1,0 +1,41 @@
+{% extends "template.twig" %}
+{% block content %}
+    <ul class="breadcrumb">
+        <li><a href="{{base_url()}}"><i class="fa fa-home"></i></a></li>
+        <li class="active">{{title}}</li>
+    </ul>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>{{title}}</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    {{form_open(null, {'method':'get'})|raw}}
+                    <div class="input-group">
+                        <input type="text" name="search" value="{{search}}" placeholder="{{lang.line(APP ~ '_field_search')}}" class="input-sm form-control">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-sm btn-primary"> <i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                    {{form_close()|raw}}
+                    <div class="list-group">
+                        {% if projects %}
+                            {% for project in projects %}
+
+                        <a href="{{base_app_url('project/' ~ project.directory)}}" class="list-group-item">
+                            {% if project.main_project %}<span class="fa fa-star"></span> {% endif %} {{project.name}}
+                        </a>
+                        {% endfor %}
+                        <hr>
+                        <strong>{{sprintf(lang.line(APP ~ '_registers_found'), total)}}</strong>
+                        {% else %}
+                            {{lang.line(APP ~ '_registers_not_found')}}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

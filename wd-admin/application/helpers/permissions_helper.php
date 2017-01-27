@@ -6,26 +6,32 @@ if (!defined('BASEPATH')) {
 
 if (!function_exists('check_app')) {
 
-    function check_app($app) {
+    function check_app($app, $user_id = null)
+    {
         $CI = &get_instance();
-        if ($CI->data_user['root'] == '1') {
-            return true;
-        }
-        $CI->load->model('permissions_model', null, null, true);
-        return $CI->permissions_model->check_app($app);
-    }
 
+        if (empty($user_id)) {
+            $user_id = $CI->user_data['id'];
+            if ($CI->user_data['root'] == '1') {
+                return true;
+            }
+        }
+
+        $CI->load->model('permissions_model', null, null, true);
+        return $CI->permissions_model->check_app($app, $user_id);
+    }
 }
 
 if (!function_exists('check_url')) {
 
-    function check_url($app, $url) {
+    function check_url($app, $url)
+    {
         $CI = &get_instance();
-        if ($CI->data_user['root'] == '1') {
+        if ($CI->user_data['root'] == '1') {
             return true;
         }
         $CI->load->model('permissions_model', null, null, true);
-        $pages = $CI->permissions_model->list_sections($app);
+        $pages = $CI->permissions_model->list_pages($app);
         if ($pages) {
             foreach ($pages as $page) {
                 $url_page = str_replace('/', '\/', $page['page']);
@@ -37,21 +43,20 @@ if (!function_exists('check_url')) {
         }
         return true;
     }
-
 }
 
 if (!function_exists('check_method')) {
 
-    function check_method($method, $app = APP, $user = null) {
+    function check_method($method, $app = APP, $user = null)
+    {
         $CI = &get_instance();
-        if ($CI->data_user['root'] == '1' && empty($user)) {
+        if ($CI->user_data['root'] == '1' && empty($user)) {
             return true;
         }
-        if(empty($user)){
-            $user = $CI->data_user['id'];
+        if (empty($user)) {
+            $user = $CI->user_data['id'];
         }
         $CI->load->model('permissions_model', null, null, true);
         return $CI->permissions_model->check_method($app, $method, $user);
     }
-
 }

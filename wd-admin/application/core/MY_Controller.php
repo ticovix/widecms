@@ -14,19 +14,23 @@ class MY_Controller extends CI_Controller
         $this->security();
         $this->allow_project_list();
         $this->check_permissions();
-        $default_values = array(
-            'PROFILE' => $this->data_user,
-            'APPS' => $this->apps->list_apps()
+        $this->data = array(
+            'user_data' => $this->user_data,
+            'list_apps' => $this->apps->list_apps(),
+            'lang' => $this->lang,
+            'include_components' => $this->include_components,
+            'uri' => $this->uri,
+            'APP' => (defined('APP') ? APP : ''),
+            'APP_PATH' => (defined('APP_PATH') ? APP_PATH : ''),
+            'APP_ASSETS' => (defined('APP_ASSETS') ? APP_ASSETS : '')
         );
-
-        $this->load->setVars($default_values);
     }
 
     private function allow_project_list()
     {
         if ($this->uri->segment(3) == 'project') {
             $project = get_project();
-            if ($this->data_user['dev_mode'] == 0 && $project && $project['status'] == 0) {
+            if ($this->user_data['dev_mode'] == 0 && $project && $project['status'] == 0) {
                 redirect('projects');
             }
         }
@@ -35,14 +39,14 @@ class MY_Controller extends CI_Controller
     private function security()
     {
         if ($this->session->userdata('logged_in') && $this->session->userdata('id')) {
-            if (!empty($this->data_user)) {
-                return $this->data_user;
+            if (!empty($this->user_data)) {
+                return $this->user_data;
             } else {
-                $this->load->model_app('users_model', 'users');
+                $this->load->app('users')->model('users_model');
                 $id_user = $this->session->userdata('id');
-                $this->data_user = $this->users_model->get_user($id_user);
-                if ($this->data_user) {
-                    return $this->data_user;
+                $this->user_data = $this->users_model->get_user($id_user);
+                if ($this->user_data) {
+                    return $this->user_data;
                 }
             }
         }

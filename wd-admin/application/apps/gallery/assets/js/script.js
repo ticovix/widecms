@@ -38,7 +38,7 @@ $(function () {
         if (URL == '' || URL == undefined) {
             URL = app_path + "files-list";
         }
-        content.html("<p>Carregando..</p>");
+        content.html("<p>" + LANG.loading + "</p>");
         $.ajax({
             url: URL,
             dataType: "json",
@@ -63,7 +63,7 @@ $(function () {
         var file = $(".file").eq(index).data("file");
         var index = $(".btn-delete-file").index(this);
 
-        if (confirm("Deseja realmente remover o arquivo " + file + " ?")) {
+        if (confirm(LANG._ask_remove_file + " " + file + " ?")) {
             $.ajax({
                 url: app_path + "delete",
                 type: 'POST',
@@ -83,7 +83,7 @@ $(function () {
         var index = $(".btn-view-file").index(this);
         var file = $(".file").eq(index).data("file");
         var content = $("#details .modal-content");
-        content.html('<div class="modal-body">Aguarde..</div>');
+        content.html('<div class="modal-body">' + LANG.loading + '</div>');
         $.ajax({
             url: app_path + "file",
             dataType: "json",
@@ -104,7 +104,7 @@ $(function () {
         var index = $(".btn-edit-file").index(this);
         var file = $(".file").eq(index).data("file");
         var content = $("#edit .modal-content");
-        content.html('<div class="modal-body">Aguarde..</div>');
+        content.html('<div class="modal-body">' + LANG.loading + '</div>');
         $.ajax({
             url: app_path + "file",
             dataType: "json",
