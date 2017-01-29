@@ -82,9 +82,11 @@
                         {% endif%}
                     </div>
                     {% if total_history > 10 %}
-                        <ul class="pagination">
-                            {{pagination}}
-                        </ul>
+                        <div class="text-center">
+                            <ul class="pagination">
+                                {{pagination|raw}}
+                            </ul>
+                        </div>
                     {% endif%}
                 </div>
             </div>
