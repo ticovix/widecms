@@ -1,9 +1,9 @@
 <?php
 
-class History_dashboard
+class History_widget
 {
 
-    public function __construct()
+    public function dashboard()
     {
         $CI = &get_instance();
         $CI->lang->load_app('history', 'history');
@@ -17,6 +17,6 @@ class History_dashboard
             'lang' => $CI->lang
         );
 
-        echo $CI->load->app('history')->render('dashboard.twig', $vars);
+        return $CI->load->app('history')->render('dashboard.twig', $vars);
     }
 }

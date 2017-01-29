@@ -1,6 +1,6 @@
 <div id="files-list">
     {% for file in files %}
-        <div class="col-sm-4 file">
+        <div class="col-sm-4 col-xs-6 file">
             <div class="image-file">
                 <a href="{{base_url('apps/gallery')}}">
                     <img src="{{base_url('apps/gallery/image/thumb/' ~ file.file)}}" class="img-responsive">

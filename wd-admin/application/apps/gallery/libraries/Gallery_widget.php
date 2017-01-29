@@ -1,10 +1,10 @@
 <?php
 
-class Gallery_dashboard
+class Gallery_widget
 {
     public $limit = 9;
 
-    public function __construct()
+    public function dashboard()
     {
         $CI = & get_instance();
         $CI->load->library('form_validation');
@@ -18,15 +18,7 @@ class Gallery_dashboard
             ));
         }
 
-        $CI->include_components->main_js(array(
-                    'plugins/fancybox/js/jquery.fancybox-buttons.js',
-                    'plugins/fancybox/js/jquery.fancybox.pack.js',
-                    'plugins/embeddedjs/ejs.js'))
-                ->app_js('js/scripts_dashboard.js', 'gallery')
-                ->main_css(array(
-                    'plugins/fancybox/css/jquery.fancybox.css',
-                    'plugins/fancybox/css/jquery.fancybox-buttons.css',))
-                ->app_css('css/style.css', 'gallery');
+        $CI->include_components->app_css('css/style.css', 'gallery');
 
         $vars = array(
             'title' => 'Galeria',
@@ -39,7 +31,7 @@ class Gallery_dashboard
             'check_remove' => check_method('remove', 'gallery'),
         );
 
-        echo $CI->load->app('gallery')->render('dashboard.twig', $vars);
+        return $CI->load->app('gallery')->render('dashboard.twig', $vars);
     }
     /*
      * Método para pesquisar arquivos

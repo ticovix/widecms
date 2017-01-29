@@ -20,7 +20,7 @@ class Home extends MY_Controller
     {
         $this->load->library('apps');
 
-        return $this->apps->list_widgets_dashboards();
+        return $this->apps->list_dashboard();
     }
     /*
      * Método para deslogar do painel

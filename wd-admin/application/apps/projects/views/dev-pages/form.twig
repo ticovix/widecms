@@ -7,7 +7,7 @@
         <li class="active">{{title}}</li>
     </ul>
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
                     <h2>{{title}}</h2>
@@ -18,13 +18,13 @@
                     {{form_open(null, {'class': 'form-horizontal'})|raw}}
                     <div class="tab-pane active in" id="home">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-sm-6 col-xs-12">
                                 <div class="form-group">
                                     <label>{{lang.line(APP ~ '_label_name')}}*</label>
                                     <input type="text" name="name" id="dig_name" value="{{set_value('name', name)}}" class="form-control">
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-sm-6 col-xs-12">
                                 <div class="form-group">
                                     <label>{{lang.line(APP ~ '_label_status')}}*</label>
                                     <select name="status" class="form-control">

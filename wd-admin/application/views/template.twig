@@ -46,9 +46,9 @@
                         <div class="clearfix"></div>
 
                         <!-- menu profile quick info -->
-                        <div class="profile">
+                        <div class="profile row">
                             <div class="profile_pic">
-                                <img src="{{user_data.profile_image}}" class="img-circle profile_img" height="56">
+                                <img src="{{user_data.profile_image}}" class="img-circle profile_img">
                             </div>
                             <div class="profile_info">
                                 <span>{{lang.line('panel_welcome')}}</span>
@@ -69,7 +69,7 @@
                                             <i class="fa fa-dashboard"></i> {{lang.line('panel_btn_dashboard')}}
                                         </a>
                                     </li>
-                                    {% for nav in list_apps%}
+                                    {% for nav in list_nav%}
                                         {% if nav.show_nav == 1 or nav.show_nav is null%}
                                             <li class="{% if uri.segment(2) == nav.app%}current-page{% endif %}">
                                                 <a href="{{base_url('apps/' ~ nav.app)}}">
@@ -80,6 +80,15 @@
                                                     {% endif %}
                                                     {{nav.name}}
                                                 </a>
+                                                {% if nav.dropdown is not null%}
+                                                    <ul class="nav dropdown-menu">
+                                                        {% for dropdown in nav.dropdown%}
+                                                            <li>
+                                                                <a href="{{dropdown.url}}">{{dropdown.name}}</a>
+                                                            </li>
+                                                        {% endfor%}
+                                                    </ul>
+                                                {% endif %}
                                             </li>
                                         {% endif %}
                                     {% endfor%}
@@ -104,7 +113,7 @@
                                 <li class="">
                                     <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                         <img src="{{user_data.profile_image}}" height="29"> {{user_data.name}}
-                                        <span class=" fa fa-angle-down"></span>
+                                        <span class="fa fa-angle-down"></span>
                                     </a>
                                     <ul class="dropdown-menu dropdown-usermenu pull-right">
                                         <li>
@@ -115,7 +124,7 @@
 
                                 <li class="dev-mode">
                                     {% if user_data.allow_dev%}
-                                        {{lang.line('panel_dev_mode')}}
+                                        <span class="hidden-xs">{{lang.line('panel_dev_mode')}}</span>
                                         <input type="checkbox" id="allow_dev" {% if user_data.dev_mode%}checked{% endif%}/>
                                     {% endif%}
                                 </li>

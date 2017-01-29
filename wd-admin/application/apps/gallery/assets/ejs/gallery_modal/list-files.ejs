@@ -13,7 +13,7 @@
                     for(var i=0; i < total_files; i++){
                         var file = files[i].file;
                         %>
-                        <div class="col-sm-2 file" data-file="<%=file%>">
+                        <div class="col-sm-2 col-xs-6 file" data-file="<%=file%>">
                             <div class="image-file <% if($.inArray(file, saved_list) != '-1'){%>active<% }%>">
                                 <img src="<%=url%>apps/gallery/image/thumb/<%=file%>" title="<%=file%>" alt="<%=file%>" class="img-responsive">
                                 <a href="javascript:void(0);" class="btn btn-primary options-file btn-add"><span class="fa fa-2x fa-check"></span></a>
@@ -28,19 +28,19 @@
                     }
                     if (pagination) {
                         %>
-                        <div class="col-sm-12">
+                        <div class="col-xs-12">
                             <ul class="pagination pagination-sm"><%=pagination%></ul>
                         </div>
                         <%
                     }
                 }else{
                 %>
-                <div class="col-sm-12"><%=lang.gallery_files_not_found%></div>
+                <div class="col-xs-12"><%=lang.gallery_files_not_found%></div>
                 <%
                 }
             } else {
             %>
-            <div class="col-sm-12"><%=lang.gallery_files_not_found%></div>
+            <div class="col-xs-12"><%=lang.gallery_files_not_found%></div>
             <%
             }
             %>

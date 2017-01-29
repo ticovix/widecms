@@ -686,12 +686,12 @@ $(function () {
     }
 
     function add_attr(param, value) {
-        $(".attr-current").append('<div class="col-sm-6">' +
+        $(".attr-current").append('<div class="col-xs-6">' +
                 '<div class="form-group">' +
                 '<input type="text" value="' + param + '" value="" class="form-control param_attr_field" placeholder="'+LANG.label_attribute+'">' +
                 '</div>' +
                 '</div>' +
-                '<div class="col-sm-6">' +
+                '<div class="col-xs-6">' +
                 '<div class="form-group">' +
                 '<input type="text" value="' + value + '" value="" class="form-control value_attr_field" placeholder="'+LANG.label_value+'">' +
                 '</div>' +

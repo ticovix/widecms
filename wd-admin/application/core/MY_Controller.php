@@ -17,6 +17,7 @@ class MY_Controller extends CI_Controller
         $this->data = array(
             'user_data' => $this->user_data,
             'list_apps' => $this->apps->list_apps(),
+            'list_nav' => $this->apps->list_nav(),
             'lang' => $this->lang,
             'include_components' => $this->include_components,
             'uri' => $this->uri,

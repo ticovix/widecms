@@ -66,10 +66,6 @@ $(function() {
         setContentHeight();
     }).parent().addClass('active');
 
-    // recompute content when resizing
-    $(window).smartresize(function(){
-        setContentHeight();
-    });
 });
 // /Sidebar
 
