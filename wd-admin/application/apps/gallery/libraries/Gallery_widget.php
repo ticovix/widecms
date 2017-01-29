@@ -8,8 +8,8 @@ class Gallery_widget
     {
         $CI = & get_instance();
         $CI->load->library('form_validation');
-        $search = $this->form_search();
-        $files = $search['files'];
+        $CI->load->app('gallery')->model('files_model');
+        $files = $CI->files_model->search('', $this->limit);
         if (check_method('upload', 'gallery')) {
             $CI->include_components->main_js(array(
                 'plugins/dropzone/js/dropzone.js'
@@ -32,27 +32,5 @@ class Gallery_widget
         );
 
         return $CI->load->app('gallery')->render('dashboard.twig', $vars);
-    }
-    /*
-     * Método para pesquisar arquivos
-     */
-
-    private function form_search()
-    {
-        $CI = & get_instance();
-        $keyword = $CI->input->get('search');
-        $per_page = (int) $CI->input->get('per_page') or 0;
-        $CI->form_validation->set_rules('search', 'Pesquisa', 'trim|required');
-        $CI->form_validation->run();
-
-        $limit = $this->limit;
-        $CI->load->app('gallery')->model('files_model');
-        $files = $CI->files_model->search($keyword, $limit, $per_page);
-        $total = $CI->files_model->search_total_rows($keyword);
-
-        return array(
-            'files' => $files,
-            'total' => $total
-        );
     }
 }
