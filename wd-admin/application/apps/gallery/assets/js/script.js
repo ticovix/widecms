@@ -63,7 +63,7 @@ $(function () {
         var file = $(".file").eq(index).data("file");
         var index = $(".btn-delete-file").index(this);
 
-        if (confirm(LANG._ask_remove_file + " " + file + " ?")) {
+        if (confirm(LANG.ask_remove_file + " \"" + file + "\" ?")) {
             $.ajax({
                 url: app_path + "delete",
                 type: 'POST',
