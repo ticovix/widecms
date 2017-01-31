@@ -72,16 +72,19 @@
                                     {% for nav in list_nav%}
                                         {% if nav.show_nav == 1 or nav.show_nav is null%}
                                             <li class="{% if uri.segment(2) == nav.app%}current-page{% endif %}">
-                                                <a href="{{base_url('apps/' ~ nav.app)}}">
+                                                <a {% if nav.dropdown is null %}href="{{base_url('apps/' ~ nav.app)}}"{% endif %}>
                                                     {% if nav.is_icon_fa %}
                                                         <i class="fa {{nav.icon}}"></i>
                                                     {% else %}
                                                         <img src="{{base_url('application/apps/' ~ nav.app ~ '/assets/' ~ nav.icon)}}" class="fa">
                                                     {% endif %}
                                                     {{nav.name}}
+                                                    {% if nav.dropdown is not null%}
+                                                        <span class="fa fa-chevron-down"></span>
+                                                    {% endif %}
                                                 </a>
                                                 {% if nav.dropdown is not null%}
-                                                    <ul class="nav dropdown-menu">
+                                                    <ul class="nav child_menu">
                                                         {% for dropdown in nav.dropdown%}
                                                             <li>
                                                                 <a href="{{dropdown.url}}">{{dropdown.name}}</a>
