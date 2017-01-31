@@ -33,7 +33,7 @@
                             {{form_open('', {'class':'form-horizontal'})|raw}}
                             {% for field in fields %}
                                 <div class="form-group {% if field.label is null %}hide{% endif %}">
-                                    <label for="{{field.column}}_field" class="label-field col-sm-2 col-xs-12 control-label" data-field="{{field.column}}" id="label_{{field.column}}">{{field.label}}</label>
+                                    <label for="{{field.column}}_field" class="label-field col-sm-2 col-xs-12 control-label" data-field="{{field.column}}" id="label_{{field.column}}">{{field.label|raw}}</label>
                                     <div class="col-sm-9 col-xs-12 content-field">
                                         {{field.input|raw}}
                                         {% if field.observation is not null %}

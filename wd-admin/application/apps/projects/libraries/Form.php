@@ -307,15 +307,16 @@ class Form
                 ->main_css('plugins/chosen/css/chosen.css');
 
         $array_options = array('' => $CI->lang->line('projects_options_not_found'));
-        if (isset($this->field['options_table']) && isset($this->field['options_label'])) {
+        $field = $this->field;
+        $input = $field['input'];
+        if (isset($input['options']['table']) && isset($input['options']['options_label'])) {
             $data_trigger = null;
-            if (isset($this->field['options_trigger_select'])) {
-                $column_trigger = $this->field['options_trigger_select'];
-                $field_trigger = search($this->fields, 'column', $column_trigger);
+            if (isset($input['options']['trigger_select']) && !empty($input['options']['trigger_select'])) {
+                $column_trigger = $input['options']['trigger_select'];
+                $field_trigger = $this->search_field($column_trigger, $this->fields);
                 if (count($field_trigger) > 0) {
-                    $field_trigger = $field_trigger[0];
-                    $table_trigger = $field_trigger['options_table'];
-                    $label_trigger = $field_trigger['label'];
+                    $table_trigger = $field_trigger['input']['options']['table'];
+                    $label_trigger = $field_trigger['input']['label'];
                     $value_trigger = $this->post[$column_trigger];
                     $data_trigger = array(
                         'table' => $table_trigger,
@@ -328,7 +329,8 @@ class Form
                     $this->attr['class'] .= ' trigger-' . $column_trigger;
                 }
             }
-            $array_options = $this->set_options($this->field['options_table'], $this->field['options_label'], $data_trigger);
+
+            $array_options = $this->set_options($input['options']['table'], $input['options']['options_label'], $data_trigger);
         }
 
         $this->attr['id'] = $this->column . '_field';
@@ -434,9 +436,8 @@ class Form
         return $ctt;
     }
 
-    private function search_field($column, $section)
+    public function search_field($column, $fields)
     {
-        $fields = $section['fields'];
         $field_find = array();
         if ($fields) {
             foreach ($fields as $field) {
@@ -458,7 +459,7 @@ class Form
         $list = array();
         foreach ($posts as $row) {
             foreach ($row as $column => $value) {
-                $field = $this->search_field($column, $section);
+                $field = $this->search_field($column, $section['fields']);
                 if ($field) {
                     $input = $field['input'];
                     $type = strtolower($input['type']);
@@ -466,6 +467,7 @@ class Form
                         $plugins = $input['plugins'];
                         $value = $this->plugins_output($plugins, $value, $field, $section);
                     }
+
                     switch ($type) {
                         case 'select':
                         case 'radio':
@@ -479,8 +481,10 @@ class Form
                             break;
                     }
                 }
+
                 $row[$column] = $value;
             }
+
             $list[] = $row;
         }
 
@@ -489,10 +493,10 @@ class Form
 
     private function plugins_output($plugins, $value, $field, $fields)
     {
-        $type = $field['type'];
-        $plugins = $this->get_plugins($plugins);
-        if ($plugins) {
-            foreach ($plugins as $arr) {
+        $type = $field['input']['type'];
+        $get_plugins = $this->get_plugins($plugins);
+        if ($get_plugins) {
+            foreach ($get_plugins as $arr) {
                 $CI = & get_instance();
                 $plugin = $arr['plugin'];
                 $class = ucfirst($plugin);
@@ -506,6 +510,7 @@ class Form
                 }
             }
         }
+
         switch ($type) {
             case 'checkbox':
                 if (!empty($value)) {
@@ -533,10 +538,10 @@ class Form
     {
         if (!empty($value) && $value > 0) {
             $CI = & get_instance();
-            $CI->load->model('posts_model');
-            $field = $field;
-            $table = (isset($field['options_table'])) ? $field['options_table'] : '';
-            $column = (isset($field['options_label'])) ? $field['options_label'] : '';
+            $CI->load->app('projects')->model('posts_model');
+            $input = $field['input'];
+            $table = (isset($input['options']['table'])) ? $input['options']['table'] : '';
+            $column = (isset($input['options']['options_label'])) ? $input['options']['options_label'] : '';
             if ($table && $column) {
                 $val = $CI->posts_model->get_post_selected($table, $column, $value);
                 if ($val) {

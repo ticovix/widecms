@@ -30,10 +30,8 @@ class Posts extends MY_Controller
         $this->load->app()->library('form');
 
         if (isset($section['list'])) {
-            // Se algum campo estiver para ser listado, significa que o administrador pode inserir mais de um registro
             $this->mount_list($section, $project, $page);
         } else {
-            // Se não, o administrador pode editar um registro, levando direto para formulário
             $this->mount_form($section, $project, $page);
         }
     }
@@ -53,9 +51,6 @@ class Posts extends MY_Controller
 
         return $section;
     }
-    /*
-     * Método para montar o formulário de edição
-     */
 
     private function mount_form($section, $project, $page)
     {
@@ -91,9 +86,6 @@ class Posts extends MY_Controller
 
         echo $this->load->app()->render('posts/form-post.twig', $this->data);
     }
-    /*
-     * Método para listar os registros com possibilidade de inserir, editar e deletar registros
-     */
 
     private function mount_list($section, $project, $page)
     {
@@ -131,9 +123,6 @@ class Posts extends MY_Controller
 
         echo $this->load->app()->render('posts/index.twig', $this->data);
     }
-    /*
-     * Montagem de formulário para pesquisa avançada na index
-     */
 
     private function mount_form_search($section)
     {
@@ -159,9 +148,9 @@ class Posts extends MY_Controller
                 if ($type === 'select' or $type === 'checkbox') {
                     $list_posts_select = array();
                     $field['input']['value'] = $value;
-                    $column_trigger = $field['input']['options_trigger_select'];
-                    $column_label = $field['input']['options_label'];
-                    $table = $field['input']['options_table'];
+                    $column_trigger = $field['input']['options']['trigger_select'];
+                    $column_label = $field['input']['options']['options_label'];
+                    $table = $field['input']['options']['table'];
                     $options = array(
                         '' => $this->lang->line(APP . '_select_default')
                     );
@@ -203,22 +192,18 @@ class Posts extends MY_Controller
                     $attr['type'] = 'text';
                     $attr['placeholder'] = $this->lang->line(APP . '_field_placeholder_default');
                     if ($type_column == 'date' || $type_column == 'datetime') {
-                        // Cria dois campos para filtrar por datas
                         $attr['placeholder'] = 'YYYY-MM-DD';
                         $attr['name'] = 'field_' . $column . '[]';
-                        $attr['alt'] = '9999-19-39'; // Mask
+                        $attr['alt'] = '9999-19-39';
                         $field['input']['label'] = $label . ' - ' . $this->lang->line(APP . '_label_date_of');
                         $field['input']['input'] = form_input($attr, $value[0]);
                         $field['input']['value'] = $value[0];
                         $field['input']['type_date'] = 'of';
                         $fields_search[] = $field;
-                        // Prepara o segundo campo de data
                         $value = $value[1];
                         $field['input']['label'] = $label . ' - ' . $this->lang->line(APP . '_label_date_until');
                         $field['input']['type_date'] = 'until';
                     } else {
-                        // Adiciona input hidden para identificar o tipo de pesquisa
-                        // (Exceto para date, datetime, select, checkbox que não tem opção de tipo de pesquisa)
                         $value_type = $this->input->get('type_search_' . $column);
                         $input .= form_input(array(
                             'id' => 'type_search_' . $column,
@@ -243,9 +228,6 @@ class Posts extends MY_Controller
 
         return $fields_search;
     }
-    /*
-     * Método com formulário de pesquisa de registros
-     */
 
     private function form_search($form_search, $section)
     {
@@ -269,9 +251,6 @@ class Posts extends MY_Controller
             'total_rows' => $total_rows
         );
     }
-    /*
-     * Método para criar template da paginação da listagem de registros
-     */
 
     private function pagination($total_rows)
     {
@@ -298,12 +277,10 @@ class Posts extends MY_Controller
 
         return $this->pagination->create_links();
     }
-    /*
-     * Método para listar os options do select no json acionado por um js
-     */
 
     public function options_json()
     {
+        $this->load->library('form_validation');
         $this->form_validation->set_rules('project', 'Projeto', 'required');
         $this->form_validation->set_rules('page', 'Página', 'required');
         $this->form_validation->set_rules('section', 'Seção', 'required');
@@ -312,35 +289,33 @@ class Posts extends MY_Controller
         $this->form_validation->set_rules('name_destination', 'Select de destino', 'required');
         $posts = array();
         if ($this->form_validation->run()) {
-            $project = $this->input->post('project');
-            $page = $this->input->post('page');
-            $section = $this->input->post('section');
+            $project_dir = $this->input->post('project');
+            $page_dir = $this->input->post('page');
+            $section_dir = $this->input->post('section');
             $value = (int) $this->input->post('id_post');
             $name_trigger = $this->input->post('name_trigger');
             $name_destination = $this->input->post('name_destination');
-            $data = $this->config_xml->load_config($project, $page, $section);
-            if ($data) {
-                $field_trigger = search($data, 'column', $name_trigger);
-                $field_destination = search($data, 'column', $name_destination);
+            $this->load->app()->model('sections_model');
+            $this->load->app()->library('form');
+            $section = $this->sections_model->get_section($project_dir, $page_dir, $section_dir);
+            if ($section) {
+                $fields = $section['fields'];
+                $field_trigger = $this->form->search_field($name_trigger, $fields);
+                $field_destination = $this->form->search_field($name_destination, $fields);
                 if ($field_destination && $field_trigger) {
-                    $field_trigger = $field_trigger[0];
-                    $field_destination = $field_destination[0];
                     $data_trigger = array(
-                        'table' => $field_trigger['options'],
-                        'column' => $field_trigger['column'],
+                        'table' => $field_trigger['input']['options']['table'],
+                        'column' => $field_trigger['database']['column'],
                         'value' => $value,
-                        'label' => $field_trigger['label']
+                        'label' => $field_trigger['input']['label']
                     );
-                    $posts = $this->posts_model->list_posts_select($field_destination['options'], $field_destination['label_options'], $data_trigger);
+                    $posts = $this->posts_model->list_posts_select($field_destination['input']['options']['table'], $field_destination['input']['options']['options_label'], $data_trigger);
                 }
             }
         }
 
         echo json_encode($posts);
     }
-    /*
-     * Método para setar um valor que possui um método de entrada
-     */
 
     private function set_value($value, $field, $fields)
     {
@@ -352,11 +327,9 @@ class Posts extends MY_Controller
                     $class = ucfirst($plugin['plugin']);
                     $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
                     if (is_file($class_plugin)) {
-                        // Se o campo possui método de entrada
                         $this->load->app()->library('../plugins_input/' . $plugin['plugin'] . '/' . $class);
                         if (method_exists($class, 'input')) {
                             $class = strtolower($class);
-                            // Se o método existir, aciona e modifica o valor
                             $value = $this->$class->input($value, $field, $fields);
                         }
                     }
@@ -373,9 +346,6 @@ class Posts extends MY_Controller
 
         return $value;
     }
-    /*
-     * Método para criar registro
-     */
 
     public function create($project_dir, $page_dir, $section_dir)
     {
@@ -393,7 +363,7 @@ class Posts extends MY_Controller
         $this->form_create_post($data_fields, $project, $page, $section);
         // Seta template para criação do formulário
         $fields = $this->form->fields_template($data_fields);
-        $vars = array(
+        $this->data = array_merge($this->data, array(
             'title' => $this->lang->line(APP . '_title_add_post'),
             'name_app' => $this->app_data['name'],
             'breadcrumb_section' => true,
@@ -406,21 +376,19 @@ class Posts extends MY_Controller
             'name_project' => $project['name'],
             'dev_mode' => $this->user_data['dev_mode'],
             'method' => $project_dir . '-' . $page_dir . '-' . $section_dir
-        );
+        ));
 
         $this->include_components->app_css('posts/css/post-form.css');
-        $this->load->template_app('posts/form-post', $vars);
+        echo $this->load->app()->render('posts/form-post.twig', $this->data);
     }
-    /*
-     * Método para configuração de requisitos para criação do registro
-     */
 
     private function form_create_post($data_fields, $project, $page, $section)
     {
         if (!$data_fields) {
             return false;
         }
-
+        $this->load->library('form_validation');
+        $this->load->library('error_reporting');
         $current_field = array();
         $table = $section['table'];
         foreach ($data_fields as $field) {
@@ -447,7 +415,6 @@ class Posts extends MY_Controller
         }
 
         if ($this->form_validation->run()) {
-            // Se o envio for acionado e todos os campos estiverem corretos
             if (!$this->error_reporting->has_error()) {
                 $this->posts_model->create($current_field, $section);
 
@@ -462,9 +429,6 @@ class Posts extends MY_Controller
             'posts/js/form.js'
         ));
     }
-    /*
-     * Método para editar registro
-     */
 
     public function edit($project_dir, $page_dir, $section_dir, $id_post)
     {
@@ -498,9 +462,6 @@ class Posts extends MY_Controller
         $this->include_components->app_css('posts/css/post-form.css');
         echo $this->load->app()->render('posts/form-post.twig', $this->data);
     }
-    /*
-     * Método para configuração de requisitos para edição do registro
-     */
 
     private function form_edit_post($data_fields, $section, $post)
     {
@@ -539,7 +500,6 @@ class Posts extends MY_Controller
         }
 
         if ($this->form_validation->run()) {
-            // Se o envio for acionado e todos os campos estiverem corretos
             if (!$this->error_reporting->has_error()) {
                 $this->posts_model->edit($current_field, $post, $section);
                 $list = search($data_fields, 'list_registers', '1');
@@ -558,9 +518,6 @@ class Posts extends MY_Controller
             'posts/js/form.js'
         ));
     }
-    /*
-     * Método para remover registro
-     */
 
     public function remove($project_dir, $page_dir, $section_dir)
     {
@@ -616,17 +573,12 @@ class Posts extends MY_Controller
             app_redirect('project/' . $project['directory'] . '/' . $page['directory'] . '/' . $section['directory']);
         }
     }
-    /*
-     * Método para verificar senha
-     */
 
     public function verify_password($v_pass)
     {
         $pass_user = $this->user_data['password'];
-        // Inicia helper PasswordHash
         $this->load->helper('passwordhash');
         $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
-        // Verifica se a senha está errada
         if (!$PasswordHash->CheckPassword($v_pass, $pass_user)) {
             $this->form_validation->set_message('verify_password', $this->lang->line(APP . '_incorrect_password'));
 

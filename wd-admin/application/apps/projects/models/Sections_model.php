@@ -128,13 +128,8 @@ class Sections_model extends CI_Model
             $new_field['input']['observation'] = $observation;
             $new_field['input']["label"] = $name;
             $new_field['input']["list_registers"] = $list_reg;
-            if (!empty($plugins)) {
-                $new_field['input']["plugins"] = $plugins;
-            }
-
-            if (!empty($attributes)) {
-                $new_field['input']["attributes"] = str_replace('"', '\'', $attributes);
-            }
+            $new_field['input']["plugins"] = $plugins;
+            $new_field['input']["attributes"] = str_replace('"', '\'', $attributes);
 
             $new_field["database"] = array(
                 'column' => $column,
@@ -148,17 +143,9 @@ class Sections_model extends CI_Model
                 $options_table = $field['options_table'];
                 $options_label = $field['options_label'];
                 $options_trigger_select = $field['options_trigger_select'];
-                if (!empty($options_table)) {
-                    $new_field['input']['options']["table"] = $options_table;
-                }
-
-                if (!empty($options_label)) {
-                    $new_field['input']['options']["options_label"] = $options_label;
-                }
-
-                if (!empty($options_trigger_select)) {
-                    $new_field['input']['options']["trigger_select"] = $options_trigger_select;
-                }
+                $new_field['input']['options']["table"] = $options_table;
+                $new_field['input']['options']["options_label"] = $options_label;
+                $new_field['input']['options']["trigger_select"] = $options_trigger_select;
             } elseif ($input == 'file' or $input == 'multifile') {
                 $extensions_allowed = $field['extensions_allowed'];
                 $image_resize = $field['image_resize'];

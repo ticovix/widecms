@@ -98,9 +98,9 @@
                                             <input type="hidden" class="observation-val" name="observation_field[{{i}}]" value="{{set_value('observation_field['~i~']', input.observation)}}">
                                             <input type="hidden" class="position-val" name="position[{{i}}]" value="{{set_value('name_field['~i~']', i)}}">
                                             <!--Inputs of config to select and checkbox-->
-                                            <input type="hidden" class="options-val" name="options_field[{{i}}]" value="{{set_value('options_field['~i~']', input.options_table)}}">
-                                            <input type="hidden" class="label-options-val" name="label_options_field[{{i}}]" value="{{set_value('label_options_field['~i~']', input.options_label)}}">
-                                            <input type="hidden" class="trigger-select-val" name="trigger_select_field[{{i}}]" value="{{set_value('trigger_select_field['~i~']', input.options_trigger_select)}}">
+                                            <input type="hidden" class="options-val" name="options_field[{{i}}]" value="{{set_value('options_field['~i~']', input.options.table)}}">
+                                            <input type="hidden" class="label-options-val" name="label_options_field[{{i}}]" value="{{set_value('label_options_field['~i~']', input.options.options_label)}}">
+                                            <input type="hidden" class="trigger-select-val" name="trigger_select_field[{{i}}]" value="{{set_value('trigger_select_field['~i~']', input.options.options_trigger_select)}}">
                                             <input type="hidden" class="options-selected" name="options_selected[{{i}}]" value="{{set_value('options_selected['~i~']', input.label_options_)}}">
                                             <!--Inputs of config to upload-->
                                             <input type="hidden" class="extensions-allowed-val" name="extensions_allowed[{{i}}]" value="{{set_value('extensions_allowed['~i~']', input.extensions_allowed)}}">
