@@ -76,7 +76,8 @@ class Posts extends MY_Controller
             'name_section' => $section['name'],
             'name_page' => $page['name'],
             'name_project' => $project['name'],
-            'method' => $project['directory'] . '-' . $page['directory'] . '-' . $section['directory']
+            'method' => $project['directory'] . '-' . $page['directory'] . '-' . $section['directory'],
+            'errors' => $this->error_reporting->get_errors()
         ));
 
         $this->include_components->app_js(array(
@@ -375,7 +376,8 @@ class Posts extends MY_Controller
             'name_page' => $page['name'],
             'name_project' => $project['name'],
             'dev_mode' => $this->user_data['dev_mode'],
-            'method' => $project_dir . '-' . $page_dir . '-' . $section_dir
+            'method' => $project_dir . '-' . $page_dir . '-' . $section_dir,
+            'errors' => $this->error_reporting->get_errors()
         ));
 
         $this->include_components->app_css('posts/css/post-form.css');
@@ -456,7 +458,8 @@ class Posts extends MY_Controller
             'name_page' => $page['name'],
             'name_project' => $project['name'],
             'dev_mode' => $this->user_data['dev_mode'],
-            'method' => $project_dir . '-' . $page_dir . '-' . $section_dir
+            'method' => $project_dir . '-' . $page_dir . '-' . $section_dir,
+            'errors' => $this->error_reporting->get_errors()
         ));
 
         $this->include_components->app_css('posts/css/post-form.css');
