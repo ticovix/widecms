@@ -27,7 +27,9 @@
                         {% if pages %}
                             {% set x = 0%}
                             {% for page in pages %}
+                                {% set total_sections = count(page.sections)%}
                                 {% if total_sections > 0 %}
+                                    {% set exists = true%}
                                     <a href="{% if total_sections == 1 and page.sections[0].name == page.name %}{{base_app_url('project/' ~ project.directory ~ '/' ~ page.directory ~ '/' ~ page.sections[0].directory)}}{% else %}#collapse{{x}}{% endif %}" class="page-current list-group-item" {% if total_sections > 1 or total_sections == 1 and page.sections[0].name != page.name%}data-toggle="collapse" data-parent="#accordion" aria-expanded="true" aria-controls="collapse{{x}}"{% endif %}>
                                         {{page.name}}
                                         {% if total_sections > 1 or total_sections == 1 and page.sections[0].name != page.name%}
@@ -36,15 +38,13 @@
                                     </a>
                                     {% if total_sections > 1 or total_sections == 1 and page.sections[0].name != page.name%}
                                         <div id="collapse{{x}}" class="panel-collapse collapse" role="tabpanel">
-                                            {% if total_sections %}
-                                                {% for section in sections %}
-                                                    {% if check_method(project.directory ~ '-' ~ page.directory ~ '-' ~ section.directory)%}
-                                                        <a class="list-group-item" href="{{base_app_url('project/' ~ project.directory ~ '/' ~ page.directory ~ '/' ~ section.directory)}}">
-                                                            &nbsp;&nbsp; {{section.name}}
-                                                        </a>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            {% endif %}
+                                            {% for section in page.sections %}
+                                                {% if check_method(project.directory ~ '-' ~ page.directory ~ '-' ~ section.directory)%}
+                                                    <a class="list-group-item" href="{{base_app_url('project/' ~ project.directory ~ '/' ~ page.directory ~ '/' ~ section.directory)}}">
+                                                        &nbsp;&nbsp; {{section.name}}
+                                                    </a>
+                                                {% endif %}
+                                            {% endfor %}
                                         </div>
                                     {% elseif count(sections == 0 )%}
                                         <ul class="nav nav-list collapse">

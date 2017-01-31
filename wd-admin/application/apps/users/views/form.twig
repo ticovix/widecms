@@ -127,7 +127,7 @@
                                                     {% set check_method_user = check_method(method, app.app, id_user)%}
                                                     {% if check_method or user_data.root == '1' %}
                                                         <tr>
-                                                            <td>{{label}}</td>
+                                                            <td>{{label|raw}}</td>
                                                             <td align="center">
                                                                 <input type="checkbox" data-page="{{app.app ~ '/' ~ page}}" name="{{app.app ~ '-' ~ method}}" value="1" {% if uri.segment(3) == 'create' or check_method_user%} checked="checked" {% endif %} {% if check_app == false %}disabled readonly{% endif %} class="check-permission">
                                                             </td>
@@ -141,7 +141,7 @@
                                                         {% set parent_check_method = check_method(parent_method, app.app, id_user)%}
                                                         {% if check_method or user_data.root == '1'%}
                                                             <tr>
-                                                                <td>&nbsp; - {{label}}</td>
+                                                                <td>&nbsp; - {{label|raw}}</td>
                                                                 <td align="center"><input type="checkbox" data-sub="{{app.app ~ '/' ~ page}}" name="{{app.app ~ '-' ~ method}}" value="1" {% if uri.segment(3) == 'create' or check_method_user %} checked="checked" {% endif %} {% if check_app == false or parent_check_method == false %}disabled readonly{% endif %} class="check-permission"></td>
                                                             </tr>
                                                         {% endif %}
