@@ -149,6 +149,17 @@ require_once('install/action.php');
                                     </div>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label for="language">Language *</label>
+                                        <select id="language" name="language" class="form-control">
+                                            <option value="english" <?php if ($language == 'english') { ?>selected=""<?php } ?>>English (EUA)</option>
+                                            <option value="portuguese-br" <?php if ($language == 'portuguese-br') { ?>selected=""<?php } ?>>Portuguese (Brazil)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="row">

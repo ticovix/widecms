@@ -14,6 +14,7 @@ try {
     $email_user = trim(filter_input(INPUT_POST, 'email_user', FILTER_SANITIZE_STRING));
     $login_user = trim(filter_input(INPUT_POST, 'login_user', FILTER_SANITIZE_STRING));
     $password_user = trim(filter_input(INPUT_POST, 'password_user', FILTER_SANITIZE_STRING));
+    $language = trim(filter_input(INPUT_POST, 'language', FILTER_SANITIZE_STRING));
 
     $request_method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
 
@@ -66,7 +67,7 @@ try {
             throw new Exception('Could not create the default CMS tables in the database.<br><br> Error: ' . $conn->error);
         }
 
-        $config = str_replace('[[encryption_key]]', $encrypt_key, file_get_contents($dir_config));
+        $config = str_replace(array('[[encryption_key]]', '[[language]]'), array($encrypt_key, $language), file_get_contents($dir_config));
         $save_config = file_put_contents($dir_config, $config);
         if (!$save_config) {
             $error = '* Could not create a unique key for the config.php file in "' . $dir_config . '"<br>';
