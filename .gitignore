@@ -1,9 +1,8 @@
-/*
-!wd-admin
-<<<<<<< HEAD
-=======
-wd-admin/application/apps/projects/projects/*
->>>>>>> 0c39200... Alterações no modo de configuração de projetos, páginas e seções
+wd-admin/application/apps/projects/projects
+wd-content/upload
+vendor
+composer.lock
+nbproject
 */config/development
 */logs/log-*.php
 */logs/!index.html

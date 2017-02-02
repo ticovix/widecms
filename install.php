@@ -50,8 +50,8 @@ require_once('install/action.php');
             <div class="row header">
                 <div class="col-lg-offset-3 col-sm-6">
                     <div align="center">
-                        <img src="wd-admin/assets/images/cms_wide.png" class="logo img-responsive">
-                        <strong>Pronto para reduzir seu tempo de trabalho?</strong><br>Preencha as informações abaixo:
+                        <img src="wd-admin/assets/images/widecms.png" class="logo img-responsive">
+                        <strong>Ready to shorten your working time?</strong><br>Fill in the information below:
                     </div>
                 </div>
             </div>
@@ -70,7 +70,7 @@ require_once('install/action.php');
                         <?php
                         if ($success) {
                             ?>
-                            <div class="alert alert-success">Configuração concluida! <a href="wd-admin/">Clique aqui</a> e comece a criar seus projetos.</div>
+                            <div class="alert alert-success">Configuration Complete! <a href="wd-admin/">Click here</a> and start creating your projects.</div>
                             <?php
                         }
                         ?>
@@ -84,7 +84,7 @@ require_once('install/action.php');
                     <div class="row">
                         <div class="col-lg-offset-3 col-sm-6">
                             <div class="title">
-                                <strong>Configure o banco de dados</strong>
+                                <strong>Configure the database</strong>
                             </div>
                             <div class="row">
                                 <div class="col-sm-6">
@@ -95,7 +95,7 @@ require_once('install/action.php');
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label for="database">Banco de dados *</label>
+                                        <label for="database">Database *</label>
                                         <input type="text" id="database" name="database" value="<?php echo $database ?>" class="form-control" placeholder="">
                                     </div>
                                 </div>
@@ -109,7 +109,7 @@ require_once('install/action.php');
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label for="password">Senha</label>
+                                        <label for="password">Password</label>
                                         <input type="password" id="password" name="password" value="<?php echo $password ?>" class="form-control" placeholder="">
                                     </div>
                                 </div>
@@ -119,12 +119,12 @@ require_once('install/action.php');
                     <div class="row">
                         <div class="col-lg-offset-3 col-sm-6">
                             <div class="title">
-                                <strong>Configure o seu usuário no CMS Wide</strong>
+                                <strong>Configure your WIDECMS user</strong>
                             </div>
                             <div class="row">
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label for="name_user">Nome *</label>
+                                        <label for="name_user">Name *</label>
                                         <input type="text" id="name_user" name="name_user" value="<?php echo $name_user ?>" class="form-control">
                                     </div>
                                 </div>
@@ -144,7 +144,7 @@ require_once('install/action.php');
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <label for="password_user">Senha *</label>
+                                        <label for="password_user">Password *</label>
                                         <input type="password" id="password_user" name="password_user" value="<?php echo $password_user ?>" class="form-control" placeholder="">
                                     </div>
                                 </div>
@@ -153,7 +153,7 @@ require_once('install/action.php');
                     </div>
                     <div class="row">
                         <div class="col-lg-offset-3 col-sm-6 text-right form-group">
-                            <input type="submit" class="btn btn-success" value="Instalar">
+                            <input type="submit" class="btn btn-success" value="Install">
                         </div>
                     </div>
                 </form>

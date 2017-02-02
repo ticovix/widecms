@@ -9,4 +9,4 @@ if (!is_dir('vendor')) {
     die();
 }
 
-echo utf8_decode('<h1>Parece que ocorreu tudo bem com a instalação :] <br> <a href="wd-admin">Crie um projeto.</a></h1>');
+echo utf8_decode('<h1>It seems that everything went fine with the installation:] <br> <a href="wd-admin">Create a project.</a></h1>');
