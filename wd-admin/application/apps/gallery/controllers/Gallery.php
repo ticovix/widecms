@@ -242,8 +242,7 @@ class Gallery extends MY_Controller
         $image_text_y = (isset($data->image_text_y)) ? $data->image_text_y : '';
         $image_thumbnails = (isset($data->image_thumbnails) && strpos($data->image_thumbnails, '{') !== false) ? json_decode($data->image_thumbnails) : array();
         $thumbs = array();
-        $this->load->library('upload_verot');
-        $upload = new Upload_verot(PATH_UPLOAD . $file);
+        $upload = new upload(PATH_UPLOAD . $file);
         if (!empty($image_resize)) {
             $upload->image_resize = $image_resize;
         }
@@ -378,8 +377,7 @@ class Gallery extends MY_Controller
             $file = $path . $file;
         }
 
-        $this->load->library('upload_verot');
-        $file_tmp = new Upload_verot($file);
+        $file_tmp = new upload($file);
         if (!$file_tmp->uploaded) {
             $file = 'assets/images/icons/' . $ext . '.png';
             if (!is_file($file)) {
@@ -387,7 +385,7 @@ class Gallery extends MY_Controller
             }
 
             $icon = true;
-            $file_tmp = new Upload_verot($file);
+            $file_tmp = new upload($file);
         }
 
         header('Content-type: ' . $file_tmp->file_src_mime);
