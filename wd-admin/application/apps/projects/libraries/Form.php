@@ -589,9 +589,8 @@ class Form
 
     private function set_plugin($path, $plugin)
     {
-        $CI = &get_instance();
-        $CI->load->library('spyc');
-        $config = $CI->spyc->loadFile($path);
+        $spyc = new Spyc();
+        $config = $spyc->loadFile($path);
         if (is_array($config)) {
             $config['plugin'] = $plugin;
             if (empty($config['name'])) {

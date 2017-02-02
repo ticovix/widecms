@@ -12,8 +12,6 @@ class Apps
             return $this->apps;
         }
 
-        $CI = &get_instance();
-        $CI->load->library('spyc');
         $path_apps = $this->path;
         $this->apps = array();
         $opendir = \opendir($path_apps);
@@ -83,7 +81,8 @@ class Apps
     private function set_app($path, $app)
     {
         $CI = &get_instance();
-        $config = $CI->spyc->loadFile($path, false);
+        $spyc = new Spyc();
+        $config = $spyc->loadFile($path, false);
         if (is_array($config)) {
             $config['app'] = $app;
             if (isset($config['status']) && $config['status'] != 1) {
