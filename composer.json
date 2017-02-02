@@ -16,7 +16,8 @@
 		"components/jqueryui": "^1.12",
 		"components/font-awesome": "^4.6",
 		"components/bootstrap": "^3.3",
-		"twig/twig": "~1.0"
+		"twig/twig": "~1.0",
+		"verot/class.upload.php": "^0.33.0"
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
