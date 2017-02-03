@@ -16,7 +16,6 @@
                 </div>
                 <div class="x_content">
                     {{errors|raw}}
-                    {#!/* if uri.segment('4') != 'edit-section' or uri.segment('4') == 'edit-section' and fields#}
                     {{form_open(current_url() ~ '?' ~ query_string)|raw}}
                     <h3>{{lang.line(APP ~ '_subtitle_data_basic')}}</h3>
                     <p>{{lang.line(APP ~ '_text_data_basic')}}</p>
@@ -101,7 +100,7 @@
                                             <input type="hidden" class="options-val" name="options_field[{{i}}]" value="{{set_value('options_field['~i~']', input.options.table)}}">
                                             <input type="hidden" class="label-options-val" name="label_options_field[{{i}}]" value="{{set_value('label_options_field['~i~']', input.options.options_label)}}">
                                             <input type="hidden" class="trigger-select-val" name="trigger_select_field[{{i}}]" value="{{set_value('trigger_select_field['~i~']', input.options.options_trigger_select)}}">
-                                            <input type="hidden" class="options-selected" name="options_selected[{{i}}]" value="{{set_value('options_selected['~i~']', input.label_options_)}}">
+                                            <input type="hidden" class="options-selected" name="options_selected[{{i}}]" value="{{set_value('options_selected['~i~']', field.options_selected)|raw}}">
                                             <!--Inputs of config to upload-->
                                             <input type="hidden" class="extensions-allowed-val" name="extensions_allowed[{{i}}]" value="{{set_value('extensions_allowed['~i~']', input.extensions_allowed)}}">
                                             <input type="hidden" class="image-resize-val" name="image_resize[{{i}}]" value="{{set_value('image_resize['~i~']', input.image_resize)}}">
