@@ -119,9 +119,9 @@
                                             {% if key != 'id' %}
                                                 <td>
                                                     {% if check_method(method ~ '-edit') %}
-                                                        <a href="{{base_app_url('project/' ~ project_dir ~ '/' ~ page_dir ~ '/' ~ section_dir ~ '/edit/' ~ post.id)}}" class="btn-group-justified">{{value|raw}}</a>
+                                                        <a href="{{base_app_url('project/' ~ project_dir ~ '/' ~ page_dir ~ '/' ~ section_dir ~ '/edit/' ~ post.id)}}" class="btn-group-justified">{{value|default('&nbsp;')|raw}}</a>
                                                     {% else %}
-                                                        {{value}}
+                                                        {{value|raw}}
                                                     {% endif %}
                                                 </td>
                                             {% endif %}
