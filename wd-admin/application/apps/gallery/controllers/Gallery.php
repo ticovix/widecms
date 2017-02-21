@@ -220,16 +220,16 @@ class Gallery extends MY_Controller
 
     private function config_upload($data, $file)
     {
-        $image_resize = (isset($data->image_resize)) ? to_boolean($data->image_resize) : '';
+        $image_resize = (isset($data->image_resize)) ? boolval($data->image_resize) : '';
         $image_y = (isset($data->image_y)) ? $data->image_y : '';
         $image_x = (isset($data->image_x)) ? $data->image_x : '';
-        $image_ratio = (isset($data->image_ratio)) ? to_boolean($data->image_ratio) : '';
+        $image_ratio = (isset($data->image_ratio)) ? boolval($data->image_ratio) : '';
         $image_ratio_x = (isset($data->image_ratio_x)) ? $data->image_ratio_x : '';
         $image_ratio_y = (isset($data->image_ratio_y)) ? $data->image_ratio_y : '';
-        $image_ratio_crop = (isset($data->image_ratio_crop)) ? to_boolean($data->image_ratio_crop) : '';
-        $image_ratio_fill = (isset($data->image_ratio_fill)) ? to_boolean($data->image_ratio_fill) : '';
+        $image_ratio_crop = (isset($data->image_ratio_crop)) ? boolval($data->image_ratio_crop) : '';
+        $image_ratio_fill = (isset($data->image_ratio_fill)) ? boolval($data->image_ratio_fill) : '';
         $image_background_color = (isset($data->image_background_color)) ? $data->image_background_color : '';
-        $image_convert = (isset($data->image_convert)) ? to_boolean($data->image_convert) : '';
+        $image_convert = (isset($data->image_convert)) ? boolval($data->image_convert) : '';
         $image_text = (isset($data->image_text)) ? $data->image_text : '';
         $image_text_color = (isset($data->image_text_color)) ? $data->image_text_color : '';
         $image_text_background = (isset($data->image_text_background)) ? $data->image_text_background : '';
