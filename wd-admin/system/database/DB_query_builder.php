@@ -2458,25 +2458,4 @@ abstract class CI_DB_query_builder extends CI_DB_driver
             'qb_limit' => FALSE
         ));
     }
-
-    /**
-     * Prepare
-     *
-     * Compiles the select statement based on the other functions called
-     * and runs the query
-     *
-     * @param	string	the table
-     * @param	array	the where
-     * @param	string	the limit clause
-     * @param	string	the offset clause
-     * @return	CI_DB_result
-     */
-    public function prepare($table = '', $where = NULL, $limit = NULL, $offset = NULL)
-    {
-        $GLOBALS['HELPER']->table = $table;
-        $GLOBALS['HELPER']->where = $where;
-        $GLOBALS['HELPER']->limit = $limit;
-        $GLOBALS['HELPER']->offset = $offset;
-        return $GLOBALS['HELPER']->get($this);
-    }
 }

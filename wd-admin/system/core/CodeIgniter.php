@@ -321,13 +321,6 @@ $LANG = & load_class('Lang', 'core');
 
 /*
  * ------------------------------------------------------
- *  Load the Helper CMS WIDE
- * ------------------------------------------------------
- */
-$HELPER = & load_class('Helper', 'core/cmswide');
-
-/*
- * ------------------------------------------------------
  *  Load the app controller and local controller
  * ------------------------------------------------------
  *
@@ -342,10 +335,10 @@ require_once BASEPATH . 'core/Controller.php';
  *
  * @return CI_Controller
  */
-function &get_instance() {
+function &get_instance()
+{
     return CI_Controller::get_instance();
 }
-
 if (file_exists(APPPATH . 'core/' . $CFG->config['subclass_prefix'] . 'Controller.php')) {
     require_once APPPATH . 'core/' . $CFG->config['subclass_prefix'] . 'Controller.php';
 }
