@@ -443,7 +443,7 @@ class Sections extends MY_Controller
             $remove = (boolean) $field['remove'];
 
             if (isset($old_fields[$x]) && $remove) {
-                $this->remove_field($field);
+                $this->remove_field($field, $table);
             } elseif (isset($old_fields[$x])) {
                 $old = $old_fields[$x]['database'];
                 $old_column = $old['column'];
@@ -478,9 +478,9 @@ class Sections extends MY_Controller
         return $this->sections_model->create($new_config, $project_dir, $page_dir, $data['directory']);
     }
 
-    private function remove_field($data)
+    private function remove_field($data, $table)
     {
-        $remove = $this->sections_model->remove_column($data);
+        $remove = $this->sections_model->remove_column($data, $table);
         if (!$remove) {
             $this->error_reporting->set_error(sprintf($this->lang->line(APP . '_not_allowed_column_remove'), $data['old_column']));
         }

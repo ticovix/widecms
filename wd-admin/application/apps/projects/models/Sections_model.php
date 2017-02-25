@@ -258,10 +258,9 @@ class Sections_model extends CI_Model
         return $check;
     }
 
-    public function remove_column($data)
+    public function remove_column($data, $table)
     {
-        $table = $data['table'];
-        $column = $data['old_column'];
+        $column = $data['column'];
         $this->load->dbforge();
         $remove = $this->dbforge->drop_column($table, $column);
         return $remove;
