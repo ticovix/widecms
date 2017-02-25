@@ -338,19 +338,21 @@ class Sections_model extends CI_Model
         $this->load->model_app('projects_model');
         $this->load->model_app('pages_model');
         $projects = $this->projects_model->list_projects();
-        if ($projects) {
-            foreach ($projects as $project) {
-                $project_dir = $project['directory'];
-                $pages = $this->pages_model->list_pages($project_dir);
-                if ($pages) {
-                    foreach ($pages as $page) {
-                        $page_dir = $page['directory'];
-                        $sections = $this->list_sections($project_dir, $page_dir);
-                        if ($sections) {
-                            foreach ($sections as $section) {
-                                if ($section['table'] === $table) {
-                                    return true;
-                                }
+        if (!$projects) {
+            return false;
+        }
+
+        foreach ($projects as $project) {
+            $project_dir = $project['directory'];
+            $pages = $this->pages_model->list_pages($project_dir);
+            if ($pages) {
+                foreach ($pages as $page) {
+                    $page_dir = $page['directory'];
+                    $sections = $this->list_sections($project_dir, $page_dir);
+                    if ($sections) {
+                        foreach ($sections as $section) {
+                            if ($section['table'] === $table) {
+                                return true;
                             }
                         }
                     }
