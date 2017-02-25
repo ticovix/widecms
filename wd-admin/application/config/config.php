@@ -510,3 +510,15 @@ $config['rewrite_short_tags'] = FALSE;
   | Array:		array('10.0.1.200', '192.168.5.0/24')
  */
 $config['proxy_ips'] = '';
+
+/*
+  |--------------------------------------------------------------------------
+  | Google Recaptcha
+  |--------------------------------------------------------------------------
+  |
+  | Fill out below to activate login with google recaptcha
+  | https://www.google.com/recaptcha
+ */
+
+$config['site_key'] = '';
+$config['secret_key'] = '';

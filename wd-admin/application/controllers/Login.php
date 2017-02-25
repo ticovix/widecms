@@ -6,22 +6,33 @@ class Login extends CI_Controller
 {
     private $max_attempts = 3;
     private $path_captcha = 'assets/captcha/';
+    private $data = array();
+    private $secret_key, $site_key, $recaptcha;
 
     public function __construct()
     {
         parent::__construct();
         $this->load->app('users')->model('users_model');
         $this->load->library('form_validation');
+        $this->secret_key = $this->config->config['secret_key'];
+        $this->site_key = $this->config->config['site_key'];
+        $this->recaptcha = (!empty($this->secret_key) && !empty($this->site_key));
+        $this->data['recaptcha'] = $this->recaptcha;
+        $this->data['site_key'] = $this->site_key;
     }
 
     public function index()
     {
         $this->lang->load('cms/login/login');
 
-        $captcha = false;
+        if ($this->recaptcha) {
+            $this->form_validation->set_rules('g-recaptcha-response', 'Recaptcha', 'callback_check_recaptcha');
+        } else {
+            $this->form_validation->set_rules('captcha', $this->lang->line('login_captcha_field'), 'callback_check_captcha');
+        }
+
         $this->form_validation->set_rules('login', $this->lang->line('login_login_field'), 'trim|required');
         $this->form_validation->set_rules('password', $this->lang->line('login_password_field'), 'trim|callback_auth_account');
-        $this->form_validation->set_rules('captcha', $this->lang->line('login_captcha_field'), 'callback_check_captcha');
         $run = $this->form_validation->run();
         if ($run) {
             $this->session->set_userdata('attempts', 0);
@@ -29,17 +40,19 @@ class Login extends CI_Controller
 
             redirect($url);
         }
+
+        $captcha = false;
         $validation_errors = validation_errors();
-        if (!empty($validation_errors)) {
+        if (!empty($validation_errors) && !$this->recaptcha) {
             $captcha = $this->protection_brute_force();
         }
 
-        $data = array(
+        $this->data = array_merge($this->data, array(
             'title' => $this->lang->line('login_title'),
             'captcha' => $captcha,
             'lang' => $this->lang
-        );
-        echo $this->load->render('login/login.twig', $data);
+        ));
+        echo $this->load->render('login/login.twig', $this->data);
     }
 
     private function protection_brute_force()
@@ -49,15 +62,15 @@ class Login extends CI_Controller
         if ($attempts > $this->max_attempts) {
             $this->load->helper('captcha');
             $random_number = substr(number_format(time() * rand(), 0, '', ''), 0, 6);
-            $vals = array(
+            $config = array(
                 'word' => $random_number,
                 'img_path' => $this->path_captcha,
                 'img_url' => base_url($this->path_captcha),
-                'img_width' => 350,
+                'img_width' => 304,
                 'img_height' => 55,
                 'expiration' => 900
             );
-            $captcha = create_captcha($vals);
+            $captcha = create_captcha($config);
             $this->session->set_userdata('captchaWord', $captcha['word']);
 
             return $captcha;
@@ -69,47 +82,40 @@ class Login extends CI_Controller
     public function check_captcha($str)
     {
         $attempts = $this->session->userdata('attempts');
-        // Maximo de 3 tentativas para exibir o captcha
         if ($attempts > $this->max_attempts) {
             $word = $this->session->userdata('captchaWord');
             if (strcmp(strtoupper($str), strtoupper($word)) == 0) {
                 return true;
             } else {
-                $this->form_validation->set_message('check_captcha', $this->lang->line('login_error_captcha_invalid'));
+                $this->form_validation->set_message('check_captcha', $this->lang->line('login_error_invalid_captcha'));
                 return false;
             }
         }
 
         return true;
     }
-    /*
-     * Método para autenticar login
-     */
 
     public function auth_account($password)
     {
         $user = $this->input->post('login');
 
-        // Busca conta pelo login informado
         $account = $this->users_model->user_exists($user);
         $pass = $account['password'];
         $id = $account['id'];
+
         if (!$account) {
             $this->form_validation->set_message('auth_account', sprintf($this->lang->line('login_error_invalid_login'), base_url('login/recovery')));
             return false;
         }
 
-        // Inicia helper PasswordHash
         $this->load->helper('passwordhash');
         $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
-        // Verifica se a senha confere
         if (!$PasswordHash->CheckPassword($password, $pass)) {
             $this->form_validation->set_message('auth_account', sprintf($this->lang->line('login_error_invalid_login'), base_url('login/recovery')));
 
             return false;
         }
 
-        // Cria sessão
         $this->session->set_userdata([
             'id' => $id,
             'logged_in' => true
@@ -121,12 +127,16 @@ class Login extends CI_Controller
     public function recovery()
     {
         $this->lang->load('cms/login/recovery');
-        $this->form_validation->set_rules('captcha', $this->lang->line('recovery_captcha_field'), 'callback_check_captcha_recovery');
+        if ($this->recaptcha) {
+            $this->form_validation->set_rules('g-recaptcha-response', 'Recaptcha', 'callback_check_recaptcha_recovery');
+        } else {
+            $this->form_validation->set_rules('captcha', $this->lang->line('recovery_captcha_field'), 'callback_check_captcha_recovery');
+        }
+
         $this->form_validation->set_rules('email', $this->lang->line('recovery_email_field'), 'trim|required|valid_email|callback_check_status_user');
         if ($this->form_validation->run()) {
             $user = $this->user;
             if ($user) {
-                // Inicia helper PasswordHash
                 $this->load->helper('passwordhash');
                 $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
                 $token_val = md5(uniqid(rand(), true));
@@ -151,31 +161,59 @@ class Login extends CI_Controller
             redirect('login/recovery?send=true');
         }
 
+        if (!$this->recaptcha) {
+            $this->data['captcha'] = $this->recovery_captcha();
+        }
+
+        $this->data = array_merge($this->data, array(
+            'title' => $this->lang->line('recovery_title'),
+            'sended' => ($this->input->get('send') === 'true'),
+            'lang' => $this->lang
+        ));
+        echo $this->load->render('login/recovery.twig', $this->data);
+    }
+
+    private function recovery_captcha()
+    {
         $this->load->helper('captcha');
-        // numeric random number for captcha
         $random_number = substr(number_format(time() * rand(), 0, '', ''), 0, 6);
-        // setting up captcha config
-        $vals = array(
+        $config = array(
             'word' => $random_number,
             'img_path' => $this->path_captcha,
             'img_url' => base_url($this->path_captcha),
-            'img_width' => 350,
+            'img_width' => 304,
             'img_height' => 55,
             'expiration' => 900
         );
-        $captcha = create_captcha($vals);
+        $captcha = create_captcha($config);
         $this->session->set_userdata('captchaWordRecovery', $captcha['word']);
-        $data = array(
-            'title' => $this->lang->line('recovery_title'),
-            'captcha' => $captcha,
-            'sended' => ($this->input->get('send') === 'true'),
-            'lang' => $this->lang
-        );
-        echo $this->load->render('login/recovery.twig', $data);
+
+        return $captcha;
     }
-    /*
-     * Método para checar captcha da página de recuperação de senha
-     */
+
+    public function check_recaptcha($captcha)
+    {
+        $recaptcha = new ReCaptcha\ReCaptcha($this->secret_key);
+        $resp = $recaptcha->verify($captcha, $this->input->server('REMOTE_ADDR'));
+        if (!$resp->isSuccess()) {
+            $this->form_validation->set_message('check_recaptcha', sprintf($this->lang->line('login_error_invalid_recaptcha')));
+            return false;
+        }
+
+        return true;
+    }
+
+    public function check_recaptcha_recovery($captcha)
+    {
+        $recaptcha = new ReCaptcha\ReCaptcha($this->secret_key);
+        $resp = $recaptcha->verify($captcha, $this->input->server('REMOTE_ADDR'));
+        if (!$resp->isSuccess()) {
+            $this->form_validation->set_message('check_recaptcha_recovery', sprintf($this->lang->line('recovery_error_invalid_recaptcha')));
+            return false;
+        }
+
+        return true;
+    }
 
     public function check_captcha_recovery($str)
     {
@@ -183,7 +221,7 @@ class Login extends CI_Controller
         if (strcmp(strtoupper($str), strtoupper($word)) == 0) {
             return true;
         } else {
-            $this->form_validation->set_message('check_captcha_recovery', $this->lang->line('recovery_error_captcha_invalid'));
+            $this->form_validation->set_message('check_captcha_recovery', $this->lang->line('recovery_error_invalid_captcha'));
             return false;
         }
 
@@ -221,7 +259,6 @@ class Login extends CI_Controller
         $this->form_validation->set_rules('pass', $this->lang->line('redefine_pass_field'), 'required|trim|min_length[3]');
         $this->form_validation->set_rules('re_pass', $this->lang->line('redefine_repass_field'), 'required|trim|matches[pass]');
         if ($this->form_validation->run()) {
-            // Inicia helper PasswordHash
             $this->load->helper('passwordhash');
             $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
             $pass = $PasswordHash->HashPassword($this->input->post('pass'));
@@ -229,14 +266,14 @@ class Login extends CI_Controller
             redirect('login/redefine-pass?send=true');
         }
 
-        $data = array(
+        $this->data = array_merge($this->data, array(
             'title' => $this->lang->line('redefine_title'),
             'token' => $token,
             'login' => $login,
             'sended' => ($this->input->get('send') === 'true'),
             'lang' => $this->lang
-        );
-        echo $this->load->render('login/redefine-pass.twig', $data);
+        ));
+        echo $this->load->render('login/redefine-pass.twig', $this->data);
     }
 
     private function verify_token($token, $login)
@@ -247,7 +284,6 @@ class Login extends CI_Controller
         }
 
         $token_val = $user['recovery_token'];
-        // Inicia helper PasswordHash
         $this->load->helper('passwordhash');
         $PasswordHash = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
         if (!$PasswordHash->CheckPassword($token_val, $token)) {

@@ -3,7 +3,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 $lang['recovery_title'] = 'Recuperar senha';
-$lang['recovery_text_about_recovery'] = 'Para maior segurança as senhas do sistema são criptografadas, não é possível recuperar, porém é possível redefinir. <strong>Digite o e-mail do seu usuário cadastrado:</strong>';
+$lang['recovery_text_about_recovery'] = 'Para maior segurança as senhas do sistema são criptografadas, não é possível recuperar, porém é possível redefinir. <br><strong>Digite o e-mail do seu usuário cadastrado:</strong>';
 $lang['recovery_captcha_field'] = 'Captcha';
 $lang['recovery_email_field'] = 'E-mail';
 $lang['recovery_captcha_field'] = 'Digite o texto da imagem';
@@ -17,5 +17,6 @@ $lang['recovery_email_message'] = 'Você solicitou a redefinição de senha? Se 
 
 /* ERRORS */
 $lang['recovery_error_user_blocked'] = 'Conta bloqueada, não é possível recuperar senha, entre em contato com o administrador.';
-$lang['recovery_error_captcha_invalid'] = 'Digite corretamente o que vê na imagem.';
+$lang['recovery_error_invalid_recaptcha'] = 'Recaptcha inválido. Para solicitar redefinição de senha é necessário marcar a caixa de recaptcha.';
+$lang['recovery_error_invalid_captcha'] = 'Digite corretamente o que vê na imagem.';
 
