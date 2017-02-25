@@ -17,7 +17,7 @@ $(function () {
         var self = this;
         var config = {
             limit_select: null, // multiple default
-            files_selecteds: [], // String or Object
+            files_selecteds: [], // String or array
             saved_list: [],
             complete: function (files) {}, // callback function
             /*Config upload*/
@@ -51,9 +51,9 @@ $(function () {
             container_modal: ".main_container > .right_col",
             btn_save: ".gallery-upload-modal #btn-save-change",
             btn_add: ".gallery-upload-modal #list-files .btn-add",
-            modal_footer: ".modal-footer",
+            modal_footer: ".gallery-upload-modal .modal-footer",
             upload_config: "#upload_config",
-            image_file: ".image-file",
+            image_file: ".gallery-upload-modal .image-file",
             current_file: ".file",
             fancybox: ".fancybox",
             input_search: ".gallery-upload-modal #search-files",
@@ -117,7 +117,7 @@ $(function () {
         var treat_list_selected = function (el) {
             config.files_selecteds = JSON.parse(JSON.stringify(config.saved_list));
             var files = config.files_selecteds;
-            if (files !== null && typeof files != 'object') {
+            if (files !== null && typeof files != 'array') {
                 files = new Array();
                 files[0] = files;
             }
@@ -129,7 +129,7 @@ $(function () {
                 param.url = url + "apps/gallery/files-list"
             }
 
-            content.html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>');
+            content.html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>');
             var config_upload = $(selector.upload_config).val();
             $.ajax({
                 url: param.url,
@@ -165,25 +165,16 @@ $(function () {
 
         // public method
         this.delete_file = function (file) {
-            var self = this;
             var files = config.files_selecteds;
             if (files == undefined || typeof files != "object") {
-                files = new Object();
+                files = new Array();
             }
 
             var new_list = new Array();
-            var total = Object.keys(files).length;
-            var x = 0;
-            if (typeof files[0] === "undefined") {
-                files = new Array(files);
-                total = 1;
-            }
-
-            for (var i = 0; i < total; i++) {
-                var file_current = files[i];
+            for (var x = 0; x<files.length; x++){
+                var file_current = files[x];
                 if (file_current != file) {
-                    new_list[x] = file_current;
-                    x++;
+                    new_list.push(file_current);
                 }
             }
 
@@ -194,10 +185,10 @@ $(function () {
         this.add_file = function (file) {
             var files = config.files_selecteds;
             if (files == undefined || typeof files != "object") {
-                files = new Object();
+                files = new Array();
             }
 
-            var file_current = Object.keys(files).length;
+            var file_current = files.length;
             files[file_current] = file;
 
             config.files_selecteds = files;
@@ -218,7 +209,6 @@ $(function () {
 
             $(modal).modal("show");
             $(modal).attr("id", selector.current_modal.replace("#", ""));
-            console.log(limit_select);
             if (permissions.app !== true || limit_select === 1) {
                 $(modal_footer).addClass("hide");
             } else {

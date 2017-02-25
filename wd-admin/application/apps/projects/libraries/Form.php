@@ -408,30 +408,23 @@ class Form
             }
 
             foreach ($files as $file) {
-                if (!is_object($file)) {
-                    $file = (object) $file;
-                }
-                $file_ = $file->file;
-                $title = $file->title;
-                $checked = $file->checked;
                 if (!empty($file)) {
-                    if ($checked == true) {
-                        $active = 'active';
-                    } else {
-                        $active = '';
-                    }
-                    $ctt .= '<div class="files-list thumbnail ' . $active . '">';
+                    $ctt .= '<div class="files-list image-file">';
                     if ($edit_file) {
-                        $ctt .= '<a href="javascript:void(0);" data-toggle="modal" data-target="#modal-edit" title="' . $title . '" data-file="' . $file_ . '" class="btn-edit-file">';
+                        $ctt .= '<a href="' . wd_base_url('wd-content/upload/' . $file) . '" class="fancybox" rel="gallery" data-fancybox-group="gallery" data-file="' . $file . '">';
                     }
-                    $ctt .= '<img src="' . base_url('apps/gallery/image/thumb/' . $file_) . '" class="img-responsive">';
+
+                    $ctt .= '<img src="' . base_url('apps/gallery/image/thumb/' . $file) . '" class="img-responsive">';
                     if ($edit_file) {
                         $ctt .= '</a>';
+                        $ctt .= '<a href="javascript:void(0);" class="btn-remove-file" data-file="' . $file . '"><span class="fa fa-remove"></span></a>';
                     }
+
                     $ctt .= '</div>';
                 }
             }
         }
+
         $ctt .= '</div>';
         return $ctt;
     }
