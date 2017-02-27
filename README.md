@@ -6,9 +6,9 @@ Para usar o CMS é necessário ter instalado php5.4+ (recomendado 5.6) e mysql, 
 Para que não haja erros na instalação, certifique-se que o usuário tenha permissão de inserir banco de dados e tabelas no mysql, certifique-se também de verificar se o usuário tem permissões para criar e modificar arquivos.
 
 ## Banco de dados organizado
-Diferente de outros CMS, a partir do momento que você cria as páginas de gerenciamento, você também cria a estrutura do banco de dados, como tabelas e colunas.
+Diferente de outros CMS, a partir do momento que você cria as páginas de gerenciamento, você também cria a estrutura do banco de dados, como tabelas e colunas de modo personalizável.
 
-## Estrutura organizada em HMVC com maior reaproveitamento do código
+## Maior reaproveitamento do código
 O CMS Wide foi desenvolvido em cima do framework Codeigniter 3. A parte administrativa foi modificada para trabalhar com HMVC, basicamente todos aplicativos e módulos tem seu próprio MVC tornando assim o código ainda mais reutilizável.
 
 ## Múltiplos projetos
