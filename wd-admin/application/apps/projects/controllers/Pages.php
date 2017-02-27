@@ -153,7 +153,7 @@ class Pages extends MY_Controller
             $name = $this->input->post('name');
             $status = $this->input->post('status');
             if ($page['name'] != $name) {
-                $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'required|is_unique[wd_pages.name]');
+                $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'required');
             }
 
             if ($this->form_validation->run()) {
@@ -170,6 +170,7 @@ class Pages extends MY_Controller
 
                     rename($project_dir . $page['directory'], $project_dir . $page_dir);
                 }
+
                 $data = array(
                     'name' => $name,
                     'status' => $status,
