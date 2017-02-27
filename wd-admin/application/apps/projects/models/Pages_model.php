@@ -90,34 +90,6 @@ class Pages_model extends CI_Model
         $this->save($set, $data['project_dir'], $data['directory']);
     }
 
-    public function edit($data)
-    {
-        $set = array(
-            'name' => $data['name'],
-            'status' => $data['status'],
-            'slug' => $data['slug'],
-            'directory' => $data['slug']
-        );
-        $where = array(
-            'id' => $data['id_page']
-        );
-        $this->db->update('wd_pages', $set, $where);
-    }
-
-    public function remove($page)
-    {
-        $sections = $this->db->get_where('wd_sections', array('fk_page' => $page))->result_array();
-        if ($sections) {
-            $this->load->model_app('sections_model');
-            foreach ($sections as $section) {
-                $table = $section['table'];
-                $id = $section['id'];
-                $this->sections_model->remove($table, $id);
-            }
-        }
-        return $this->db->delete('wd_pages', array('id' => $page));
-    }
-
     public function list_pages_permissions($project_dir)
     {
         $list_pages = $this->list_pages($project_dir);
