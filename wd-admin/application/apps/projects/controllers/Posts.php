@@ -157,10 +157,10 @@ class Posts extends MY_Controller
                     );
                     $attr['class'] .= ' chosen-select trigger-select ';
                     if (!empty($column_trigger)) {
-                        $field_trigger = search($fields, 'column', $column_trigger);
+                        $field_trigger = $this->form->search_field($column_trigger, $fields);
                         if ($field_trigger) {
-                            $label_trigger = $field_trigger[0]['input']['label'];
-                            $table_trigger = $field_trigger[0]['input']['options_table'];
+                            $label_trigger = $field_trigger['input']['options']['options_label'];
+                            $table_trigger = $field_trigger['input']['options']['table'];
                             $value_trigger = $this->input->get($column_trigger);
                             $attr['class'] .= 'trigger-' . $column_trigger;
                             if (!empty($value_trigger)) {
