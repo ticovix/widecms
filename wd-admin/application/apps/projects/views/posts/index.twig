@@ -46,7 +46,7 @@
                                         <label>{{input.label}}</label>
 
                                         <div class="{% if has_type_search %}input-group{% endif %}">
-                                            {{input_html|raw}}
+                                            {{input.html|raw}}
                                             {% if has_type_search %}
                                                 <div class="dropdown input-group-addon">
                                                     <a href="javascript:void(0);" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fa fa-cog"></span></a>
