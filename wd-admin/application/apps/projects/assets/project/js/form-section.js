@@ -371,6 +371,7 @@ $(function () {
                     add_thumbnail({});
                 }
             }
+
             if (options_selected != "" && options_selected != "[]" && options_selected != undefined) {
                 options_selected = $.parseJSON(options_selected);
                 label_options_field.html("");
@@ -383,6 +384,8 @@ $(function () {
 
                 label_options_field.val(label_options_val);
             }
+
+            list_selects_trigger(column_val);
 
             name_field.val(name_val);
             type_input_field.val(input_val);
@@ -424,7 +427,6 @@ $(function () {
             if_input_select();
             if_image_resize();
             refresh_image_example();
-            list_selects_trigger(column_val);
         }
     });
 
