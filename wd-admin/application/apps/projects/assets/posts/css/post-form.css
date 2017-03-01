@@ -22,3 +22,13 @@
     padding-top: 5px;
     font-style: italic;
 }
+
+.btn-remove-file .fa-remove{
+    position: absolute;
+    bottom: 5px;
+    color: #000;
+    text-shadow: #fff 0px 2px;
+    font-size: 18px;
+    left:50%;
+    margin-left:-5px;
+}
