@@ -9,7 +9,7 @@ class Gallery_widget
         $CI = & get_instance();
         $CI->load->library('form_validation');
         $CI->load->app('gallery')->model('files_model');
-        $files = $CI->files_model->search('', $this->limit);
+        $files = $CI->files_model->search('', null, null, $this->limit);
         if (check_method('upload', 'gallery')) {
             $CI->include_components->main_js(array(
                 'plugins/dropzone/js/dropzone.js'
