@@ -51,7 +51,7 @@
                                 {% for key, value in post %}
                                     {% if key != 'id'%}
                                         <td>
-                                            {{value}}
+                                            {{value|raw}}
                                         </td>
                                     {% endif %}
                                 {% endfor %}
