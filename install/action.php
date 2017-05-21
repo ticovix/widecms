@@ -40,12 +40,17 @@ try {
         if (!is_writable($dir_database)) {
             throw new Exception('Can not write to "database.php" file in "' . $dir_database . '".');
         }
+
         if (!is_writable($dir_sql_database)) {
             throw new Exception('Can not write to file "widecms_db.sql" in "' . $dir_sql_database . '".');
         }
 
         if (empty($host)) {
             $host = 'localhost';
+        }
+
+        if (!class_exists('mysqli')) {
+            throw new Exception('Class mysqli was not found.');
         }
 
         error_reporting(0);
