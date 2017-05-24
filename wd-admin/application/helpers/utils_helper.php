@@ -242,7 +242,7 @@ if (!function_exists('base_app_url')) {
 
 if (!function_exists('app_redirect')) {
 
-    function app_redirect($url, $method = 'auto', $code = null)
+    function app_redirect($url = '', $method = 'auto', $code = null)
     {
         if (strpos($url, '://') === false) {
             $url = APP_PATH . $url;
