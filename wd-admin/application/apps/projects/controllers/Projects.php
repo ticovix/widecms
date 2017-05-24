@@ -328,8 +328,8 @@ class Projects extends MY_Controller
 
     private function delete_tables($project)
     {
-        $this->load->model_app('pages_model');
-        $this->load->model_app('sections_model');
+        $this->load->app()->model('pages_model');
+        $this->load->app()->model('sections_model');
         $project_dir = $project['directory'];
         $pages = $this->pages_model->list_pages($project_dir);
         if ($pages) {
