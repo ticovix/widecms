@@ -359,9 +359,9 @@ class Gallery extends MY_Controller
      * Método para criar imagem de exibição com tamanho especifico
      */
 
-    public function image($type, $file)
+    public function image($type)
     {
-        $file = urldecode($file);
+        $file = urldecode($this->input->get('file'));
         $path = PATH_UPLOAD;
         $is_image = array('jpg', 'png', 'gif', 'jpeg');
         $explode_file = explode('.', $file);

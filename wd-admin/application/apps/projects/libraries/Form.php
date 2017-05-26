@@ -414,7 +414,7 @@ class Form
                         $ctt .= '<a href="' . wd_base_url('wd-content/upload/' . $file) . '" class="fancybox" rel="gallery" data-fancybox-group="gallery" data-file="' . $file . '">';
                     }
 
-                    $ctt .= '<img src="' . base_url('apps/gallery/image/thumb/' . $file) . '" class="img-responsive">';
+                    $ctt .= '<img src="' . base_url('apps/gallery/image/thumb?file=' . $file) . '" class="img-responsive">';
                     if ($edit_file) {
                         $ctt .= '</a>';
                         $ctt .= '<a href="javascript:void(0);" class="btn-remove-file" data-file="' . $file . '"><span class="fa fa-remove"></span></a>';

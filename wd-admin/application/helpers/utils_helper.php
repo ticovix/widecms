@@ -161,9 +161,7 @@ if (!function_exists('get_project')) {
         }
     }
 }
-/*
- * Método para listar página
- */
+
 if (!function_exists('get_page')) {
 
     function get_page()
@@ -180,9 +178,7 @@ if (!function_exists('get_page')) {
         }
     }
 }
-/*
- * Método para listar seção
- */
+
 if (!function_exists('get_section')) {
 
     function get_section($section = null)
@@ -202,6 +198,7 @@ if (!function_exists('get_section')) {
         }
     }
 }
+
 if (!function_exists('func_only_dev')) {
 
     function func_only_dev()
@@ -213,6 +210,7 @@ if (!function_exists('func_only_dev')) {
         }
     }
 }
+
 if (!function_exists('segments')) {
 
     function segments()

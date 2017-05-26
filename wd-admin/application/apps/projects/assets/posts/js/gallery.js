@@ -140,7 +140,7 @@ $(function () {
         $(".content-files").eq(index).html("");
         for (var i = 0; i < total; i++) {
             var file = my_new_list[i];
-            var img = $("<img>").addClass("img-responsive").attr("src", url + "apps/gallery/image/thumb/" + file);
+            var img = $("<img>").addClass("img-responsive").attr("src", url + "apps/gallery/image/thumb?file=" + file);
             var btn_remove = $("<span>").addClass("fa fa-remove");
             var div = $("<div>").addClass("files-list image-file")
                     .append(
