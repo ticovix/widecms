@@ -231,7 +231,7 @@ class Pages extends MY_Controller
 
     private function delete_tables($project, $page)
     {
-        $this->load->model_app('sections_model');
+        $this->load->app()->model('sections_model');
         $project_dir = $project['directory'];
         $page_dir = $page['directory'];
         $sections = $this->sections_model->list_sections($project_dir, $page_dir);
