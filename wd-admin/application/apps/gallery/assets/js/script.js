@@ -113,6 +113,7 @@ $(function () {
             success: function (data) {
                 var template = new EJS({url: app_assets + "ejs/gallery/file-edit.ejs"}).render({data: data, url: url, app_path: app_path});
                 content.html(template);
+                load_fancybox();
             }
         });
     });
