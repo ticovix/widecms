@@ -107,7 +107,7 @@ class Projects extends MY_Controller
                     $this->extractProject($data);
                 }
 
-                redirect();
+                redirect('apps/projects');
             }
 
             $validation_errors = validation_errors();
