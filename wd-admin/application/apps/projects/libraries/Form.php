@@ -110,7 +110,7 @@ class Form
                 $method_exists = method_exists($class, 'output');
                 if ($method_exists) {
                     $class = strtolower($class);
-                    $this->value = $CI->$class->output($this->value, $this->field, $this->fields);
+                    $this->value = $CI->$class->output($this->value, $this->field, $this->fields, 'form');
                 }
             }
         }
@@ -443,7 +443,7 @@ class Form
         return $field_find;
     }
 
-    public function treat_list($posts, $section)
+    public function treat_list($posts, $section, $page = null)
     {
         if (!$posts) {
             return false;
@@ -458,7 +458,7 @@ class Form
                     $type = strtolower($input['type']);
                     if (isset($input['plugins']) && !empty($input['plugins'])) {
                         $plugins = $input['plugins'];
-                        $value = $this->plugins_output($plugins, $value, $field, $section);
+                        $value = $this->plugins_output($plugins, $value, $field, $section, $page);
                     }
 
                     switch ($type) {
@@ -484,7 +484,7 @@ class Form
         return $list;
     }
 
-    private function plugins_output($plugins, $value, $field, $fields)
+    private function plugins_output($plugins, $value, $field, $fields, $page = null)
     {
         $type = $field['input']['type'];
         $get_plugins = $this->get_plugins($plugins);
@@ -498,7 +498,7 @@ class Form
                     $CI->load->app()->library('../plugins_input/' . $plugin . '/' . $class . '.php');
                     if (method_exists($class, 'output')) {
                         $class = strtolower($class);
-                        $value = $CI->$class->output($value, $field, $fields);
+                        $value = $CI->$class->output($value, $field, $fields, $page);
                     }
                 }
             }

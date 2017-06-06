@@ -102,7 +102,7 @@ class Posts extends MY_Controller
             'name_app' => $this->app_data['name'],
             'list' => $section['list'],
             'total_list' => (count($section['list']) + 1),
-            'posts' => $this->form->treat_list($posts['rows'], $section),
+            'posts' => $this->form->treat_list($posts['rows'], $section, 'search'),
             'section_dir' => $section['directory'],
             'project_dir' => $project['directory'],
             'page_dir' => $page['directory'],
@@ -543,7 +543,7 @@ class Posts extends MY_Controller
         $this->data = array_merge($this->data, array(
             'title' => $this->lang->line(APP . '_title_remove'),
             'list' => $section['list'],
-            'posts' => $this->form->treat_list($posts, $section),
+            'posts' => $this->form->treat_list($posts, $section, 'remove'),
             'name_app' => $this->app_data['name'],
             'project_dir' => $project_dir,
             'page_dir' => $page_dir,
