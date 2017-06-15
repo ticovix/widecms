@@ -578,7 +578,7 @@ class Sections extends MY_Controller
                 ->app_css('project/css/form-section.css');
 
         $this->data = array_merge($this->data, array(
-            'title' => sprintf($this->lang->line(APP . '_title_edit_section'), $page['name']),
+            'title' => sprintf($this->lang->line(APP . '_title_add_section'), $page['name']),
             'name_app' => $this->app_data['name'],
             'preffix' => $project['preffix'],
             'project' => $project,
