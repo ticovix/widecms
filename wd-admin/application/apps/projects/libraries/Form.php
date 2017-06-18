@@ -269,8 +269,8 @@ class Form
         $this->attr['name'] = $this->column . '[]';
         $this->attr['class'] = (isset($this->attr['class']) ? $this->attr['class'] : '');
         $CI->load->model('posts_model');
-        $table = $this->field['options_table'];
-        $column = $this->field['options_label'];
+        $table = $this->field['input']['options']['table'];
+        $column = $this->field['input']['options']['options_label'];
         $posts = $CI->posts_model->list_posts_checkbox($table, $column);
         $opts_checked = array();
         if (!empty($this->value)) {
