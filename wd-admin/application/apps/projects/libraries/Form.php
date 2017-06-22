@@ -6,91 +6,95 @@ if (!defined('BASEPATH')) {
 
 class Form
 {
-    private $form = array();
-    private $list_plugins = array();
-    private $plugins = array();
+    private $fields = array();
 
     public function fields_template($fields, $post = null)
     {
         $CI = & get_instance();
         $CI->lang->load_app('posts/form', 'projects');
+        $form = array();
         $this->fields = $fields;
-        $this->post = $post;
-        foreach ($fields as $field) {
-            $this->field = $field;
-            $this->plugins = array();
 
+        foreach ($fields as $field) {
+            $attributes = '';
+            $add_input = array();
+            $data = array();
+            $data['post'] = $post;
+
+            $input = $field['input'];
+            $column = $field['database']['column'];
+            $label = ($input['required']) ? $input['label'] . '<span>*</span>' : $input['label'];
             $type = strtolower($field['input']['type']);
+
+            if (isset($input['attributes']) && strpos($input['attributes'], '{') !== false) {
+                $attributes = $input['attributes'];
+            }
+
+            if (isset($input['plugins'])) {
+                $data['plugins'] = $this->get_plugins($input['plugins']);
+            }
+
+            $attr = $this->treat_attributes($attributes);
+            $attr['name'] = $column;
+            $attr['id'] = $column . '_field';
+            $data['attr'] = $attr;
+            $data['field'] = $field;
+            $data['value'] = (!empty($post)) ? $post[$column] : '';
+            if (isset($data['plugins'])) {
+                $data = $this->add_plugins($data);
+            }
 
             switch ($type) {
                 case 'file':
                 case 'multifile':
+                    $render = $this->render_file($data);
+                    break;
                 case 'textarea':
+                    $render = $this->render_textarea($data);
+                    break;
                 case 'checkbox':
+                    $render = $this->render_checkbox($data);
+                    break;
                 case 'select':
-                case 'hidden':
-                    $this->input_template()->$type()->add();
+                    $render = $this->render_select($data);
                     break;
                 default:
-                    $this->input_template()->input()->add();
+                    $render = $this->render_default_input($data);
                     break;
             }
+
+            $add_input['input'] = $render;
+            $add_input['column'] = $column;
+            if (isset($field['observation'])) {
+                $add_input['observation'] = $field['observation'];
+            }
+
+            $add_input['type'] = $type;
+            $add_input['label'] = $label;
+
+            $form[] = $add_input;
         }
 
-        return $this->form;
+        return $form;
     }
 
-    private function input_template()
+    private function add_plugins($data)
     {
-        $field = $this->field;
-        $input = $field['input'];
-        $database = $field['database'];
-        $post = $this->post;
-        if (isset($input['attributes']) && strpos($input['attributes'], '{') !== false) {
-            $this->attributes = $input['attributes'];
-        }
-        $this->column = $database['column'];
-        $this->type = strtolower($input['type']);
-        if (isset($input['plugins'])) {
-            $this->plugins = $this->get_plugins($input['plugins']);
-        }
+        $plugins = $data['plugins'];
+        $attr = $data['attr'];
 
-        $this->label = ($input['required']) ? $input['label'] . '<span>*</span>' : $input['label'];
-        $this->value = (!empty($post)) ? $post[$this->column] : '';
-        $this->attr = $this->treat_attributes();
-        if ($this->plugins) {
-            $this->add_plugins();
-        }
-
-        return $this;
-    }
-
-    private function add()
-    {
-        $field = $this->field;
-        $this->new_field['column'] = $this->column;
-        if (isset($field['observation'])) {
-            $this->new_field['observation'] = $field['observation'];
-        }
-
-        $this->form[] = $this->new_field;
-    }
-
-    private function add_plugins()
-    {
-        $plugins = $this->plugins;
         if (!$plugins) {
-            return false;
+            return $data;
         }
 
         $CI = & get_instance();
         foreach ($plugins as $plugin) {
             if (isset($plugin['attr'])) {
-                if (isset($this->attr['class']) && $plugin['attr']['class']) {
-                    $plugin['attr']['class'] = $this->attr['class'] . ' ' . $plugin['attr']['class'];
+                if (isset($attr['class']) && isset($plugin['attr']['class'])) {
+                    $plugin['attr']['class'] = $attr['class'] . ' ' . $plugin['attr']['class'];
                 }
 
-                $this->attr = array_merge($this->attr, $plugin['attr']);
+                $data['attr'] = array_merge($attr, $plugin['attr']);
             }
 
             $js = (isset($plugin['js_form'])) ? $this->change_path($plugin['js_form'], $plugin) : false;
@@ -110,18 +114,20 @@ class Form
                 $method_exists = method_exists($class, 'output');
                 if ($method_exists) {
                     $class = strtolower($class);
-                    $this->value = $CI->$class->output($this->value, $this->field, $this->fields, 'form');
+                    $data['value'] = $CI->$class->output($data['value'], $data['field'], $this->fields, 'form');
                 }
             }
         }
+
+        return $data;
     }
 
-    private function treat_attributes()
+    private function treat_attributes($attributes)
     {
         $temp_attr = array();
 
-        if (isset($this->attributes)) {
-            $attr = (array) json_decode(str_replace('\'', '"', $this->attributes));
+        if (isset($attributes)) {
+            $attr = (array) json_decode(str_replace('\'', '"', $attributes));
             $arr_attr = array();
             if ($attr) {
                 foreach ($attr as $obj) {
@@ -150,67 +156,63 @@ class Form
 
     private function change_path($path, $plugin)
     {
-        if (is_array($path)) {
-            foreach ($path as $p) {
-                $new_path[] = '../plugins_input/' . $plugin['plugin'] . '/assets/' . $p;
-            }
-            return $new_path;
-        } else {
+        if (!is_array($path)) {
             return '../plugins_input/' . $plugin['plugin'] . '/assets/' . $path;
         }
+
+        foreach ($path as $p) {
+            $new_path[] = '../plugins_input/' . $plugin['plugin'] . '/assets/' . $p;
+        }
+
+        return $new_path;
     }
 
-    private function multifile()
+    private function render_file($data)
     {
         $CI = &get_instance();
-        $field = $this->field;
         load_gallery();
-
         $CI->include_components
                 ->vendor_js('components/jqueryui/jquery-ui.min.js')
                 ->vendor_css('components/jqueryui/themes/ui-lightness/jquery-ui.min.css')
                 ->app_css('posts/css/gallery.css')
                 ->app_js('posts/js/gallery.js');
 
-        $new_field = array();
-        $new_field['type'] = $this->type;
-        $new_field['label'] = $this->label;
-        $value = ($CI->input->post($this->column) !== null ? $CI->input->post($this->column) : $this->value);
+        $field = $data['field'];
+        $column = $field['database']['column'];
+        $value = ($CI->input->post($column) !== null ? $CI->input->post($column) : $data['value']);
+
         $files = json_decode($value);
+        $render = $this->list_files($files, null, true);
+
+        $attr = array();
+        $attr['data-field'] = $column;
+        $attr['class'] = 'form-control btn-gallery ' . (isset($attr['class']) ? $attr['class'] : '');
+        $attr['type'] = 'button';
+        $attr['data-config'] = $this->config_upload($field);
+        $render .= form_button($attr, '<span class="fa fa-file-image-o"></span> ' . $CI->lang->line('projects_label_upload_gallery'));
+
         $txt_extensions = 'TODAS';
-        $this->attr['data-field'] = $this->column;
-        $this->attr['class'] = 'form-control btn-gallery ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $this->attr['type'] = 'button';
-        $this->attr['data-config'] = $this->config_upload();
-        $new_field['input'] = $this->list_files($files, null, true);
-        $new_field['input'] .= form_button($this->attr, '<span class="fa fa-file-image-o"></span> ' . $CI->lang->line('projects_label_upload_gallery'));
         if (isset($field['extensions_allowed']) && !empty($field['extensions_allowed'])) {
             $txt_extensions = str_replace(',', ', ', $field['extensions_allowed']);
         }
-        $new_field['input'] .= sprintf($CI->lang->line('projects_extensions_allowed'), $txt_extensions);
-        $attr = array();
-        if ($this->type == 'multifile') {
+
+        $render .= sprintf($CI->lang->line('projects_extensions_allowed'), $txt_extensions);
+        $attr = $data['attr'];
+        if ($field['input']['type'] == 'multifile') {
             $attr['multiple'] = "true";
         }
-        $attr['id'] = $this->column . '_field';
-        $attr['name'] = $this->column;
+
+        $attr['name'] = $column;
         $attr['type'] = 'hidden';
         $attr['class'] = 'input-field';
-        $new_field['input'] .= form_input($attr, set_value($this->column, $this->value, false));
-        $this->new_field = $new_field;
+        $render .= form_input($attr, set_value($column, $value, false));
 
-        return $this;
+        return $render;
     }
 
-    private function file()
+    private function config_upload($field)
     {
-        $this->multifile();
-        return $this;
-    }
-
-    private function config_upload()
-    {
-        $config = $this->field['input']['upload'];
+        $config = $field['input']['upload'];
         $config_upload = array(
             'extensions_allowed' => $config['extensions_allowed'],
             'image_resize' => $config['image_resize'],
@@ -243,41 +245,42 @@ class Form
         return str_replace('"', '\'', json_encode($config_upload));
     }
 
-    private function textarea()
+    private function render_textarea($data)
     {
-        $new_field = array();
-        $new_field['type'] = $this->type;
-        $new_field['label'] = $this->label;
-        $this->attr['id'] = $this->column . '_field';
-        $this->attr['name'] = $this->column;
-        $this->attr['class'] = 'form-control input-field ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $new_field['input'] = form_textarea($this->attr, htmlspecialchars_decode(set_value($this->column, $this->value, false), ENT_QUOTES));
-        $this->new_field = $new_field;
+        $field = $data['field'];
+        $column = $field['database']['column'];
+        $value = $data['value'];
+        $attr = $data['attr'];
+        $attr['type'] = $field['input']['type'];
+        $attr['class'] = 'form-control input-field ' . (isset($attr['class']) ? $attr['class'] : '');
 
-        return $this;
+        return form_textarea($attr, htmlspecialchars_decode(set_value($column, $value, false), ENT_QUOTES));
     }
 
-    private function checkbox()
+    private function render_checkbox($data)
     {
         $CI = &get_instance();
+        $CI->load->model('posts_model');
         $CI->include_components->app_js('posts/js/events-select.js');
 
-        $new_field = array();
-        $new_field['type'] = $this->type;
-        $new_field['label'] = $this->label;
-        $this->attr['id'] = $this->column . '_field';
-        $this->attr['name'] = $this->column . '[]';
-        $this->attr['class'] = (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $CI->load->model('posts_model');
-        $table = $this->field['input']['options']['table'];
-        $column = $this->field['input']['options']['options_label'];
+        $field = $data['field'];
+        $column = $field['database']['column'];
+        $value = $data['value'];
+        $attr = $data['attr'];
+        $attr['name'] = $column . '[]';
+        $attr['class'] = (isset($attr['class']) ? $attr['class'] : '');
+
+        $render = '';
+        $table = $field['input']['options']['table'];
+        $column = $field['input']['options']['options_label'];
         $posts = $CI->posts_model->list_posts_checkbox($table, $column);
         $opts_checked = array();
-        if (!empty($this->value)) {
-            $opts_checked = json_decode($this->value);
+        if (!empty($value)) {
+            $opts_checked = json_decode($value);
         }
+
         if ($posts) {
-            $new_field['input'] = '<div>';
+            $render = '<div>';
             foreach ($posts as $opts) {
                 $label = $opts['label'];
                 $value = $opts['value'];
@@ -285,20 +288,20 @@ class Form
                 if (is_array($opts_checked)) {
                     $checked = (in_array($value, $opts_checked));
                 }
-                $new_field['input'] .= '<label class="option-checkbox">';
-                $new_field['input'] .= form_checkbox($this->attr, $value, $checked);
-                $new_field['input'] .= $label;
-                $new_field['input'] .= '</label>';
+
+                $render .= '<label class="option-checkbox">';
+                $render .= form_checkbox($attr, $value, $checked);
+                $render .= $label;
+                $render .= '</label>';
             }
-            $new_field['input'] .= '</div>';
+
+            $render .= '</div>';
         }
 
-        $this->new_field = $new_field;
-
-        return $this;
+        return $render;
     }
 
-    private function select()
+    private function render_select($data)
     {
         $CI = &get_instance();
         $CI->include_components
@@ -307,7 +310,11 @@ class Form
                 ->main_css('plugins/chosen/css/chosen.css');
 
         $array_options = array('' => $CI->lang->line('projects_options_not_found'));
-        $field = $this->field;
+        $field = $data['field'];
+        $column = $field['database']['column'];
+        $attr = $data['attr'];
+        $attr['type'] = $field['input']['type'];
+
         $input = $field['input'];
         if (isset($input['options']['table']) && isset($input['options']['options_label'])) {
             $data_trigger = null;
@@ -317,7 +324,7 @@ class Form
                 if (count($field_trigger) > 0) {
                     $table_trigger = $field_trigger['input']['options']['table'];
                     $label_trigger = $field_trigger['input']['label'];
-                    $value_trigger = $this->post[$column_trigger];
+                    $value_trigger = $data['post'][$column_trigger];
                     $data_trigger = array(
                         'table' => $table_trigger,
                         'column' => $column_trigger,
@@ -325,51 +332,30 @@ class Form
                         'label' => $label_trigger
                     );
 
-                    $this->attr['class'] = (isset($this->attr['class'])) ? $this->attr['class'] : '';
-                    $this->attr['class'] .= ' trigger-' . $column_trigger;
+                    $attr['class'] = (isset($attr['class'])) ? $attr['class'] : '';
+                    $attr['class'] .= ' trigger-' . $column_trigger;
                 }
             }
 
             $array_options = $this->set_options($input['options']['table'], $input['options']['options_label'], $data_trigger);
         }
 
-        $this->attr['id'] = $this->column . '_field';
-        $this->attr['class'] = 'form-control input-field trigger-select chosen-select ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $value = ($CI->input->post($this->column) !== null ? $CI->input->post($this->column) : $this->value);
-        $new_field = array();
-        $new_field['type'] = $this->type;
-        $new_field['label'] = $this->label;
-        $new_field['input'] = form_dropdown($this->column, $array_options, $value, $this->attr);
-        $this->new_field = $new_field;
+        $attr['id'] = $column . '_field';
+        $attr['class'] = 'input-field form-control trigger-select chosen-select ' . (isset($attr['class']) ? $attr['class'] : '');
+        $value = ($CI->input->post($column) !== null ? $CI->input->post($column) : $data['value']);
 
-        return $this;
+        return form_dropdown($column, $array_options, $value, $attr);
     }
 
-    private function hidden()
+    private function render_default_input($data)
     {
-        $new_field = array();
-        $this->attr['id'] = $this->column . '_field';
-        $this->attr['name'] = $this->column;
-        $new_field['type'] = 'hidden';
-        $this->attr['class'] = 'form-control input-field ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $new_field['input'] = form_input($this->attr, set_value($this->column, $this->value));
-        $this->new_field = $new_field;
-
-        return $this;
-    }
-
-    private function input()
-    {
-        $new_field = array();
-        $new_field['type'] = $this->type;
-        $new_field['label'] = $this->label;
-        $this->attr['name'] = $this->column;
-        $this->attr['id'] = $this->column . '_field';
-        $this->attr['class'] = 'form-control input-field ' . (isset($this->attr['class']) ? $this->attr['class'] : '');
-        $new_field['input'] = form_input($this->attr, htmlspecialchars_decode(set_value($this->column, $this->value), ENT_QUOTES));
-        $this->new_field = $new_field;
-
-        return $this;
+        $field = $data['field'];
+        $column = $field['database']['column'];
+        $value = $data['value'];
+        $attr = $data['attr'];
+        $attr['type'] = $field['input']['type'];
+        $attr['class'] = 'form-control input-field ' . (isset($attr['class']) ? $attr['class'] : '');
+        return form_input($attr, htmlspecialchars_decode(set_value($column, $value), ENT_QUOTES));
     }
 
     private function set_options($table, $column, $data_trigger = null)
@@ -432,13 +418,16 @@ class Form
     public function search_field($column, $fields)
     {
         $field_find = array();
-        if ($fields) {
-            foreach ($fields as $field) {
-                if ($field['database']['column'] == $column) {
-                    $field_find = $field;
-                }
+        if (empty($fields)) {
+            return $field_find;
+        }
+
+        foreach ($fields as $field) {
+            if ($field['database']['column'] == $column) {
+                $field_find = $field;
             }
         }
+
 
         return $field_find;
     }
@@ -584,15 +573,18 @@ class Form
     {
         $spyc = new Spyc();
         $config = $spyc->loadFile($path);
-        if (is_array($config)) {
-            $config['plugin'] = $plugin;
-            if (empty($config['name'])) {
-                $config['name'] = $config['plugin'];
-            }
-
-            $config['name'] = ucfirst(strtolower($config['name']));
-            return $this->list_plugins[] = $config;
+        if (!is_array($config)) {
+            return false;
         }
+
+        $config['plugin'] = $plugin;
+        if (empty($config['name'])) {
+            $config['name'] = $config['plugin'];
+        }
+
+        $config['name'] = ucfirst(strtolower($config['name']));
+
+        return $this->list_plugins[] = $config;
     }
 
     public function get_plugins($plugins)
