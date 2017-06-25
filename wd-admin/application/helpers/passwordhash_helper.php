@@ -1,4 +1,5 @@
 <?php
+
 #
 # Portable PHP password hashing framework.
 #
@@ -24,13 +25,15 @@
 # Obviously, since this code is in the public domain, the above are not
 # requirements (there can be none), but merely suggestions.
 #
-class PasswordHash {
+
+class PasswordHash
+{
     var $itoa64;
     var $iteration_count_log2;
     var $portable_hashes;
     var $random_state;
 
-    function PasswordHash($iteration_count_log2, $portable_hashes)
+    function __construct($iteration_count_log2, $portable_hashes)
     {
         $this->itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
@@ -49,7 +52,7 @@ class PasswordHash {
     {
         $output = '';
         if (is_readable('/dev/urandom') &&
-            ($fh = @fopen('/dev/urandom', 'rb'))) {
+                ($fh = @fopen('/dev/urandom', 'rb'))) {
             $output = fread($fh, $count);
             fclose($fh);
         }
@@ -57,10 +60,8 @@ class PasswordHash {
         if (strlen($output) < $count) {
             $output = '';
             for ($i = 0; $i < $count; $i += 16) {
-                $this->random_state =
-                    md5(microtime() . $this->random_state);
-                $output .=
-                    pack('H*', md5($this->random_state));
+                $this->random_state = md5(microtime() . $this->random_state);
+                $output .= pack('H*', md5($this->random_state));
             }
             $output = substr($output, 0, $count);
         }
@@ -95,7 +96,7 @@ class PasswordHash {
     {
         $output = '$P$';
         $output .= $this->itoa64[min($this->iteration_count_log2 +
-            ((PHP_VERSION >= '5') ? 5 : 3), 30)];
+                        ((PHP_VERSION >= '5') ? 5 : 3), 30)];
         $output .= $this->encode64($input, 6);
 
         return $output;
@@ -211,8 +212,7 @@ class PasswordHash {
 
         if (CRYPT_BLOWFISH == 1 && !$this->portable_hashes) {
             $random = $this->get_random_bytes(16);
-            $hash =
-                crypt($password, $this->gensalt_blowfish($random));
+            $hash = crypt($password, $this->gensalt_blowfish($random));
             if (strlen($hash) == 60)
                 return $hash;
         }
@@ -220,17 +220,14 @@ class PasswordHash {
         if (CRYPT_EXT_DES == 1 && !$this->portable_hashes) {
             if (strlen($random) < 3)
                 $random = $this->get_random_bytes(3);
-            $hash =
-                crypt($password, $this->gensalt_extended($random));
+            $hash = crypt($password, $this->gensalt_extended($random));
             if (strlen($hash) == 20)
                 return $hash;
         }
 
         if (strlen($random) < 6)
             $random = $this->get_random_bytes(6);
-        $hash =
-            $this->crypt_private($password,
-            $this->gensalt_private($random));
+        $hash = $this->crypt_private($password, $this->gensalt_private($random));
         if (strlen($hash) == 34)
             return $hash;
 
@@ -249,6 +246,5 @@ class PasswordHash {
         return $hash == $stored_hash;
     }
 }
-
 /* End of file phpass_helper.php */
 /* Location: ./application/helpers/phpass_helper.php */
