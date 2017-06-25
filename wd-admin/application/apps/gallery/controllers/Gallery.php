@@ -44,7 +44,7 @@ class Gallery extends MY_Controller
         $this->data = array_merge($this->data, array(
             'title' => $data['name'],
             'files' => $files,
-            'check_edit' => check_method('edit'),
+            'check_view' => check_method('view'),
             'check_upload' => check_method('upload'),
             'search' => $this->input->get('search')
         ));
