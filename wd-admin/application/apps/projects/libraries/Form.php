@@ -174,7 +174,6 @@ class Form
         $CI->include_components
                 ->vendor_js('components/jqueryui/jquery-ui.min.js')
                 ->vendor_css('components/jqueryui/themes/ui-lightness/jquery-ui.min.css')
-                ->app_css('posts/css/gallery.css')
                 ->app_js('posts/js/gallery.js');
 
         $field = $data['field'];
