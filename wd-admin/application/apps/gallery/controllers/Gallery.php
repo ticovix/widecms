@@ -44,10 +44,8 @@ class Gallery extends MY_Controller
         $this->data = array_merge($this->data, array(
             'title' => $data['name'],
             'files' => $files,
-            'check_upload' => check_method('upload'),
-            'check_view' => check_method('view-files'),
             'check_edit' => check_method('edit'),
-            'check_remove' => check_method('remove'),
+            'check_upload' => check_method('upload'),
             'search' => $this->input->get('search')
         ));
 
@@ -74,10 +72,17 @@ class Gallery extends MY_Controller
 
     public function files_list()
     {
+        $this->lang->load_app('gallery');
         $per_page = (int) $this->input->get('per_page') or 0;
         $keyword = $this->input->get('search');
         $limit = $this->input->post('limit');
         $config = $this->input->post('config');
+        $modal = $this->input->post('modal');
+        $saved_list = $this->input->post('saved_list');
+        if (empty($saved_list)) {
+            $saved_list = array();
+        }
+
         $filter_extensions = null;
         $filter_thumbs = null;
         if (strpos($config, '{') !== false) {
@@ -109,8 +114,14 @@ class Gallery extends MY_Controller
         $files = $this->files_model->search($keyword, $filter_extensions, $filter_thumbs, $limit, $per_page);
         $total = $this->files_model->search_total_rows($keyword, $filter_extensions, $filter_thumbs);
         $pagination = $this->pagination($total, $limit);
+        $this->data['files'] = $files;
+        $this->data['pagination'] = $pagination;
+        $this->data['saved_list'] = $saved_list;
+        $this->data['modal'] = $modal;
+        $this->data['check_view'] = check_method('view-files');
+        $this->data['check_remove'] = check_method('remove');
 
-        echo json_encode(array('files' => $files, 'total' => $total, 'pagination' => $pagination));
+        echo $this->load->app()->render('gallery/list-files.twig', $this->data);
     }
 
     private function pagination($total, $limit)
@@ -442,20 +453,23 @@ class Gallery extends MY_Controller
 
     public function file()
     {
+        $this->lang->load_app('gallery');
         $file = $this->input->post('file');
         $path = PATH_UPLOAD;
         $path_file = $path . $file;
         $filesize = filesize($path_file);
         $get_file = $this->files_model->file($file);
-        $name = $get_file['name'];
         $thumbnails = $get_file['thumbnails'];
         if (strpos($thumbnails, '[') !== FALSE) {
             $thumbnails = json_decode($thumbnails);
-        } else {
-            $thumbnails = '';
         }
 
-        echo json_encode(array('file' => $file, 'name' => $name, 'path_file' => wd_base_url('wd-content/upload/' . $file), 'filesize' => FileSizeConvert($filesize), 'thumbnails' => $thumbnails));
+        $this->data['file'] = $file;
+        $this->data['path_file'] = wd_base_url('wd-content/upload/' . $file);
+        $this->data['filesize'] = FileSizeConvert($filesize);
+        $this->data['thumbnails'] = $thumbnails;
+
+        echo $this->load->app()->render('gallery/file-view.twig', $this->data);
     }
     /*
      * Método para editar arquivo

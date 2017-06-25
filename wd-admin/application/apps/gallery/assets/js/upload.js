@@ -72,13 +72,14 @@ $(function () {
 
         var load_dependencies = function () {
             // Carrega os plugins e o modal apenas uma vez para o template
-            var template_modal = new EJS({url: url + "application/apps/gallery/assets/ejs/gallery_modal/modal-upload.ejs"}).render({
+            var template_modal = new EJS({url: url + "application/apps/gallery/assets/ejs/modal.ejs"}).render({
                 perm: permissions,
                 lang: lang,
                 url: url,
                 csrf_test_name: csrf
             });
             $(container_modal).append(template_modal);
+
             // Carrega Dropzone
             if (typeof Dropzone == 'function') {
                 Dropzone.autoDiscover = false;
@@ -133,16 +134,9 @@ $(function () {
             var config_upload = $(selector.upload_config).val();
             $.ajax({
                 url: param.url,
-                dataType: "json",
                 type: "POST",
-                data: {limit: 18, config: config_upload},
-                success: function (data) {
-                    var template = new EJS({url: url + "application/apps/gallery/assets/ejs/gallery_modal/list-files.ejs"}).render({
-                        data: data,
-                        url: url,
-                        lang: lang,
-                        config: config
-                    });
+                data: {limit: 18, config: config_upload, saved_list: config.saved_list, modal: true},
+                success: function (template) {
                     content.html(template);
                     load_fancybox();
                 }

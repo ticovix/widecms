@@ -28,6 +28,7 @@ $(function () {
             }
         });
     }
+
     /*
      * Function to list files
      */
@@ -38,18 +39,18 @@ $(function () {
         if (URL == '' || URL == undefined) {
             URL = app_path + "files-list";
         }
+
         content.html("<p>" + LANG.loading + "</p>");
         $.ajax({
             url: URL,
-            dataType: "json",
             type: "POST",
             data: {limit: 12},
-            success: function (data) {
-                var template = new EJS({url: app_assets + "ejs/gallery/list-files.ejs"}).render({data: data, url: url, app_path: app_path, edit: edit_file, remove: remove_file});
+            success: function (template) {
                 content.html(template);
             }
         });
     }
+
     /*
      * Init method files_list()
      */
@@ -78,7 +79,6 @@ $(function () {
     /*
      * View file
      */
-
     $("#files-list").on("click", ".btn-view-file", function () {
         var index = $(".btn-view-file").index(this);
         var file = $(".file").eq(index).data("file");
@@ -86,59 +86,11 @@ $(function () {
         content.html('<div class="modal-body">' + LANG.loading + '</div>');
         $.ajax({
             url: app_path + "file",
-            dataType: "json",
             type: "POST",
             data: {file: file},
-            success: function (data) {
-                var template = new EJS({url: app_assets + "ejs/gallery/file-view.ejs"}).render({data: data, url: url, app_path: app_path});
+            success: function (template) {
                 content.html(template);
                 load_fancybox();
-            }
-        });
-    });
-    /*
-     * Edit file
-     */
-
-    $("#files-list").on("click", ".btn-edit-file", function () {
-        var index = $(".btn-edit-file").index(this);
-        var file = $(".file").eq(index).data("file");
-        var content = $("#edit .modal-content");
-        content.html('<div class="modal-body">' + LANG.loading + '</div>');
-        $.ajax({
-            url: app_path + "file",
-            dataType: "json",
-            type: "POST",
-            data: {file: file},
-            success: function (data) {
-                var template = new EJS({url: app_assets + "ejs/gallery/file-edit.ejs"}).render({data: data, url: url, app_path: app_path});
-                content.html(template);
-                load_fancybox();
-            }
-        });
-    });
-    /*
-     * Save Edit
-     */
-    $("#edit .modal-content").delegate("#btn-save-edit", "click", function () {
-        var name = $("#field-name").val();
-        var new_file = $("#field-file").val();
-        var file = $(this).data("file");
-        var msg = $("#message-edit");
-        $.ajax({
-            url: app_path + "edit-file",
-            dataType: "json",
-            type: "POST",
-            data: {file: file, name: name, new_file: new_file},
-            success: function (data) {
-                if (data.error) {
-                    msg.html('<div class="alert alert-danger">' + data.message + '</div>');
-                } else {
-                    msg.html('<div class="alert alert-success">' + data.message + '</div>');
-                    setTimeout(function () {
-                        document.location.reload();
-                    }, 1000);
-                }
             }
         });
     });
@@ -151,6 +103,7 @@ $(function () {
         files_list({
             url: app_path + 'files-list?search=' + keyword
         });
+        
         e.preventDefault();
         return false;
     });
@@ -162,6 +115,7 @@ $(function () {
         files_list({
             url: $(this).attr("href")
         });
+
         e.preventDefault();
         return false;
     });

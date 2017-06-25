@@ -1,0 +1,36 @@
+<div class="row">
+    {% for file in files %}
+        <div class="col-sm-2 col-xs-6 file" data-file="{{file.file}}">
+            {% if modal == 'true' %}
+                <div class="image-file {% if in_array(file.file, saved_list) %}active{% endif %}">
+                    <img src="{{base_url('apps/gallery/image/thumb?file=' ~ file.file)}}" title="{{file.file}}" alt="{{file.file}}" class="img-responsive thumbnail">
+                    <a href="javascript:void(0);" class="btn btn-primary options-file btn-add"><span class="fa fa-2x fa-check"></span></a>
+                </div>
+                <div class="name-file">
+                    <a href="{{base_url('../wd-content/upload/' ~ file.file)}}" class="fancybox" rel="gallery" data-fancybox-group="gallery">
+                        {{file.file}}
+                    </a>
+                </div>
+            {% else %}
+                <div class="image-file">
+                    <a href="#" class="btn-view-file" data-toggle="modal" data-target="#details">
+                        <img src="{{base_url(APP_PATH ~ 'image/thumb?file=' ~ file.file)}}" title="{{file.file}}" alt="{{file.file}}" class="img-responsive thumbnail">
+                    </a>
+                    <div class="options-file">
+                        {% if check_remove == '1' %}
+                            <a href="javascript:void(0);" class="btn-delete-file">
+                                <span class="fa fa-remove"></span>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="name-file">{{file.file}}</div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="col-xs-12">Envie um arquivo.</div>
+    {% endfor %}
+    <div class="col-xs-12">
+        <ul class="pagination pagination-sm">{{pagination}}</ul>
+    </div>
+</div>

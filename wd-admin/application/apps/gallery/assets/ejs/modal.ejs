@@ -25,14 +25,17 @@
                         <form action="javascript:void(0);" method="get" class="form-group" id="search-files" accept-charset="utf-8">
                             <input type="hidden" name="csrf_test_name" value="<%=csrf_test_name%>" style="display:none;" />
                             <div class="input-group">
-                                <input type="text" name="search" id="search-field" placeholder="<%=lang.gallery_search_field%>" class="input-sm form-control"> 
+                                <input type="text" name="search" id="search-field" placeholder="<%=lang.gallery_search_field%>" class="input-sm form-control">
                                 <span class="input-group-btn">
-                                    <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button> 
+                                    <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button>
                                 </span>
                             </div>
                         </form>
-                        <div class="row" id="files-content">
-                            <!--EJS -->
+                        <h3><%=lang.gallery_modal_title_list_files%></h3>
+                        <div id="list-files">
+                            <div id="files-content">
+                                <!--EJS -->
+                            </div>
                         </div>
                         <%
                     }
