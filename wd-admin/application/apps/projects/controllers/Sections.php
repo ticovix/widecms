@@ -184,7 +184,7 @@ class Sections extends MY_Controller
         $page_dir = $page['directory'];
         $section = $this->sections_model->get_section($project_dir, $page_dir, $section_dir);
         $this->load->app()->library('config_page');
-        $this->load->app()->library('form');
+        $this->load->app()->library('plugins_input');
         if ($section) {
             $fields = $this->treat_fields($section['fields']);
             $this->form_edit_section($project, $page, $section);
@@ -213,7 +213,7 @@ class Sections extends MY_Controller
             'sections' => $this->list_options($project_dir, $page_dir, $section_dir),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
-            'plugins_input' => $this->form->list_plugins(),
+            'plugins_input' => $this->plugins_input->list_plugins(),
             'errors' => $this->error_reporting->get_errors(),
             'query_string' => $this->input->server('QUERY_STRING'),
             'total' => count($this->input->post('name_field'))
@@ -564,7 +564,7 @@ class Sections extends MY_Controller
     {
         $this->lang->load_app('sections/form');
         $this->load->app()->library('config_page');
-        $this->load->app()->library('form');
+        $this->load->app()->library('plugins_input');
         $project = get_project();
         $page = get_page();
         $this->form_create_section($project, $page);
@@ -586,7 +586,7 @@ class Sections extends MY_Controller
             'sections' => $this->list_options($project['directory'], $page['directory']),
             'inputs' => $this->config_page->inputs(),
             'types' => $this->config_page->types(),
-            'plugins_input' => $this->form->list_plugins(),
+            'plugins_input' => $this->plugins_input->list_plugins(),
             'errors' => $this->error_reporting->get_errors(),
             'query_string' => $this->input->server('QUERY_STRING'),
             'total' => count($this->input->post('name_field'))
