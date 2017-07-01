@@ -269,6 +269,7 @@ class Projects extends MY_Controller
         // End config
         if ($main) {
             rename($path_index, '../index.php');
+            rename('../' . $dir_project . '/.htaccess', '../.htaccess');
         }
     }
 
@@ -318,6 +319,7 @@ class Projects extends MY_Controller
 
                     if ($main) {
                         unlink('../index.php');
+                        unlink('../.htaccess');
                     }
                 }
 
