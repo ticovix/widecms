@@ -28,6 +28,7 @@ class Posts extends MY_Controller
         $this->lang->load_app('posts/posts');
         $this->load->library('form_validation');
         $this->load->app()->library('form');
+        $this->load->app()->library('plugins_input');
 
         if (isset($section['list'])) {
             $this->mount_list($section, $project, $page);
@@ -322,7 +323,7 @@ class Posts extends MY_Controller
     {
         $input = $field['input'];
         if (isset($input['plugins'])) {
-            $plugins = $this->form->get_plugins($input['plugins']);
+            $plugins = $this->plugins_input->get_plugins($input['plugins']);
             if ($plugins) {
                 foreach ($plugins as $plugin) {
                     $class = ucfirst($plugin['plugin']);
@@ -391,6 +392,7 @@ class Posts extends MY_Controller
         }
         $this->load->library('form_validation');
         $this->load->library('error_reporting');
+        $this->load->app()->library('plugins_input');
         $current_field = array();
         $table = $section['table'];
         foreach ($data_fields as $field) {

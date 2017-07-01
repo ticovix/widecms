@@ -475,6 +475,7 @@ class Sections extends MY_Controller
         }
 
         ksort($new_config['fields']);
+
         return $this->sections_model->create($new_config, $project_dir, $page_dir, $data['directory']);
     }
 
@@ -613,44 +614,70 @@ class Sections extends MY_Controller
         $this->form_validation->set_rules('name', $this->lang->line(APP . '_label_name'), 'trim|required');
         $this->form_validation->set_rules('directory', $this->lang->line(APP . '_label_directory'), 'trim|required|callback_verify_dir_create');
         $this->form_validation->set_rules('table', $this->lang->line(APP . '_label_table'), 'trim|required|callback_verify_table_create');
-        if ($this->form_validation->run()) {
-            $import = (bool) $this->input->get('import');
-            $project_dir = $project['directory'];
-            $page_dir = $page['directory'];
-            $data = $this->get_post_data($project, $page);
-            $directory = $data['directory'];
-            $table = $data['table'];
+        try {
+            if ($this->form_validation->run()) {
+                $import = (bool) $this->input->get('import');
+                $project_dir = $project['directory'];
+                $page_dir = $page['directory'];
+                $data = $this->get_post_data($project, $page);
+                $directory = $data['directory'];
+                $table = $data['table'];
 
-            $config = $this->treat_config($data);
-            if (!$config) {
-                return false;
-            }
-
-            $dir_section = $this->config_path . $project_dir . '/' . $page_dir . '/' . $directory;
-            mkdir($dir_section, 0755);
-
-            $this->sections_model->create($config, $data['project_directory'], $data['page_directory'], $data['directory']);
-            $this->sections_model->create_table($table);
-            $this->sections_model->create_columns($table, $config['fields']);
-
-
-            if ($import) {
-                $upload_path = APPPATH . APP_PATH . 'tmp/';
-                $section_path = $upload_path . 'section/';
-                if (is_dir($section_path)) {
-                    $opendir = opendir($section_path);
-                    while (false !== ($file = readdir($opendir))) {
-                        if ($file != 'section.yml') {
-                            rename($section_path . $file, $dir_section . '/' . $file);
-                        }
-                    }
-                    forceRemoveDir($upload_path);
+                $config = $this->treat_config($data);
+                if (!$config) {
+                    throw new Exception($this->lang->line(APP . '_could_not_handle_information'));
                 }
+
+                $dir_section = $this->config_path . $project_dir . '/' . $page_dir . '/' . $directory;
+                $create_section = mkdir($dir_section, 0755);
+                if (!$create_section) {
+                    throw new Exception($this->lang->line(APP . '_could_not_create_section_folder'));
+                }
+
+                $create_config_section = $this->sections_model->create($config, $data['project_directory'], $data['page_directory'], $data['directory']);
+                if (!$create_config_section) {
+                    throw new Exception($this->lang->line(APP . '_could_not_create_file'));
+                }
+
+                $create_table = $this->sections_model->create_table($table);
+                if (!$create_table) {
+                    throw new Exception($this->lang->line(APP . '_could_not_create_section_table'));
+                }
+
+                $create_columns = $this->sections_model->create_columns($table, $config['fields']);
+                if (!$create_columns) {
+                    throw new Exception(sprintf($this->lang->line(APP . '_could_not_create_table_columns'), $table));
+                }
+
+                if ($import) {
+                    $upload_path = APPPATH . APP_PATH . 'tmp/';
+                    $section_path = $upload_path . 'section/';
+                    if (is_dir($section_path)) {
+                        $opendir = opendir($section_path);
+                        while (false !== ($file = readdir($opendir))) {
+                            if ($file != 'section.yml') {
+                                rename($section_path . $file, $dir_section . '/' . $file);
+                            }
+                        }
+
+                        forceRemoveDir($upload_path);
+                    }
+                }
+
+                app_redirect('project/' . $project_dir . '/' . $page_dir);
+            } elseif (!empty(validation_errors())) {
+                throw new Exception(validation_errors());
+            }
+        } catch (Exception $e) {
+            if (isset($dir_section) && is_dir($dir_section)) {
+                forceRemoveDir($dir_section);
             }
 
-            app_redirect('project/' . $project_dir . '/' . $page_dir);
-        } else {
-            $this->error_reporting->set_error(validation_errors());
+            if (isset($create_table) && $create_table == true) {
+                $this->sections_model->remove_table($table);
+            }
+
+            $this->error_reporting->set_error($e->getMessage());
         }
     }
 

@@ -12,9 +12,9 @@ class Form
     {
         $CI = & get_instance();
         $CI->lang->load_app('posts/form', 'projects');
+        $CI->load->app('projects')->library('plugins_input');
         $form = array();
         $this->fields = $fields;
-
         foreach ($fields as $field) {
             $attributes = '';
             $add_input = array();
@@ -31,7 +31,7 @@ class Form
             }
 
             if (isset($input['plugins'])) {
-                $data['plugins'] = $this->get_plugins($input['plugins']);
+                $data['plugins'] = $CI->plugins_input->get_plugins($input['plugins']);
             }
 
             $attr = $this->treat_attributes($attributes);
@@ -474,11 +474,12 @@ class Form
 
     private function plugins_output($plugins, $value, $field, $fields, $page = null)
     {
+        $CI = & get_instance();
+        $CI->load->app('projects')->library('plugins_input');
         $type = $field['input']['type'];
-        $get_plugins = $this->get_plugins($plugins);
+        $get_plugins = $CI->plugins_input->get_plugins($plugins);
         if ($get_plugins) {
             foreach ($get_plugins as $arr) {
-                $CI = & get_instance();
                 $plugin = $arr['plugin'];
                 $class = ucfirst($plugin);
                 $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin . '/' . $class . '.php';

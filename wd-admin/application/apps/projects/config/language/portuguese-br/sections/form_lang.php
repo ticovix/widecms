@@ -132,7 +132,6 @@ $lang['projects_label_options'] = 'Opções';
 $lang['projects_label_label'] = 'Rótulo';
 $lang['projects_label_select_trigger'] = 'Select gatilho';
 
-
 /* ERRORS */
 $lang['projects_folder_exists'] = 'Já existe um diretório com o nome %s';
 $lang['projects_not_allowed_folder_rename'] = 'Não foi possível renomear o diretório para %s, já existe ou você não possui permissões suficiente';
@@ -153,6 +152,12 @@ $lang['projects_create_column_id_not_allowed'] = 'O campo "id" é criado automat
 $lang['projects_duplicate_field_not_allowed'] = 'O campo %s foi duplicado';
 $lang['projects_required_field'] = 'É obrigatório criar no mínimo um campo';
 $lang['projects_plugins_not_found'] = '<i class="fa fa-warning"></i> Nenhum plugin encontrado';
+$lang['projects_could_not_handle_information'] = 'Não foi possível tratar as informações';
+$lang['projects_could_not_create_section_folder'] = 'Não foi possível criar a pasta da seção';
+$lang['projects_could_not_create_file'] = 'Não foi possível criar o arquivo section.yml';
+$lang['projects_could_not_create_section_table'] = 'Não foi possível criar a tabela da seção';
+$lang['projects_could_not_create_table_columns'] = 'Não foi possível criar as colunas da tabela "%s"';
+
 /* ERRORS JS */
 $lang['projects_all_fields_required'] = 'Todos os campos com asterísco são obrigatórios';
 $lang['projects_name_exists'] = 'O nome desse campo já existe, tente outro';

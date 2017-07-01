@@ -212,6 +212,7 @@ class Sections_model extends CI_Model
     {
         $this->load->dbforge();
         $stmt = $this->dbforge->drop_table($table);
+
         return $stmt;
     }
 
@@ -233,8 +234,14 @@ class Sections_model extends CI_Model
             if (!empty($default)) {
                 $set[$column]['default'] = $default;
             }
-            $this->dbforge->add_column($table, $set);
+
+            $add_column = $this->dbforge->add_column($table, $set);
+            if (!$add_column) {
+                return false;
+            }
         }
+
+        return true;
     }
 
     public function create_table($table)
@@ -248,6 +255,7 @@ class Sections_model extends CI_Model
         $this->dbforge->add_field($fields);
         $this->dbforge->add_key('id', TRUE);
         $stmt = $this->dbforge->create_table($table, TRUE, ['engine' => 'InnoDB']);
+
         return $stmt;
     }
 
@@ -255,6 +263,7 @@ class Sections_model extends CI_Model
     {
         $database = $this->db->database;
         $check = $this->db->query('SELECT * FROM information_schema.tables WHERE table_schema=? AND table_name = ?', array($database, $table))->row();
+
         return $check;
     }
 
@@ -263,6 +272,7 @@ class Sections_model extends CI_Model
         $column = $data['column'];
         $this->load->dbforge();
         $remove = $this->dbforge->drop_column($table, $column);
+
         return $remove;
     }
 
@@ -288,12 +298,14 @@ class Sections_model extends CI_Model
         }
 
         $modify = $this->dbforge->modify_column($table, $fields);
+
         return $modify;
     }
 
     public function rename_table($current_table, $new_table)
     {
         $this->load->dbforge();
+
         return $this->dbforge->rename_table($current_table, $new_table);
     }
 
@@ -306,12 +318,14 @@ class Sections_model extends CI_Model
                 $col[] = $column['Field'];
             }
         }
+
         return $col;
     }
 
     public function list_sections_permissions($dir_project, $dir_page)
     {
         $list_sections = $this->list_sections($dir_project, $dir_page);
+
         return search($list_sections, 'status', '1');
     }
 
@@ -330,6 +344,7 @@ class Sections_model extends CI_Model
                 }
             }
         }
+
         return $aux;
     }
 
