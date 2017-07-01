@@ -476,6 +476,7 @@ class Posts extends MY_Controller
 
         $this->load->library('form_validation');
         $this->load->library('error_reporting');
+        $this->load->app()->library('plugins_input');
         $project = get_project();
         $page = get_page();
 
