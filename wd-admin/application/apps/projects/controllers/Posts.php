@@ -395,6 +395,7 @@ class Posts extends MY_Controller
         $this->load->app()->library('plugins_input');
         $current_field = array();
         $table = $section['table'];
+        $data = array('section' => $section, 'fields' => $data_fields);
         foreach ($data_fields as $field) {
             $database = $field['database'];
             $input = $field['input'];
@@ -403,7 +404,7 @@ class Posts extends MY_Controller
             $unique = $database['unique'];
             $label = $input['label'];
             $input_col = $this->input->post($column);
-            $value = $this->set_value($input_col, $field, $data_fields);
+            $value = $this->set_value($input_col, $field, $data);
             $current_field["$column"] = $value;
             $rules = array('trim');
             if ($required == '1') {
@@ -482,6 +483,7 @@ class Posts extends MY_Controller
 
         $table = $section['table'];
         $current_field = array();
+        $data = array('section' => $section, 'fields' => $data_fields);
         foreach ($data_fields as $field) {
             $input = $field['input'];
             $database = $field['database'];
@@ -490,7 +492,7 @@ class Posts extends MY_Controller
             $unique = $database['unique'];
             $label = $input['label'];
             $input_col = $this->input->post($column);
-            $value = $this->set_value($input_col, $field, $data_fields);
+            $value = $this->set_value($input_col, $field, $data);
             $current_field["$column"] = $value;
             $rules = array('trim');
             if ($required == '1') {
