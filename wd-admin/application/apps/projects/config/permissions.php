@@ -3,6 +3,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 $path_modules = 'application/apps/projects/projects/';
 $CI = &get_instance();
+$CI->lang->load_app('projects_permissions', 'projects');
 $CI->load->app('projects')->model('projects_model');
 $CI->load->app('projects')->model('pages_model');
 $CI->load->app('projects')->model('sections_model');
@@ -43,11 +44,11 @@ if ($projects) {
                         if (!is_file($module)) {
                             if ($list) {
                                 $permission[$page][$method] = '<strong>' . $name_project . ' - ' . $name_page . ' - ' . $name_section . '</strong>';
-                                $permission[$page][$page . '/' . 'create'][$method . '-create'] = 'Criar';
-                                $permission[$page][$page . '/' . 'edit/.*'][$method . '-edit'] = 'Editar';
-                                $permission[$page][$page . '/' . $section_dir . '/' . 'remove/.*'][$method . '-remove'] = 'Remover';
+                                $permission[$page][$page . '/' . 'create'][$method . '-create'] = $CI->lang->line('projects_create');
+                                $permission[$page][$page . '/' . 'edit/.*'][$method . '-edit'] = $CI->lang->line('projects_edit');
+                                $permission[$page][$page . '/' . $section_dir . '/' . 'remove/.*'][$method . '-remove'] = $CI->lang->line('projects_remove');
                             } else {
-                                $permission[$page][$method] = '<strong>' . $name_project . ' - ' . $name_page . ' - ' . $name_section . '</strong> - Editar';
+                                $permission[$page][$method] = '<strong>' . $name_project . ' - ' . $name_page . ' - ' . $name_section . '</strong> - ' . $CI->lang->line('projects_edit');
                             }
                         } else {
                             $file_permissions = $path_modules . $project_dir . '/' . $page_dir . '/' . $section_dir . '/config/permissions.php';

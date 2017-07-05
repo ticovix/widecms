@@ -15,7 +15,7 @@ $lang['users_label_password'] = 'Senha';
 $lang['users_label_status'] = 'Status';
 // options status
 $lang['users_status_option_enabled'] = 'Ativado';
-$lang['users_status_option_disabled'] = 'Desativado';
+$lang['users_status_option_disabled'] = 'Inativo';
 // end options
 $lang['users_label_dev_mode'] = 'Modo desenvolvedor';
 // options dev mode

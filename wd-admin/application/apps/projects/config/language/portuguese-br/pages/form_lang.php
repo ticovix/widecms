@@ -8,8 +8,8 @@ $lang['projects_title_edit_page'] = 'Editar página';
 
 $lang['projects_label_name'] = 'Nome';
 $lang['projects_label_status'] = 'Status';
-$lang['projects_status_option_enabled'] = 'Ativado';
-$lang['projects_status_option_disabled'] = 'Desativado';
+$lang['projects_status_option_enabled'] = 'Ativo';
+$lang['projects_status_option_disabled'] = 'Inativo';
 $lang['projects_btn_save'] = 'Salvar';
 
 /* ERRORS */

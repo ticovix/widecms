@@ -2,7 +2,7 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-/*TEMPLATE*/
+/* TEMPLATE */
 
 $lang['users_title_activities'] = 'Atividades';
 $lang['users_label_name'] = 'Nome';
