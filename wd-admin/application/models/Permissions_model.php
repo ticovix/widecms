@@ -27,12 +27,13 @@ class Permissions_model extends CI_Model
 
     public function check_method($app, $method, $user_id)
     {
+        $allow = false;
         $this->db->select('status');
         $perm = $this->db->get_where('wd_users_perm', array('app' => $app, 'fk_user' => $user_id, 'method' => $method))->row();
-        if ($perm) {
-            return $perm->status;
-        } else {
-            return false;
+        if (!empty($perm)) {
+            $allow = $perm->status;
         }
+
+        return $allow;
     }
 }

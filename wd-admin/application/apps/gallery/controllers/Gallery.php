@@ -40,11 +40,10 @@ class Gallery extends MY_Controller
                 ))
                 ->app_js('js/script.js')
                 ->app_css('css/style.css');
-
         $this->data = array_merge($this->data, array(
             'title' => $data['name'],
             'files' => $files,
-            'check_view' => check_method('view'),
+            'check_view' => check_method('view-files'),
             'check_upload' => check_method('upload'),
             'search' => $this->input->get('search')
         ));

@@ -30,7 +30,7 @@
     {% else %}
         <div class="col-xs-12">Envie um arquivo.</div>
     {% endfor %}
-    <div class="col-xs-12">
-        <ul class="pagination pagination-sm">{{pagination}}</ul>
+    <div class="col-xs-12 text-center">
+        <ul class="pagination pagination-sm">{{pagination|raw}}</ul>
     </div>
 </div>

@@ -53,9 +53,11 @@ if (!function_exists('check_method')) {
         if ($CI->user_data['root'] == '1' && empty($user)) {
             return true;
         }
+
         if (empty($user)) {
             $user = $CI->user_data['id'];
         }
+
         $CI->load->model('permissions_model', null, null, true);
         return $CI->permissions_model->check_method($app, $method, $user);
     }
