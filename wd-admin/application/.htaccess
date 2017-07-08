@@ -1,4 +1,3 @@
-RewriteEngine On 
-Options All -Indexes
-RewriteCond $1 !^(.*assets\/.*)
-RewriteRule ^(.*)$ index.php/$1 [L] 
+# Refuse direct access to all files
+Order deny,allow
+Deny from all
