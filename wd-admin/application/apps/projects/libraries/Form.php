@@ -437,6 +437,8 @@ class Form
             return false;
         }
 
+        $CI = & get_instance();
+        $CI->load->app('projects')->library('plugins_input');
         $list = array();
         foreach ($posts as $row) {
             foreach ($row as $column => $value) {
@@ -446,7 +448,7 @@ class Form
                     $type = strtolower($input['type']);
                     if (isset($input['plugins']) && !empty($input['plugins'])) {
                         $plugins = $input['plugins'];
-                        $value = $this->plugins_output($plugins, $value, $field, $section, $page);
+                        $value = $CI->plugins_input->output_value($plugins, $value, $field, $section, $page);
                     }
 
                     switch ($type) {
@@ -454,11 +456,15 @@ class Form
                         case 'radio':
                             $value = $this->treat_options($value, $field);
                             break;
+                        case 'checkbox':
+                            $value = $this->treat_checkbox_options($value, $field);
+                            break;
                         case 'file':
                         case 'multifile':
                             $value = $this->treat_value_json($value, $field);
                             break;
                         default:
+
                             break;
                     }
                 }
@@ -472,45 +478,22 @@ class Form
         return $list;
     }
 
-    private function plugins_output($plugins, $value, $field, $fields, $page = null)
+    private function treat_checkbox_options($value, $field)
     {
-        $CI = & get_instance();
-        $CI->load->app('projects')->library('plugins_input');
-        $type = $field['input']['type'];
-        $get_plugins = $CI->plugins_input->get_plugins($plugins);
-        if ($get_plugins) {
-            foreach ($get_plugins as $arr) {
-                $plugin = $arr['plugin'];
-                $class = ucfirst($plugin);
-                $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin . '/' . $class . '.php';
-                if (is_file($class_plugin)) {
-                    $CI->load->app()->library('../plugins_input/' . $plugin . '/' . $class . '.php');
-                    if (method_exists($class, 'output')) {
-                        $class = strtolower($class);
-                        $value = $CI->$class->output($value, $field, $fields, $page);
-                    }
+        if (!empty($value)) {
+            $CI = & get_instance();
+            $CI->load->app('projects')->model('posts_model');
+            $table = (isset($field['options_table'])) ? $field['options_table'] : '';
+            $column = (isset($field['options_label'])) ? $field['options_label'] : '';
+            $opts = json_decode($value);
+            $list_options = $CI->posts_model->list_options_checked($table, $column, $opts);
+            if ($list_options) {
+                foreach ($list_options as $opt) {
+                    $val[] = $opt['value'];
                 }
+
+                $value = implode(', ', $val);
             }
-        }
-
-        switch ($type) {
-            case 'checkbox':
-                if (!empty($value)) {
-                    $table = (isset($field['options_table'])) ? $field['options_table'] : '';
-                    $column = (isset($field['options_label'])) ? $field['options_label'] : '';
-                    $opts = json_decode($value);
-                    $opts_checked = $CI->posts_model->list_options_checked($table, $column, $opts);
-                    if ($opts_checked) {
-                        foreach ($opts_checked as $opt) {
-                            $val[] = $opt['value'];
-                        }
-                        $value = implode(', ', $val);
-                    }
-                }
-                break;
-
-            default:
-                break;
         }
 
         return $value;

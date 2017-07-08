@@ -319,36 +319,6 @@ class Posts extends MY_Controller
         echo json_encode($posts);
     }
 
-    private function set_value($value, $field, $fields)
-    {
-        $input = $field['input'];
-        if (isset($input['plugins'])) {
-            $plugins = $this->plugins_input->get_plugins($input['plugins']);
-            if ($plugins) {
-                foreach ($plugins as $plugin) {
-                    $class = ucfirst($plugin['plugin']);
-                    $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin['plugin'] . '/' . $class . '.php';
-                    if (is_file($class_plugin)) {
-                        $this->load->app()->library('../plugins_input/' . $plugin['plugin'] . '/' . $class);
-                        if (method_exists($class, 'input')) {
-                            $class = strtolower($class);
-                            $value = $this->$class->input($value, $field, $fields);
-                        }
-                    }
-                }
-            }
-        }
-
-        $type = strtolower($input['type']);
-        switch ($type) {
-            case 'checkbox':
-                $value = json_encode($value);
-                break;
-        }
-
-        return $value;
-    }
-
     public function create($project_dir, $page_dir, $section_dir)
     {
         $section = $this->treat_section(get_section());
@@ -390,6 +360,7 @@ class Posts extends MY_Controller
         if (!$data_fields) {
             return false;
         }
+
         $this->load->library('form_validation');
         $this->load->library('error_reporting');
         $this->load->app()->library('plugins_input');
@@ -404,8 +375,17 @@ class Posts extends MY_Controller
             $unique = $database['unique'];
             $label = $input['label'];
             $input_col = $this->input->post($column);
-            $value = $this->set_value($input_col, $field, $data);
-            $current_field["$column"] = $value;
+            $value = $this->plugins_input->input_value($input_col, $field, $data);
+
+            $type = strtolower($input['type']);
+            switch ($type) {
+                case 'checkbox':
+                    $value = json_encode($value);
+                    break;
+            }
+
+            $current_field[$column] = $value;
+
             $rules = array('trim');
             if ($required == '1') {
                 $rules[] = 'required';
@@ -441,7 +421,7 @@ class Posts extends MY_Controller
         $section = $this->treat_section(get_section());
         $page = get_page();
         $post = $this->posts_model->get_post($section, $id_post);
-        if (!$section or ! $project or ! $page or ! $post) {
+        if (!$section || !$project || !$page || !$post) {
             app_redirect();
         }
 
@@ -492,8 +472,16 @@ class Posts extends MY_Controller
             $unique = $database['unique'];
             $label = $input['label'];
             $input_col = $this->input->post($column);
-            $value = $this->set_value($input_col, $field, $data);
-            $current_field["$column"] = $value;
+            $value = $this->plugins_input->input_value($input_col, $field, $data);
+            $type = strtolower($input['type']);
+            switch ($type) {
+                case 'checkbox':
+                    $value = json_encode($value);
+                    break;
+            }
+
+            $current_field[$column] = $value;
+
             $rules = array('trim');
             if ($required == '1') {
                 $rules[] = 'required';

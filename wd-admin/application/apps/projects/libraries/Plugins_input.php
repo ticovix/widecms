@@ -24,6 +24,27 @@ class Plugins_input
         return $this->list_plugins;
     }
 
+    private function list_plugins_class($field, $fields)
+    {
+        $CI = & get_instance();
+        $plugins_class = array();
+        $input = $field['input'];
+        if (isset($input['plugins'])) {
+            $plugins = $this->get_plugins($input['plugins']);
+            foreach ($plugins as $arr) {
+                $plugin = $arr['plugin'];
+                $class = ucfirst($plugin);
+                $class_plugin = getcwd() . '/application/' . APP_PATH . 'plugins_input/' . $plugin . '/' . $class . '.php';
+                if (is_file($class_plugin)) {
+                    $CI->load->app('projects')->library('../plugins_input/' . $plugin . '/' . $class . '.php');
+                    $plugins_class[] = $class;
+                }
+            }
+        }
+
+        return $plugins_class;
+    }
+
     private function set_plugin($path, $plugin)
     {
         $spyc = new Spyc();
@@ -68,5 +89,37 @@ class Plugins_input
         }
 
         return $arr_plugins;
+    }
+
+    public function output_value($plugins, $value, $field, $fields, $page = null)
+    {
+        $CI = & get_instance();
+        $list_plugins = $this->list_plugins_class($field, $fields);
+        if (!empty($list_plugins)) {
+            foreach ($list_plugins as $class) {
+                if (method_exists($class, 'output')) {
+                    $class = strtolower($class);
+                    $value = $CI->$class->output($value, $field, $fields, $page);
+                }
+            }
+        }
+
+        return $value;
+    }
+
+    public function input_value($value, $field, $fields)
+    {
+        $CI = & get_instance();
+        $list_plugins = $this->list_plugins_class($field, $fields);
+        if (!empty($list_plugins)) {
+            foreach ($list_plugins as $class) {
+                if (method_exists($class, 'input')) {
+                    $class = strtolower($class);
+                    $value = $CI->$class->input($value, $field, $fields);
+                }
+            }
+        }
+
+        return $value;
     }
 }
