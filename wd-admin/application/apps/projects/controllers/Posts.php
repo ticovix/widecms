@@ -499,11 +499,12 @@ class Posts extends MY_Controller
             if (!$this->error_reporting->has_error()) {
                 $this->posts_model->edit($current_field, $post, $section);
                 $list = search($data_fields, 'list_registers', '1');
+                $redirect = current_url();
                 if ($list) {
-                    app_redirect('project/' . $project['directory'] . '/' . $page['directory'] . '/' . $section['directory']);
-                } else {
-                    app_redirect(current_url());
+                    $redirect = 'project/' . $project['directory'] . '/' . $page['directory'] . '/' . $section['directory'];
                 }
+
+                app_redirect($redirect);
             }
         } else {
             $this->error_reporting->set_error(validation_errors());
