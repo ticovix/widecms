@@ -203,7 +203,7 @@ $(function () {
 
             $(modal).modal("show");
             $(modal).attr("id", selector.current_modal.replace("#", ""));
-            if (permissions.app !== true || limit_select === 1) {
+            if (permissions.app != '1' || limit_select === 1) {
                 $(modal_footer).addClass("hide");
             } else {
                 $(modal_footer).removeClass("hide");
